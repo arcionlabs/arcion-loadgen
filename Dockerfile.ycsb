@@ -1,0 +1,33 @@
+from ubuntu:latest
+
+MAINTAINER sangkyulee@gmail.com
+
+# docker build -t ycsb:0.17.0 -f Dockerfile.ycsb .
+
+ENV YCSB_VERSION=0.17.0 \
+    YCSB_BINDING=jdbc-binding \
+    PATH=${PATH}:/usr/bin
+ENV YCSB=/opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}
+
+# add java 8
+RUN apt update && apt install -y curl openjdk-8-jre && java -version
+
+# add YCSB with jDBC binding
+RUN mkdir -p /opt
+RUN curl -O --output-dir /opt --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
+RUN cd /opt; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
+    rm -rf /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz 
+
+# add mysql client
+RUN apt-get install -y mysql-client
+
+# add mysql JDBC driver
+RUN curl -O --output-dir ${YCSB}/lib --location https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31.tar.gz
+RUN cd ${YCSB}/lib; tar xfz mysql-connector-j-8.0.31.tar.gz && \
+    mv mysql-connector-j-8.0.31/mysql-connector-j-8.0.31.jar . && \
+    rm -rf mysql-connector-j-8.0.31 
+
+# add sysbench
+RUN apt -y install sysbench
+
+WORKDIR ${YCSB}
