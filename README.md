@@ -11,3 +11,10 @@ Arcion Replicant demos.
 | sysbench | snapshot | Replacing | mysql | singlesstore 
 | sysbench | full | Replacing | mysql | singlesstore
 
+# Common issues
+
+## license files
+
+- license file not present
+- license file not valid
+- license expired

@@ -62,7 +62,7 @@ export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
 
 TODO: qualify the tag names used
 ```
-export ARCION_TAG=20221031.0
+export ARCION_TAG=latest
 export MYSQL_TAG=latest
 export POSTGRES_TAG=latest
 export SYBENCH_TAG=latest
@@ -201,18 +201,14 @@ docker rm arcion1 singlestore arcion_pg mysql1
 echo singlestore arcion_lic arcion1 arcion_pg mysql1 | xargs docker volume rm  
 ```
 
-# Testing
-
-| Workload | Replication Mode | Write Mode | source | target | 
-| -- | -- | -- | -- | -- |
-| sysbench | snapshot | Replacing | mysql | singlesstore 
-| sysbench | full | Replacing | mysql | singlesstore
-
-
 # Debugging
 
 ```
 docker exec -it arcion1 bash
+
+docker cp arcion1:/config/replicant.lic .
+docker cp arcion1:/data/management/logs/global.log .
+docker cp arcion1:/data/management/logs/error.log .
 ```
 
 # TODO
