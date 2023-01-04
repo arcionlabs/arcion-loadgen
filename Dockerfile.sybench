@@ -1,8 +1,13 @@
-from ubuntu:latest
+FROM ubuntu:22.04
+LABEL MAINTAINER sangkyulee@gmail.com
 
-MAINTAINER sangkyulee@gmail.com
-
-# docker build -t ycsb -f Dockerfile.ycsb .
+# To create an image
+#   docker build -t robertslee/sybench -f Dockerfile.sybench .
+# To start a container 
+#     docker run -it --rm robertslee/sybench bash
+# To push to docker hub
+#     docker tag cb2f6ce99f77 robertslee/sybench
+#     docker push robertslee/sybench
 
 # add java 8
 RUN apt update && apt install -y curl openjdk-8-jre && java -version
@@ -11,7 +16,7 @@ RUN apt update && apt install -y curl openjdk-8-jre && java -version
 RUN apt-get install -y mysql-client 
 RUN apt-get install -y postgresql-client
 
-# YCSB
+# YCSB version
 
 ENV YCSB_VERSION=0.17.0 \
     YCSB_BINDING=jdbc-binding \
@@ -31,9 +36,11 @@ RUN cd ${YCSB}/lib; tar xfz mysql-connector-j-8.0.31.tar.gz && \
     rm -rf mysql-connector-j-8.0.31 
 
 # add postgres JDBC driver
-RUN curl -o --outdir ${YCSB}/lib --location https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
+RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
 
 # add sysbench
 RUN apt -y install sysbench
 
 WORKDIR ${YCSB}
+
+CMD "bash"

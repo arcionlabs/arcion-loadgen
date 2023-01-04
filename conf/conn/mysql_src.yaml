@@ -1,0 +1,10 @@
+type: MYSQL
+
+host: mysql1 #Replace 127.0.0.1 with your MySQL server host name
+port: 3306 #Replace the 3306 with the port of your host
+
+username: "sbt" #Replace replicant with your username of the user that connects to your MySQL server
+password: "password" #Replace Replicant#123 with the your user's password
+
+slave-server-ids: [1]
+max-connections: 30 #Maximum number of connections replicant can open in MySQL
