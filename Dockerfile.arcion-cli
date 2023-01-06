@@ -2,12 +2,11 @@ FROM ubuntu:22.04
 LABEL MAINTAINER sangkyulee@gmail.com
 
 # To create an image
-#   docker build -t robertslee/sybench -f Dockerfile.sybench .
+#   docker build -t robertslee/arcion-cli -f Dockerfile.arcion-cli .
 # To start a container 
-#     docker run -it --rm robertslee/sybench bash
+#     docker run -it --rm robertslee/arcion-cli bash
 # To push to docker hub
-#     docker tag cb2f6ce99f77 robertslee/sybench
-#     docker push robertslee/sybench
+#     docker push robertslee/arcion-cli
 
 # add java 8
 RUN apt update && apt install -y curl openjdk-8-jre && java -version
@@ -16,18 +15,6 @@ RUN apt update && apt install -y curl openjdk-8-jre && java -version
 RUN apt-get install -y mysql-client 
 RUN apt-get install -y postgresql-client
 
-# YCSB version
-
-ENV YCSB_VERSION=0.17.0 \
-    YCSB_BINDING=jdbc-binding \
-    PATH=${PATH}:/usr/bin
-ENV YCSB=/opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}
-
-# add YCSB with just JDBC binding
-RUN mkdir -p /opt
-RUN curl -O --output-dir /opt --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
-RUN cd /opt; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
-    rm -rf /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz 
 
 # add mysql JDBC driver
 RUN curl -O --output-dir ${YCSB}/lib --location https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31.tar.gz

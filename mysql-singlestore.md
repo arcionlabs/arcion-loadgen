@@ -54,6 +54,10 @@ cat licenses/singlestore/singlestore.lic
 export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
 ```
 
+```
+echo $ARCION_LIC
+echo $SINGLE_STORE_LIC
+```
 # Docker configurations
 
 - pull the images
@@ -144,14 +148,16 @@ docker start singlestore
 
 - setup mysql accounts for ycsb and sysbench
 ```bash
-cat scripts/mysql.init.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
+cat scripts/mysql.init.arcion.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
+cat scripts/mysql.init.sysbench.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
+cat scripts/mysql.init.ycsb.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
 ```
 
 # start the sysbench
 
 - setup function named `d` to simplify typing
 ```
-d(){docker run --net arcnet --rm -it robertslee/sybench "$@"}
+d(){docker run --net arcnet --rm -it robertslee/sybench:$SYBENCH_TAG "$@"}
 ```
 
 - populate the data
@@ -169,6 +175,21 @@ Follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dash
 - start the insert, update, delete
 ```
 d sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 run                                                                  
+```
+
+# start ycsb
+
+- load data
+```
+d mysql -u ycsb -D ycsb -ppassword -hmysql1 -e "truncate usertable" 
+
+d bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=100000
+
+d mysql -hmysql1 -uycsb -ppassword -Dycsb --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 5'
+```
+
+```
+d bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=100000 -p operationcount=10000
 ```
 
 # monitor databases
@@ -192,13 +213,23 @@ http://localhost:8081
 [ 360s ] thds: 4 tps: 240.99 qps: 4827.70 (r/w/o: 3374.79/970.94/481.97) lat (ms,95%): 21.50 err/s: 0.00 reconn/s: 0.00
 ```
 
+# ycsb
+
+
 # utils
 
 After testing, remove Docker resources
 ```
+
 docker stop arcion1 singlestore arcion_pg mysql1
 docker rm arcion1 singlestore arcion_pg mysql1
 echo singlestore arcion_lic arcion1 arcion_pg mysql1 | xargs docker volume rm  
+```
+
+- just mysql
+
+```
+docker stop mysql1; docker rm mysql1; docker volume rm mysql1;
 ```
 
 # Debugging

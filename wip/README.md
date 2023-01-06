@@ -1,11 +1,24 @@
 # Arcion with MySQL source and MySQL target databases
  
 
+https://docs.singlestore.com/db/v7.8/en/deploy/singlestoredb-dev-image.html for singlestore
+```
+docker run --net mynet --name singlestore -i --init \
+    -e LICENSE_KEY="BDJiMzQwZmMxOGUyMzQxNGQ4N2Y3Nzk2NDNjMjU3OWM5AAAAAAAAAAAEAAAAAAAAACgwNQIZAO3cgLHC5OhS5dlb1T1a3bEPw/hQNwiCJAIYEjNHJ1v2B3nJfjcflChO9YrpERGxs3ioAA==" \
+    -e ROOT_PASSWORD="password" \
+    -p 3306:3306 -p 8081:8080 \
+    singlestore/cluster-in-a-box
+
+docker start singlestore
+```
+
 - docker prep
 ```bash
 docker pull arcionlabs/replicant-on-premises
 docker pull mysql
 docker pull postgres
+docker pull imply/imply # mysql destination is not default allowed in GUI.  does not look like there is a way to set the username and password
+
 
 docker network create mynet
 
@@ -18,13 +31,92 @@ docker volume create arcion_pg
 
 - start pg for arcion
 ```bash
-docker run --net mynet --name arcion_pg -p 54320:5432 -e POSTGRES_PASSWORD=password -d postgres --restart unless-stopped -v arcion_pg:/var/lib/postgresql/data postgres
+docker run --net mynet --name arcion_pg -p 54320:5432 -e POSTGRES_PASSWORD=password -d --restart unless-stopped -v arcion_pg:/var/lib/postgresql/data  postgres
+```
+
+- start arcion
+  
+more info at https://hub.docker.com/r/arcionlabs/replicant-on-premises
+
+-p 8080	Allows HTTP access to the application
+-v /config	Volume containing the replicant.lic license file, get your free 30-day trial license here
+-v /data	Volume for data and configuration storage
+[-v /libs	Volume for external JAR libraries to be used by Replicant]
+
+-e DB_USERNAME=postgres
+-e DB_DATABASE=postgres
+
+Note:
+there are no logs from `docker logs arcion1`
+when wrong password is entered, invalid credential pop should be by the password not lower right that dispears after about 10 seconds 
+arcion lab help on the lower right has 3 swimming dots
+why start from snapshot wouldn't full be the most popular (full is the first option in docs https://docs.arcion.io/docs/running-replicant/#replicant-full-mode)
+not sure the diff between replace and truncating (https://docs.arcion.io/docs/running-replicant/#write-modes-explained)
+   --append-existing|--replace-existing|--truncate-existing
+wrong id has the following message
+  com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Could not connect to address=(host=mysql1)(port=3306)(type=master) : RSA public key is not available client side (option serverRsaPublicKeyFile not set)
+
+the default docker has log_bin enabled  
+mysql> show variables like "%log_bin%";
++---------------------------------+-----------------------------+
+| Variable_name                   | Value                       |
++---------------------------------+-----------------------------+
+| log_bin                         | ON                          |
+| log_bin_basename                | /var/lib/mysql/binlog       |
+| log_bin_index                   | /var/lib/mysql/binlog.index |
+| log_bin_trust_function_creators | OFF                         |
+| log_bin_use_v1_row_events       | OFF                         |
+| sql_log_bin                     | ON                          |
++---------------------------------+-----------------------------+
+mysql> SET GLOBAL binlog_format = 'ROW'
+mysql> show variables like "%log_bin%";
++---------------------------------+-----------------------------+
+| Variable_name                   | Value                       |
++---------------------------------+-----------------------------+
+| log_bin                         | ON                          |
+| log_bin_basename                | /var/lib/mysql/binlog       |
+| log_bin_index                   | /var/lib/mysql/binlog.index |
+| log_bin_trust_function_creators | OFF                         |
+| log_bin_use_v1_row_events       | OFF                         |
+| sql_log_bin                     | ON                          |
++---------------------------------+-----------------------------+
+
+6 rows in set (0.08 sec)
+mysql> show binary logs;
++---------------+-----------+-----------+
+| Log_name      | File_size | Encrypted |
++---------------+-----------+-----------+
+| binlog.000001 |   3032843 | No        |
+| binlog.000002 |       180 | No        |
+| binlog.000003 |      1423 | No        |
++---------------+-----------+-----------+
+3 rows in set (0.01 sec)
+
+after flush priv, the test connection fails.  works ok after retrying
+
+what is url reachable 
+
+sync connector 
+  scchema must be available to continue tests
+```
+
+cd /Users/rslee/github/ycsb-ui/arcion
+docker run --net mynet --name arcion1 -p 8080:8080 -e DB_HOST=arcion_pg -e DB_USERNAME=postgres -e DB_PASSWORD=password -e DB_DATABASE=postgres -d --restart unless-stopped -v `pwd`/config:/config -v arcion1:/data arcionlabs/replicant-on-premises:latest
 ```
 
 - start mysql
 ```bash
 docker run --net mynet --name mysql1 -p 33061:3306 -e MYSQL_ROOT_PASSWORD=password -d --restart unless-stopped -v mysql1:/var/lib/mysql  mysql:latest
 docker run --net mynet --name mysql2 -p 33062:3306 -e MYSQL_ROOT_PASSWORD=password -d --restart unless-stopped -v mysql2:/var/lib/mysql  mysql:latest
+```
+
+- start imply
+```
+docker run --net mynet -p 8081-8110:8081-8110 -p 8200:8200 -p 9095:9095 -p 9097:9097 -p 9999:9999 -d --name imply imply/imply
+```
+- start arcion
+```
+
 
 # check status of the containers
 docker logs mysql1
@@ -41,7 +133,7 @@ conf/conn/target_database_name.yaml \
 
 ```
 
-- create YCSB user account
+- setup mysql accounts for ycsb and sysbench
 ```
 docker run --net mynet -it --rm mysql mysql -hmysql -uroot -ppassword
 // enable query logging
@@ -60,6 +152,16 @@ CREATE USER IF NOT EXISTS 'sbt'@'%' IDENTIFIED BY 'password';
 CREATE USER IF NOT EXISTS 'sbt'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL ON sbt.* to 'sbt'@'%';
 GRANT ALL ON sbt.* to 'sbt'@'localhost';
+// cannot limit to database.  has to be *.*
+GRANT REPLICATION CLIENT ON *.* TO 'sbt'@'%';
+GRANT REPLICATION SLAVE ON *.* TO 'sbt'@'%';
+
+// setup heartbeat
+CREATE TABLE sbt.replicate_io_cdc_heartbeat(
+  timestamp BIGINT NOT NULL,
+  PRIMARY KEY(timestamp)
+);
+
 // flush
 FLUSH PRIVILEGES;
 ```

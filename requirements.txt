@@ -1,0 +1,4 @@
+pytest-playwright
+streamlit
+diagrams
+docker
