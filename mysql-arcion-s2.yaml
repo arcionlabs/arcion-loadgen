@@ -1,0 +1,68 @@
+name: mysql-arcion-s2
+
+# docker-compose -f mysql-arcion-s2.yaml up
+
+services:
+  mysql:
+    image: mysql:${MYSQL_TAG:-latest}
+    restart: unless-stopped  
+    environment:
+      - MYSQL_ROOT_PASSWORD=password    
+    networks:
+      - arcnet
+    ports:
+      - 33061:3306
+    volumes:
+      - mysql1:/var/lib/mysql
+
+  pg:
+    image: postgres:${POSTGRES_TAG_TAG:-latest}
+    restart: unless-stopped  
+    environment:
+      - POSTGRES_PASSWORD=password    
+    networks:
+      - arcnet
+    ports:
+      - 54320:5432
+    volumes:
+      - arcion_pg:/var/lib/postgresql/data
+
+  arcion:
+    image: arcionlabs/replicant-on-premises:${ARCION_TAG:-latest}
+    restart: unless-stopped   
+    environment:
+      - DB_HOST=arcion_pg
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_DATABASE=postgres
+    networks:
+      - "arcnet"
+    ports:
+      - 8080:8080
+    volumes:
+      - ${ARCION_LIC_DIR:?err}:/config
+      - arcion1:/data
+    depends_on:
+      - pg
+
+  s2:
+    # https://github.com/singlestore-labs/start-with-singlestore-go/blob/main/docker-compose.yaml
+    image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - LICENSE_KEY=${SINGLE_STORE_LIC:?err}
+      - ROOT_PASSWORD=password
+      - START_AFTER_INIT=Y
+    networks:
+      - "arcnet"
+    ports:
+      - 3306:3306
+      - 8081:8080
+    volumes:
+      - singlestore:/var/lib/memsql
+
+volumes:
+  mysql1: {}
+  singlestore: {}
+  arcion1: {}
+  arcion_pg: {}

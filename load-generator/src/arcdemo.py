@@ -1,16 +1,4 @@
 import streamlit as st
-import docker
-
-client = docker.from_env()
-
-def pull_images(
-    client, 
-    names:list[str]=['arcion','mysql','postgres','singlestore', 'sybench'],
-    tags:list[str]=['latest','latest','latest','latest', 'latest']
-    ):
-    for name in zip(names,tags):
-        st.info(name)
-        image = client.images.pull(name[0],tag=name[1])
 
 with st.expander("Docker Image Tags"):
     arcion_tag = st.text_input('ARCION_TAG', 'latest')

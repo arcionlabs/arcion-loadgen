@@ -157,7 +157,7 @@ cat scripts/mysql.init.ycsb.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -p
 
 - setup function named `d` to simplify typing
 ```
-d(){docker run --net arcnet --rm -it robertslee/sybench:$SYBENCH_TAG "$@"}
+d() {docker run --net arcnet --rm -it robertslee/sybench:${SYBENCH_TAG:-latest} "$@"}
 ```
 
 - populate the data

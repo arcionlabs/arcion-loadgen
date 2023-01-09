@@ -1,0 +1,81 @@
+version: '3.3'
+services:
+  postgres-database:
+    container_name: postgres-database
+    environment:
+        - POSTGRES_PASSWORD=postgres
+    ports:
+        - '5432:5432'
+    image: postgres:11.6-alpine
+    volumes:
+      - arcion_pg:/var/lib/postgresql/data     
+            
+  arcion:
+    container_name: arcion
+    ports:
+        - '8080:8080'
+    depends_on:
+        - "postgres-database"
+    environment:
+        - DB_HOST=postgres-database
+        - DB_PORT=5432
+        - DB_DATABASE=postgres
+        - DB_USERNAME=postgres
+        - DB_PASSWORD=postgres
+    volumes:
+        - arcion1:/data
+        - ${ARCION_LIC_DIR:?err}:/config
+    image: arcionlabs/replicant-on-premises:latest  
+
+  mysql:
+    image: mysql:${MYSQL_TAG:-latest}
+    container_name: mysql1
+    restart: unless-stopped  
+    environment:
+      - MYSQL_ROOT_PASSWORD=password    
+    ports:
+      - 33061:3306
+    volumes:
+      - mysql1:/var/lib/mysql
+    depends_on:
+        - "arcion"
+
+  singlestore:
+    # https://github.com/singlestore-labs/start-with-singlestore-go/blob/main/docker-compose.yaml
+    image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
+    container_name: singlestore
+    restart: unless-stopped
+    environment:
+      - LICENSE_KEY=${SINGLE_STORE_LIC:?err}
+      - ROOT_PASSWORD=password
+      - START_AFTER_INIT=Y
+    ports:
+      - 3306:3306
+      - 8081:8080
+    volumes:
+      - singlestore:/var/lib/memsql
+    depends_on:
+        - "arcion"
+
+  loadgen:
+    image: robertslee/sybench:${SYBENCH_TAG:-latest}
+    container_name: loadgen
+    restart: unless-stopped  
+    environment:
+      - MYSQL_ROOT_PASSWORD=password    
+      - PG_ROOT_PASSWORD=password    
+      - YCSB_PASSWORD=password    
+      - SBT_PASSWORD=password    
+    ports:
+      - 7681:7681
+
+#networks:
+#  default:
+#    name: arcnet
+#    external: true
+
+volumes:
+  arcion_pg: {}
+  arcion1: {}
+  mysql1: {}
+  singlestore: {}

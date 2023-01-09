@@ -4,7 +4,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 # To create an image
 #   docker build -t robertslee/sybench -f Dockerfile.sybench .
 # To start a container 
-#     docker run -it --rm robertslee/sybench bash
+#     docker run -it --rm -p 7681:7681 robertslee/sybench
 # To push to docker hub
 #     docker tag cb2f6ce99f77 robertslee/sybench
 #     docker push robertslee/sybench
@@ -41,6 +41,16 @@ RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/down
 # add sysbench
 RUN apt -y install sysbench
 
+# add ttyd for running terminal commands
+RUN apt-get -y install ttyd tmux
+EXPOSE 7681
+
+# copy scripts
+COPY scripts/ /scripts/
+# copy python
+COPY src/ /src/
+
 WORKDIR ${YCSB}
 
-CMD "bash"
+#CMD "bash /scripts/mysql-init.sh"
+CMD ttyd tmux
