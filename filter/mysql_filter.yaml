@@ -1,7 +1,0 @@
-allow:
-  #In this example, data of object type Table in the catalog tpch will be replicated
-  catalog: "sbt"
-  types: [TABLE]
-
-  #From catalog tpch, only the NATION, ORDERS, and PART tables will be replicated.
-  #Note: Unless specified, all tables in the catalog will be replicated

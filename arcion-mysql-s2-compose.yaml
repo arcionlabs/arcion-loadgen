@@ -68,6 +68,8 @@ services:
       - SBT_PASSWORD=password    
     ports:
       - 7681:7681
+    depends_on:
+        - "mysql"
 
 #networks:
 #  default:

@@ -148,23 +148,16 @@ docker start singlestore
 
 - setup mysql accounts for ycsb and sysbench
 ```bash
-cat scripts/mysql.init.arcion.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
-cat scripts/mysql.init.sysbench.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
-cat scripts/mysql.init.ycsb.sql | docker exec -i mysql1 mysql -hmysql1 -uroot -ppassword --verbose
-```
-
-# start the sysbench
-
-- setup function named `d` to simplify typing
-```
-d() {docker run --net arcnet --rm -it robertslee/sybench:${SYBENCH_TAG:-latest} "$@"}
+cat /scripts/mysql.init.arcion.sql | mysql -hmysql1 -uroot -ppassword --verbose
+cat /scripts/mysql.init.sysbench.sql | mysql -hmysql1 -uroot -ppassword --verbose
+cat /scripts/mysql.init.ycsb.sql | mysql -hmysql1 -uroot -ppassword --verbose
 ```
 
 - populate the data
 ```
-d sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt prepare 
+sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt prepare 
 
-d mysql -hmysql1 -usbt -ppassword -Dsbt --verbose -e 'select count(*) from sbtest1; select sum(k) from sbtest1;desc sbtest1;select * from sbtest1 limit 5'
+mysql -hmysql1 -usbt -ppassword -Dsbt --verbose -e 'select count(*) from sbtest1; select sum(k) from sbtest1;desc sbtest1;select * from sbtest1 limit 5'
 ```
 
 - setup arcion replication
@@ -174,22 +167,22 @@ Follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dash
 
 - start the insert, update, delete
 ```
-d sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 run                                                                  
+sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --rand-type=uniform --db-driver=mysql --mysql-port=3306 --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 --rate=1 run
 ```
 
 # start ycsb
 
 - load data
 ```
-d mysql -u ycsb -D ycsb -ppassword -hmysql1 -e "truncate usertable" 
+mysql -u ycsb -D ycsb -ppassword -hmysql1 -e "truncate usertable" 
 
-d bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=100000
+bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=100000
 
-d mysql -hmysql1 -uycsb -ppassword -Dycsb --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 5'
+mysql -hmysql1 -uycsb -ppassword -Dycsb --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 5'
 ```
 
 ```
-d bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=100000 -p operationcount=10000
+bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=100000 -p operationcount=10000
 ```
 
 # monitor databases
