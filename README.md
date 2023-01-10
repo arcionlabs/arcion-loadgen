@@ -17,18 +17,23 @@ flowchart LR
     b[sysbench] --> m[(MySQL <br>Source)] --> Arcion --> s[(Singlestore <br>Target)]
 ```
 
+- Start the demo below
+- point browser to [Arcion GUI](http://localhost:8080) 
+- point browser to [load generator UI](http://localhost:7681).  
+
+```
+git clone https://github.com/robert-s-lee/arcion-demo
+cd arcion-demo
+# setup the licenses before starting the demo
+docker-compose -f acrion-mysql-s2-compose.yaml up
+```
+Instructions for setting up licenses for Arcion and SingleStore are below.
+
 # Prerequisite
 
 - Docker
 
 Install [Docker Desktop](https://docs.docker.com/desktop/) and [Docker Compose](https://docs.docker.com/compose/).
-
-- Clone this script
-
-```
-git clone https://github.com/robert-s-lee/arcion-demo
-cd arcion-demo
-```
 
 - Arcion Trial License
 
@@ -72,7 +77,6 @@ echo $SINGLE_STORE_LIC
 # Start the Docker containers
 
 ```
-docker-compose -f acrion-mysql-s2-compose.yaml up
 ```
 # Arcion snapshot replication demo
 
@@ -87,13 +91,13 @@ start the bench insert, update, delete
 - to generate sysbench workload
 
 ```
-sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 run                                                                  
+sysbench oltp_read_write --mysql-host=${MYSQL_HOST} --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 run
 ```
 
 - to genewrate ycsb workload
 
 ```
-bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=100000 -p operationcount=10000
+bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://${MYSQL_HOST}/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=10000 -p operationcount=10000
 ```
 
 # monitor databases

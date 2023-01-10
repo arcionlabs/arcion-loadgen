@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-MYSQL_HOST=${MYSQL_HOST:-mysql1}
-SCRIPT_DIR=${SCRIPT_DIR:-/}
+export MYSQL_HOST=${MYSQL_HOST:-mysql1}
+export SINGLESTORE_HOST=${SINGLESTORE_HOST:-singlestore}
+export SCRIPT_DIR=${SCRIPT_DIR:-/}
 
 # wait for mysql
 rc=1

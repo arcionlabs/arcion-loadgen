@@ -42,7 +42,7 @@ RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/down
 RUN apt -y install sysbench
 
 # add ttyd for running terminal commands
-RUN apt-get -y install ttyd tmux sysvbanner
+RUN apt-get -y install ttyd tmux sysvbanner vim htop
 EXPOSE 7681
 
 # copy scripts

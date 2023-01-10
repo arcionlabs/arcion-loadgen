@@ -65,7 +65,10 @@ services:
       - MYSQL_ROOT_PASSWORD=password    
       - PG_ROOT_PASSWORD=password    
       - YCSB_PASSWORD=password    
-      - SBT_PASSWORD=password    
+      - SBT_PASSWORD=password
+      - MYSQL_HOST=mysql1
+      - SINGLESTORE_HOST=singlestore
+      - SCRIPT_DIR=/
     ports:
       - 7681:7681
     depends_on:
