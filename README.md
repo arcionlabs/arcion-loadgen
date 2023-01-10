@@ -29,6 +29,8 @@ docker-compose -f acrion-mysql-s2-compose.yaml up
 ```
 Instructions for setting up licenses for Arcion and SingleStore are below.
 
+![screenshots](resources/images/Archive/arcion-demo.gif)
+
 # Prerequisite
 
 - Docker
@@ -74,37 +76,24 @@ echo $ARCION_LIC_DIR
 echo $SINGLE_STORE_LIC
 ```
 
-# Start the Docker containers
+# Running the demo
+
+- Open a browser with tabs for [Arcion](http://localhost:8080) and [tumx](http://localhost:7681)
+- In the `Arcion` tab, follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html)
+- In the `tmux` tab, type the following for `sysbench` and `ycsb` workloads respectively.
 
 ```
-```
-# Arcion snapshot replication demo
-
-Follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html)
-
-# Arcion full replication demo
-  
-start the bench insert, update, delete
-
-- open [localhost:7681](http://localhost:7681) 
-
-- to generate sysbench workload
-
-```
-sysbench oltp_read_write --mysql-host=${MYSQL_HOST} --auto_inc=off --db-driver=mysql --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 run
+/scripts/sysbench.sh
+/scripts/ycbs.sh
 ```
 
-- to genewrate ycsb workload
+- Monitor the `sysbenchg`
 
-```
-bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://${MYSQL_HOST}/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=10000 -p operationcount=10000
-```
+  In the `tmux` tab, run the following to verify that count and sum match when the load is done. the sum may not match while the load is still running
 
-# monitor databases
-
-- the count and sum should match when the load is done. the sum should not match while the load is still running
 ```
 mysql -hmysql1 -usbt -ppassword -Dsbt -e 'select count(*) from sbtest1; select sum(k) from sbtest1;'
+
 mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; select sum(k) from sbtest1;'
 ```
 
@@ -131,3 +120,4 @@ mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; s
 ```
 02:53:48.507 [pool-31-thread-1] [replicant] ERROR t.r.db.jdbc.mysql.MySQLCDCExtractor - binlogger error message: ERROR: Got error reading packet from server: A slave with the same server_uuid/server_id as this slave has connected to the master; the first event 'binlog.000002' at 119263798, the last event read from './binlog.000002' at 126, the last byte read from './binlog.000002' at 119263798.
 ```
+

@@ -2,6 +2,7 @@ version: '3.3'
 services:
   postgres-database:
     container_name: postgres-database
+    restart: unless-stopped  
     environment:
         - POSTGRES_PASSWORD=postgres
     ports:
@@ -12,6 +13,7 @@ services:
             
   arcion:
     container_name: arcion
+    restart: unless-stopped  
     ports:
         - '8080:8080'
     depends_on:

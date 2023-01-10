@@ -25,6 +25,7 @@ flowchart LR
 
 the license would look like this
 ```
+export ARCION_LIC_DIR=/Users/rslee/github/ycsb-ui/licenses/arcion
 export ARCION_LIC=$(cat licenses/arcion/replicant.lic | base64)
 
 mkdir -p licenses/arcion
@@ -165,10 +166,15 @@ mysql -hmysql1 -usbt -ppassword -Dsbt --verbose -e 'select count(*) from sbtest1
 Follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html)
 
 
-- start the insert, update, delete
+- start the insert, update, delete 1 TPS
 ```
 sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --rand-type=uniform --db-driver=mysql --mysql-port=3306 --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 --rate=1 run
 ```
+
+```
+sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --rand-type=uniform --db-driver=mysql --mysql-port=3306 --mysql-user=sbt --mysql-password=password --mysql-db=sbt --report-interval=1 --time=60 --threads=1 --rate=0   run
+```
+
 
 # start ycsb
 
@@ -176,13 +182,13 @@ sysbench oltp_read_write --mysql-host=mysql1 --auto_inc=off --rand-type=uniform 
 ```
 mysql -u ycsb -D ycsb -ppassword -hmysql1 -e "truncate usertable" 
 
-bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=100000
+bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000
 
 mysql -hmysql1 -uycsb -ppassword -Dycsb --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 5'
 ```
 
 ```
-bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=100000 -p operationcount=10000
+bin/ycsb.sh run jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://mysql1/ycsb" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p db.batchsize=1000 -p recordcount=10000 -p operationcount=10000
 ```
 
 # monitor databases
