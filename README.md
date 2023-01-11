@@ -79,17 +79,33 @@ echo $SINGLE_STORE_LIC
 # Running the demo
 
 - Open a browser with tabs for [Arcion](http://localhost:8080) and [tumx](http://localhost:7681)
+
+![tmux](./resources/images/Screen%20Shot%202023-01-11%20at%208.03.54%20AM.png)
+
 - In the `Arcion` tab, follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html)
-- In the `tmux` tab, type the following for `sysbench` and `ycsb` workloads respectively.
+- In the `tmux` tab, type the following commands for `sysbench` and `ycsb` workloads respectively.  Useful `tmux` commands are:
+
+  Ctrl + b + % to split the current pane vertically.
+
+  Ctrl + b + " to split the current pane horizontally.
+
+  Ctrl + b + x to close the current pane.
+
+  Ctrl + b + `<up arrow>` to move up the pane.
+
+  Ctrl + b + `<down arrow>` to move down the pane.
+
+  Below are the commands on each of the panes assuming `Ctl + b + "` was used three times to create three panes.
 
 ```
 /scripts/sysbench.sh
 /scripts/ycbs.sh
+dstat
 ```
 
-- Monitor the `sysbenchg`
+- Monitor the `sysbench`
 
-  In the `tmux` tab, run the following to verify that count and sum match when the load is done. the sum may not match while the load is still running
+  In the `tmux` tab, run the following to verify that count and sum match when the load is done. the sum may not match while the load is still running.  
 
 ```
 mysql -hmysql1 -usbt -ppassword -Dsbt -e 'select count(*) from sbtest1; select sum(k) from sbtest1;'
@@ -117,6 +133,7 @@ mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; s
 - can not change from snap to full.  will stay in full
 - can have 2nd snapshot to the same source
 - cannot have 2nd full to the same source 
+  
 ```
 02:53:48.507 [pool-31-thread-1] [replicant] ERROR t.r.db.jdbc.mysql.MySQLCDCExtractor - binlogger error message: ERROR: Got error reading packet from server: A slave with the same server_uuid/server_id as this slave has connected to the master; the first event 'binlog.000002' at 119263798, the last event read from './binlog.000002' at 126, the last byte read from './binlog.000002' at 119263798.
 ```
