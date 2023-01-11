@@ -134,7 +134,10 @@ mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; s
 - can have 2nd snapshot to the same source
 - cannot have 2nd full to the same source 
   
+- `Worker Ids` needs to be unique when multiple connections to the same source are configure.  Otherwise, below message will be in the error pane.
+
+
+![workerid](./resources/images/workerid.png)
 ```
 02:53:48.507 [pool-31-thread-1] [replicant] ERROR t.r.db.jdbc.mysql.MySQLCDCExtractor - binlogger error message: ERROR: Got error reading packet from server: A slave with the same server_uuid/server_id as this slave has connected to the master; the first event 'binlog.000002' at 119263798, the last event read from './binlog.000002' at 126, the last byte read from './binlog.000002' at 119263798.
 ```
-
