@@ -27,7 +27,9 @@ services:
     volumes:
         - arcion1:/data
         - ${ARCION_LIC_DIR:?err}:/config
-    image: arcionlabs/replicant-on-premises:latest  
+    image: robertslee/arcion:latest  
+#   above has arm64 
+#    image: arcionlabs/replicant-on-premises:latest  
 
   mysql:
     image: mysql:${MYSQL_TAG:-latest}
@@ -44,7 +46,9 @@ services:
 
   singlestore:
     # https://github.com/singlestore-labs/start-with-singlestore-go/blob/main/docker-compose.yaml
-    image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
+    image: robertslee/singlestore:latest
+#   above has arm64 
+#   image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
     container_name: singlestore
     restart: unless-stopped
     environment:

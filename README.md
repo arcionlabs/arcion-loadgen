@@ -125,6 +125,30 @@ mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; s
 
 # Common issues
 
+## apple silicon
+
+wait for arcion to be healty condition before starting the UI
+
+```
+docker ps --all
+
+dd592edb0552   robertslee/arcion:latest        "python3 bootstrap.py"   About a minute ago   Up About a minute (health: starting)   0.0.0.0:8080->8080/tcp                                     arcion
+
+dd592edb0552   robertslee/arcion:latest        "python3 bootstrap.py"   2 minutes ago       Up 2 minutes (unhealthy)   0.0.0.0:8080->8080/tcp                                     arcion
+```
+
+healty state 
+```
+179d6bdc25dc   robertslee/arcion:latest        "python3 bootstrap.py"   About a minute ago   Up About a minute (healthy)   0.0.0.0:8080->8080/tcp                                     arcion
+```
+
+clean up and restart
+```
+control - c
+docker-compose -f acrion-mysql-s2-compose.yaml down
+docker volume prune
+```
+
 ## license 
 
 - license file not present
