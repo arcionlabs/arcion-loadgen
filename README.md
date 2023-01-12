@@ -127,7 +127,7 @@ mysql -hsinglestore -uroot -ppassword  -Dsbt -e 'select count(*) from sbtest1; s
 
 ## apple silicon
 
-wait for arcion to be healty condition before starting the UI
+not fully supported now.  start wait for arcion to be healty before starting the UI.  If unhealthy, then kill, cleanup and restart.
 
 ```
 docker ps --all
