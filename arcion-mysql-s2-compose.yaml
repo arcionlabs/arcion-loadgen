@@ -18,6 +18,7 @@ services:
         - '8080:8080'
     depends_on:
         - "postgres-database"
+        - "loadgen"
     environment:
         - DB_HOST=postgres-database
         - DB_PORT=5432
@@ -27,9 +28,9 @@ services:
     volumes:
         - arcion1:/data
         - ${ARCION_LIC_DIR:?err}:/config
-    image: robertslee/arcion:latest  
+#    image: robertslee/arcion:latest  
 #   above has arm64 
-#    image: arcionlabs/replicant-on-premises:latest  
+    image: arcionlabs/replicant-on-premises:latest  
 
   mysql:
     image: mysql:${MYSQL_TAG:-latest}
@@ -41,14 +42,12 @@ services:
       - 33061:3306
     volumes:
       - mysql1:/var/lib/mysql
-    depends_on:
-        - "arcion"
 
   singlestore:
     # https://github.com/singlestore-labs/start-with-singlestore-go/blob/main/docker-compose.yaml
-    image: robertslee/singlestore:latest
+#    image: robertslee/singlestore:latest
 #   above has arm64 
-#   image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
+    image: singlestore/cluster-in-a-box:${SINGLESTORE_TAG:-latest}
     container_name: singlestore
     restart: unless-stopped
     environment:
