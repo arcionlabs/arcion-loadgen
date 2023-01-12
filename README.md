@@ -17,6 +17,8 @@ flowchart LR
     b[sysbench] --> m[(MySQL <br>Source)] --> Arcion --> s[(Singlestore <br>Target)]
 ```
 
+Note: This demo supports Docker running on an `amd64` (so no Apple M1/M2) platform for now. 
+
 - Start the demo below
 - point browser to [Arcion GUI](http://localhost:8080) 
 - point browser to [load generator UI](http://localhost:7681).  
