@@ -24,7 +24,14 @@ flowchart LR
 ```
 git clone https://github.com/robert-s-lee/arcion-demo
 cd arcion-demo
+
 # setup the licenses before starting the demo
+mkdir -p licenses/arcion
+cp ~/Downloads/replicant.lic licenses/arcion/.
+export ARCION_LIC_DIR=`pwd`/license/arcion
+export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
+
+# start containers
 docker-compose -f acrion-mysql-s2-compose.yaml up
 ```
 Instructions for setting up licenses for Arcion and SingleStore are below.
@@ -42,8 +49,6 @@ Install [Docker Desktop](https://docs.docker.com/desktop/) and [Docker Compose](
 Obtain [Arcion demo license](https://www.arcion.io/#) and save as licenses/arcion/arcion.lic.  The license would look like this
 
 ```
-mkdir -p licenses/arcion
-export ARCION_LIC_DIR=`pwd`/license/arcion
 cat $ARCION_LIC_DIR/replicant.lic
 {
   "license" : {
@@ -65,8 +70,6 @@ cat $ARCION_LIC_DIR/replicant.lic
 Obtain [Singlestore Standard trial license](https://www.singlestore.com/self-managed-standard/)
 
 ```
-mkdir -p licenses/singlestore
-cat licenses/singlestore/singlestore.lic
 export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
 ```
 
