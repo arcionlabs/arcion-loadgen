@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+YCSB=${YCSB:-/opt/ycsb-0.17.0-jdbc-binding}
+
+pushd ${YCSB}
 
 bin/ycsb.sh run jdbc -s -P workloads/workloada \
 -p db.driver=com.mysql.jdbc.Driver \
@@ -11,3 +14,5 @@ bin/ycsb.sh run jdbc -s -P workloads/workloada \
 -p db.batchsize=1000 \
 -p recordcount=10000 \
 -p operationcount=10000
+
+popd
