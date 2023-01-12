@@ -21,6 +21,8 @@ flowchart LR
 - point browser to [Arcion GUI](http://localhost:8080) 
 - point browser to [load generator UI](http://localhost:7681).  
 
+Instructions for setting up licenses for Arcion and SingleStore are [below](#prerequisite).
+
 ```
 git clone https://github.com/robert-s-lee/arcion-demo
 cd arcion-demo
@@ -34,7 +36,6 @@ export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
 # start containers
 docker-compose -f acrion-mysql-s2-compose.yaml up
 ```
-Instructions for setting up licenses for Arcion and SingleStore are below.
 
 ![screenshots](resources/images/Archive/arcion-demo.gif)
 
