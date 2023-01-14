@@ -28,6 +28,7 @@ jobs:
           while [ $x -le 5 ]
           do
             docker compose ls
+            docker compose -f arcion-mysql-s2-compose.yaml ps
             sleep 10
             x=$(( $x + 1 ))
           done
