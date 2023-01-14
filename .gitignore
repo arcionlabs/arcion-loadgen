@@ -1,4 +1,6 @@
 logs/*
+replicant-cli-*/
+replicant-cli-*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
