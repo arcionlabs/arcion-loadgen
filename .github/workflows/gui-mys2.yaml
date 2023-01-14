@@ -13,5 +13,5 @@ jobs:
           pwd
           ls
       - name: Build the stack
-        run: docker-compose -f load-generator/Dockerfile.sybench up -d 
+        run: docker compose -f load-generator/Dockerfile.sybench up
     
