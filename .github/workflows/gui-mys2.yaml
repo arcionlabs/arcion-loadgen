@@ -21,7 +21,19 @@ jobs:
           ARCION_LIC_DIR=`pwd`/arcion_lic
           echo "ARCION_LIC_DIR=$(echo $ARCION_LIC_DIR)" >> $GITHUB_ENV
       - name: Build the stack
-        run:  docker compose -f arcion-mysql-s2-compose.yaml up -d
+        run: docker compose -f arcion-mysql-s2-compose.yaml up -d
+      - name: Wait for Running Status
+        run: |
+          x=1
+          while [ $x -le 5 ]
+          do
+            docker compose ls
+            sleep 10
+            x=$(( $x + 1 ))
+          done
+      - name: Log of containers
+        run: |
+          docker compose -f arcion-mysql-s2-compose.yaml logs
       - name: DML on sysbench and ycsb
         run: |
           docker exec loadgen "/scripts/ycsb.sh"
