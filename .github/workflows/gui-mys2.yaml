@@ -3,6 +3,8 @@ name: gui-mysql-singlestore
 on:
   workflow_dispatch:
     branches: 
+env:
+  SINGLE_STORE_LIC: ${{ secrets.SINGLE_STORE_LIC }}    
 jobs:
   test:
     runs-on: ubuntu-latest
