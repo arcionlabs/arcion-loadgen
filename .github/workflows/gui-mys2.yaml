@@ -13,5 +13,5 @@ jobs:
           pwd
           ls
       - name: Build the stack
-        run: docker compose -f load-generator/Dockerfile.sybench up
+        run:  docker compose -f arcion-mysql-s2-compose.yaml up -d
     
