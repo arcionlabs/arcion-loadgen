@@ -24,6 +24,6 @@ jobs:
         run:  docker compose -f arcion-mysql-s2-compose.yaml up -d
       - name: DML on sysbench and ycsb
         run: |
-          docker exec -it loadgen "/scripts/ycsb.sh"
-          docker exec -it loadgen "/scripts/sysbench.sh"
+          docker exec loadgen "/scripts/ycsb.sh"
+          docker exec loadgen "/scripts/sysbench.sh"
     
