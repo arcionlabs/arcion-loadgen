@@ -1,0 +1,63 @@
+version: '3.3'
+services:
+  metadata:
+    restart: unless-stopped  
+    environment:
+        - POSTGRES_PASSWORD=postgres
+    ports:
+        - :5432
+    image: postgres:11.6-alpine
+    volumes:
+      - arcion_pg:/var/lib/postgresql/data     
+            
+  arcion-cli:
+    image: robertslee/sybench:${SYBENCH_TAG:-latest}
+    restart: unless-stopped  
+    environment:
+      - ARCION_HOME=/arcion
+      - MYSQL_ROOT_PASSWORD=password    
+      - PG_ROOT_PASSWORD=password    
+      - YCSB_PASSWORD=password    
+      - SBT_PASSWORD=password
+      - MYSQL_HOST=mysql1
+      - SINGLESTORE_HOST=singlestore
+      - SCRIPT_DIR=/
+    ports:
+      - :7681
+    volumes:
+      - ./replicant-cli-22.11.30.9:/arcion           
+    depends_on:
+      - metadata
+      - sourcedb
+      - targetdb
+    command: ttyd tmux
+
+  sourcedb:
+    image: mysql:${MYSQL_TAG:-latest}
+    restart: unless-stopped  
+    environment:
+      - MYSQL_ROOT_PASSWORD=password    
+    ports:
+      - :3306
+    volumes:
+      - /var/lib/mysql
+
+  targetdb:
+    image: mysql:${MYSQL_TAG:-latest}
+    restart: unless-stopped  
+    environment:
+      - MYSQL_ROOT_PASSWORD=password    
+    ports:
+      - :3306
+
+
+networks:
+  default:
+    name: arcnet
+    external: true
+
+volumes:
+  arcion_pg: {}
+  arcion1: {}
+  mysql1: {}
+  singlestore: {}

@@ -1,0 +1,55 @@
+FROM ubuntu:22.04
+LABEL MAINTAINER sangkyulee@gmail.com
+
+# To create an image
+#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcion-cli -f Dockerfile.sybench .
+# To start a container 
+#     docker run -it --rm -p robertslee/arcion-cli
+# To push to docker hub
+#     docker push robertslee/arcion-cli
+
+# add java
+# NOTE: openjdk8-jre and defaultjdk-jre do not build when run on Apple Silicon 
+RUN apt update && apt install -y curl openjdk-11-jre && java -version
+
+# add database clients
+RUN apt-get install -y mysql-client 
+RUN apt-get install -y postgresql-client
+
+# YCSB version
+
+ENV YCSB_VERSION=0.17.0 \
+    YCSB_BINDING=jdbc-binding \
+    PATH=${PATH}:/usr/bin
+ENV YCSB=/opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}
+
+# add YCSB with just JDBC binding
+RUN mkdir -p /opt
+RUN curl -O --output-dir /opt --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
+RUN cd /opt; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
+    rm -rf /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz 
+
+# add mysql JDBC driver
+RUN curl -O --output-dir ${YCSB}/lib --location https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31.tar.gz
+RUN cd ${YCSB}/lib; tar xfz mysql-connector-j-8.0.31.tar.gz && \
+    mv mysql-connector-j-8.0.31/mysql-connector-j-8.0.31.jar . && \
+    rm -rf mysql-connector-j-8.0.31 
+
+# add postgres JDBC driver
+RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
+
+# add sysbench
+RUN apt -y install sysbench
+
+# add ttyd for running terminal commands
+RUN apt-get -y install ttyd tmux sysvbanner vim dstat
+EXPOSE 7681
+
+# copy scripts
+COPY scripts/ /scripts/
+
+# add arcion binary
+ADD ~/Downloads/replicant-cli-22.11.30.9.zip /arcion
+WORKDIR ${YCSB}
+
+CMD /scripts/mysql-init.sh; ttyd tmux

@@ -1,0 +1,13 @@
+# GUI test of MySQL to SingleStore 
+name: gui-mysql-singlestore
+on:
+  workflow_dispatch:
+    branches: 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose -f load-generator/Dockerfile.sybench up -d 
+    
