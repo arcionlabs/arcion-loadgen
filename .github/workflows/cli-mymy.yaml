@@ -1,5 +1,5 @@
 # GUI test of MySQL to SingleStore 
-name: gui-mysql-singlestore
+name: cli-mysql-mysql
 on:
   workflow_dispatch:
     branches: 
@@ -30,5 +30,9 @@ jobs:
         run: |
           wget ${{ github.event.inputs.ar_bin_url }}
           unzip *replicant-cli*.zip
+      - name: env
+        run: |
+          ps -aef
+          
 
     
