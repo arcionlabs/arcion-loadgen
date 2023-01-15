@@ -1,0 +1,34 @@
+# GUI test of MySQL to SingleStore 
+name: gui-mysql-singlestore
+on:
+  workflow_dispatch:
+    branches: 
+    inputs:
+      ar_bin_url:
+        description: 'Arcion binary URL'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.01.05.3.zip'
+        type: string      
+env:
+  SINGLE_STORE_LIC: ${{ secrets.SINGLE_STORE_LIC }}    
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Debug
+        run: |
+          pwd
+          ls
+      - name: arcion lic setup
+        run: |
+          mkdir arcion_lic
+          echo $ARCION_LIC | base64 --decode > arcion_lic/replicant.lic
+          ARCION_LIC_DIR=`pwd`/arcion_lic
+          echo "ARCION_LIC_DIR=$(echo $ARCION_LIC_DIR)" >> $GITHUB_ENV
+      - name: arcion binary
+        run: |
+          wget ${{ github.event.inputs.ar_bin_url }}
+          unzip *replicant-cli*.zip
+
+    
