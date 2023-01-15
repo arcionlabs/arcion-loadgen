@@ -26,10 +26,10 @@ jobs:
           echo $ARCION_LIC | base64 --decode > arcion_lic/replicant.lic
           ARCION_LIC_DIR=`pwd`/arcion_lic
           echo "ARCION_LIC_DIR=$(echo $ARCION_LIC_DIR)" >> $GITHUB_ENV
-      - name: arcion binary
+      - name: arcion binary download
         run: |
-          wget ${{ github.event.inputs.ar_bin_url }}
-          unzip *replicant-cli*.zip
+          wget -q ${{ github.event.inputs.ar_bin_url }}
+          unzip -q *replicant-cli*.zip
       - name: env
         run: |
           ps -aef
