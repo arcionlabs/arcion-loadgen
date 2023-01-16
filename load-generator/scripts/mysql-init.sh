@@ -33,7 +33,10 @@ mysql -h${MYSQL_HOST} -usbt -ppassword -Dsbt --verbose -e 'select count(*) from 
 # ycsb data population 
 banner ycsb 
 usertable_cnt=$(mysql -h${MYSQL_HOST} -uycsb -ppassword -Dycsb -sN -e 'select count(*) from usertable;' | tail -1)
+YCSB=${YCSB:-/opt/ycsb-0.17.0-jdbc-binding}
+pushd ${YCSB}
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
     bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://${MYSQL_HOST}/ycsb?rewriteBatchedStatements=true" -p db.user=ycsb -p db.passwd="password" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000
 fi
 mysql -h${MYSQL_HOST} -uycsb -ppassword -Dycsb --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 1'
+popd
