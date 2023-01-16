@@ -1,4 +1,6 @@
 logs/*
+replicant-cli-*/
+replicant-cli-*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -156,3 +158,4 @@ cython_debug/
 resources/.DS_Store
 .DS_Store
 .DS_Store
+.secrets
