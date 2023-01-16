@@ -12,4 +12,4 @@ echo "ARCION_LIC=$(cat licenses/arcion/replicant.lic | base64)" >> .secrets
 
 # run 
 
-act cli-mysql-mysql
+act -W .github/workflows/gui-mys2.yaml
