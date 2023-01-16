@@ -1,5 +1,11 @@
 Test github action locally
 
+if act does not have `act --input`
+
+```
+brew install act --HEAD
+```
+
 # .secrets
 ```
 rm .secrets
