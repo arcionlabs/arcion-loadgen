@@ -17,7 +17,7 @@ jobs:
       - name: arcion lic setup
         # NOTE: license cannot be passed in as a volume.  docker is running inside docker. the file in created inside docker not avail to compose
         run: |
-          docker volume create arionc_lic
+          docker volume create arcion_lic
           docker run --rm -v arcion_lic:/config -e ARCION_LIC=$ARCION_LIC ubuntu sh -c 'echo ${{ secrets.ARCION_LIC }} | base64 --decode > /config/replicant.lic'
           # DEBUG: docker run --rm -v arcion_lic:/config ubuntu cat /config/replicant.lic
       - name: bring up container
