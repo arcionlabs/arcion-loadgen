@@ -39,7 +39,6 @@ TODO: modify mysql-init.sh to take YCSB
 export MYSQL_HOST=arcion-cli-srcdb-1
 /scripts/mysql-init.sh
 mysql -h$MYSQL_HOST -uycsb -ppassword -e "select count(*) from ycsb.usertable"
-
 mysql -harcion-cli-dstdb-1 -uroot -ppassword -e "show databases"
 mysql -harcion-cli-dstdb-1 -uroot -ppassword -e "select count(*) from ycsb.usertable"
 
