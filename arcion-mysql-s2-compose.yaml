@@ -27,7 +27,7 @@ services:
         - DB_PASSWORD=postgres
     volumes:
         - arcion1:/data
-        - ${ARCION_LIC_DIR:?err}:/config
+        - arcion_lic:/config
 #    image: robertslee/arcion:latest  
 #   above has arm64 
     image: arcionlabs/replicant-on-premises:latest  
@@ -85,7 +85,10 @@ services:
 #    external: true
 
 volumes:
+  arcion_lic:
+    external: true
   arcion_pg: {}
   arcion1: {}
   mysql1: {}
   singlestore: {}
+

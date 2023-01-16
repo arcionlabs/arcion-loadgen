@@ -15,13 +15,13 @@ jobs:
           pwd
           ls
       - name: arcion lic setup
+        # NOTE: license cannot be passed in as a volume.  docker is running inside docker. the file in created inside docker not avail to compose
         run: |
-          mkdir arcion_lic
-          echo ${{ secrets.ARCION_LIC }} | base64 --decode > arcion_lic/replicant.lic
-          export ARCION_LIC_DIR=`pwd`/arcion_lic
-          ls $ARCION_LIC_DIR
-          echo $ARCION_LIC_DIR
-          cat $ARCION_LIC_DIR/replicant.lic
+          docker volume create arionc_lic
+          docker run --rm -v arcion_lic:/config -e ARCION_LIC=$ARCION_LIC ubuntu sh -c 'echo ${{ secrets.ARCION_LIC }} | base64 --decode > /config/replicant.lic'
+          # DEBUG: docker run --rm -v arcion_lic:/config ubuntu cat /config/replicant.lic
+      - name: bring up container
+        run: |
           docker compose -f arcion-mysql-s2-compose.yaml up -d
       - name: Wait for Running Status
         run: |
