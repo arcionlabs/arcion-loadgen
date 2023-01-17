@@ -61,5 +61,3 @@ volumes:
   arcion_pg: {}
   arcion_bin:
     external: true
-  arcion1: {}
-  mysql1: {}
