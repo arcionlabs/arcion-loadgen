@@ -5,8 +5,8 @@ pushd ${YCSB}
 
 bin/ycsb.sh run jdbc -s -P workloads/workloada \
 -p db.driver=com.mysql.jdbc.Driver \
--p db.url="jdbc:mysql://${MYSQL_HOST}/ycsb" \
--p db.user=ycsb \
+-p db.url="jdbc:mysql://${SRCDB_HOST}/arcion" \
+-p db.user=arcion \
 -p db.passwd="password" \
 -p db.batchsize=1000  \
 -p jdbc.fetchsize=10 \

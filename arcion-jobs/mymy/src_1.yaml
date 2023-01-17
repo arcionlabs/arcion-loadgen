@@ -1,0 +1,13 @@
+type: MYSQL
+
+host: ${SRCDB_HOST}
+port: 3306
+
+username: arcion
+password: password
+
+slave-server-ids: [1]
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000

@@ -1,4 +1,64 @@
-Arcion Replicant demos. This is a step by step instructions that uses:
+This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://docs.arcion.io/docs/quickstart/index.html) and [GUI](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html).
+Use GUI for out of the box demos.
+Use CLI for testing what if scenarions.
+GUI is preconfigured with preset source and target data combinations.
+CLI supports all source target data combinations.
+
+# Overview
+The diagram below depicts the components of the demo.
+
+```mermaid
+flowchart LR
+    subgraph Arcion
+      direction TB
+        a[Replicant] --> p[(Metadata<br>Postgres )]
+    end
+    b[Load Generator <br>ycsb <br>sysbench <br>tpc-c TODO <br>tpc-h TODO] --> S[(Source <br>MySQL)] --> Arcion --> t[(Target<br>SingleStore)]
+```
+## Arcion GUI 
+Arcion GUI running Arcion [snapshot](https://docs.arcion.io/docs/running-replicant/#replicant-snapshot-mode) and [full](https://docs.arcion.io/docs/running-replicant/#replicant-full-mode) replication modes are shown in the below animation.
+
+**Note**: GUI demo supports Docker running on an `amd64` platform. So no Apple M1/M2 for now.
+
+![screenshots](resources/images/Archive/arcion-demo.gif)
+
+# GUI Demo Instructions
+
+Instructions for setting up licenses for Arcion and SingleStore are [below](#prerequisite).
+
+- Start the demo below
+- point browser to [Arcion GUI](http://localhost:8080) 
+- point browser to [load generator UI](http://localhost:7681).  
+
+```
+# download demo repo
+git clone https://github.com/robert-s-lee/arcion-demo
+cd arcion-demo
+
+# setup the licenses before starting the demo
+export ARCION_LICENSE=$(cat replicant.lic | base64)
+
+# start containers
+docker compose -f acrion-mysql-s2-compose.yaml up
+```
+
+# CLI Demo Instructions
+
+- run MySQL source and MySQL Target
+```
+git clone https://github.com/robert-s-lee/arcion-demo
+cd arcion-demo
+
+# setup the licenses before starting the demo
+export ARCION_LICENSE=$(cat replicant.lic | base64)
+
+# start containers
+act -W .github/workflows/cli-mymy.yaml
+```
+
+# Prerequisite
+
+This is a step by step instructions that uses:
 
 - [Arcion Replicant w/GUI](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html) 
 - [sysbench](https://github.com/akopytov/sysbench) for generating OLTP workload on the source database 
@@ -7,45 +67,12 @@ Arcion Replicant demos. This is a step by step instructions that uses:
 - [Postgres](https://www.postgresql.org/) for Arcion's metastore
 - [SingleStore](https://www.singlestore.com/) the target database
 
-The diagram below depicts the data flow:
-```mermaid
-flowchart LR
-    subgraph Arcion
-      direction TB
-        a[Replicant] --> p[(Postgres <br>Metadata)]
-    end
-    b[sysbench] --> m[(MySQL <br>Source)] --> Arcion --> s[(Singlestore <br>Target)]
-```
-
-Note: This demo supports Docker running on an `amd64` (so no Apple M1/M2) platform for now. 
-
-- Start the demo below
-- point browser to [Arcion GUI](http://localhost:8080) 
-- point browser to [load generator UI](http://localhost:7681).  
-
-Instructions for setting up licenses for Arcion and SingleStore are [below](#prerequisite).
-
-```
-git clone https://github.com/robert-s-lee/arcion-demo
-cd arcion-demo
-
-# setup the licenses before starting the demo
-mkdir -p licenses/arcion
-cp ~/Downloads/replicant.lic licenses/arcion/.
-export ARCION_LIC_DIR=`pwd`/license/arcion
-export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
-
-# start containers
-docker-compose -f acrion-mysql-s2-compose.yaml up
-```
-
-![screenshots](resources/images/Archive/arcion-demo.gif)
-
-# Prerequisite
 
 - Docker
 
-Install [Docker Desktop](https://docs.docker.com/desktop/) and [Docker Compose](https://docs.docker.com/compose/).
+Install [Docker Desktop](https://docs.docker.com/desktop/)
+
+- Brew
 
 - Arcion Trial License
 
@@ -67,6 +94,21 @@ cat $ARCION_LIC_DIR/replicant.lic
   "key" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }
 ```
+
+- prepare volume 
+
+  - for GUI
+
+```
+docker volume create arionc_lic
+docker run --rm -v arcion_lic:/config -e ARCION_LICENSE=$ARCION_LICENSE alpine sh -c 'echo $ARCION_LICENSE | base64 --decode > /config/replicant.lic'
+docker run --rm -v arcion_lic:/config arcion cat /config/replicant.lic
+```
+
+  - for CLI
+
+  audomated via github action
+
 
 - SingleStore Trial License
 
@@ -100,6 +142,9 @@ echo $SINGLE_STORE_LIC
   Ctrl + b + `<up arrow>` to move up the pane.
 
   Ctrl + b + `<down arrow>` to move down the pane.
+
+  Ctrl + s to connect to a different session.
+  
 
   Below are the commands on each of the panes assuming `Ctl + b + "` was used three times to create three panes.
 

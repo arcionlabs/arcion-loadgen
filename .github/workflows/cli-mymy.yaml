@@ -20,20 +20,20 @@ jobs:
         run: |
           pwd
           ls
-      - name: arcion lic setup
-        # NOTE: license cannot be passed in as a volume.  docker is running inside docker. the file in created inside docker not avail to compose
-        run: |
-          docker volume create arcion_lic
-          docker run --rm -v arcion_lic:/config -e ARCION_LIC="${{ secrets.ARCION_LIC }}" alpine sh -c 'echo $ARCION_LIC | base64 -d > /config/replicant.lic'
-          # DEBUG: docker run --rm -v arcion_lic:/config ubuntu cat /config/replicant.lic
       - name: arcion binary setup
         run: |
           docker volume create arcion_bin
           docker run --rm -v arcion_bin:/arcion -e ARCION_BIN_URL="${{ github.event.inputs.ARCION_BIN_URL }}" alpine sh -c 'cd /arcion; if [ ! -d replicant-cli ]; then wget -O arcion.zip $ARCION_BIN_URL; unzip arcion.zip; fi'  
+          docker run --rm -v arcion_bin:/arcion -e ARCION_LICENSE="${{ secrets.ARCION_LICENSE }}" alpine sh -c 'echo $ARCION_LICENSE | base64 -d > /arcion/replicant-cli/replicant.lic'
           # DEBUG: docker run -it -v arcion_bin:/arcion alpine sh        
-      - name: env
+      - name: Log of containers
         run: |
-          ps -aef
+          docker compose -f compose/climymy/aclimymy.yaml up -d
+      - name: DML on sysbench and ycsb
+        run: |
+          echo "here"
+          #docker exec loadgen "/scripts/ycsb.sh"
+          #docker exec loadgen "/scripts/sysbench.sh"
           
 
     

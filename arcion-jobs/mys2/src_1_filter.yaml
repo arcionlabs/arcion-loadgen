@@ -1,0 +1,7 @@
+allow:
+- catalog: "ycsb"
+  types: [TABLE]
+  allow:
+    # without any tables, all of the tables are scoped up
+    usertable:
+    # with full, replication table is automatically removed

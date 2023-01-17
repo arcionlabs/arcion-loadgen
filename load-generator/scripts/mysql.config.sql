@@ -2,24 +2,19 @@
 SET GLOBAL log_output = 'TABLE';
 SET GLOBAL general_log = 'ON';
 
--- create arccion heartbeat 
--- enable arcion heartbeat to force flush
-
+-- arcion user
 CREATE USER IF NOT EXISTS 'arcion'@'%' IDENTIFIED BY 'password';
 CREATE USER IF NOT EXISTS 'arcion'@'localhost' IDENTIFIED BY 'password';
+
 GRANT ALL ON arcion.* to 'arcion'@'%';
 GRANT ALL ON arcion.* to 'arcion'@'localhost';
 
+-- arcion database
 create database IF NOT EXISTS arcion;
 
-CREATE TABLE if not exists arcion.replicate_io_cdc_heartbeat(
-  timestamp BIGINT NOT NULL,
-  PRIMARY KEY(timestamp)
-);
-
-describe arcion.replicate_io_cdc_heartbeat;
-
-
+-- these grants cannot be limit to database.  has to be *.*
+GRANT REPLICATION CLIENT ON *.* TO 'arcion'@'%';
+GRANT REPLICATION SLAVE ON *.* TO 'arcion'@'%';
 
 -- show binlogs
 show variables like "%log_bin%";

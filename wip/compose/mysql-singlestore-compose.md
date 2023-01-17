@@ -26,7 +26,7 @@ flowchart LR
 the license would look like this
 ```
 export ARCION_LIC_DIR=/Users/rslee/github/ycsb-ui/licenses/arcion
-export ARCION_LIC=$(cat licenses/arcion/replicant.lic | base64)
+export ARCION_LICENSE=$(cat licenses/arcion/replicant.lic | base64)
 
 mkdir -p licenses/arcion
 cat licenses/arcion.lic
@@ -56,7 +56,7 @@ export SINGLE_STORE_LIC="xxxxxxxxxxxxxxxx"
 ```
 
 ```
-echo $ARCION_LIC
+echo $ARCION_LICENSE
 echo $SINGLE_STORE_LIC
 ```
 # Docker configurations
@@ -106,7 +106,7 @@ docker volume create arcion_pg
 Using base64 so that license file can be passed as a secret
 
 ```
-docker run --rm -v arcion_lic:/config -e ARCION_LIC=$ARCION_LIC ubuntu sh -c 'echo $ARCION_LIC | base64 --decode > /config/replicant.lic'
+docker run --rm -v arcion_lic:/config -e ARCION_LICENSE=$ARCION_LICENSE ubuntu sh -c 'echo $ARCION_LICENSE | base64 --decode > /config/replicant.lic'
 
 docker run --rm -v arcion_lic:/config ubuntu cat /config/replicant.lic
 ```

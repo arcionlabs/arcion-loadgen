@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.7'
 services:
   metadata:
     restart: unless-stopped  
@@ -10,7 +10,7 @@ services:
     volumes:
       - arcion_pg:/var/lib/postgresql/data     
             
-  arcion-cli:
+  loadgen:
     image: robertslee/sybench:${SYBENCH_TAG:-latest}
     restart: unless-stopped  
     environment:
@@ -19,18 +19,18 @@ services:
       - PG_ROOT_PASSWORD=password    
       - YCSB_PASSWORD=password    
       - SBT_PASSWORD=password
-      - MYSQL_HOST=mysql1
-      - SINGLESTORE_HOST=singlestore
+      - SRCDB_HOST=$COMPOSE_PROJECT_NAME-srcdb-1
+      - DSTDB_HOST=$COMPOSE_PROJECT_NAME-dstdb-1
       - SCRIPT_DIR=/
     ports:
       - :7681
     volumes:
-      - ./replicant-cli-22.11.30.9:/arcion           
+      - arcion_bin:/arcion 
+      - ../../arcion-jobs:/jobs/
     depends_on:
       - metadata
       - srcdb
       - dstdb
-    command: ttyd tmux
 
   srcdb:
     image: mysql:${MYSQL_TAG:-latest}
@@ -59,6 +59,7 @@ networks:
 
 volumes:
   arcion_pg: {}
+  arcion_bin:
+    external: true
   arcion1: {}
   mysql1: {}
-  singlestore: {}

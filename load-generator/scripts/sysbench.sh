@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 sysbench oltp_read_write \
---mysql-host=${MYSQL_HOST} \
---auto_inc=off --db-driver=mysql --mysql-user=sbt \
+--mysql-host=${SRCDB_HOST} \
+--auto_inc=off --db-driver=mysql --mysql-user=arcion \
 --mysql-password=password \
---mysql-db=sbt \
+--mysql-db=arcion \
 --report-interval=1 \
 --time=60 \
 --threads=1 \

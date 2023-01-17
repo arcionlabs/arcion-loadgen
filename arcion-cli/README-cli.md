@@ -28,35 +28,36 @@ rm -rf mysql-connector-j-8.0.31
 # mysqlbin required for mysqlbinlog
 
 # don't run the server after install
-# TODO did not work
-RUNLEVEL=1 apt-get install -y mysql-server
+# TODO RUNLEVEL=1 did not stop fromstarting
+# RUNLEVEL=1 apt-get install -y mysql-server
+apt-get install -y mysql-server
+systemctl disable mysql
+service mysql stop
 which mysqlbinlog
 ```
 
 - initialize the source db
 TODO: modify mysql-init.sh to take YCSB
 ```
-export MYSQL_HOST=arcion-cli-srcdb-1
+export MYSQL_HOST=$SRCDB_HOST
 /scripts/mysql-init.sh
-mysql -h$MYSQL_HOST -uycsb -ppassword -e "select count(*) from ycsb.usertable"
-mysql -harcion-cli-dstdb-1 -uroot -ppassword -e "show databases"
-mysql -harcion-cli-dstdb-1 -uroot -ppassword -e "select count(*) from ycsb.usertable"
+mysql -h$SRCDB_HOST -uycsb -ppassword -e "select count(*) from ycsb.usertable"
+mysql -h$SRCDB_HOST -uroot -ppassword -e "show databases"
+mysql -h$DSTDB_HOST -uroot -ppassword -e "select count(*) from ycsb.usertable"
 
-mysql -h$MYSQL_HOST -uycsb -ppassword <<EOF
-show databases;
-use ycsb;
-CREATE TABLE if not exists ycsb.replicate_io_cdc_heartbeat (
-  timestamp BIGINT NOT NULL,
-  PRIMARY KEY(timestamp));
-show tables;
-EOF
 ```
 
+## snapshot mode
+[snapshot](https://docs.arcion.io/docs/running-replicant/#replicant-snapshot-mode)
 - run snapshot
 -  Loading local data is disabled; this must be enabled on both the client and server sides
 ```
-cd /arcion
-export DIR=jobs/mys2
+cd /arcion/replicant-cli
+cat replicant.lic
+export JOB=mymy
+export DIR=/tmp/$JOB
+mkdir -p $DIR; for f in /jobs/$JOB/*; do cat $f | envsubst > $DIR/$(basename $f); done
+
 ./bin/replicant snapshot ${DIR}/src_1.yaml ${DIR}/dst_1.yaml \
 --filter ${DIR}/src_1_filter.yaml \
 --extractor ${DIR}/src_1_extractor.yaml \
@@ -72,9 +73,16 @@ io_replicate.replicate_io_cdc_heartbeat: Table does not exist on source.
 
 if --id is not specified, then jdbc driver missing is seen
 
+## full mode
+
+[full mode](https://docs.arcion.io/docs/running-replicant/#replicant-full-mode)
 ```
-cd /arcion
-export DIR=jobs/mymy
+cd /arcion/replicant-cli
+cat replicant.lic
+export JOB=mymy
+export DIR=/tmp/$JOB
+mkdir -p $DIR; for f in /jobs/$JOB/*; do cat $f | envsubst > $DIR/$(basename $f); done
+
 ./bin/replicant full ${DIR}/src_1.yaml ${DIR}/dst_1.yaml \
 --filter ${DIR}/src_1_filter.yaml \
 --extractor ${DIR}/src_1_extractor.yaml \
@@ -84,9 +92,35 @@ export DIR=jobs/mymy
 --id 2
 ```
 
+## realtime
+
+```
+./bin/replicant real-time ${DIR}/src_1.yaml ${DIR}/dst_1.yaml \
+--filter ${DIR}/src_1_filter.yaml \
+--extractor ${DIR}/src_1_extractor.yaml \
+--applier ${DIR}/dst_1_applier.yaml \
+--replace-existing \
+--overwrite \
+--id realtime
+```
+## delta
+
+```
+./bin/replicant delta-snapshot ${DIR}/src_1.yaml ${DIR}/dst_1.yaml \
+--filter ${DIR}/src_1_filter.yaml \
+--extractor ${DIR}/src_1_extractor.yaml \
+--applier ${DIR}/dst_1_applier.yaml \
+--replace-existing \
+--overwrite \
+--id delta
+```
+
+
 - troubleshoot
 ```
 cat data/default/trace.log
+cat data/2/trace.log
+
 ```
 
 
