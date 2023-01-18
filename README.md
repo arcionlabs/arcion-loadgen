@@ -55,7 +55,23 @@ export ARCION_LICENSE=$(cat replicant.lic | base64)
 # start containers
 act -W .github/workflows/cli.yaml --input COMPOSE_FILE=compose/climymy/climymy.yaml
 act -W .github/workflows/cli.yaml --input COMPOSE_FILE=compose/climys2/climys2.yaml
+act -W .github/workflows/cli.yaml --input COMPOSE_FILE=compose/climypg/climypg.yaml
+```
 
+- select full or snapshot
+
+and select source and target
+
+my=mysql
+pg=postgres
+s2=singlestore
+
+mymy = mysql to mysql
+mypg = mysql to postgres
+
+```
+/jobs/full.sh
+/jobs/snapshot.sh
 ```
 
 # Prerequisite
