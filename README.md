@@ -53,7 +53,9 @@ cd arcion-demo
 export ARCION_LICENSE=$(cat replicant.lic | base64)
 
 # start containers
-act -W .github/workflows/cli-mymy.yaml
+act -W .github/workflows/cli.yaml --input COMPOSE_FILE=compose/climymy/climymy.yaml
+act -W .github/workflows/cli.yaml --input COMPOSE_FILE=compose/climys2/climys2.yaml
+
 ```
 
 # Prerequisite

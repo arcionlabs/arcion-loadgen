@@ -1,5 +1,5 @@
-# GUI test of MySQL to SingleStore 
-name: cli-mysql-mysql
+# CLI 
+name: cli
 on:
   workflow_dispatch:
     branches: 
@@ -9,6 +9,11 @@ on:
         required: true
         default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.01.05.3.zip'
         type: string      
+      COMPOSE_FILE:
+        description: 'Docker Compose File'
+        required: true
+        default: 'compose/climymy/aclimymy.yaml'
+        type: string 
 env:
   SINGLE_STORE_LIC: ${{ secrets.SINGLE_STORE_LIC }}    
 jobs:
@@ -28,7 +33,8 @@ jobs:
           # DEBUG: docker run -it -v arcion_bin:/arcion alpine sh        
       - name: Log of containers
         run: |
-          docker compose -f compose/climymy/aclimymy.yaml up -d
+          echo ${{ github.event.inputs.COMPOSE_FILE }}
+          docker compose -f ${{ github.event.inputs.COMPOSE_FILE }} up -d
       - name: DML on sysbench and ycsb
         run: |
           echo "here"
