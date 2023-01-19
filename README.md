@@ -220,7 +220,12 @@ docker volume prune
 - license file not present
 - license file not valid
 - license expired
+- not connected to internet
 
+```
+2023-01-19 00:33:32.554 DEBUG [main] t.r.Main: License File Path: /arcion/replicant-cli
+2023-01-19 00:33:32.710 ERROR [main] t.r.Main: License check failed: Unable to validate license
+```
 ## replication topology 
 
 - can not change from snap to full.  will stay in full

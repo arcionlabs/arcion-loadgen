@@ -5,13 +5,20 @@ JOB_HOME=${JOB_HOME:-/jobs}
 
 # subsutite env var in YAML with the actual
 copy_yaml() {
-    local JOB=$1
+    local SRCDB_TYPE=$1
+    local DSTDB_TYPE=$2
+    local JOB="$1/$2"
     export YAML_DIR=/tmp/$JOB.$$
     mkdir -p $YAML_DIR
-    for f in $JOB_HOME/$JOB/*; do 
+    for f in $JOB_HOME/$SRCDB_TYPE/*.yaml; do 
         echo envsubst $f
         cat $f | envsubst > $YAML_DIR/$(basename $f) 
     done
+    for f in $JOB_HOME/$SRCDB_TYPE/$DSTDB_TYPE/*.yaml; do 
+        echo envsubst $f
+        cat $f | envsubst > $YAML_DIR/$(basename $f) 
+    done
+
 }
 
 arcion_full() {
@@ -77,7 +84,7 @@ if [ -z "${REPL_TYPE}" ]; then select_replication; fi
 echo ${REPL_TYPE}
 
 # set config file
-copy_yaml ${SRCDB_TYPE}/${DSTDB_TYPE}
+copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
 echo ${YAML_DIR}
 
 # run the replication
@@ -94,3 +101,4 @@ case ${REPL_TYPE} in
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;
 esac
+echo "log is at $ARCION_HOME/replicant-cli/data/$LOG"

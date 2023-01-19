@@ -7,7 +7,7 @@ tmux new-window -t $WIN:2
 # windows 0 to run commands
 tmux split-window -v -t $WIN:0
 tmux split-window -h -t $WIN:0
-tmux send-keys -t $WIN:0.0 "/jobs/menu.sh" 
+tmux send-keys -t $WIN:0.0 "cd /jobs; /jobs/menu.sh" 
 tmux send-keys -t $WIN:0.1 "/jobs/sysbench.sh"
 tmux send-keys -t $WIN:0.2 "/jobs/ycsb.sh"
 # windows 1 to view config files
