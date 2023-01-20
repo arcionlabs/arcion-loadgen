@@ -3,6 +3,12 @@
 ARCION_HOME=${ARCION_HOME:-/arcion/replicant-cli}
 JOB_HOME=${JOB_HOME:-/jobs}
 
+# env vars that can be set to skip questions
+# YAML_DIR
+# SRCDB_TYPE
+# DSTDB_TYPE
+# REPL_TYPE
+
 # subsutite env var in YAML with the actual
 copy_yaml() {
     local SRCDB_TYPE=$1
@@ -10,82 +16,121 @@ copy_yaml() {
     local JOB="$1/$2"
     export YAML_DIR=/tmp/$JOB.$$
     mkdir -p $YAML_DIR
-    for f in $JOB_HOME/$SRCDB_TYPE/*.yaml; do 
+    for f in $JOB_HOME/$SRCDB_TYPE/src*.yaml; do 
         echo envsubst $f
         cat $f | envsubst > $YAML_DIR/$(basename $f) 
     done
-    for f in $JOB_HOME/$SRCDB_TYPE/$DSTDB_TYPE/*.yaml; do 
+    for f in $JOB_HOME/$DSTDB_TYPE/dst*.yaml; do 
         echo envsubst $f
         cat $f | envsubst > $YAML_DIR/$(basename $f) 
     done
-
 }
+# return command parm given source and target pair
+arcion_param() {
+    local src_dir=${1:-.}
+    local dst_dir=${2:-$src_dir}
 
+    src=$(find ${src_dir} -maxdepth 1 -name src.yaml -print)
+    filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml -print)
+    extractor=$(find ${src_dir} -maxdepth 1 -name src_extractor.yaml -print)
+
+    dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
+    applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
+
+    echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier}
+}
+arcion_delta() {
+    export LOG=${1:-full}.$$
+    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    ./bin/replicant delta-snapshot \
+    $( arcion_param ${YAML_DIR} ) \
+    --replace-existing \
+    --overwrite \
+    --id $LOG | tee delta.log
+    popd
+}
+arcion_real() {
+    export LOG=${1:-full}.$$
+    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    ./bin/replicant real-time \
+    $( arcion_param ${YAML_DIR} ) \
+    --replace-existing \
+    --overwrite \
+    --id $LOG | tee real.log
+    popd
+}
 arcion_full() {
     export LOG=${1:-full}.$$
     if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
-    ./bin/replicant full ${YAML_DIR}/src_1.yaml ${YAML_DIR}/dst_1.yaml \
-    --filter ${YAML_DIR}/src_1_filter.yaml \
-    --extractor ${YAML_DIR}/src_1_extractor.yaml \
-    --applier ${YAML_DIR}/dst_1_applier.yaml \
+    ./bin/replicant full \
+    $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
     --overwrite \
-    --id $LOG
+    --id $LOG | tee full.log
     popd
 }
-
 arcion_snapshot() {
     export LOG=${1:-snap}.$$
     if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
-    ./bin/replicant snapshot ${YAML_DIR}/src_1.yaml ${YAML_DIR}/dst_1.yaml \
-    --filter ${YAML_DIR}/src_1_filter.yaml \
-    --extractor ${YAML_DIR}/src_1_extractor.yaml \
-    --applier ${YAML_DIR}/dst_1_applier.yaml \
+    ./bin/replicant snapshot \
+    $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
     --overwrite \
-    --id $LOG
+    --id $LOG | tee snap.log
     popd
 }
-
-select_src() {
+# find source DB dir that has src.yaml, filter.yaml and extractor.yarm
+find_srcdb() {
+    find * -type f \( -iname "src.yaml" -o -iname "src_filter*.yaml" -o -iname "src_extractor.yaml" \) -print | \
+    xargs dirname | \
+    uniq -c | \
+    while read count dir; do if (( count == 3 )); then echo $dir; fi; done 
+}
+# find dst DB dir that has dst.yaml, applier.yaml 
+find_dstdb() {
+    find * -type f \( -iname "dst.yaml" -o -iname "dst_applier.yaml" \) -print | \
+    xargs dirname | \
+    uniq -c | \
+    while read count dir; do if (( count == 2 )); then echo $dir; fi; done
+}
+ask_src_type() {
     PS3='Please enter the source: '
-    options=( $(find * -maxdepth 0 -type d) )
+    options=( $(find_srcdb) )
     select SRCDB_TYPE in "${options[@]}"; do
         if [ -d "$SRCDB_TYPE" ]; then break; else echo "invalid option"; fi
     done
     export SRCDB_TYPE
 }
-
-select_dst() {
+ask_dst_type() {
     PS3='Please enter the target: '
-    options=( $(cd $SRCDB_TYPE; find * -maxdepth 0 -type d; cd ..) )
+    options=( $(find_dstdb) )
     select DSTDB_TYPE in "${options[@]}"; do
-        if [ -d "$SRCDB_TYPE/$DSTDB_TYPE" ]; then break; else echo "invalid option"; fi
+        if [ -d "$DSTDB_TYPE" ]; then break; else echo "invalid option"; fi
     done
     export DSTDB_TYPE
 }
-
-select_replication() {
+ask_repl_mode() {
     PS3='Please enter the replication type: '
-    options=( "full" "snapshot" )
+    options=( "full" "snapshot" "delta-snapshot" "real-time" )
     select REPL_TYPE in "${options[@]}"; do
         if [ ! -z "$REPL_TYPE" ]; then break; else echo "invalid option"; fi
     done
     export REPL_TYPE
 }
+# set config file
+if [ -z "$YAML_DIR" -o ! -d "$YAML_DIR" ]; then
+    # set source and destination
+    if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask_src_type; fi
+    if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask_dst_type; fi
+    echo ${SRCDB_TYPE} ${DSTDB_TYPE}
 
-# set source and destination
-if [ -z "${SRCDB_TYPE}" ]; then select_src; fi
-if [ -z "${DSTDB_TYPE}" ]; then select_dst; fi
-echo ${SRCDB_TYPE} ${DSTDB_TYPE}
+    copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
+fi
+echo ${YAML_DIR}
 
 # set replication type
-if [ -z "${REPL_TYPE}" ]; then select_replication; fi
+if [ -z "${REPL_TYPE}" ]; then ask_repl_mode; fi
 echo ${REPL_TYPE}
-
-# set config file
-copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
-echo ${YAML_DIR}
 
 # run the replication
 case ${REPL_TYPE} in
@@ -97,6 +142,14 @@ case ${REPL_TYPE} in
     arcion_snapshot
     echo $LOG
     ;;
+  delta-snapshot)
+    arcion_delta
+    echo $LOG
+    ;;
+  real-time)
+    arcion_real
+    echo $LOG
+    ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;

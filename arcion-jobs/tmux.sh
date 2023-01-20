@@ -1,4 +1,5 @@
 WIN=arcion
+tmux set-option -g mouse on
 tmux kill-session -t $WIN
 # windows
 tmux new-session -s $WIN -d
