@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-ARCION_HOME=${ARCION_HOME:-/arcion/replicant-cli}
+ARCION_HOME=${ARCION_HOME:-/arcion}
+if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+
 JOB_HOME=${JOB_HOME:-/jobs}
 
 # env vars that can be set to skip questions
@@ -40,8 +42,8 @@ arcion_param() {
     echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier}
 }
 arcion_delta() {
-    export LOG=${1:-full}.$$
-    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    export LOG=${1:-delta}.$$
+    pushd $ARCION_HOME
     ./bin/replicant delta-snapshot \
     $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
@@ -50,8 +52,8 @@ arcion_delta() {
     popd
 }
 arcion_real() {
-    export LOG=${1:-full}.$$
-    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    export LOG=${1:-real}.$$
+    pushd $ARCION_HOME
     ./bin/replicant real-time \
     $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
@@ -61,7 +63,7 @@ arcion_real() {
 }
 arcion_full() {
     export LOG=${1:-full}.$$
-    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    pushd $ARCION_HOME
     ./bin/replicant full \
     $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
@@ -71,7 +73,7 @@ arcion_full() {
 }
 arcion_snapshot() {
     export LOG=${1:-snap}.$$
-    if [ -d ${ARCION_HOME}/replicant-cli ]; then pushd $ARCION_HOME/replicant-cli; else pushd $ARCION_HOME; fi
+    pushd $ARCION_HOME
     ./bin/replicant snapshot \
     $( arcion_param ${YAML_DIR} ) \
     --replace-existing \
@@ -92,6 +94,29 @@ find_dstdb() {
     xargs dirname | \
     uniq -c | \
     while read count dir; do if (( count == 2 )); then echo $dir; fi; done
+}
+find_hosts() {
+    if [ ! -f /tmp/names.$$.txt ]; then
+        ip=$( hostname -i | awk -F'.' '{print $1"."$2"."$3"."0"/24"}' )
+        nmap -sn -oG /tmp/names.$$.txt $ip >/dev/null
+    fi
+    cat /tmp/names.$$.txt | grep 'arcnet' | awk -F'[ ()]' '{print $4}'
+}
+ask_src_host() {
+    PS3='Please enter the SOURCE host: '
+    options=( $(find_hosts) )
+    select SRCDB_HOST in "${options[@]}"; do
+        if [ ! -z "$SRCDB_HOST" ]; then break; else echo "invalid option"; fi
+    done
+    export SRCDB_HOST
+}
+ask_dst_host() {
+    PS3='Please enter the DESTINATION host: '
+    options=( $(find_hosts) )
+    select DSTDB_HOST in "${options[@]}"; do
+        if [ ! -z "$DSTDB_HOST" ]; then break; else echo "invalid option"; fi
+    done
+    export DSTDB_HOST
 }
 ask_src_type() {
     PS3='Please enter the source: '
@@ -117,6 +142,10 @@ ask_repl_mode() {
     done
     export REPL_TYPE
 }
+
+if [ -z "${SRCDB_HOST}" ]; then ask_src_host; fi
+if [ -z "${DSTDB_HOST}" ]; then ask_dst_host; fi
+
 # set config file
 if [ -z "$YAML_DIR" -o ! -d "$YAML_DIR" ]; then
     # set source and destination
@@ -154,4 +183,4 @@ case ${REPL_TYPE} in
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;
 esac
-echo "log is at $ARCION_HOME/replicant-cli/data/$LOG"
+echo "log is at $ARCION_HOME/data/$LOG"

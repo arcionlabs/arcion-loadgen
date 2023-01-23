@@ -3,9 +3,9 @@ type: POSTGRESQL
 host: ${DSTDB_HOST}
 port: 5432
 
-database: 'io'
-username: 'replicant'
-password: 'Replicant#123'
+database: 'arcdst'
+username: 'postgres'
+password: 'password'
 
 max-connections: 30
 socket-timeout-s: 60 #The timeout value used for socket read operations. The timeout is specified in seconds and a value of zero means that it is disabled.

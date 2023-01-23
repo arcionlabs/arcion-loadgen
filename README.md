@@ -239,3 +239,42 @@ docker volume prune
 ```
 02:53:48.507 [pool-31-thread-1] [replicant] ERROR t.r.db.jdbc.mysql.MySQLCDCExtractor - binlogger error message: ERROR: Got error reading packet from server: A slave with the same server_uuid/server_id as this slave has connected to the master; the first event 'binlog.000002' at 119263798, the last event read from './binlog.000002' at 126, the last byte read from './binlog.000002' at 119263798.
 ```
+
+Tools
+
+https://github.com/scgray/jsqsh
+found on https://www.ibm.com/docs/en/db2-big-sql/5.0.2?topic=queries-java-sql-shell-jsqsh
+does work
+
+jsqsh
+psql -h climys2-metadata-1 -U postgres
+
+https://github.com/davidecavestro/jdbsee
+
+
+com.mysql.cj.jdbc.Driver
+https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-api-changes.html
+
+
+https://community.jaspersoft.com/wiki/testing-queries-jdbc-command-line-sqlline
+
+java -classpath `pwd` -jar sqlline-1.12.0-jar-with-dependencies.jar -d org.mariadb.jdbc.Driver -p password -n arcion -u "jdbc:mariadb://climys2-srcdb-1:3306/arcion"
+
+java -classpath `pwd` -jar sqlline-1.12.0-jar-with-dependencies.jar -p password -n arcion -u "jdbc:mariadb://climys2-srcdb-1:3306/arcion"
+
+java -classpath `pwd` -jar sqlline-1.12.0-jar-with-dependencies.jar -d com.mysql.cj.jdbc.Driver -p password -n arcion -u jdbc:mysql://climys2-srcdb-1:3306/arcion
+
+java -classpath `pwd` -jar sqlline-1.12.0-jar-with-dependencies.jar -d org.gjt.mm.mysql.Driver -p password -n arcion -u jdbc:mysql://climys2-srcdb-1:3306/arcion
+
+org.gjt.mm.mysql.Driver
+
+java -cp "/*" -jar ./sqlline-1.12.0-jar-with-dependencies.jar
+!connect jdbc:mysql://climys2-srcdb-1:3306/arcion arcion password com.mysql.jdbc.Driver
+
+!connect jdbc:mariadb://climys2-srcdb-1:3306/arcion arcion password org.mariadb.jdbc.Driver
+
+
+java -classpath sqlline-1.12.0-jar-with-dependencies.jar:/arcion/replicant-cli/lib/* -d org.mariadb.jdbc.Driver -p password -n arcion -u jdbc:mariadb://climys2-srcdb-1:3306/arcion
+
+
+!connect jdbc:mariadb://climys2-srcdb-1:3306/arcion arcion password

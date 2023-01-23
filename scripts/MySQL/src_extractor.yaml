@@ -40,5 +40,20 @@ realtime:
 
   heartbeat:
     enable: true
-    catalog: arcion
+    catalog: arcsrc
     interval-ms: 10000
+
+delta-snapshot:
+  #threads: 32
+  #fetch-size-rows: 10_000
+
+  #min-job-size-rows: 1_000_000
+  max-jobs-per-chunk: 32
+  _max-delete-jobs-per-chunk: 32
+
+  delta-snapshot-key: ts
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10
+  _traceDBTasks: true
+  replicate-deletes: false
+

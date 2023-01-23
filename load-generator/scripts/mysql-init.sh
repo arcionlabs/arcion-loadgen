@@ -34,9 +34,9 @@ wait_mysql () {
     fi
   done
 }
+
 # wait for src db to be ready to connect
 wait_mysql ${SRCDB_HOST} ${SRCDB_ROOT} ${SRCDB_PW}
-wait_mysql ${DSTDB_HOST} ${DSTDB_ROOT} ${DSTDB_PW}
 
 # setup database permissions
 banner mysql

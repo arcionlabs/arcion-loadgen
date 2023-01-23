@@ -1,0 +1,48 @@
+./jqsh pg
+
+```
+./jsqsh -c org.postgresql.Driver -u jdbc:postgresql://127.0.0.1:51070/postgres -P password
+```
+
+   -c, --jdbc-class=driver    JDBC driver class to utilize
+   -u, --jdbc-url=url         JDBC url to use for connection
+   -D, --database=db          Database (catalog) context to use upon connection
+
+
+```
+\setup
+D
+20
+```
+
+3  *           Class : org.postgresql.Driver
+4  *             URL : jdbc:postgresql://${server}:${port}#if($db)/${db}#end
+
+
+\connect --list
++-----------------+--------+--------------------+--------+----------+----------+----------+--------+--------+--------+------------+----------+
+| Name            | Driver | Server             | Port   | Database | Username | Password | Domain | Class  | URL    | Properties | URL Vars |
++-----------------+--------+--------------------+--------+----------+----------+----------+--------+--------+--------+------------+----------+
+| climys2-srcdb-1 | mysql  | climys2-srcdb-1    | [NULL] | arcion   | arcion   | *******  | [NULL] | [NULL] | [NULL] | [NULL]     | [NULL]   |
+| metadata        | pgsql  | climys2-metadata-1 | [NULL] | postgres | postgres | *******  | [NULL] | [NULL] | [NULL] | [NULL]     | [NULL]   |
++-----------------+--------+--------------------+--------+----------+----------+----------+--------+--------+--------+------------+----------+
+
+\connect climys2-srcdb-1
+
+
+# naviagate around the system
+
+```
+\show catalogs
+\show schemas
+\show tables -e arcion.
+\show tables -e pg_catalog.
+\show columns -e arcion.usertable
+\show columns -e arcion.sbtest1
+
+```
+
+./jsqsh -v headers=false -v footers=false -n -o out.txt climys2-srcdb-1 <<EOF
+select * from arcion.replicate_io_cdc_heartbeat
+\go -m csv
+EOF

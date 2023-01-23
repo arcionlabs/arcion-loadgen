@@ -44,15 +44,19 @@ RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/down
 # add sysbench
 RUN apt -y install sysbench
 
+# /usr/share/sysbench/oltp_common.lua
+# modify to add ts so that delta snap can work
+
 # add ttyd for running terminal commands
-RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext xclip datamash
+RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext net-tools nmap
 # expose TTYD port
 EXPOSE 7681
 
-# copy scripts
+# arcion binary
+COPY replicant-cli/ /arcion/
 # TODO: maybe separate scripts which will be changing often
 COPY scripts/ /scripts/
 
 WORKDIR ${YCSB}
 
-CMD /scripts/mysql-init.sh; ttyd tmux
+CMD ttyd tmux
