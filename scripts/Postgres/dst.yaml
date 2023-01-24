@@ -3,8 +3,9 @@ type: POSTGRESQL
 host: ${DSTDB_HOST}
 port: 5432
 
-database: 'arcdst'
-username: 'postgres'
+# should be same name as the source database to prevent cross database
+database: 'arcsrc'
+username: 'arcsrc'
 password: 'password'
 
 max-connections: 30

@@ -1,0 +1,37 @@
+snapshot:
+  threads: 16
+  txn-size-rows: 10000
+  replication-factor: 1
+  schema-dictionary: SCHEMA_DUMP  # Allowed values: POJO | SCHEMA_DUMP| NONE
+  kafka-compression-type: lz4
+  kafka-batch-size-in-bytes: 100000
+  kafka-buffer-memory-size-in-bytes: 67108864
+  kafka-linger-ms: 10
+  skip-tables-on-failures : false
+  kafka-interceptor-classes: ["KafkaInterceptors.SampleInterceptor"]
+  producer-max-block-ms: 60_000
+  create-topic-timeout-ms: 100_000
+
+realtime:
+  txn-size-rows: 1000
+  before-image-format: ALL  # Allowed values : KEY, ALL
+  after-image-format: ALL   # Allowed values : UPDATED, ALL
+  # kafka-compression-type: lz4
+  # shard-key: id
+  # num-shards: 1
+  # shard-function: MOD # Allowed values: MOD, NONE. NONE means storage will use its default sharding
+  # skip-tables-on-failures : false
+  # producer-max-block-ms: 60_000
+  # create-topic-timeout-ms: 100_000
+
+  # per-table-config:
+  # - tables:
+  #     io_blitzz_nation:
+  #       shard-key: id
+  #       num-shards: 16 #default: 1
+  #       shard-function: NONE
+  #     io_blitzz_region:
+  #       shard-key: id
+  #     io_blitzz_customer:
+  #       shard-key: custkey
+  #       num-shards: 16

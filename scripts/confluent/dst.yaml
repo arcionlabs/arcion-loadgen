@@ -1,0 +1,20 @@
+type: KAFKA
+
+username: '' #Replace replicant with the username of your user that connects to your Kafka server
+password: '' #Replace Replicant#123 with your user's password
+
+#ssl:
+#  enable: true
+#  trust-store:
+#      path: "<path>/kafka.server.truststore.jks"
+#      password: "<password>"
+
+#Multiple Kafka brokers can be specified using the format below:
+brokers:
+   broker1: #Replace broker1 with your broker name
+       host: $DSTDB_HOST #Replace localhost with your broker's host
+       port: 9092 #Replace 19092 with your broker's port
+
+_timeout-sec: 30
+max-retries: #Number of times any operation on the system will be re-attempted on failures.
+retry-wait-duration-ms : #Duration in milliseconds replicant should wait before performing then next retry of a failed operation

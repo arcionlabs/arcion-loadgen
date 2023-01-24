@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export SCRIPT_DIR=${SCRIPT_DIR:-/scripts}
+SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 
 SRCDB_ROOT=${SRCDB_ROOT:-root}
 SRCDB_PW=${SRCDB_PW:-password}
@@ -30,7 +30,7 @@ wait_mysql ${SRCDB_HOST} ${SRCDB_ROOT} ${SRCDB_PW}
 # setup database permissions
 banner mysql
 
-cat init.src.sql | mysql -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose
+cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | mysql -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose
 
 # sysbench data population
 banner sysbench 
@@ -47,7 +47,7 @@ banner ycsb
 usertable_cnt=$(mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -sN -e 'select count(*) from usertable;' | tail -1)
 pushd ${YCSB}
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
-    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=com.mysql.jdbc.Driver -p db.url="jdbc:mysql://${SRCDB_HOST}/${SRCDB_ARC_USER}?rewriteBatchedStatements=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd=${SRCDB_ARC_PW} -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000
+    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.mariadb.jdbc.Driver -p db.url="jdbc:mariadb://${SRCDB_HOST}/${SRCDB_ARC_USER}?rewriteBatchedStatements=true&permitMysqlScheme&restrictedAuth=mysql_native_password" -p db.user=${SRCDB_ARC_USER} -p db.passwd=${SRCDB_ARC_PW} -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000
 fi
 mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 1'
 popd

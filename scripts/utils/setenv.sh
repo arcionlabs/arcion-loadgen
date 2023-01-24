@@ -1,0 +1,1 @@
+CLASSPATH=$(ls /arcion/lib/maria* /arcion/lib/post* | paste -sd:)

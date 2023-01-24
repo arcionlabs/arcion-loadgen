@@ -1,6 +1,17 @@
 
 Start postgres with WAL and Replication enabled
 
+export DSTDB_HOST=pg-db
+export DSTDB_TYPE=postgres
+export DSTDB_ROOT_PW=password
+export DSTDB_ROOT_USER=postgres
+
+psql postgresql://${DSTDB_ROOT_USER}:${DSTDB_ROOT_PW}@${DSTDB_HOST}/
+-- list databases
+\l 
+-- list tables
+\dt
+
 ```bash
 docker run -d \
     --name pg-db \
@@ -16,17 +27,36 @@ docker run -d \
 Create source and target schemas
 
 ```sql
+-- src
 CREATE USER arcsrc PASSWORD 'password';
-create schema arcsrc;
--- GRANT USAGE ON SCHEMA arcsrc TO arcsrc;
-GRANT ALL ON SCHEMA arcsrc TO arcsrc;
+ALTER USER arcsrc CREATEDB;
 ALTER ROLE arcsrc WITH REPLICATION;
+CREATE DATABASE arcsrc WITH OWNER arcsrc ENCODING 'UTF8';
+
+CREATE USER arcdst PASSWORD 'password';
+ALTER USER arcdst CREATEDB;
+ALTER ROLE arcdst WITH REPLICATION;
+CREATE DATABASE arcdst WITH OWNER arcdst ENCODING 'UTF8';
+CREATE DATABASE io WITH OWNER arcsrc ENCODING 'UTF8';
+
+psql postgresql://arcsrc:password@${DSTDB_HOST}/
+
+
+-- GRANT ALL PRIVILEGES ON DATABASE arcsrc TO arcsrc;
+
+
 
 CREATE USER arcdst PASSWORD 'password';
 create schema arcdst;
+create schema io;
 -- GRANT USAGE ON SCHEMA arcdst TO arcdst;
-GRANT ALL ON SCHEMA arcsrc TO arcdst;
+GRANT ALL ON SCHEMA arcdst TO arcdst;
+GRANT ALL ON SCHEMA io TO arcdst;
 ALTER ROLE arcdst WITH REPLICATION;
+
+ALTER SCHEMA io OWNER TO arcdst;
+ALTER SCHEMA arcdst OWNER TO arcdst;
+CREATE DATABASE arcdst WITH OWNER arcdst ENCODING 'UTF8';
 ```
 
 Enable replication on `arcsrc` with `test_decoding`

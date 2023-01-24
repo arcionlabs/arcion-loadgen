@@ -16,8 +16,8 @@ bin/ycsb.sh run jdbc -s -threads ${THREADS} -target ${RATE} \
 -P workloads/workloada \
 -p requestdistribution=uniform \
 -p readproportion=0 \
--p db.driver=com.mysql.jdbc.Driver \
--p db.url="jdbc:mysql://${SRCDB_HOST}/${SRCDB_ARC_USER}" \
+-p db.driver=org.mariadb.jdbc.Driver \
+-p db.url="jdbc:mariadb://${SRCDB_HOST}/${SRCDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password" \
 -p db.user=${SRCDB_ARC_USER} \
 -p db.passwd="${SRCDB_ARC_PW}" \
 -p db.batchsize=1000  \

@@ -1,0 +1,23 @@
+type: POSTGRESQL
+
+host: ${SRCDB_HOST}
+port: 5432
+
+# should be same name as the source database to prevent cross database
+database: 'arcsrc'
+username: 'arcsrc'
+password: 'password'
+
+max-connections: 30 #Maximum number of connections replicant can open in postgresql
+socket-timeout-s: 60 #The timeout value for socket read operations. The timeout is in seconds and a value of zero means that it is disabled.
+max-retries: 10 #Number of times any operation on the source system will be re-attempted on failures.
+retry-wait-duration-ms: 1000 #Duration in milliseconds Replicant should wait before performing then next retry of a failed operation.
+
+#List your replication slots (slots which hold the real-time changes of the source database) as follows
+replication-slots:
+  arcsrc: #Replace "io-replicate" with your replication slot name
+    - test_decoding #plugin used to create replication slot (wal2json | test_decoding)
+  #io_replicate1: #Replace "io-replicate1" with your replication slot name
+  #  - wal2json
+
+log-reader-type: SQL # [SQL|STREAM]

@@ -1,4 +1,0 @@
-FROM singlestore/cluster-in-a-box:latest
-
-# To create an image
-#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/singlestore -f Dockerfile.singlestore .
