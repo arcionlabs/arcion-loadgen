@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
@@ -7,7 +7,7 @@ SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 
 # env vars that can be set to skip questions
 # unset DSTDB_TYPE DSTDB_HOST
-# LOG_DIR
+# CFG_DIR
 # SRCDB_HOST
 # DSTDB_HOST
 # SRCDB_TYPE
@@ -18,14 +18,14 @@ SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 copy_yaml() {
     local SRCDB_TYPE=$1
     local DSTDB_TYPE=$2
-    mkdir -p $LOG_DIR
+    mkdir -p $CFG_DIR
     for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml; do 
-        cat $f | envsubst > $LOG_DIR/$(basename $f) 
+        cat $f | envsubst > $CFG_DIR/$(basename $f) 
     done
     for f in $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml; do 
-        cat $f | envsubst > $LOG_DIR/$(basename $f) 
+        cat $f | envsubst > $CFG_DIR/$(basename $f) 
     done
-    echo "Config at $LOG_DIR"
+    echo "Config at $CFG_DIR"
 }
 # return command parm given source and target pair
 arcion_param() {
@@ -44,7 +44,7 @@ arcion_param() {
 arcion_delta() {
     pushd $ARCION_HOME
     ./bin/replicant delta-snapshot \
-    $( arcion_param ${LOG_DIR} ) \
+    $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
     --id $LOG_ID | tee delta.log
@@ -53,7 +53,7 @@ arcion_delta() {
 arcion_real() {
     pushd $ARCION_HOME
     ./bin/replicant real-time \
-    $( arcion_param ${LOG_DIR} ) \
+    $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
     --id $LOG_ID | tee real.log
@@ -62,7 +62,7 @@ arcion_real() {
 arcion_full() {
     pushd $ARCION_HOME
     ./bin/replicant full \
-    $( arcion_param ${LOG_DIR} ) \
+    $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
     --id $LOG_ID | tee full.log
@@ -71,7 +71,7 @@ arcion_full() {
 arcion_snapshot() {
     pushd $ARCION_HOME
     ./bin/replicant snapshot \
-    $( arcion_param ${LOG_DIR} ) \
+    $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
     --id $LOG_ID | tee snap.log
@@ -140,77 +140,138 @@ ask_repl_mode() {
     export REPL_TYPE
 }
 init_src() {
+    rc=0
     mkdir -p /tmp/arcion/$SRCDB_HOST
     if [ -f "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh" ]; then
         #if [ ! -f "/tmp/arcion/$SRCDB_HOST/src.init.log" ]; then
-            ( exec ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh | tee /tmp/arcion/$SRCDB_HOST/src.init.log )
+            # NOTE: do not remove () below as that will exit this script
+            ( exec ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh ) 
+            if [ ! -z "$( cat /tmp/arcion/$SRCDB_HOST/src.init.log | grep failed )" ]; then rc=1; fi  
         #else
         #    echo "/tmp/arcion/$SRCDB_HOST/src.init.log: skipping init"
         #fi
     else
-        echo "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh: not found"    
+        echo "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh: not found. skipping"    
     fi
+    return $rc
 }
 init_dst() {
+    rc=0
     mkdir -p /tmp/arcion/$DSTDB_HOST
     if [ -f "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh" ]; then
         #if [ ! -f "/tmp/arcion/$DSTDB_HOST/dst.init.log" ]; then
-            ( exec ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh | tee /tmp/arcion/$DSTDB_HOST/dst.init.log )
+            # NOTE: do not remove () below as that will exit this script
+            ( exec ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh )
+            if [ ! -z "$( cat /tmp/arcion/$DSTDB_HOST/dst.init.log | grep failed )" ]; then rc=1; fi
         #else
         #    echo "/tmp/arcion/$DSTDB_HOST/dst.init.log: skipping init"
         #fi
     else
-        echo "${SCRIPTS_DIR}/${DSTDB_TYPE}/.init.sh: skipping"    
+        echo "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh: not found. skipping"    
     fi
+    return $rc
 }
 
 # source
-clear
-if [ -z "${SRCDB_HOST}" ]; then ask_src_host; fi
-if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask_src_type; fi
-init_src
+SRCDB_HOST_old=${SRCDB_HOST}
+SRCDB_TYPE_old=${SRCDB_TYPE}
+while [ 1 ]; do
+    clear
+    echo "Setting up Source Host and Type"
+    ask=0
+    if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
+    if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask=1; ask_src_type; fi
+    init_src
+    rc=$?
+    echo "Source Host: ${SRCDB_HOST}"
+    echo "Source Type: ${SRCDB_TYPE}"
+    if (( ask == 0 )); then 
+        break
+    else
+        read -rsp $'Press any key to continue...\n' -n1 key; 
+        if (( rc == 0 )); then
+            break;
+        else
+            SRCDB_HOST=${SRCDB_HOST_old}
+            SRCDB_TYPE=${SRCDB_TYPE_old}    
+        fi
+    fi
+done
 
 # destination
-clear
-if [ -z "${DSTDB_HOST}" ]; then ask_dst_host; fi
-if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask_dst_type; fi
-init_dst
+DSTDB_HOST_old=${DSTDB_HOST}
+DSTDB_TYPE_old=${DSTDB_TYPE}
+while [ 1 ]; do
+    clear
+    echo "Setting up Target Host and Type"
+    ask=0
+    if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
+    if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask=1; ask_dst_type; fi
+    init_dst
+    rc=$?
+    echo $rc
+    echo "Destination Host: ${DSTDB_HOST}"
+    echo "Destination Type: ${DSTDB_TYPE}"
+    if (( ask == 0 )); then 
+        break
+    else
+        read -rsp $'Press any key to continue...\n' -n1 key; 
+        if (( rc == 0 )); then
+            break;
+        else
+            DSTDB_HOST=${DSTDB_HOST_old}
+            DSTDB_TYPE=${DSTDB_TYPE_old}    
+        fi
+    fi
+done
 
 # set replication type
 clear
-if [ -z "${REPL_TYPE}" ]; then ask_repl_mode; fi
-echo ${REPL_TYPE}
+echo "Setting up Soure to Target Replication mode"
+ask=0
+if [ -z "${REPL_TYPE}" ]; then ask=1; ask_repl_mode; fi
+echo "Replication Type: ${REPL_TYPE}"
+if (( ask != 0 )); then read -rsp $'Press any key to continue...\n' -n1 key; fi
 
 # LOGDIR required by copy_yaml
+clear
 
-# WARNING: id length max is 9
+# WARNING: log id length max is 9
 export LOG_ID=$$.${REPL_TYPE:0:3}
-export LOG_DIR=/tmp/arcion/${LOG_ID}
-echo ${LOG_DIR}
+export CFG_DIR=/tmp/arcion/${LOG_ID}
+echo ${CFG_DIR}
 
 # set config 
 copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
 
+# save the choices
+cat > /tmp/ini_menu.sh <<EOF
+SRCDB_TYPE=${SRCDB_TYPE}
+SRCDB_HOST=${SRCDB_HOST}
+DSTDB_TYPE=${DSTDB_TYPE}
+DSTDB_HOST=${DSTDB_HOST}
+REPL_TYPE=${REPL_TYPE}
+CFG_DIR=${CFG_DIR}
+LOG_ID=${LOG_ID}
+EOF
+
 # run the replication
-case ${REPL_TYPE} in
+case ${REPL_TYPE,,} in
   full)
     arcion_full
-    echo $LOG
     ;;
   snapshot)
     arcion_snapshot
-    echo $LOG
     ;;
   delta-snapshot)
     arcion_delta
-    echo $LOG
     ;;
   real-time)
     arcion_real
-    echo $LOG
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;
 esac
-echo "log is at $LOG_DIR"
+echo "cfg is at $CFG_DIR"
+echo "log is at ${ARCION_HOME}/data/$LOG_ID"

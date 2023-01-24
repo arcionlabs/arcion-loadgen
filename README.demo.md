@@ -26,3 +26,6 @@ docker run -d \
 
 ```
 
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=mysql-db SRCDB_type=mysql DSTDB_HOST=mysql-db-2 DSTDB_type=mysql REPL_TYPE=snapshot ./menu.sh

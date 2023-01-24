@@ -23,7 +23,7 @@ wait_pg () {
   local port=${4:-5432}
   rc=1
   while [ ${rc} != 0 ]; do
-    psql -l postgresql://${user}:${pw}@${host}:${port}/ >/dev/null 2>@1
+    psql -l postgresql://${user}:${pw}@${host}:${port}/ >/dev/null 2>&1
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${host} as ${user} to connect"
