@@ -260,35 +260,43 @@ CFG_DIR=${CFG_DIR}
 LOG_ID=${LOG_ID}
 EOF
 
+# clear the windows and configure it for this run
+tmux send-keys -t ${TMUX_SESSION}:3.0 "pkill view" Enter
+tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
+tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
+
 # run the replication
 case ${REPL_TYPE,,} in
   full)
     arcion_full &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
-    arcion_snapshot
+    arcion_snapshot &
     ;;
   delta-snapshot)
     arcion_delta &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;
   real-time)
     arcion_real &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;
 esac
+
+# setup the views to look at log and cfg
+tmux send-keys -t ${TMUX_SESSION}:1.0 "view ${CFG_DIR}" Enter
+tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter 
+
+# the log dir does not get create right away.  wait for it.
+tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
+tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
+
 echo "cfg is at $CFG_DIR"
 echo "log is at ${ARCION_HOME}/data/$LOG_ID"
