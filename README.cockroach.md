@@ -84,5 +84,5 @@ SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL
 ```
 ![cockroach menu](./resources/images/cockroach/cockroach-menu.png)
 
-Ctrl-B 1 will show YAML files
-Ctrl-B 2 will show log files 
+- Ctrl-B 1 will show YAML files
+- Ctrl-B 2 will show log files 
