@@ -1,5 +1,11 @@
 #!/usr/bin/env bash 
 
+# for non interactive demo, kill jobs after certain time has passed
+TIMER=${1:-0}
+
+# TMUX
+TMUX_SESSION=arcion
+
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
 
@@ -258,16 +264,22 @@ EOF
 # run the replication
 case ${REPL_TYPE,,} in
   full)
-    arcion_full
+    arcion_full &
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 60; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 60; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
-    arcion_delta
+    arcion_delta &
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 10; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 10; /scripts/ycsb.sh" Enter
     ;;
   real-time)
-    arcion_real
+    arcion_real &
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 10; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 10; /scripts/ycsb.sh" Enter
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
