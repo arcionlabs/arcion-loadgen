@@ -1,0 +1,14 @@
+type: POSTGRESQL
+
+host: ${DSTDB_HOST}
+port: 26257
+
+# should be same name as the source database to prevent cross database
+database: 'arcsrc'
+username: 'arcsrc'
+password: 'password'
+
+max-connections: 30
+socket-timeout-s: 60 #The timeout value used for socket read operations. The timeout is specified in seconds and a value of zero means that it is disabled.
+max-retries: 10
+retry-wait-duration-ms: 1000

@@ -9,6 +9,10 @@ case "${SRCDB_TYPE,,}" in
     JDBC_DRIVER="org.postgresql.Driver"
     JDBC_URL="jdbc:postgresql://${SRCDB_HOST}/${ARCSRC_USER}?"   
     ;;
+  cockroach)
+    JDBC_DRIVER="org.postgresql.Driver"
+    JDBC_URL="jdbc:postgresql://${SRCDB_HOST}/${ARCSRC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
+    ;; 
   *)
     echo "SRCDB_TYPE: ${SRCDB_TYPE} need to code support"
     ;;

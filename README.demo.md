@@ -16,9 +16,9 @@ docker run -d \
     -e SRCDB_TYPE=mysql \
     -e DSTDB_TYPE=mysql \
     -p :7681 \
+    -v `pwd`/scripts:/scripts \
     robertslee/sybench
 
-    -v `pwd`/scripts:/scripts \
     -v `pwd`/replicant-cli:/arcion \
 
 
