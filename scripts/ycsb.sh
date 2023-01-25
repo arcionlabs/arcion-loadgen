@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 RATE=${1:-1}
-THREADS=${1:-1}
+THREADS=${2:-1}
 
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
+ARCION_HOME=${ARCION_HOME:-/arcion}
+if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+
 SRCDB_ROOT=${SRCDB_ROOT:-root}
 SRCDB_PW=${SRCDB_PW:-password}
 SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}

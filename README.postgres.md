@@ -1,3 +1,8 @@
+export SRCDB_HOST=pg-db
+export SRCDB_TYPE=postgres
+export DSTDB_HOST=pg-db-2
+export DSTDB_TYPE=postgres
+
 
 Start postgres with WAL and Replication enabled
 
@@ -22,6 +27,15 @@ docker run -d \
     postgres \
     -c wal_level=logical \
     -c max_replication_slots=1
+docker run -d \
+    --name pg-db-2 \
+    --network arcnet \
+    -p :5432 \
+    -e POSTGRES_PASSWORD=password \
+    -e POSTGRES_HOST_AUTH_METHOD=password \
+    postgres \
+    -c wal_level=logical \
+    -c max_replication_slots=1
 ```
 
 Create source and target schemas
@@ -32,12 +46,13 @@ CREATE USER arcsrc PASSWORD 'password';
 ALTER USER arcsrc CREATEDB;
 ALTER ROLE arcsrc WITH REPLICATION;
 CREATE DATABASE arcsrc WITH OWNER arcsrc ENCODING 'UTF8';
+CREATE DATABASE io WITH OWNER arcsrc ENCODING 'UTF8';
+
 
 CREATE USER arcdst PASSWORD 'password';
 ALTER USER arcdst CREATEDB;
 ALTER ROLE arcdst WITH REPLICATION;
 CREATE DATABASE arcdst WITH OWNER arcdst ENCODING 'UTF8';
-CREATE DATABASE io WITH OWNER arcsrc ENCODING 'UTF8';
 
 psql postgresql://arcsrc:password@${DSTDB_HOST}/
 

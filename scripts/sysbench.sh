@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 RATE=${1:-1}
-THREADS=${1:-1}
+THREADS=${2:-1}
 
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 SRCDB_ROOT=${SRCDB_ROOT:-root}

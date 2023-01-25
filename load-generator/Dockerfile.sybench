@@ -2,6 +2,7 @@ FROM ubuntu:22.04
 LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
+#   cd arcion-demo
 #   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench .
 # Publish amd64, arm64  
 #   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.sybench .

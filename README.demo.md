@@ -10,21 +10,20 @@ docker run -d \
     --network arcnet \
     -e ARCION_LICENSE=${ARCION_LICENSE} \
     -e ARCION_HOME=/arcion \
-    -e SRCDB_HOST=mysql-db \
-    -e SRCDB_ROOT=root \
-    -e SRCDB_PW=password \
-    -e DSTDB_HOST=mysql-db-2 \
-    -e DSTDB_ROOT=root \
-    -e DSTDB_PW=password \
     -e SCRIPTS_DIR=/scripts \
-    -v `pwd`/scripts:/scripts \
-    -v `pwd`/replicant-cli:/arcion \
+    -e SRCDB_HOST=mysql-db \
+    -e DSTDB_HOST=mysql-db-2 \
+    -e SRCDB_TYPE=mysql \
+    -e DSTDB_TYPE=mysql \
     -p :7681 \
     robertslee/sybench
 
+    -v `pwd`/scripts:/scripts \
+    -v `pwd`/replicant-cli:/arcion \
 
 
 ```
+unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; ./menu.sh
 
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=full ./menu.sh
@@ -34,3 +33,9 @@ SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL
 SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=snapshot ./menu.sh
 SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=full ./menu.sh
 SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=real-time ./menu.sh
+
+
+```
+ALTER TABLE usertable ADD COLUMN ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP after FIELD9;
+ALTER TABLE usertable DROP COLUMN ts;
+```

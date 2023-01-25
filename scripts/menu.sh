@@ -6,10 +6,9 @@ TIMER=${1:-0}
 # TMUX
 TMUX_SESSION=arcion
 
+SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
-
-SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 
 # env vars that can be set to skip questions
 # unset DSTDB_TYPE DSTDB_HOST
@@ -265,21 +264,27 @@ EOF
 case ${REPL_TYPE,,} in
   full)
     arcion_full &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 60; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 60; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 10; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;
   real-time)
     arcion_real &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; sleep 10; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
