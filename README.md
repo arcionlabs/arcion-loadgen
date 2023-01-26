@@ -28,7 +28,6 @@ if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${A
 ```
 
 Make sure $ARCION_LICENSE is not blank.
-```
 
 - Create Docker network
 ```bash
@@ -36,9 +35,10 @@ docker network create arcnet
 ```
 
 - Start MySQL source and target
-```bash
-docker pull mysql
 
+For OSX and Linux:
+
+```bash
 docker run -d \
     --name mysql-db \
     --network arcnet \
@@ -56,16 +56,30 @@ docker run -d \
     mysqld --default-authentication-plugin=mysql_native_password
 ```    
 
-- Start Arcion
+For the Windows users, use the single line version of the above
 ```bash
-docker pull robertslee/sybench
+docker run -d --name mysql-db --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
 
+docker run -d --name mysql-db-2 --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
+```
+
+- Start Arcion
+
+For OSX and Linux:
+
+```bash
 docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE=${ARCION_LICENSE} \
     -p 7681:7681 \
     robertslee/sybench
 ```    
+
+For the Windows users, use the single line version of the above:
+
+```bash
+docker run -d --name arcion-demo --network arcnet -e ARCION_LICENSE=${ARCION_LICENSE}  -p 7681:7681 robertslee/sybench
+```
 
 - Use the CLI [http://localhost:7681](http://localhost.7681)
 
