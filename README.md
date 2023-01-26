@@ -38,7 +38,7 @@ docker network create arcnet
 
 For OSX and Linux:
 
-```sh{.line-numbers}
+```bash
 docker run -d \
     --name mysql-db \
     --network arcnet \
@@ -57,11 +57,11 @@ docker run -d \
 ```    
 
 For the Windows users, use the single line version of the above
-```bash
-docker run -d --name mysql-db --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
+
+<pre><code>docker run -d --name mysql-db --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
 
 docker run -d --name mysql-db-2 --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
-```
+</code></pre>
 
 - Start Arcion
 
