@@ -13,6 +13,8 @@ flowchart LR
 ```
 # CLI Demo Instructions
 
+[asciinema](https://asciinema.org/a/554683) of typing the below commands.
+
 - Get Arcion License
 
 ```bash
