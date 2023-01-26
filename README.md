@@ -17,7 +17,7 @@ flowchart LR
 
 ```bash
 export ARCION_LICENSE=$(cat replicant.lic | base64)
-if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE} >> ~/.zshrc; fi
+if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
 ```
 
 - Create Docker network
