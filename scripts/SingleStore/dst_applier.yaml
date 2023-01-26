@@ -5,10 +5,13 @@ snapshot:
 
   bulk-load:
     # if mysql.cnf local_infile system variable=0
-    # enable: false
+    #enable: false
     # if mysql.cnf local_infile system variable=1
     enable: true
     type: FILE
+
+  # singlestore specific
+  table-store: ROW
 
   skip-tables-on-failures : true
   _traceDBTasks: true
@@ -26,6 +29,9 @@ realtime:
 #  skip-tables-on-failures : false
 #  handle-failed-opers: true
 
+# singlestore specific
+  table-store: ROW
+  
 # Transactional mode config
 # realtime:
 #   threads: 1
