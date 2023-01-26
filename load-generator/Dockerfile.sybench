@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu
 LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
@@ -12,16 +12,17 @@ LABEL MAINTAINER sangkyulee@gmail.com
 #     docker tag 597de83199f4 robertslee/sybench
 #     docker push robertslee/sybench
 
+# JDBC drivers are included with Arcion distribution
+
 # add java
 # NOTE: openjdk8-jre and defaultjdk-jre do not build when run on Apple Silicon 
 RUN apt update && apt install -y curl openjdk-11-jre && java -version
 
 # add database clients
 RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y tzdata mysql-client postgresql-client mysql-server postgresql postgresql-contrib
-RUN systemctl disable mysql && service mysql stop
+# RUN systemctl disable mysql && service mysql stop
 
 # YCSB version
-
 ENV YCSB_VERSION=0.17.0 \
     YCSB_BINDING=jdbc-binding \
     PATH=${PATH}:/usr/bin
@@ -29,28 +30,19 @@ ENV YCSB=/opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}
 
 # add YCSB with just JDBC binding
 RUN mkdir -p /opt
-RUN curl -O --output-dir /opt --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
+RUN cd /opt; curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
 RUN cd /opt; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
     rm -rf /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
 COPY scripts/utils/setenv.sh /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}/bin/. 
 
-# add mysql JDBC driver
-#RUN curl -O --output-dir ${YCSB}/lib --location https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31.tar.gz
-#RUN cd ${YCSB}/lib; tar xfz mysql-connector-j-8.0.31.tar.gz && \
-#    mv mysql-connector-j-8.0.31/mysql-connector-j-8.0.31.jar . && \
-#    rm -rf mysql-connector-j-8.0.31 
-
-# add postgres JDBC driver
-#RUN curl -o --output-dir ${YCSB}/lib --location https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
-
 # add sysbench
-RUN apt -y install sysbench
+# RUN apt-get -y install sysbench
 
 # /usr/share/sysbench/oltp_common.lua
 # modify to add ts so that delta snap can work
 
 # add ttyd for running terminal commands
-RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext net-tools nmap
+RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext net-tools nmap sysbench
 # expose TTYD port
 EXPOSE 7681
 
