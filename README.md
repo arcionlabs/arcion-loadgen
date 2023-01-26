@@ -19,7 +19,15 @@ flowchart LR
 
 ```bash
 export ARCION_LICENSE=$(cat replicant.lic | base64)
+if [ -z "$ARCION_LICENSE" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
+```
+
+- Save Arcion License for reuse
+```bash
 if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
+```
+
+Make sure $ARCION_LICENSE is not blank.
 ```
 
 - Create Docker network
@@ -29,6 +37,8 @@ docker network create arcnet
 
 - Start MySQL source and target
 ```bash
+docker pull mysql
+
 docker run -d \
     --name mysql-db \
     --network arcnet \
@@ -48,8 +58,9 @@ docker run -d \
 
 - Start Arcion
 ```bash
-docker run -d \
-    --name arcion-demo \
+docker pull robertslee/sybench
+
+docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE=${ARCION_LICENSE} \
     -p 7681:7681 \
