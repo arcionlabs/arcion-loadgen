@@ -51,6 +51,6 @@ COPY replicant-cli/ /arcion/
 # TODO: maybe separate scripts which will be changing often
 COPY scripts/ /scripts/
 
-WORKDIR ${YCSB}
+WORKDIR /scripts
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 

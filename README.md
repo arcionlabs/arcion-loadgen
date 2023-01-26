@@ -17,17 +17,18 @@ flowchart LR
 
 - Get Arcion License
 
+Make sure $ARCION_LICENSE is not blank and is valid
+
 ```bash
-export ARCION_LICENSE=$(cat replicant.lic | base64)
-if [ -z "$ARCION_LICENSE" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
+export ARCION_LICENSE="$(cat replicant.lic | base64)"
+if [ -z "${ARCION_LICENSE}" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
+echo "${ARCION_LICENSE}" | base64 -d
 ```
 
 - Save Arcion License for reuse
 ```bash
 if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
 ```
-
-Make sure $ARCION_LICENSE is not blank.
 
 - Create Docker network
 ```bash
@@ -71,7 +72,7 @@ For OSX and Linux:
 ```bash
 docker run -d --name arcion-demo \
     --network arcnet \
-    -e ARCION_LICENSE=${ARCION_LICENSE} \
+    -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
     robertslee/sybench
 ```    
@@ -79,7 +80,7 @@ docker run -d --name arcion-demo \
 For the Windows users, use the single line version of the above:
 
 ```bash
-docker run -d --name arcion-demo --network arcnet -e ARCION_LICENSE=${ARCION_LICENSE}  -p 7681:7681 robertslee/sybench
+docker run -d --name arcion-demo --network arcnet -e ARCION_LICENSE="${ARCION_LICENSE}" -p 7681:7681 robertslee/sybench
 ```
 
 - Use the CLI [http://localhost:7681](http://localhost.7681)

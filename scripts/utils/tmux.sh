@@ -12,7 +12,7 @@ if [ -z "${exists}" ]; then
     # windows 0 to run commands
     tmux split-window -v -t $WIN:0
     tmux split-window -h -t $WIN:0
-    tmux send-keys -t $WIN:0.0 "cd /scripts; /scripts/menu.sh" 
+    tmux send-keys -t $WIN:0.0 "# Enter your commands here" Enter 
     tmux send-keys -t $WIN:0.1 "# /scripts/sysbench.sh" Enter
     tmux send-keys -t $WIN:0.2 "# /scripts/ycsb.sh" Enter
     # windows 1 to view config files
