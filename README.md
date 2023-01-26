@@ -20,9 +20,9 @@ flowchart LR
 Make sure $ARCION_LICENSE is not blank and is valid
 
 ```bash
-export ARCION_LICENSE="$(cat replicant.lic | base64)"
+export ARCION_LICENSE="$(cat replicant.lic | gzip -9 | base64)"
 if [ -z "${ARCION_LICENSE}" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
-echo "${ARCION_LICENSE}" | base64 -d
+echo "${ARCION_LICENSE}" | base64 -d | gzip -d
 ```
 
 - Save Arcion License for reuse
@@ -82,6 +82,11 @@ For the Windows users, use the single line version of the above:
 ```bash
 docker run -d --name arcion-demo --network arcnet -e ARCION_LICENSE="${ARCION_LICENSE}" -p 7681:7681 robertslee/sybench
 ```
+- Ensure Arcion License has not expired
+
+```
+docker logs arcion-dem0
+```
 
 - Use the CLI [http://localhost:7681](http://localhost.7681)
 
@@ -91,11 +96,11 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
 
 [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
 
-  - Ctrl + b + 0 for the main console windows.
-  - Ctrl + b + 1 for the Arcion YAML files.
-  - Ctrl + b + 2 for the Arcion trace and error files.
-  - Ctrl + b + `<up arrow>` to move up the pane.
-  - Ctrl + b + `<down arrow>` to move down the pane.
+  - press `[Ctrl + b]` then `0` for the main console windows.
+  - press `[Ctrl + b]` then `1` for the Arcion YAML files.
+  - press `[Ctrl + b]` then `2` for the Arcion trace and error files.
+  - press `[Ctrl + b]` then `<up arrow>` to move up the pane.
+  - press `[Ctrl + b]` then  + `<down arrow>` to move down the pane.
  
 In the console windows, type the following for fully automated mode.
 
@@ -116,22 +121,30 @@ SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL
 
 - run in interactive mode where system asks for source and target
 ```bash
-unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; cd /scripts; ./menu.sh
+unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; ./menu.sh
 ```
 # view Conole, Cfg and Logs
 
+- To Stop the Run
+
+1. press `[Ctrl + b]`, then `3` 
+2. type `pkill java`
+3. press `[Ctrl + b]`, then `0` 
+
 - Console View after successful run
+
+`[Ctrl + b]` then `0` for the Arcion YAML files.
 
 ![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.14%20AM.png)
 
-- Ctrl + b + 1 for the Arcion YAML files.
+- `[Ctrl + b]` then `1` for the Arcion YAML files.
 
-Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) to navigate. 
+Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) directory tree view to navigate.
 
 ![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.37%20AM.png)
 
-- Ctrl + b + 2 for the Arcion trace and error files.
+- `[Ctrl + b]` then `2` for the Arcion trace and error files.
 
-Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) to navigate. 
+Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) directory tree view to navigate. 
 
 ![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.50%20AM.png)
