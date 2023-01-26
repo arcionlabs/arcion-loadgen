@@ -50,10 +50,6 @@ docker run -d \
     --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE=${ARCION_LICENSE} \
-    -e SRCDB_HOST=mysql-db \
-    -e DSTDB_HOST=mysql-db-2 \
-    -e SRCDB_TYPE=mysql \
-    -e DSTDB_TYPE=mysql \
     -p 7681:7681 \
     robertslee/sybench
 ```    
@@ -62,30 +58,34 @@ docker run -d \
 
 # Running the CLI demo
 
-- Open a browser with tabs for [Arcion](http://localhost:8080) and [tumx](http://localhost:7681)
+Open a browser with tabs for [Arcion CLI](http://localhost:7681)
 
-![tmux](./resources/images/Screen%20Shot%202023-01-11%20at%208.03.54%20AM.png)
+[tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
 
-- In the `Arcion` tab, follow the [Arcion Cloud Tutorial](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html)
-- In the `tmux` tab, type the following commands for `sysbench` and `ycsb` workloads respectively.  Useful `tmux` commands are:
-
-  - Ctrl + b + % to split the current pane vertically.
-
-  - Ctrl + b + " to split the current pane horizontally.
-
-  - Ctrl + b + x to close the current pane.
-
+  - Ctrl + b + 0 for the main console windows.
+  - Ctrl + b + 1 for the Arcion YAML files.
+  - Ctrl + b + 2 for the Arcion trace and error files.
   - Ctrl + b + `<up arrow>` to move up the pane.
-
   - Ctrl + b + `<down arrow>` to move down the pane.
+ 
+In the console windows, type the following for fully automated mode.
 
-  - Ctrl + s to connect to a different session.
-  
-  Below are the commands on each of the panes assuming `Ctl + b + "` was used three times to create three panes.
-
+- run mysql source and target with Arcion snapshot mode
+```bash
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
 ```
-/scripts/sysbench.sh
-/scripts/ycbs.sh
-dstat
+- run mysql source and target with Arcion real-time mode
+```bash
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=real-time ./menu.sh
+```
+- run mysql source and target with Arcion real-time mode
+```bash
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=full ./menu.sh
+```
+  NOTE: This mode does not stop.  type `pkill java` to stop the process.
+
+- run in interactive mode where system asks for source and target
+```bash
+unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; cd /scripts; ./menu.sh
 ```
 
