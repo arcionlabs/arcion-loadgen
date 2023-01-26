@@ -1,26 +1,12 @@
-- Get Arcion License
+This assumes base environment is already setup from the[README.md](README.md).
 
-```bash
-export ARCION_LICENSE=$(cat replicant.lic | base64)
-if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE} >> ~/.zshrc; fi
-```
+NOTE: CockroachDB as the source using snapshot replication mode works.  All other uses do not work in all cases for now.  See the test cases below for the coverage.  
 
-- Create Docker network
-```bash
-docker network create arcnet
-```
+- Start CockroachDB
 
-- Start MySQL source and target
-```bash
-docker run -d \
-    --name mysql-db \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=password \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password
-```
-- Start Cockroach target
+This is is copy/paste from [Start a Cluster in Docker (Insecure) in Mac](https://www.cockroachlabs.com/docs/stable/start-a-local-cluster-in-docker-mac.html) with the following change(s):
+  - use arcnet instead of roachnet 
+
 ```
 docker volume create roach1
 docker volume create roach1
@@ -57,20 +43,6 @@ cockroachdb/cockroach:v22.2.3 start \
 docker exec -it roach1 ./cockroach init --insecure
 ```    
 
-- Start Arcion
-```bash
-docker run -d \
-    --name arcion-demo \
-    --network arcnet \
-    -e ARCION_LICENSE=${ARCION_LICENSE} \
-    -e SRCDB_HOST=mysql-db \
-    -e DSTDB_HOST=mysql-db-2 \
-    -e SRCDB_TYPE=mysql \
-    -e DSTDB_TYPE=mysql \
-    -p 7681:7681 \
-    robertslee/sybench
-```    
-
 - Use the CLI [http://localhost:7681](http://localhost.7681)
 
 # Running the CLI demo
@@ -80,9 +52,14 @@ docker run -d \
 In the first panel that pops up, Ctl-C and type the following:
 
 ```
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=roach1 SRCDB_TYPE=cockroach DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
 ```
 ![cockroach menu](./resources/images/cockroach/cockroach-menu.png)
 
-- Ctrl-B 1 to see YAML files
-- Ctrl-B 2 to see log files 
+The following combinations do not work as of yet.  The configs can be viewed via the `tmux` windows 1 and error messages `tmux` windows 2.
+
+```
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=full ./menu.sh
+```
