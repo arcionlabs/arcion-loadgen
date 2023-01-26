@@ -260,8 +260,13 @@ CFG_DIR=${CFG_DIR}
 LOG_ID=${LOG_ID}
 EOF
 
-# clear the windows and configure it for this run
-tmux send-keys -t ${TMUX_SESSION}:3.0 "pkill view" Enter
+# clear the view windows and configure it for this run
+tmux kill-window -t ${TMUX_SESSION}:1
+tmux kill-window -t ${TMUX_SESSION}:2
+# create new windows but don't switch into it
+tmux new-window -d -t ${TMUX_SESSION}:1
+tmux new-window -d -t ${TMUX_SESSION}:2
+# clear the sysbench and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 

@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:22.04
 LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
@@ -35,14 +35,14 @@ RUN cd /opt; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
     rm -rf /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
 COPY scripts/utils/setenv.sh /opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}/bin/. 
 
-# add sysbench
+# add sysbench (not working now)
 # RUN apt-get -y install sysbench
 
 # /usr/share/sysbench/oltp_common.lua
 # modify to add ts so that delta snap can work
 
 # add ttyd for running terminal commands
-RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext net-tools nmap sysbench
+RUN apt-get -y install ttyd tmux sysvbanner vim dstat gettext net-tools nmap 
 # expose TTYD port
 EXPOSE 7681
 
