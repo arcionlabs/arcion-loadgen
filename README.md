@@ -70,6 +70,7 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
  
 In the console windows, type the following for fully automated mode.
 
+![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 - run mysql source and target with Arcion snapshot mode
 ```bash
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
@@ -88,4 +89,20 @@ SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL
 ```bash
 unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; cd /scripts; ./menu.sh
 ```
+# view Conole, Cfg and Logs
 
+- Console View after successful run
+
+![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.14%20AM.png)
+
+- Ctrl + b + 1 for the Arcion YAML files.
+
+Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) to navigate. 
+
+![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.37%20AM.png)
+
+- Ctrl + b + 2 for the Arcion trace and error files.
+
+Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) to navigate. 
+
+![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.50%20AM.png)
