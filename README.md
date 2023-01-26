@@ -38,7 +38,7 @@ docker network create arcnet
 
 For OSX and Linux:
 
-```bash
+```sh{.line-numbers}
 docker run -d \
     --name mysql-db \
     --network arcnet \
