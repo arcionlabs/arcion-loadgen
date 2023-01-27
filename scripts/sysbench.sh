@@ -32,7 +32,7 @@ echo $JDBC_URL
 
 # finally, run with lowercase SRCDB_TYPE
 case ${SRCDB_TYPE,,} in
-    mysql)
+    mysql|mariadb|singlestore)
         echo ${SRCDB_HOST} ${SRCDB_TYPE}
         sysbench oltp_read_write \
         --rand-type=uniform \

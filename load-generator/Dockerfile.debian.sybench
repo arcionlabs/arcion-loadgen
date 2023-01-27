@@ -1,9 +1,9 @@
-FROM ubuntu:22.04
+FROM debian:stable-slim
 LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
 #   cd arcion-demo
-#   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench .
+#   docker build -t robertslee/sybench:debian -f load-generator/Dockerfile.debian.sybench .
 # Publish amd64, arm64  
 #   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.sybench .
 # To start a container 
@@ -12,8 +12,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 #     docker tag 597de83199f4 robertslee/sybench
 #     docker push robertslee/sybench
 
-# fix sysbench 
-RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/debian.bullseye-backports.main.list
+RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/debian.bullseye-backports.main.list
 
 # JDBC drivers are included with Arcion distribution
 
@@ -22,8 +21,9 @@ RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main
 RUN apt update && apt install -y curl openjdk-11-jre && java -version
 
 # add database clients
-RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y tzdata mysql-client postgresql-client mysql-server postgresql postgresql-contrib
-RUN systemctl disable mysql && service mysql stop
+RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y tzdata  postgresql-client postgresql postgresql-contrib
+RUN apt-get install -y default-mysql-server default-mysql-client
+# RUN systemctl disable mysql && service mysql stop
 
 # YCSB version
 ENV YCSB_VERSION=0.17.0 \
@@ -46,7 +46,7 @@ RUN apt-get -y install sysbench
 
 # add ttyd for running terminal commands
 RUN apt-get -y install tmux sysvbanner vim dstat gettext net-tools nmap 
-# get TTYD from bullseye-backports main
+# expose TTYD port
 RUN apt-get -y install ttyd
 EXPOSE 7681
 

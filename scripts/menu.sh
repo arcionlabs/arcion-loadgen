@@ -25,10 +25,10 @@ copy_yaml() {
     local DSTDB_TYPE=$2
     mkdir -p $CFG_DIR
     for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml; do 
-        cat $f | envsubst > $CFG_DIR/$(basename $f) 
+        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
     for f in $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml; do 
-        cat $f | envsubst > $CFG_DIR/$(basename $f) 
+        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
     echo "Config at $CFG_DIR"
 }
@@ -251,13 +251,13 @@ copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF
-SRCDB_TYPE=${SRCDB_TYPE}
-SRCDB_HOST=${SRCDB_HOST}
-DSTDB_TYPE=${DSTDB_TYPE}
-DSTDB_HOST=${DSTDB_HOST}
-REPL_TYPE=${REPL_TYPE}
-CFG_DIR=${CFG_DIR}
-LOG_ID=${LOG_ID}
+export SRCDB_TYPE=${SRCDB_TYPE}
+export SRCDB_HOST=${SRCDB_HOST}
+export DSTDB_TYPE=${DSTDB_TYPE}
+export DSTDB_HOST=${DSTDB_HOST}
+export REPL_TYPE=${REPL_TYPE}
+export CFG_DIR=${CFG_DIR}
+export LOG_ID=${LOG_ID}
 EOF
 
 # clear the view windows and configure it for this run

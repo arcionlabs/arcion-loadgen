@@ -1,0 +1,12 @@
+type: MYSQL
+
+host: ${DSTDB_HOST}
+port: 3306
+
+username: root
+password: password
+
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000

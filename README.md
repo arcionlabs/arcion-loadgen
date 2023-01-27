@@ -15,6 +15,12 @@ flowchart LR
 
 [asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
+Instructions for MySQL source and various target databases:
+
+MySQL to MySQL
+MySQL to Postgres
+
+
 - Get Arcion License
 
 Make sure $ARCION_LICENSE is not blank and is valid
@@ -74,7 +80,7 @@ docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
-    robertslee/sybench
+    robertslee/sybench:debian
 ```    
 
 For the Windows users, use the single line version of the above:

@@ -40,3 +40,4 @@ bin/ycsb.sh run jdbc -s -threads ${THREADS} -target ${RATE} \
 -p operationcount=$((10000*$THREADS)) 
 
 popd
+

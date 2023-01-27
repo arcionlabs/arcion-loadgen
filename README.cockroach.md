@@ -5,7 +5,7 @@ NOTE: CockroachDB as the source using snapshot replication mode works.  All othe
 - Start CockroachDB
 
 This is a copy/paste from [Start a Cluster in Docker (Insecure) in Mac](https://www.cockroachlabs.com/docs/stable/start-a-local-cluster-in-docker-mac.html) with the following change(s):
-  - use arcnet instead of roachnet 
+  - use `arcnet` instead of `roachnet`
 
 ```
 docker volume create roach1

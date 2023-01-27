@@ -1,0 +1,14 @@
+type: MARIADB
+
+host: ${SRCDB_HOST}
+port: 3306
+
+username: arcsrc
+password: password
+
+# use the pid of the source 
+slave-server-ids: [ ${PID} ]
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000
