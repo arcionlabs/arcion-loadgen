@@ -52,7 +52,8 @@ docker run -d \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
     mysql \
-    mysqld --default-authentication-plugin=mysql_native_password
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
 
 docker run -d \
     --name mysql-db-2 \
@@ -60,7 +61,8 @@ docker run -d \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
     mysql \
-    mysqld --default-authentication-plugin=mysql_native_password
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
 ```    
 
 For the Windows users, use the single line version of the above

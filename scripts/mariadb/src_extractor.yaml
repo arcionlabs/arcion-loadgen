@@ -51,6 +51,7 @@ delta-snapshot:
   max-jobs-per-chunk: 32
   _max-delete-jobs-per-chunk: 32
 
+  # each table has column names ts that is updated
   delta-snapshot-key: ts
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10

@@ -25,7 +25,7 @@ wait_mysql () {
 }
 
 # wait for src db to be ready to connect
-wait_mysql "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}"
+wait_mysql ${SRCDB_HOST} ${SRCDB_ROOT} ${SRCDB_PW}
 
 # setup database permissions
 banner mysql
@@ -36,7 +36,9 @@ cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | mysql -h${SRCDB_HOST} -u${SRCDB_
 banner sysbench 
 
 sbtest1_cnt=$(mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -sN -e 'select count(*) from sbtest1;' 2>/dev/null | tail -1)
-if [[ ${sbtest1_cnt} == "0" || ${sbtest1_cnt} == "" ]]; then
+if [[ ${sbtest1_cnt} == "0" ]]; then
+  sysbench oltp_read_write --skip_table_create=on --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
+else
   sysbench oltp_read_write --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
 fi
 mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from sbtest1; select sum(k) from sbtest1;desc sbtest1;select * from sbtest1 limit 1'

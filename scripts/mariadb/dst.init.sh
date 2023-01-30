@@ -16,11 +16,12 @@ ARCDST_PW=${ARCDST_PW:-password}
 
 # note the convention to save the output /tmp/arcion/${DSTDB_HOST}
 
+# with root user
 if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql | psql postgresql://${PG_ROOT_USER}:${PG_ROOT_PW}@${DSTDB_HOST}/ 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.log
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.ql | mysql -h${DSTDB_HOST} -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PW} --verbose 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.log
 fi
 
 # with the arcsrc user
 if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcsrc.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcsrc.sql | psql postgresql://${PG_ROOT_USER}:${PG_ROOT_PW}@${DSTDB_HOST}/ 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.arcsrc.log
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcsrc.sql | mysql -h${DSTDB_HOST} -u${ARCSRC_USER} -p${ARCSRC_PW} --verbose 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.arcsrc.log
 fi

@@ -73,7 +73,9 @@ sysbench.cmdline.options = {
           "PostgreSQL driver. The only currently supported " ..
           "variant is 'redshift'. When enabled, " ..
           "create_secondary is automatically disabled, and " ..
-          "delete_inserts is set to 0"}
+          "delete_inserts is set to 0"},
+   skip_table_create =
+      {"skip table create and use pre-created tables", false},       
 }
 
 -- Prepare the dataset. This command supports parallel execution, i.e. will
@@ -184,19 +186,19 @@ function create_table(drv, con, table_num)
 
    print(string.format("Creating table 'sbtest%d'...", table_num))
 
+   if not sysbench.opt.skip_table_create then
    query = string.format([[
 CREATE TABLE sbtest%d(
   id %s,
   k INTEGER DEFAULT '0' NOT NULL,
   c CHAR(120) DEFAULT '' NOT NULL,
   pad CHAR(60) DEFAULT '' NOT NULL,
-  %s (id),
-  ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  index(ts)
+  %s (id)
 ) %s %s]],
       table_num, id_def, id_index_def, engine_def, extra_table_options)
 
    con:query(query)
+   end
 
    if (sysbench.opt.table_size > 0) then
       print(string.format("Inserting %d records into 'sbtest%d'",

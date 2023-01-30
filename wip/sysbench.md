@@ -1,4 +1,5 @@
 
+
 from https://github.com/akopytov/sysbench
 
 ```
@@ -6,6 +7,16 @@ sudo apt update
 sudo apt install sysbench
 ```
 
+
+```
+CREATE TABLE sbtest1(
+  id integer,
+  k INTEGER DEFAULT '0' NOT NULL,
+  c CHAR(120) DEFAULT '' NOT NULL,
+  pad CHAR(60) DEFAULT '' NOT NULL,
+  primary key (id)
+);
+```  
 
 https://github.com/cockroachdb/docs/issues/4221
 

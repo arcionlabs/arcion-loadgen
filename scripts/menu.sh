@@ -24,10 +24,7 @@ copy_yaml() {
     local SRCDB_TYPE=$1
     local DSTDB_TYPE=$2
     mkdir -p $CFG_DIR
-    for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml; do 
-        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
-    done
-    for f in $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml; do 
+    for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml; do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
     echo "Config at $CFG_DIR"
@@ -44,13 +41,15 @@ arcion_param() {
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
-    echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier}
+    dst_schemas=$(find ${dst_dir} -maxdepth 1 -name dst.init.arcsrc.sql -print)
+
+    echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier} 
 }
 arcion_delta() {
     pushd $ARCION_HOME
     ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
-    --replace-existing \
+    --truncate-existing \
     --overwrite \
     --id $LOG_ID | tee delta.log
     popd

@@ -1,9 +1,9 @@
-type: MYSQL
+type: MARIADB
 
 host: ${DSTDB_HOST}
 port: 3306
 
-username: root
+username: arcsrc
 password: password
 
 max-connections: 30

@@ -1,0 +1,26 @@
+- catalog: arcsrc
+  tables:
+  - columns:
+    - name: id
+      not-null: true
+      type: int
+    - default-value: '0'
+      name: k
+      not-null: true
+      type: int
+    - default-value: ''
+      name: c
+      not-null: true
+      type: char(120)
+    - default-value: ''
+      name: pad
+      not-null: true
+      type: char(60)
+    - default-value: CURRENT_TIMESTAMP
+      name: ts
+      type: timestamp
+    name: sbtest1
+    object-type: TABLE
+    primary-key:
+      columns:
+      - id

@@ -4,6 +4,7 @@ replicant-cli/*
 arcion/*
 jsqsh-dist-2.3/*
 scripts/HammerDB-4.6/*
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -167,3 +168,4 @@ resources/.DS_Store
 .DS_Store
 .DS_Store
 .DS_Store
+*.swp

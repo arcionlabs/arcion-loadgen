@@ -5,9 +5,9 @@ snapshot:
 
   bulk-load:
     # if mysql.cnf local_infile system variable=0
-    enable: false
+    # enable: false
     # if mysql.cnf local_infile system variable=1
-    # enable: true
+    enable: true
     type: FILE
 
   skip-tables-on-failures : true
