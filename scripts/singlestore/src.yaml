@@ -6,8 +6,6 @@ port: 3306
 username: arcsrc
 password: password
 
-slave-server-ids: [ ${PID} ]
 max-connections: 30
-
 max-retries: 10
 retry-wait-duration-ms: 1000

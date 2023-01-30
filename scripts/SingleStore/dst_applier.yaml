@@ -11,7 +11,7 @@ snapshot:
     type: FILE
 
   # singlestore specific
-  table-store: ROW
+  # table-store: ROW  (does not seem to work)
 
   skip-tables-on-failures : true
   _traceDBTasks: true
@@ -30,7 +30,7 @@ realtime:
 #  handle-failed-opers: true
 
 # singlestore specific
-  table-store: ROW
+#  table-store: ROW
   
 # Transactional mode config
 # realtime:

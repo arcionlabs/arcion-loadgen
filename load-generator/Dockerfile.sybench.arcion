@@ -3,7 +3,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
 #   cd arcion-demo
-#   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench .
+#   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench.arcion .
 # Publish amd64, arm64  
 #   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.sybench .
 # To start a container 
@@ -21,7 +21,7 @@ ENV MYSQL_DIR=/opt/mysql
 ENV YCSB_VERSION=0.17.0 \
     YCSB_BINDING=jdbc-binding \
     PATH=${PATH}:/usr/bin
-ENV YCSB=/opt/ycsb-${YCSB_BINDING}-${YCSB_VERSION}
+ENV YCSB=/opt/ycsb
 
 # ********************************************************
 # setup user account copy / paste from 
@@ -76,8 +76,9 @@ USER $USERNAME
 # download ycsb
 RUN cd $YCSB; curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
 RUN cd $YCSB; tar xfz ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz && \
+    mv $YCSB/ycsb-${YCSB_BINDING}-${YCSB_VERSION}/* ${YCSB} && \
     rm -rf $YCSB/ycsb-${YCSB_BINDING}-${YCSB_VERSION}.tar.gz
-COPY scripts/utils/setenv.sh $YCSB/ycsb-${YCSB_BINDING}-${YCSB_VERSION}/bin/. 
+COPY --chown=${USERNAME} scripts/utils/setenv.sh $YCSB/bin/. 
 
 # download mariadb and unextract it
 RUN cd ${MARIADB_DIR} \
@@ -95,9 +96,9 @@ RUN cd ${MYSQL_DIR} \
 EXPOSE 7681
 
 # arcion binary
-COPY replicant-cli/ /arcion/
+COPY --chown=${USERNAME} replicant-cli/ /arcion/
 # TODO: maybe separate scripts which will be changing often
-COPY scripts/ /scripts/
+COPY --chown=${USERNAME} scripts/ /scripts/
 
 WORKDIR /scripts
 

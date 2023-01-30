@@ -1,6 +1,6 @@
-This assumes base environment is already setup from the [README.md](README.md).
-
 NOTE: CockroachDB as the source using snapshot replication mode works.  All other uses do not work in all cases for now.  See the test cases below for the coverage.  
+
+These instructions assume base environment is already setup from the [README.md](README.md).
 
 - Start CockroachDB
 

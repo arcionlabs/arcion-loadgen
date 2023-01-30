@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+if [ -z "${SRCDB_HOST}" ]; then echo "SRCDB_HOST=xxx src.init.sh"; exit 1; fi
+if [ -z "${SRCDB_TYPE}" ]; then echo "SRCDB_TYPE=xxx src.init.sh"; exit 1; fi
+
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 
 SRCDB_ROOT=${SRCDB_ROOT:-root}
@@ -25,10 +28,10 @@ wait_mysql () {
 }
 
 # wait for src db to be ready to connect
-wait_mysql ${SRCDB_HOST} ${SRCDB_ROOT} ${SRCDB_PW}
+wait_mysql "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}"
 
 # setup database permissions
-banner mysql
+banner source
 
 cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | mysql -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose
 

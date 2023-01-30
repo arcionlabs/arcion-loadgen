@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 case "${SRCDB_TYPE,,}" in
-  mysql)
+  mysql|singlestore)
     JDBC_DRIVER="org.mariadb.jdbc.Driver"
     JDBC_URL="jdbc:mysql://${SRCDB_HOST}/${SRCDB_ARC_USER}?permitMysqlScheme"
     ;;

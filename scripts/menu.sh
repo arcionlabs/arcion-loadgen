@@ -45,9 +45,22 @@ arcion_param() {
 
     echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier} 
 }
+logreader_path() {
+    case "$DSTDB_TYPE" in
+        mysql)
+            echo "/opt/mysql/usr/bin:$PATH"
+            ;;
+        mariadb)
+            echo "/opt/mariadb/usr/bin:$PATH"
+            ;;
+        *)
+            echo $PATH
+            ;;
+    esac
+}
 arcion_delta() {
     pushd $ARCION_HOME
-    ./bin/replicant delta-snapshot \
+    PATH=$( logreader_path ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     --truncate-existing \
     --overwrite \
@@ -56,7 +69,7 @@ arcion_delta() {
 }
 arcion_real() {
     pushd $ARCION_HOME
-    ./bin/replicant real-time \
+    PATH=$( logreader_path ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
@@ -65,7 +78,7 @@ arcion_real() {
 }
 arcion_full() {
     pushd $ARCION_HOME
-    ./bin/replicant full \
+    PATH=$( logreader_path ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
@@ -74,7 +87,7 @@ arcion_full() {
 }
 arcion_snapshot() {
     pushd $ARCION_HOME
-    ./bin/replicant snapshot \
+    PATH=$( logreader_path ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     --replace-existing \
     --overwrite \
@@ -263,8 +276,8 @@ EOF
 tmux kill-window -t ${TMUX_SESSION}:1
 tmux kill-window -t ${TMUX_SESSION}:2
 # create new windows but don't switch into it
-tmux new-window -d -t ${TMUX_SESSION}:1
-tmux new-window -d -t ${TMUX_SESSION}:2
+tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
+tmux new-window -d -n logs -t ${TMUX_SESSION}:2
 # clear the sysbench and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
