@@ -16,6 +16,13 @@ GRANT ALL ON arcsrc.* to 'arcsrc'@'localhost';
 GRANT SELECT ON mysql.user TO 'arcsrc'@'%';
 GRANT SELECT ON mysql.user TO 'arcsrc'@'localhost';
 
+-- prevent SELECT command denied to user 'arcsrc'@'172.18.0.3' for table 'user'
+GRANT SELECT ON mysql.user TO 'arcsrc'@'%';
+GRANT SELECT ON mysql.user TO 'arcsrc'@'localhost';
+
+GRANT SELECT ON performance_schema.* TO 'arcsrc'@'%';
+GRANT SELECT ON performance_schema.* TO 'arcsrc'@'localhost';
+
 -- arcion database
 create database IF NOT EXISTS arcsrc;
 

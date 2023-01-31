@@ -21,7 +21,7 @@ docker run -d --net arcnet --name singlestore-2 -i --init \
 
 - run mysql source and singlestore target with Arcion full mode
 ```bash
-SRCDB_HOST=singlestore SRCDB_TYPE=singlestore DSTDB_HOST=singlestore-2 DSTDB_TYPE=singlestore REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=singlestore DSTDB_HOST=singlestore-2 REPL_TYPE=snapshot ./menu.sh
 
-SRCDB_HOST=singlestore SRCDB_TYPE=singlestore DSTDB_HOST=singlestore-2 DSTDB_TYPE=singlestore REPL_TYPE=delta-snapshot ./menu.sh
+SRCDB_HOST=singlestore DSTDB_HOST=singlestore-2 REPL_TYPE=delta-snapshot ./menu.sh
 ```

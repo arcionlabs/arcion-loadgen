@@ -1,7 +1,7 @@
 
 ```bash
 docker run -d \
-    --name maria-db \
+    --name mariadb \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
@@ -11,7 +11,7 @@ docker run -d \
     --binlog-format=ROW
 
 docker run -d \
-    --name maria-db-2 \
+    --name mariadb-2 \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
@@ -21,25 +21,12 @@ docker run -d \
     --binlog-format=ROW
 ```
 
-``
-SRCDB_HOST=maria-db SRCDB_TYPE=mariadb DSTDB_HOST=maria-db-2 DSTDB_TYPE=mariadb REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=maria-db SRCDB_TYPE=mariadb DSTDB_HOST=maria-db-2 DSTDB_TYPE=mariadb REPL_TYPE=full ./menu.sh
-
-``
-
-https://mariadb.com/downloads/
-
 ```bash
-case $(dpkg --print-architecture) in
-    arm64)
-    curl -O https://dlm.mariadb.com/2685406/MariaDB/mariadb-10.10.2/repo/ubuntu/mariadb-10.10.2-ubuntu-focal-amd64-debs.tar
-    ;;
-    amd64)
-    curl -O https://dlm.mariadb.com/2690820/MariaDB/mariadb-10.10.2/bintar-linux-systemd-x86_64/mariadb-10.10.2-linux-systemd-x86_64.tar.gz
-    ;;
-    *)
-    echo "Unsupported arch"
-    ;;
-esac
+SRCDB_HOST=mariadb DSTDB_HOST=mariadb-2 REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=mariadb DSTDB_HOST=mariadb-2 REPL_TYPE=full ./menu.sh
+
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=delta-snapshot ./menu.sh
+
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=real-time ./menu.sh
 ```

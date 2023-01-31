@@ -41,6 +41,7 @@ delta-snapshot:
   - catalog: arcsrc
     tables:
       usertable:
-        row-identifier-key: [ycsb_key]
+        # NOTE: this field name is case sensitive
+        row-identifier-key: [YCSB_KEY]
       sbtest1:
         row-identifier-key: [id]

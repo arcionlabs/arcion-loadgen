@@ -1,4 +1,4 @@
-type: MYSQL
+type: SINGLESTORE
 
 host: ${SRCDB_HOST}
 port: 3306

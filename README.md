@@ -17,9 +17,17 @@ flowchart LR
 
 Instructions for MySQL source and various target databases:
 
-MySQL to MySQL
-MySQL to Postgres
+Works
 
+- MySQL to MySQL below
+- [MariaDB to MariaDB](./README.mariadb.md) 
+- [SingleStore to SingleStore](./README.singlestore.md) 
+
+Work in Process
+- [Postgres to Postgres](./README.postgres.md) 
+
+
+## Step by Step Process
 
 - Get Arcion License
 
@@ -82,7 +90,7 @@ docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
-    robertslee/sybench:debian
+    robertslee/sybench
 ```    
 
 For the Windows users, use the single line version of the above:
@@ -115,19 +123,19 @@ In the console windows, type the following for fully automated mode.
 ![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 - run mysql source and target with Arcion snapshot mode
 ```bash
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=snapshot ./menu.sh
 ```
 - run mysql source and target with Arcion real-time mode
 ```bash
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=real-time ./menu.sh
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=real-time ./menu.sh
 ```
 - run mysql source and target with Arcion real-time mode
 ```bash
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=delta-snapshot ./menu.sh
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=delta-snapshot ./menu.sh
 ```
 - run mysql source and target with Arcion full mode
 ```bash
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=full ./menu.sh
+SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=full ./menu.sh
 ```
   NOTE: This mode does not stop.  type `pkill java` to stop the process.
 

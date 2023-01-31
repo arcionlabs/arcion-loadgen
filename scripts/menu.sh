@@ -29,6 +29,29 @@ copy_yaml() {
     done
     echo "Config at $CFG_DIR"
 }
+
+infer_dbtype() {
+    local DB_HOST=${1}
+    local DB_TYPE=${2}
+    if [ -z "${DB_HOST}" ]; then
+        echo '$1 should be DB_HOST'
+        return 1
+    fi
+    if [ -z "${DB_TYPE}" ]; then 
+        # infer srcdb type from the frist word of ${SRCDB_HOST}
+        DB_TYPE=$( echo ${DB_HOST} | cut -d'-' -f1 )
+        if [ -d ${SCRIPTS_DIR}/${DB_TYPE} ]; then
+            echo "$DB_TYPE"
+            echo "$DB_TYPE inferred from hostname." >&2
+        else
+            echo "DB_TYPE was not specifed and could not infer from HOSTNAME." >&2
+            return 1
+        fi
+    else
+        echo ${DB_TYPE}
+    fi
+}
+
 # return command parm given source and target pair
 arcion_param() {
     local src_dir=${1:-.}
@@ -197,6 +220,7 @@ while [ 1 ]; do
     echo "Setting up Source Host and Type"
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
+    if [ -z "${SRCDB_TYPE}" ]; then export SRCDB_TYPE=$( infer_dbtype "${SRCDB_HOST}" ); fi
     if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask=1; ask_src_type; fi
     init_src
     rc=$?
@@ -223,6 +247,7 @@ while [ 1 ]; do
     echo "Setting up Target Host and Type"
     ask=0
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
+    if [ -z "${DSTDB_TYPE}" ]; then export DSTDB_TYPE=$( infer_dbtype "${DSTDB_HOST}" ); fi
     if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask=1; ask_dst_type; fi
     init_dst
     rc=$?

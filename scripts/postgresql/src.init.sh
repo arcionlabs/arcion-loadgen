@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+if [ -z "${SRCDB_HOST}" ]; then echo "SRCDB_HOST=xxx src.init.sh"; exit 1; fi
+if [ -z "${SRCDB_TYPE}" ]; then echo "SRCDB_TYPE=xxx src.init.sh"; exit 1; fi
+
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
-SRCDB_TYPE=${SRCDB_TYPE:-postgres}
 
 MYSQL_ROOT_USER=${MYSQL_ROOT_USER:-root}
 MYSQL_ROOT_PW=${MYSQL_ROOT_PW:-password}
@@ -14,7 +16,6 @@ ARCSRC_PW=${ARCSRC_PW:-password}
 
 ARCDST_USER=${ARCDST_USER:-arcdst}
 ARCDST_PW=${ARCDST_PW:-password}
-
 
 wait_pg () {
   local host=$1
@@ -49,7 +50,9 @@ select count(*) from sbtest1;
 EOF
 )
 
-if [[ ${sbtest1_cnt} == "0" || ${sbtest1_cnt} == "" ]]; then
+if [[ ${sbtest1_cnt} == "0" ]]; then
+  sysbench oltp_read_write --skip_table_create=on --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${ARCSRC_USER} --pgsql-password=${ARCSRC_PW} --pgsql-db=${ARCSRC_USER} prepare 
+else
   sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${ARCSRC_USER} --pgsql-password=${ARCSRC_PW} --pgsql-db=${ARCSRC_USER} prepare 
 fi
 

@@ -18,7 +18,7 @@ ARCDST_PW=${ARCDST_PW:-password}
 
 # with root user
 if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.ql | mysql -h${DSTDB_HOST} -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PW} --verbose 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.log
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql | mysql -h${DSTDB_HOST} -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PW} --verbose 2>&1 | tee /tmp/arcion/${DSTDB_HOST}/dst.init.log
 fi
 
 # with the arcsrc user
