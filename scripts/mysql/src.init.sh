@@ -28,9 +28,10 @@ wait_mysql () {
 wait_mysql ${SRCDB_HOST} ${SRCDB_ROOT} ${SRCDB_PW}
 
 # setup database permissions
-banner mysql
+banner source
 
 cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | mysql -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose
+cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.sql | mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} --verbose
 
 # sysbench data population
 banner sysbench 
