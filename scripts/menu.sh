@@ -340,5 +340,32 @@ tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
+# wait for jobs to finish for ctrl-c to exit
+control_c() {
+    tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
+    tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
+    for pid in $(jobs -p); do
+        echo kill -9 $pid
+        kill -9 $pid 2>/dev/null
+    done
+}
+trap control_c SIGINT
+JOBS_CNT=1
+while (( JOBS_CNT != 0 )); do
+    # jobs exist?
+    JOBS_CNT=0
+    JOBS=$(jobs -p)
+    for pid in $JOBS; do
+        if (( $(ps $pid | wc -l) > 1 )); then
+            JOBS_CNT=$(( JOBS_CNT + 1 )) 
+        fi
+    done
+    if (( JOBS_CNT > 0 )); then
+        sleep 1
+    else
+        break
+    fi
+done
+
 echo "cfg is at $CFG_DIR"
 echo "log is at ${ARCION_HOME}/data/$LOG_ID"
