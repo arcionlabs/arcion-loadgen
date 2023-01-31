@@ -51,9 +51,13 @@ EOF
 )
 
 if [[ ${sbtest1_cnt} == "0" ]]; then
+  echo "Empty table exists. adding new rows"
   sysbench oltp_read_write --skip_table_create=on --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${ARCSRC_USER} --pgsql-password=${ARCSRC_PW} --pgsql-db=${ARCSRC_USER} prepare 
-else
+elif [[ ${sbtest1_cnt} == "" ]]; then
+  echo "Creating default table with new rows"
   sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${ARCSRC_USER} --pgsql-password=${ARCSRC_PW} --pgsql-db=${ARCSRC_USER} prepare 
+else
+  echo "Rows exist. skipping adding new rows"
 fi
 
 psql postgresql://${ARCSRC_USER}:${ARCSRC_PW}@${SRCDB_HOST} <<EOF

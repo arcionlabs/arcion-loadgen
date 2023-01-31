@@ -15,9 +15,9 @@ retry-wait-duration-ms: 1000 #Duration in milliseconds Replicant should wait bef
 
 #List your replication slots (slots which hold the real-time changes of the source database) as follows
 replication-slots:
-  arcsrc: #Replace "io-replicate" with your replication slot name
-    - test_decoding #plugin used to create replication slot (wal2json | test_decoding)
-  #io_replicate1: #Replace "io-replicate1" with your replication slot name
-  #  - wal2json
+  wal2json: #Replace "io-replicate" with your replication slot name
+    - wal2json
+  #test_decoding: #Replace "io-replicate" with your replication slot name
+  #  - test_decoding
 
 log-reader-type: SQL # [SQL|STREAM]
