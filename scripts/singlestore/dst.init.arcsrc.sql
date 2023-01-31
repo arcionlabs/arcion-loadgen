@@ -1,3 +1,6 @@
+-- 
+-- NOTE: Arcion singlestore requires same schema on source and destination
+--
 CREATE TABLE if not exists arcsrc.sbtest1(
     id INTEGER,
     k INTEGER DEFAULT '0' NOT NULL,
@@ -5,7 +8,6 @@ CREATE TABLE if not exists arcsrc.sbtest1(
     pad CHAR(60) DEFAULT '' NOT NULL,
     primary key (id),
     ts TIMESTAMP(6),
-    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     index(ts)
 );
 
@@ -18,6 +20,5 @@ CREATE TABLE if not exists arcsrc.usertable (
     FIELD6 TEXT, FIELD7 TEXT,
     FIELD8 TEXT, FIELD9 TEXT,
     ts TIMESTAMP(6),
-    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     index(ts2)
 );

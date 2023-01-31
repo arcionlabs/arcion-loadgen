@@ -94,7 +94,7 @@ arcion_real() {
     pushd $ARCION_HOME
     PATH=$( logreader_path ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
-    --replace-existing \
+    --truncate-existing \
     --overwrite \
     --id $LOG_ID | tee real.log
     popd
@@ -103,7 +103,7 @@ arcion_full() {
     pushd $ARCION_HOME
     PATH=$( logreader_path ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
-    --replace-existing \
+    --truncate-existing \
     --overwrite \
     --id $LOG_ID | tee full.log
     popd
@@ -112,7 +112,7 @@ arcion_snapshot() {
     pushd $ARCION_HOME
     PATH=$( logreader_path ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
-    --replace-existing \
+    --truncate-existing \
     --overwrite \
     --id $LOG_ID | tee snap.log
     popd
