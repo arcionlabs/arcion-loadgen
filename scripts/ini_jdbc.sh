@@ -9,7 +9,7 @@ case "${SRCDB_TYPE,,}" in
     JDBC_DRIVER="org.mariadb.jdbc.Driver"
     JDBC_URL="jdbc:mysql://${SRCDB_HOST}/${SRCDB_ARC_USER}?permitMysqlScheme"
     ;;
-  postgres)
+  postgresql)
     JDBC_DRIVER="org.postgresql.Driver"
     JDBC_URL="jdbc:postgresql://${SRCDB_HOST}/${ARCSRC_USER}?"   
     ;;
