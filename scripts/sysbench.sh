@@ -48,7 +48,7 @@ case ${SRCDB_TYPE,,} in
         --threads=${THREADS} \
         run
     ;;
-    postgres)
+    postgresql)
         echo ${SRCDB_HOST} ${SRCDB_TYPE}
         sysbench oltp_read_write \
         --rand-type=uniform \
