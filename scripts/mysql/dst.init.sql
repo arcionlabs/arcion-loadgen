@@ -18,3 +18,8 @@ GRANT SELECT ON performance_schema.* TO 'arcsrc'@'localhost';
 -- arcion database
 create database IF NOT EXISTS arcsrc;
 create database IF NOT EXISTS io_replicate;
+
+-- if source has catalog.scham support
+GRANT ALL ON arcsrc_public.* to 'arcsrc'@'%';
+GRANT ALL ON arcsrc_public.* to 'arcsrc'@'localhost';
+create database IF NOT EXISTS arcsrc_public;

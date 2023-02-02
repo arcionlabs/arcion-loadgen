@@ -56,17 +56,28 @@ infer_dbtype() {
 arcion_param() {
     local src_dir=${1:-.}
     local dst_dir=${2:-$src_dir}
+    local arg=""
 
+    # source specific
     src=$(find ${src_dir} -maxdepth 1 -name src.yaml -print)
     filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml -print)
     extractor=$(find ${src_dir} -maxdepth 1 -name src_extractor.yaml -print)
 
+    # dest specific
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
-    dst_schemas=$(find ${dst_dir} -maxdepth 1 -name dst.init.arcsrc.sql -print)
+    # optional
+    map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
 
-    echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier} 
+    # construct the list
+    arg="${src} ${dst}"
+    [ ! -z "${filter}" ] && arg="${arg} --filter ${filter}"
+    [ ! -z "${extractor}" ] && arg="${arg} --extractor ${extractor}"
+    [ ! -z "${applier}" ] && arg="${arg} --applier ${applier}"
+    [ ! -z "${map}" ] && arg="${arg} --map ${map}"
+
+    echo $arg 
 }
 logreader_path() {
     case "$SRCDB_TYPE" in
@@ -110,6 +121,7 @@ arcion_full() {
 }
 arcion_snapshot() {
     pushd $ARCION_HOME
+    echo "$( arcion_param ${CFG_DIR} )"
     PATH=$( logreader_path ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     --truncate-existing \

@@ -4,7 +4,7 @@ Instructions for mounting new Arcion binary and Script for development purposes.
 docker run -d \
     --name arcion-demo \
     --network arcnet \
-    -e ARCION_LICENSE=${ARCION_LICENSE} \
+    -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
     robertslee/sybench

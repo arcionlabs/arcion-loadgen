@@ -13,6 +13,7 @@ if [ -z "${exists}" ]; then
     tmux new-window -n logs -t $WIN:2
     tmux new-window -n sysbench -t $WIN:3
     tmux new-window -n ycsb -t $WIN:4
+    tmux new-window -n validate -t $WIN:5
 
     # windows 0 to run commands
     tmux split-window -v -t $WIN:0
@@ -27,7 +28,9 @@ if [ -z "${exists}" ]; then
     tmux send-keys -t $WIN:2.0 "cd /arcion/data; view" Enter
     tmux send-keys -t $WIN:2.0 ":E" Enter
     # windows 3 
-    # work window
+    # windows 4 
+    # windows 5
+    tmux send-keys -t $WIN:5.0 "# /scripts/validate.sh" Enter
     # activate $WIN:0
     tmux select-window -t $WIN:0.0
     tmux select-pane -t $WIN:0.0
