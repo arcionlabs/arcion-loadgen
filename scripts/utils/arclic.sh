@@ -9,10 +9,10 @@ if [ -f "${ARCION_HOME}/replicant.lic" -o -z "${ARCION_LICENSE}" ]; then
 else
     echo "${ARCION_HOME}/replicant.lic set"
     # try if gzip
-    echo $ARCION_LICENSE | base64 -d | gzip -d > ${ARCION_HOME}/replicant.lic
+    echo "$ARCION_LICENSE" | base64 -d | gzip -d > ${ARCION_HOME}/replicant.lic
     # try non gzip
     if [ "$?" != 0 ]; then
-        echo $ARCION_LICENSE | base64 -d > ${ARCION_HOME}/replicant.lic
+        echo "$ARCION_LICENSE" | base64 -d > ${ARCION_HOME}/replicant.lic
     fi
 fi
 cat ${ARCION_HOME}/replicant.lic

@@ -25,18 +25,18 @@ realtime:
   threads: 32
   batch-size-rows: 10_000
   txn-size-rows: 1_00_000
-#  replay-replace-as-upsert: false
-#  skip-tables-on-failures : false
-#  handle-failed-opers: true
+  replay-replace-as-upsert: false
+  skip-tables-on-failures : false
+  handle-failed-opers: true
 
 # singlestore specific
-#  table-store: ROW
+  # table-store: ROW does not work
   
 # Transactional mode config
 # realtime:
 #   threads: 1
 #   batch-size-rows: 1000
-#   replay-consistency: GLOBAL
 #   txn-group-count: 100
 #   _oper-queue-size-rows: 20000
+#   replay-consistency: GLOBAL
 #   skip-upto-cursors: #last failed cursor
