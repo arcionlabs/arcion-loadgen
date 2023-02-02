@@ -5,7 +5,10 @@ LABEL MAINTAINER sangkyulee@gmail.com
 #   cd arcion-demo
 #   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench .
 # Publish amd64, arm64  
-#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench:arcion -f load-generator/Dockerfile.sybench .
+#   docker buildx create --name mybuilder
+#   docker buildx use mybuilder
+#   docker buildx inspect --bootstrap
+#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.sybench .
 # To start a container 
 #     docker run -it --rm -p 7681:7681 robertslee/sybench
 # To push to docker hub
