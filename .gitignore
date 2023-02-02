@@ -5,6 +5,7 @@ arcion/*
 jsqsh-dist-2.3/*
 scripts/HammerDB-4.6/*
 *.swp
+*.tsv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
