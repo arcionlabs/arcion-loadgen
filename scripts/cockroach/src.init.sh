@@ -41,6 +41,7 @@ wait_pg ${SRCDB_HOST} ${CRL_ROOT_USER} ${CRL_ROOT_PW}
 # setup database permissions
 banner src
 
+export PGCLIENTENCODING='utf-8'
 cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | psql postgresql://${CRL_ROOT_USER}:${CRL_ROOT_PW}@${SRCDB_HOST}:${CRL_PORT}/defaultdb?sslmode=disable
 cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.sql | psql postgresql://${ARCSRC_USER}:${ARCSRC_PW}@${SRCDB_HOST}:${CRL_PORT}/${ARCSRC_USER}?sslmode=disable
 

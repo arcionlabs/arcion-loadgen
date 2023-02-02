@@ -39,7 +39,7 @@ infer_dbtype() {
     fi
     if [ -z "${DB_TYPE}" ]; then 
         # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_TYPE=$( echo ${DB_HOST} | cut -d'-' -f1 )
+        DB_TYPE=$( echo ${DB_HOST} | awk -F'[-.]' '{print $1}' )
         if [ -d ${SCRIPTS_DIR}/${DB_TYPE} ]; then
             echo "$DB_TYPE"
             echo "$DB_TYPE inferred from hostname." >&2
@@ -69,7 +69,7 @@ arcion_param() {
     echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier} 
 }
 logreader_path() {
-    case "$DSTDB_TYPE" in
+    case "$SRCDB_TYPE" in
         mysql)
             echo "/opt/mysql/usr/bin:$PATH"
             ;;
@@ -298,11 +298,15 @@ export LOG_ID=${LOG_ID}
 EOF
 
 # clear the view windows and configure it for this run
-tmux kill-window -t ${TMUX_SESSION}:1
-tmux kill-window -t ${TMUX_SESSION}:2
+tmux kill-window -t ${TMUX_SESSION}:1   # yaml
+tmux kill-window -t ${TMUX_SESSION}:2   # log
+tmux kill-window -t ${TMUX_SESSION}:3   # sysbench
+tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
 tmux new-window -d -n logs -t ${TMUX_SESSION}:2
+tmux new-window -d -n sysbench -t ${TMUX_SESSION}:3
+tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
 # clear the sysbench and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
@@ -339,6 +343,12 @@ tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter
 # the log dir does not get create right away.  wait for it.
 tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
+
+# show sysbench and ycsb changes 
+tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sysbench.sh" Enter
+tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.ycsb.sh" Enter 
+
+tmux select-window -t ${TMUX_SESSION}:0.0
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {

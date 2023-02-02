@@ -27,8 +27,8 @@ if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
 # get the jdbc driver to match
 . ${SCRIPTS_DIR}/ini_jdbc.sh
-echo $JDBC_DRIVER
-echo $JDBC_URL
+echo $SRC_JDBC_DRIVER
+echo $SRC_JDBC_URL
 
 # finally, run with lowercase SRCDB_TYPE
 case ${SRCDB_TYPE,,} in

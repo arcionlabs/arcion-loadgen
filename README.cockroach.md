@@ -13,34 +13,36 @@ docker volume create roach1
 docker volume create roach1
 
 docker run -d \
---name=roach1 \
---hostname=roach1 \
+--name=cockroach-1 \
+--hostname=cockroach-1 \
 --net=arcnet \
--p 26257:26257 -p 8080:8080  \
+-p :26257 -p :8080  \
 -v "roach1:/cockroach/cockroach-data"  \
 cockroachdb/cockroach:v22.2.3 start \
 --insecure \
---join=roach1,roach2,roach3
+--join=cockroach-1,cockroach-2,cockroach-3
 
 docker run -d \
---name=roach2 \
---hostname=roach2 \
+--name=cockroach-2 \
+--hostname=cockroach-2 \
 --net=arcnet \
+-p :26257 -p :8080  \
 -v "roach2:/cockroach/cockroach-data" \
 cockroachdb/cockroach:v22.2.3 start \
 --insecure \
---join=roach1,roach2,roach3
+--join=cockroach-1,cockroach-2,cockroach-3
 
 docker run -d \
---name=roach3 \
---hostname=roach3 \
+--name=cockroach-3 \
+--hostname=cockroach-3 \
 --net=arcnet \
+-p :26257 -p :8080  \
 -v "roach3:/cockroach/cockroach-data" \
 cockroachdb/cockroach:v22.2.3 start \
 --insecure \
---join=roach1,roach2,roach3
+--join=cockroach-1,cockroach-2,cockroach-3
 
-docker exec -it roach1 ./cockroach init --insecure
+docker exec -it cockroach-1 ./cockroach init --insecure
 ```    
 
 - Use the CLI [http://localhost:7681](http://localhost.7681)
@@ -52,7 +54,7 @@ docker exec -it roach1 ./cockroach init --insecure
 In the first panel that pops up, Ctl-C and type the following:
 
 ```
-SRCDB_HOST=roach1 SRCDB_TYPE=cockroach DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=cockroach-1 DSTDB_HOST=mysql-db-2 REPL_TYPE=snapshot ./menu.sh
 ```
 ![cockroach menu](./resources/images/cockroach/cockroach-menu.png)
 
@@ -62,4 +64,10 @@ The following combinations do not work as of yet.  The configs can be viewed via
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=full ./menu.sh
+```
+
+
+```
+export PGCLIENTENCODING='utf-8'
+psql postgresql://root:password@cockroach-1:26257/?sslmode=disable
 ```

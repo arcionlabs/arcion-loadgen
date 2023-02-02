@@ -16,8 +16,8 @@ SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 # get the jdbc driver to match
 . ${SCRIPTS_DIR}/ini_jdbc.sh
-echo $JDBC_DRIVER
-echo $JDBC_URL
+echo $SRC_JDBC_DRIVER
+echo $SRC_JDBC_URL
 
 # start the YCSB
 YCSB=${YCSB:-/opt/ycsb-0.17.0-jdbc-binding}
@@ -28,8 +28,8 @@ bin/ycsb.sh run jdbc -s -threads ${THREADS} -target ${RATE} \
 -P workloads/workloada \
 -p requestdistribution=uniform \
 -p readproportion=0 \
--p db.driver=${JDBC_DRIVER} \
--p db.url="${JDBC_URL}" \
+-p db.driver=${SRC_JDBC_DRIVER} \
+-p db.url="${SRC_JDBC_URL}" \
 -p db.user=${SRCDB_ARC_USER} \
 -p db.passwd="${SRCDB_ARC_PW}" \
 -p db.batchsize=1000  \

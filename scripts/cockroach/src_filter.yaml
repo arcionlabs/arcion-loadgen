@@ -1,6 +1,6 @@
 allow:
 - catalog: "arcsrc"
-  schema: "public"
+  schema: "defaultdb"
   types: [TABLE]
   allow:
     # without any tables, all of the tables are scoped up
