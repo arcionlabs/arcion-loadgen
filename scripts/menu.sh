@@ -69,7 +69,7 @@ arcion_param() {
     echo ${src} ${dst} ${filter+'--filter' $filter} ${extractor+'--extractor' $extractor} ${applier+'--applier' $applier} 
 }
 logreader_path() {
-    case "$DSTDB_TYPE" in
+    case "$SRCDB_TYPE" in
         mysql)
             echo "/opt/mysql/usr/bin:$PATH"
             ;;

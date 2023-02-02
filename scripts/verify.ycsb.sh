@@ -26,7 +26,8 @@ case ${SRCDB_TYPE,,} in
         tmux send-keys -t :4.0 "watch -n 1 \"mysql -t -u${SRCDB_ARC_USER} -h${SRCDB_HOST} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -e 'select ycsb_key,ts from usertable order by ts desc,ycsb_key asc limit 20;'\"" enter
     ;;
     postgresql|cockroach)
-        echo ${SRCDB_HOST} ${SRCDB_TYPE}    
+        echo ${SRCDB_HOST} ${SRCDB_TYPE}   
+        tmux send-keys -t :4.0 "watch -n 1 \"psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}/${SRCDB_ARC_USER} -c 'select ycsb_key,ts from usertable order by ts desc,ycsb_key asc limit 20;'\"" enter
         ;; 
     *)
         echo "Error: ${DSTDB_TYPE} needs to be supproted"
@@ -43,6 +44,7 @@ case ${DSTDB_TYPE,,} in
     ;;
     postgresql|cockroach)
         echo ${DSTDB_HOST} ${DSTDB_TYPE}    
+        tmux send-keys -t :4.1 "watch -n 1 \"psql postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}/${DSTDB_ARC_USER} -c 'select ycsb_key,ts from usertable order by ts desc,ycsb_key asc limit 20;'\"" enter        
         ;; 
     *)
         echo "Error: ${DSTDB_TYPE} needs to be supproted"
