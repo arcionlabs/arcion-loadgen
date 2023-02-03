@@ -1,3 +1,7 @@
+SELECT 'init' FROM pg_create_logical_replication_slot('test_decoding', 'test_decoding');
+SELECT 'init' FROM pg_create_logical_replication_slot('wal2json', 'wal2json');
+SELECT * from pg_replication_slots;
+
 -- create arcsrc for retrivial
 CREATE TABLE if not exists replicate_io_cdc_heartbeat(
   timestamp BIGINT NOT NULL,
@@ -15,11 +19,11 @@ CREATE TABLE if not exists sbtest1(
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists usertable (
-	YCSB_KEY VARCHAR(255) PRIMARY KEY,
-	FIELD0 TEXT, FIELD1 TEXT,
-	FIELD2 TEXT, FIELD3 TEXT,
-	FIELD4 TEXT, FIELD5 TEXT,
-	FIELD6 TEXT, FIELD7 TEXT,
-	FIELD8 TEXT, FIELD9 TEXT,
+	ycsb_key VARCHAR(255) PRIMARY KEY,
+	field0 TEXT, field1 TEXT,
+	field2 TEXT, field3 TEXT,
+	field4 TEXT, field5 TEXT,
+	field6 TEXT, field7 TEXT,
+	field8 TEXT, field9 TEXT,
 	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
 );

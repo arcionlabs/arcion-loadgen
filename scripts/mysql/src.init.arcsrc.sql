@@ -1,5 +1,10 @@
+-- create arcsrc for retrivial
+CREATE TABLE if not exists replicate_io_cdc_heartbeat(
+  timestamp BIGINT NOT NULL,
+  PRIMARY KEY(timestamp)
+);
 
-CREATE rowstore TABLE if not exists sbtest1(
+CREATE TABLE if not exists sbtest1(
 	id INTEGER,
 	k INTEGER DEFAULT '0' NOT NULL,
 	c CHAR(120) DEFAULT '' NOT NULL,
@@ -10,7 +15,7 @@ CREATE rowstore TABLE if not exists sbtest1(
 );
 
 -- ts is used for snapshot delta. 
-CREATE rowstore TABLE if not exists usertable (
+CREATE TABLE if not exists usertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,

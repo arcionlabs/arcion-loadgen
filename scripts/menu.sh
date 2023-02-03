@@ -307,6 +307,10 @@ export DSTDB_HOST=${DSTDB_HOST}
 export REPL_TYPE=${REPL_TYPE}
 export CFG_DIR=${CFG_DIR}
 export LOG_ID=${LOG_ID}
+export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
 EOF
 
 # clear the view windows and configure it for this run
