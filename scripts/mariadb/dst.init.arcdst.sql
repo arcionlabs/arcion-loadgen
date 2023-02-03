@@ -1,4 +1,4 @@
-CREATE TABLE if not exists arcsrc.sbtest1(
+CREATE TABLE if not exists sbtest1(
     id INTEGER,
     k INTEGER DEFAULT '0' NOT NULL,
     c CHAR(120) DEFAULT '' NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE if not exists arcsrc.sbtest1(
 );
 
 -- ts is used for snapshot delta. 
-CREATE TABLE if not exists arcsrc.usertable (
+CREATE TABLE if not exists usertable (
     ycsb_key VARCHAR(255) PRIMARY KEY,
     field0 TEXT, field1 TEXT,
     field2 TEXT, field3 TEXT,
