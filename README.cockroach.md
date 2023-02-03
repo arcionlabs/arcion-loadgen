@@ -9,8 +9,8 @@ This is a copy/paste from [Start a Cluster in Docker (Insecure) in Mac](https://
 
 ```
 docker volume create roach1
-docker volume create roach1
-docker volume create roach1
+docker volume create roach2
+docker volume create roach3
 
 docker run -d \
 --name=cockroach-1 \
@@ -54,14 +54,14 @@ docker exec -it cockroach-1 ./cockroach init --insecure
 In the first panel that pops up, Ctl-C and type the following:
 
 ```
-SRCDB_HOST=cockroach-1 DSTDB_HOST=mysql-db-2 REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=cockroach-1 DSTDB_HOST=mysql-2 REPL_TYPE=snapshot ./menu.sh
 ```
 ![cockroach menu](./resources/images/cockroach/cockroach-menu.png)
 
 The following combinations do not work as of yet.  The configs can be viewed via the `tmux` windows 1 and error messages `tmux` windows 2.
 
 ```
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=mysql SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=full ./menu.sh
 ```

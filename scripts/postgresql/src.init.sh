@@ -37,10 +37,13 @@ wait_pg () {
 wait_pg ${SRCDB_HOST} ${PG_ROOT_USER} ${PG_ROOT_PW}
 
 # setup database permissions
-banner pg
+banner src root
 
 cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | psql postgresql://${PG_ROOT_USER}:${PG_ROOT_PW}@${SRCDB_HOST}
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.sql | psql postgresql://${ARCSRC_USER}:${ARCSRC_PW}@${SRCDB_HOST}
+
+banner src user
+
+cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.sql | psql postgresql://${ARCSRC_USER}:${ARCSRC_PW}@${SRCDB_HOST}/${ARCSRC_USER}
 
 # sysbench data population
 banner sysbench 

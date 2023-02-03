@@ -55,7 +55,7 @@ For OSX and Linux:
 
 ```bash
 docker run -d \
-    --name mysql-db \
+    --name mysql \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
@@ -64,7 +64,7 @@ docker run -d \
     --local-infile=true
 
 docker run -d \
-    --name mysql-db-2 \
+    --name mysql-2 \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \

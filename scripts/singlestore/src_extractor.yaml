@@ -42,6 +42,6 @@ delta-snapshot:
     tables:
       usertable:
         # NOTE: this field name is case sensitive
-        row-identifier-key: [YCSB_KEY]
+        row-identifier-key: [ycsb_key]
       sbtest1:
         row-identifier-key: [id]

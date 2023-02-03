@@ -1,10 +1,10 @@
 #!/usr/bin/env bash 
 
 # standard source id / password 
-SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcsrc}
-DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
+# SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+# SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+# DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+# DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
 
 # get the host name and type from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
@@ -40,8 +40,11 @@ if [ "$?" != "0" ]; then echo "pane .1 does not exist"; exit 1; fi
 
 case ${DSTDB_TYPE,,} in
     mysql|mariadb|singlestore)
-        echo ${DSTDB_HOST} ${DSTDB_TYPE}    
-        tmux send-keys -t :3.1 "watch -n 1 \"mysql -t -u${DSTDB_ARC_USER} -h${DSTDB_HOST} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} -e 'select id,ts from sbtest1 order by ts desc,id asc limit 20;'\"" enter
+        echo ${DSTDB_HOST} ${DSTDB_TYPE}   
+        # ts2 exists? 
+        [ ! -z "$( mysql -t -u${DSTDB_ARC_USER} -h${DSTDB_HOST} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} -e 'desc sbtest1' | grep ts2 )" ] && TS2_ORD=',ts2 desc' && TS2_SEL=',ts2-ts'
+        # show 
+        tmux send-keys -t :3.1 "watch -n 1 \"mysql -t -u${DSTDB_ARC_USER} -h${DSTDB_HOST} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} -e 'select id,ts ${TS2_SEL} from sbtest1 order by ts desc ${TS2_ORD},id asc limit 20;'\"" enter
     ;;
     postgresql|cockroach)
         echo ${DSTDB_HOST} ${DSTDB_TYPE}  
