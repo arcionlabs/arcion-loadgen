@@ -22,9 +22,7 @@ Works
 - MySQL to MySQL below
 - [MariaDB to MariaDB](./README.mariadb.md) 
 - [SingleStore to SingleStore](./README.singlestore.md) 
-
-Work in Process
-- [Postgres to Postgres](./README.postgres.md) 
+- [Postgresql to Postgresql](./README.postgres.md) 
 
 
 ## Step by Step Process
