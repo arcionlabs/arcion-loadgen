@@ -52,7 +52,7 @@ elif [[ ${sbtest1_cnt} == "" ]]; then
   # create default table with new rows  
   sysbench oltp_read_write --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 else
-  echo "Info: ${sbtest1_cnt} exists. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: ${sbtest1_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
 fi
 mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from sbtest1; select sum(k) from sbtest1;desc sbtest1;select * from sbtest1 limit 1' 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 
@@ -64,7 +64,7 @@ pushd ${YCSB}
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
     bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.mariadb.jdbc.Driver -p db.url="jdbc:mariadb://${SRCDB_HOST}/${SRCDB_ARC_USER}?rewriteBatchedStatements=true&permitMysqlScheme&restrictedAuth=mysql_native_password" -p db.user=${SRCDB_ARC_USER} -p db.passwd=${SRCDB_ARC_PW} -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 else
-  echo "Info: ${usertable_cnt} exists. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: ${usertable_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
 fi
 mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 1' 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 popd

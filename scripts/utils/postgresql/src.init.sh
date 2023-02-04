@@ -18,7 +18,7 @@ ping_db () {
   local db_port=${4:-3306}
   rc=1
   while [ ${rc} != 0 ]; do
-    echo '\d' | psql postgresql://${user}:${pw}@${host}:${port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${db_host} as ${db_root} to connect"
@@ -52,7 +52,7 @@ elif [[ ${sbtest1_cnt} == "" ]]; then
   # create default table with new rows  
   sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} prepare 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 else
-  echo "Info: ${sbtest1_cnt} exists. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: ${sbtest1_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
 fi
 
 cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
@@ -70,9 +70,9 @@ pushd ${YCSB}
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
     bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.postgresql.Driver  -p db.url="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_DB_PORT}/${ARCSRC_USER}?sslmode=disable&reWriteBatchedInserts=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd="${SRCDB_ARC_PW}" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 else
-  echo "Info: ${usertable_cnt} exists. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: ${usertable_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
 fi
-cat <<EOF | psql postgresql://${ARCSRC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_DB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_DB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
 select count(*) from usertable; 
 select * from usertable limit 1;
 EOF

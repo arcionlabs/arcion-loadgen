@@ -27,9 +27,28 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 copy_yaml() {
     local SRCDB_TYPE=$1
     local DSTDB_TYPE=$2
+
     for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
+
+    # get destination type group
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DSTDB_GRP=$(grep "^${DSTDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+    fi
+    echo "$DSTDB_GRP"
+    # override from destionation specific
+    for f in $CFG_DIR/*.yaml; do
+        filename=$( basename $f )   
+        if [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename" ]; then
+            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        elif [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename" ]; then
+            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        fi
+    done
+
     echo "Config at $CFG_DIR"
 }
 

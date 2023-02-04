@@ -18,7 +18,7 @@ ping_db () {
   local db_port=${4:-5432}
   rc=1
   while [ ${rc} != 0 ]; do
-    echo '\d' | psql postgresql://${user}:${pw}@${host}:${port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${db_host} as ${db_root} to connect"
