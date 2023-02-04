@@ -6,6 +6,10 @@ TIMER=${1:-0}
 # TMUX
 TMUX_SESSION=arcion
 
+# metadata
+METADATA_DIR=metadata
+
+# default
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
@@ -23,10 +27,28 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 copy_yaml() {
     local SRCDB_TYPE=$1
     local DSTDB_TYPE=$2
-    mkdir -p $CFG_DIR
-    for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml; do 
+
+    for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
+
+    # get destination type group
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DSTDB_GRP=$(grep "^${DSTDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+    fi
+    echo "$DSTDB_GRP"
+    # override from destionation specific
+    for f in $CFG_DIR/*.yaml; do
+        filename=$( basename $f )   
+        if [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename" ]; then
+            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        elif [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename" ]; then
+            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        fi
+    done
+
     echo "Config at $CFG_DIR"
 }
 
@@ -56,6 +78,7 @@ infer_dbtype() {
 arcion_param() {
     local src_dir=${1:-.}
     local dst_dir=${2:-$src_dir}
+    local meta_dir=${3:-$src_dir}
     local arg=""
 
     # source specific
@@ -69,6 +92,7 @@ arcion_param() {
 
     # optional
     map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
+    metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
     # construct the list
     arg="${src} ${dst}"
@@ -76,6 +100,7 @@ arcion_param() {
     [ ! -z "${extractor}" ] && arg="${arg} --extractor ${extractor}"
     [ ! -z "${applier}" ] && arg="${arg} --applier ${applier}"
     [ ! -z "${map}" ] && arg="${arg} --map ${map}"
+    [ ! -z "${metadata}" ] && arg="${arg} --metadata ${metadata}"
 
     echo $arg 
 }
@@ -141,7 +166,9 @@ find_dstdb() {
     find * -type f \( -iname "dst.yaml" -o -iname "dst_applier.yaml" \) -print | \
     xargs dirname | \
     uniq -c | \
-    while read count dir; do if (( count == 2 )); then echo $dir; fi; done
+    while read count dir; do 
+        if (( count == 2 )); then echo $dir; fi; 
+    done
 }
 find_hosts() {
     mkdir -p /tmp/arcion/nmap
@@ -193,15 +220,20 @@ ask_repl_mode() {
 }
 init_src() {
     rc=0
-    mkdir -p /tmp/arcion/$SRCDB_HOST
+    # find src.init.sh
     if [ -f "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh" ]; then
-        #if [ ! -f "/tmp/arcion/$SRCDB_HOST/src.init.log" ]; then
+        DB_INIT=${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh
+    elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DB_GRP=$(grep "^${SRCDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
+            DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
+        fi
+    fi
+    # run src.init.sh
+    if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh ) 
-            if [ ! -z "$( cat /tmp/arcion/$SRCDB_HOST/src.init.log | grep failed )" ]; then rc=1; fi  
-        #else
-        #    echo "/tmp/arcion/$SRCDB_HOST/src.init.log: skipping init"
-        #fi
+            ( exec ${DB_INIT} ) 
+            if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh: not found. skipping"    
     fi
@@ -209,20 +241,31 @@ init_src() {
 }
 init_dst() {
     rc=0
-    mkdir -p /tmp/arcion/$DSTDB_HOST
+    # find dst.init.sh
     if [ -f "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh" ]; then
-        #if [ ! -f "/tmp/arcion/$DSTDB_HOST/dst.init.log" ]; then
+        DB_INIT=${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh
+    elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DB_GRP=$(grep "^${DSTDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
+            DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
+        fi
+    fi
+    # run dst.init.sh
+    if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh )
-            if [ ! -z "$( cat /tmp/arcion/$DSTDB_HOST/dst.init.log | grep failed )" ]; then rc=1; fi
-        #else
-        #    echo "/tmp/arcion/$DSTDB_HOST/dst.init.log: skipping init"
-        #fi
+            ( exec ${DB_INIT} ) 
+            if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh: not found. skipping"    
     fi
     return $rc
 }
+
+# WARNING: log id length max is 9
+export LOG_ID=$$
+export CFG_DIR=/tmp/arcion/${LOG_ID}
+mkdir -p $CFG_DIR
+echo ${CFG_DIR}
 
 # source
 SRCDB_HOST_old=${SRCDB_HOST}
@@ -290,10 +333,7 @@ if (( ask != 0 )); then read -rsp $'Press any key to continue...\n' -n1 key; fi
 # LOGDIR required by copy_yaml
 clear
 
-# WARNING: log id length max is 9
-export LOG_ID=$$.${REPL_TYPE:0:3}
-export CFG_DIR=/tmp/arcion/${LOG_ID}
-echo ${CFG_DIR}
+
 
 # set config 
 copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}

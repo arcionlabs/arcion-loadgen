@@ -1,0 +1,6 @@
+group,type
+mysql,mysql
+mariadb,mysql
+singlestore,mysql
+postgresql,postgresql
+cockroach,postgresql

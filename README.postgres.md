@@ -20,6 +20,7 @@ docker run -d \
     postgres \
     -c wal_level=logical \
     -c max_replication_slots=10 
+docker exec -it postgresql-2 sh -c "apt update && apt install -y postgresql-15-wal2json postgresql-contrib"
 
 ```
 

@@ -41,7 +41,8 @@ echo "${ARCION_LICENSE}" | base64 -d | gzip -d
 
 - Save Arcion License for reuse
 ```bash
-if [ -z "$( grep '^ARCION_LICENSE=' ~/.zshrc )" ]; then echo "ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
+if [ -z "$( grep '^export ARCION_LICENSE=' ~/.zshrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
+if [ -z "$( grep '^export ARCION_LICENSE=' ~/.bashrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.bashrc; fi
 ```
 
 - Create Docker network
@@ -55,7 +56,7 @@ For OSX and Linux:
 
 ```bash
 docker run -d \
-    --name mysql \
+    --name metadata \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
@@ -64,22 +65,17 @@ docker run -d \
     --local-infile=true
 
 docker run -d \
-    --name mysql-2 \
+    --name mysql \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \
     -p :3306 \
     mysql \
     mysqld --default-authentication-plugin=mysql_native_password \
     --local-infile=true
+
 ```    
 
-For the Windows users, use the single line version of the above
-
-```
-docker run -d --name mysql-db --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
-
-docker run -d --name mysql-db-2 --network arcnet -e MYSQL_ROOT_PASSWORD=password  -p :3306 mysql mysqld --default-authentication-plugin=mysql_native_password
-```
+For the Windows users, use the single line version of the above without the `\`
 
 - Start Arcion
 
@@ -93,15 +89,12 @@ docker run -d --name arcion-demo \
     robertslee/sybench
 ```    
 
-For the Windows users, use the single line version of the above:
+For the Windows users, use the single line version of the above without the `\`
 
-```bash
-docker run -d --name arcion-demo --network arcnet -e ARCION_LICENSE="${ARCION_LICENSE}" -p 7681:7681 robertslee/sybench
-```
 - Ensure Arcion License has not expired
 
 ```
-docker logs arcion-dem0
+docker logs arcion-demo
 ```
 
 - Use the CLI [http://localhost:7681](http://localhost.7681)
@@ -112,30 +105,25 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
 
 [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
 
-  - press `[Ctrl + b]` then `0` for the main console windows.
-  - press `[Ctrl + b]` then `1` for the Arcion YAML files.
-  - press `[Ctrl + b]` then `2` for the Arcion trace and error files.
-  - press `[Ctrl + b]` then `<up arrow>` to move up the pane.
-  - press `[Ctrl + b]` then  + `<down arrow>` to move down the pane.
  
 In the console windows, type the following for fully automated mode.
 
 ![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 - run mysql source and target with Arcion snapshot mode
 ```bash
-SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 ```
 - run mysql source and target with Arcion real-time mode
 ```bash
-SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=real-time ./menu.sh
+SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=real-time ./menu.sh
 ```
 - run mysql source and target with Arcion real-time mode
 ```bash
-SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=delta-snapshot ./menu.sh
+SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=delta-snapshot ./menu.sh
 ```
 - run mysql source and target with Arcion full mode
 ```bash
-SRCDB_HOST=mysql-db DSTDB_HOST=mysql-db-2 REPL_TYPE=full ./menu.sh
+SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=full ./menu.sh
 ```
   NOTE: This mode does not stop.  type `pkill java` to stop the process.
 

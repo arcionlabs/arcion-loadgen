@@ -1,0 +1,4 @@
+rules:
+  [arcdst,public]:
+    source:
+    - [arcsrc]

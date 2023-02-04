@@ -1,9 +1,10 @@
 type: SINGLESTORE
 
+# will be set by envsubst from menu.sh 
 host: ${DSTDB_HOST}
 port: 3306
 
-username: arcsrc
+username: arcdst
 password: password
 
 max-connections: 30

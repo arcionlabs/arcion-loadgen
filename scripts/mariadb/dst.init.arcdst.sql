@@ -5,7 +5,8 @@ CREATE TABLE if not exists sbtest1(
     pad CHAR(60) DEFAULT '' NOT NULL,
     primary key (id),
     ts TIMESTAMP(6),
-    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    index(ts)
 );
 
 -- ts is used for snapshot delta. 
@@ -17,5 +18,6 @@ CREATE TABLE if not exists usertable (
     field6 TEXT, field7 TEXT,
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6),
-    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+    ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    index(ts2)
 );
