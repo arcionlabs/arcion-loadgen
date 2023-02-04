@@ -4,12 +4,13 @@ This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://doc
 The diagram below depicts the components of the demo.
 
 ```mermaid
-flowchart LR
-    subgraph Arcion
-      direction TB
-%%        a[Replicant] --> p[(Metadata<br>Postgres )]
+graph LR
+    subgraph Arcion Cluster
+        A1
+        M[(Meta <br>Data)]
     end
-    b[Load Generator <br>ycsb <br>sysbench] --> S[(Source)] --> Arcion --> t[(Target)]
+    S[(Source <br>Database)] --> A1[Arcion <br> Node 1]
+    A1 --> T[(Target <br>Database)]
 ```
 # CLI Demo Instructions
 
