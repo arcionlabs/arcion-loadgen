@@ -166,7 +166,9 @@ find_dstdb() {
     find * -type f \( -iname "dst.yaml" -o -iname "dst_applier.yaml" \) -print | \
     xargs dirname | \
     uniq -c | \
-    while read count dir; do if (( count == 2 )); then echo $dir; fi; done
+    while read count dir; do 
+        if (( count == 2 )); then echo $dir; fi; 
+    done
 }
 find_hosts() {
     mkdir -p /tmp/arcion/nmap
