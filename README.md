@@ -55,6 +55,15 @@ For OSX and Linux:
 
 ```bash
 docker run -d \
+    --name metadata \
+    --network arcnet \
+    -e MYSQL_ROOT_PASSWORD=password \
+    -p :3306 \
+    mysql \
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
+
+docker run -d \
     --name mysql \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=password \

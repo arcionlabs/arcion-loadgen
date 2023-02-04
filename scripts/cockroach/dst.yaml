@@ -1,5 +1,6 @@
 type: POSTGRESQL
 
+# will be set by envsubst from menu.sh 
 host: ${DSTDB_HOST}
 port: 26257
 

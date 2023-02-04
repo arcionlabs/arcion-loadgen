@@ -1,4 +1,4 @@
 rules:
-  [arcsrc]:
+  [arcdst, public]:
     source:
     - [arcsrc, public]
