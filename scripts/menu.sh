@@ -24,27 +24,46 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 # REPL_TYPE
 
 # subsutite env var in YAML with the actual
+map_dbgrp() {
+    local DB_TYPE=${1}
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+    fi
+    echo $DB_GRP
+}
+map_dbport() {
+    local DB_TYPE=${1}
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DB_PORT=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f3)
+    fi
+    echo $DB_PORT
+}
+map_dbroot() {
+    local DB_TYPE=${1}
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        DB_ROOT=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f4)
+    fi
+    echo $DB_ROOT
+}
 copy_yaml() {
     local SRCDB_TYPE=$1
     local DSTDB_TYPE=$2
+    local DSTDB_GRP=$3
 
+    # copy the base src and dir config
     for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
 
-    # get destination type group
-    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DSTDB_GRP=$(grep "^${DSTDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
-    fi
-    echo "$DSTDB_GRP"
-    # override from destionation specific
+    # override the base from destionation specific
     for f in $CFG_DIR/*.yaml; do
         filename=$( basename $f )   
+
         if [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename" ]; then
-            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            echo override cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename | PID=$$ envsubst > $CFG_DIR/$filename
         elif [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename" ]; then
-            echo cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            echo override cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
         fi
     done
@@ -149,7 +168,7 @@ arcion_snapshot() {
     echo "$( arcion_param ${CFG_DIR} )"
     PATH=$( logreader_path ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
-    --truncate-existing \
+    --replace-existing \
     --overwrite \
     --id $LOG_ID | tee snap.log
     popd
@@ -270,6 +289,9 @@ echo ${CFG_DIR}
 # source
 SRCDB_HOST_old=${SRCDB_HOST}
 SRCDB_TYPE_old=${SRCDB_TYPE}
+SRCDB_GRP_old=${SRCDB_GRP}
+SRCDB_PORT_old=${SRCDB_PORT}
+SRCDB_ROOT_old=${SRCDB_ROOT}
 while [ 1 ]; do
     clear
     echo "Setting up Source Host and Type"
@@ -277,10 +299,16 @@ while [ 1 ]; do
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_TYPE}" ]; then export SRCDB_TYPE=$( infer_dbtype "${SRCDB_HOST}" ); fi
     if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask=1; ask_src_type; fi
+    [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     init_src
     rc=$?
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Type: ${SRCDB_TYPE}"
+    echo "Source Grp: ${SRCDB_GRP}"
+    echo "Source Port: ${SRCDB_PORT}"
+    echo "Source Root: ${SRCDB_ROOT}"
     if (( ask == 0 )); then 
         break
     else
@@ -289,7 +317,10 @@ while [ 1 ]; do
             break;
         else
             SRCDB_HOST=${SRCDB_HOST_old}
-            SRCDB_TYPE=${SRCDB_TYPE_old}    
+            SRCDB_TYPE=${SRCDB_TYPE_old} 
+            SRCDB_GRP=${SRCDB_GRP_old}
+            SRCDB_PORT=${SRCDB_PORT_old}                
+            SRCDB_ROOT=${SRCDB_ROOT_old}                
         fi
     fi
 done
@@ -297,6 +328,9 @@ done
 # destination
 DSTDB_HOST_old=${DSTDB_HOST}
 DSTDB_TYPE_old=${DSTDB_TYPE}
+DSTDB_GRP_old=${DSTDB_GRP}
+DSTDB_PORT_old=${DSTDB_PORT}
+DSTDB_ROOT_old=${DSTDB_ROOT}
 while [ 1 ]; do
     clear
     echo "Setting up Target Host and Type"
@@ -304,11 +338,17 @@ while [ 1 ]; do
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
     if [ -z "${DSTDB_TYPE}" ]; then export DSTDB_TYPE=$( infer_dbtype "${DSTDB_HOST}" ); fi
     if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask=1; ask_dst_type; fi
+    [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
     init_dst
     rc=$?
     echo $rc
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Type: ${DSTDB_TYPE}"
+    echo "Destination Grp: ${DSTDB_GRP}"
+    echo "Destination Port: ${DSTDB_PORT}"    
+    echo "Destination Root: ${DSTDB_ROOT}"    
     if (( ask == 0 )); then 
         break
     else
@@ -317,7 +357,10 @@ while [ 1 ]; do
             break;
         else
             DSTDB_HOST=${DSTDB_HOST_old}
-            DSTDB_TYPE=${DSTDB_TYPE_old}    
+            DSTDB_TYPE=${DSTDB_TYPE_old}   
+            DSTDB_GRP=${DSTDB_GRP_old}
+            DSTDB_PORT=${DSTDB_PORT_old}               
+            DSTDB_ROOT=${DSTDB_ROOT_old}               
         fi
     fi
 done
@@ -334,23 +377,33 @@ if (( ask != 0 )); then read -rsp $'Press any key to continue...\n' -n1 key; fi
 clear
 
 
-
 # set config 
-copy_yaml ${SRCDB_TYPE} ${DSTDB_TYPE}
+copy_yaml "${SRCDB_TYPE}" "${DSTDB_TYPE}" "${DSTDB_GRP}"
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF
+# source
 export SRCDB_TYPE=${SRCDB_TYPE}
 export SRCDB_HOST=${SRCDB_HOST}
+export SRCDB_GRP=${SRCDB_GRP}
+export SRCDB_PORT=${SRCDB_PORT}
+export SRCDB_ROOT=${SRCDB_ROOT}
+# destination
 export DSTDB_TYPE=${DSTDB_TYPE}
 export DSTDB_HOST=${DSTDB_HOST}
+export DSTDB_GRP=${DSTDB_GRP}
+export DSTDB_PORT=${DSTDB_PORT}
+export DSTDB_ROOT=${DSTDB_ROOT}
+# replication
 export REPL_TYPE=${REPL_TYPE}
-export CFG_DIR=${CFG_DIR}
-export LOG_ID=${LOG_ID}
+# id/password
 export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
 export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
 export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
 export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
+# cfg
+export CFG_DIR=${CFG_DIR}
+export LOG_ID=${LOG_ID}
 EOF
 
 # clear the view windows and configure it for this run

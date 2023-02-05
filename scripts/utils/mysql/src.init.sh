@@ -8,27 +8,27 @@ SRCDB_ROOT=${SRCDB_ROOT:-root}
 SRCDB_PW=${SRCDB_PW:-password}
 SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
 SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-SRCDB_DB_PORT=${SRCDB_DB_PORT:-3306}
+SRCDB_PORT=${SRCDB_PORT:-3306}
 
 # util functions
 ping_db () {
   local db_host=$1
-  local db_root=$2
+  local db_user=$2
   local db_pw=$3
   local db_port=${4:-3306}
   rc=1
   while [ ${rc} != 0 ]; do
-    mysql -h${db_host} -u${db_root} -p${db_pw} -e "show databases; status;" --verbose 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    mysql -h${db_host} -u${db_user} -p${db_pw} -e "show databases; status;" --verbose 2>&1 | tee -a $CFG_DIR/src.init.sh.log
     rc=$?
     if (( ${rc} != 0 )); then
-      echo "waiting 10 sec for ${db_host} as ${db_root} to connect"
+      echo "waiting 10 sec for ${db_host} as ${db_user} to connect"
       sleep 10
     fi
   done
 }
 
 # wait for src db to be ready to connect
-ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_DB_PORT}"
+ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 
 # setup database permissions
 banner src root
