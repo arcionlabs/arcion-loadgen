@@ -1,6 +1,6 @@
-group,type
-mysql,mysql
-mariadb,mysql
-singlestore,mysql
-postgresql,postgresql
-cockroach,postgresql
+group,type,port,root
+mysql,mysql,3306,root
+mariadb,mysql,3306,root
+singlestore,mysql,3306,root
+postgresql,postgresql,5432,postgres
+cockroach,postgresql,26257,root

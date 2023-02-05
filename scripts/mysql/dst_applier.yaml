@@ -11,6 +11,10 @@ snapshot:
     type: FILE
 
   skip-tables-on-failures : true
+  init-indexes : true 
+  init-indexes-post-snapshot : true 
+  init-constraint-post-snapshot : true 
+
   _traceDBTasks: true
 #  handle-failed-opers: true
 #  use-upsert-based-recovery: false
