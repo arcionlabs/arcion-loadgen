@@ -1,4 +1,4 @@
-NOTE: CockroachDB as the source using snapshot replication mode works.  All other uses do not work in all cases for now.  See the test cases below for the coverage.  
+NOTE: CockroachDB as the source using snapshot replication mode works.  
 
 These instructions assume base environment is already setup from the [README.md](README.md).
 
@@ -54,17 +54,16 @@ docker exec -it cockroach-1 ./cockroach init --insecure
 In the first panel that pops up, Ctl-C and type the following:
 
 ```
-SRCDB_HOST=cockroach-1 DSTDB_HOST=mysql-2 REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=real-time ./menu.sh
+SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=delta-snapshot ./menu.sh
+SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=full ./menu.sh
+
+SRCDB_HOST=cockroach-1 DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 ```
 ![cockroach menu](./resources/images/cockroach/cockroach-menu.png)
 
 The following combinations do not work as of yet.  The configs can be viewed via the `tmux` windows 1 and error messages `tmux` windows 2.
-
-```
-SRCDB_HOST=mysql SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=full ./menu.sh
-```
 
 
 ```
