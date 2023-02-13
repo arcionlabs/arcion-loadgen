@@ -40,8 +40,8 @@ echo "${ARCION_LICENSE}" | base64 -d | gzip -d
 
 - Save Arcion License for reuse
 ```bash
-if [ -z "$( grep '^export ARCION_LICENSE=' ~/.zshrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
-if [ -z "$( grep '^export ARCION_LICENSE=' ~/.bashrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.bashrc; fi
+if [ -z "$( grep '^export ARCION_LICENSE=' ~/.zshrc )" ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.zshrc; fi
+if [ -z "$( grep '^export ARCION_LICENSE=' ~/.bashrc )" ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.bashrc; fi
 ```
 
 - Create Docker network

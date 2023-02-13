@@ -1,6 +1,6 @@
 snapshot:
-  threads: 32  # ERROR: default if fixed at 16 and this line is ignored
-  fetch-size-rows: 32_000  # default value
+  threads: 32  # ERROR: default is fixed at 16 and this line is ignored
+  fetch-size-rows: 32_000  # ERROR: default is fixed at 16 and this line is ignored
 
 # min-job-size-rows: 1_000_000
 # max-jobs-per-chunk: 32

@@ -39,16 +39,9 @@ docker run -d \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p :7681 \
-    -v arcion_bin_ce_812:/arcion \
     -v `pwd`/scripts:/scripts \
     robertslee/sybench
 
-docker run -d \
-    --network arcnet \
-    -e ARCION_LICENSE="${ARCION_LICENSE}" \
-    -p :7681 \
-    -v `pwd`/scripts:/scripts2 \
-    robertslee/sybench
 ```
 
 
