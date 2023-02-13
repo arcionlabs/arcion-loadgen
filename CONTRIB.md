@@ -1,12 +1,53 @@
 Instructions for mounting new Arcion binary and Script for development purposes.
 
+# Swap out default Arcion binary
+
+```bash
+docker volume create arcion_bin
+
+- download from URL
+
+ARCION_BIN_URL="https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-22.11.30.17.zip"
+
+docker run -it --rm -v arcion_bin:/arcion -e ARCION_BIN_URL="$ARCION_BIN_URL" alpine sh -c '\
+cd /arcion;\
+wget $ARCION_BIN_URL;\
+unzip -q *.zip;\
+mv replicant-cli/* .;\
+rmdir replicant-cli/;\
+chown -R 1000 .;\
+'
+
+- stage from local file
+
+docker volume create arcion_bin_ce_812
+
+ARCION_BIN_ZIP=replicant-cli-CE-812.zip
+docker run -it --rm -v arcion_bin_ce_812:/arcion -v ~/Downloads:/downloads -e ARCION_BIN_ZIP="$ARCION_BIN_ZIP" alpine sh -c '\
+cd /arcion;\
+unzip -q /downloads/$ARCION_BIN_ZIP;\
+mkdir data;\
+mkdir run;\
+[ -d replicant-cli ] && mv replicant-cli/* && rmdir replicant-cli/;\
+chown -R 1000 .;\
+'
+
+# Swap out scripts
+
 ```bash
 docker run -d \
-    --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
-    -p 7681:7681 \
+    -p :7681 \
+    -v arcion_bin_ce_812:/arcion \
     -v `pwd`/scripts:/scripts \
+    robertslee/sybench
+
+docker run -d \
+    --network arcnet \
+    -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -p :7681 \
+    -v `pwd`/scripts:/scripts2 \
     robertslee/sybench
 ```
 
@@ -15,37 +56,6 @@ docker run -d \
 manual setup
 
 ```bash
-unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; ./menu.sh
+unset SRCDB_HOST SRCDB_DIR DSTDB_HOST DSTDB_DIR REPL_TYPE; ./menu.sh
 ```
 
-The follow works
-
-mysql to mysql, pg, s2
-cockroach (snpashot) to mysql, pg, s2
-```bash
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=full ./menu.sh
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=real-time ./menu.sh
-
-SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=snapshot ./menu.sh
-SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
-
-
-SRCDB_HOST=roach1 SRCDB_TYPE=cockroach DSTDB_HOST=mysql-db-2 DSTDB_TYPE=mysql REPL_TYPE=snapshot ./menu.sh
-SRCDB_HOST=roach1 SRCDB_TYPE=cockroach DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=snapshot ./menu.sh
-
-```
-
-The following do not work
-
-```bash
-SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=full ./menu.sh
-SRCDB_HOST=pg-db SRCDB_TYPE=postgres DSTDB_HOST=pg-db-2 DSTDB_TYPE=postgres REPL_TYPE=real-time ./menu.sh
-
-SRCDB_HOST=mysql-db SRCDB_TYPE=mysql DSTDB_HOST=roach1 DSTDB_TYPE=cockroach REPL_TYPE=snapshot ./menu.sh
-```
-
-```
-ALTER TABLE usertable ADD COLUMN ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP after field9;
-ALTER TABLE usertable DROP COLUMN ts;
-```

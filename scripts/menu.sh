@@ -9,21 +9,28 @@ TMUX_SESSION=arcion
 # metadata
 METADATA_DIR=metadata
 
+# arcion replicant command line flag
+ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite"}
+
 # default
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
 
 # env vars that can be set to skip questions
-# unset DSTDB_TYPE DSTDB_HOST
+# unset DSTDB_DIR DSTDB_HOST
 # CFG_DIR
 # SRCDB_HOST
 # DSTDB_HOST
-# SRCDB_TYPE
-# DSTDB_TYPE
+# SRCDB_DIR
+# DSTDB_DIR
 # REPL_TYPE
 
-# subsutite env var in YAML with the actual
+map_dbtype() {
+    local DB_DIR=${1}
+    DB_TYPE=$( echo $DB_DIR | awk -F'[_-/.]' '{print $1}' )
+    echo "${DB_TYPE}"
+}
 map_dbgrp() {
     local DB_TYPE=${1}
     if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
@@ -46,12 +53,12 @@ map_dbroot() {
     echo $DB_ROOT
 }
 copy_yaml() {
-    local SRCDB_TYPE=$1
-    local DSTDB_TYPE=$2
+    local SRCDB_DIR=$1
+    local DSTDB_DIR=$2
     local DSTDB_GRP=$3
 
     # copy the base src and dir config
-    for f in $SCRIPTS_DIR/$SRCDB_TYPE/src*.yaml $SCRIPTS_DIR/$DSTDB_TYPE/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
+    for f in $SCRIPTS_DIR/$SRCDB_DIR/src*.yaml $SCRIPTS_DIR/$DSTDB_DIR/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
 
@@ -59,37 +66,37 @@ copy_yaml() {
     for f in $CFG_DIR/*.yaml; do
         filename=$( basename $f )   
 
-        if [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename" ]; then
-            echo override cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
-            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$DSTDB_TYPE/$filename | PID=$$ envsubst > $CFG_DIR/$filename
-        elif [ -f "$SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename" ]; then
-            echo override cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
-            cat $SCRIPTS_DIR/$SRCDB_TYPE/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        if [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
+            echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename | PID=$$ envsubst > $CFG_DIR/$filename
+        elif [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
+            echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
+            cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
         fi
     done
 
     echo "Config at $CFG_DIR"
 }
 
-infer_dbtype() {
+infer_dbdir() {
     local DB_HOST=${1}
-    local DB_TYPE=${2}
+    local DB_DIR=${2}
     if [ -z "${DB_HOST}" ]; then
         echo '$1 should be DB_HOST'
         return 1
     fi
-    if [ -z "${DB_TYPE}" ]; then 
+    if [ -z "${DB_DIR}" ]; then 
         # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_TYPE=$( echo ${DB_HOST} | awk -F'[-.]' '{print $1}' )
-        if [ -d ${SCRIPTS_DIR}/${DB_TYPE} ]; then
-            echo "$DB_TYPE"
-            echo "$DB_TYPE inferred from hostname." >&2
+        DB_DIR=$( echo ${DB_HOST} | awk -F'[-.]' '{print $1}' )
+        if [ -d ${SCRIPTS_DIR}/${DB_DIR} ]; then
+            echo "$DB_DIR inferred from hostname." >&2
+            echo "$DB_DIR"
         else
-            echo "DB_TYPE was not specifed and could not infer from HOSTNAME." >&2
+            echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2
             return 1
         fi
     else
-        echo ${DB_TYPE}
+        echo ${DB_DIR}
     fi
 }
 
@@ -111,7 +118,7 @@ arcion_param() {
 
     # optional
     map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-    metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
+    # metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
     # construct the list
     arg="${src} ${dst}"
@@ -121,10 +128,11 @@ arcion_param() {
     [ ! -z "${map}" ] && arg="${arg} --map ${map}"
     [ ! -z "${metadata}" ] && arg="${arg} --metadata ${metadata}"
 
-    echo $arg 
+    echo "$arg" 
 }
 logreader_path() {
-    case "$SRCDB_TYPE" in
+    local SRCDB_TYPE=${1}
+    case "${SRCDB_TYPE,,}" in
         mysql)
             echo "/opt/mysql/usr/bin:$PATH"
             ;;
@@ -138,38 +146,34 @@ logreader_path() {
 }
 arcion_delta() {
     pushd $ARCION_HOME
-    PATH=$( logreader_path ) ./bin/replicant delta-snapshot \
+    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
-    --truncate-existing \
-    --overwrite \
+    ${ARCION_ARGS} \
     --id $LOG_ID | tee delta.log
     popd
 }
 arcion_real() {
     pushd $ARCION_HOME
-    PATH=$( logreader_path ) ./bin/replicant real-time \
+    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
-    --truncate-existing \
-    --overwrite \
+    ${ARCION_ARGS} \
     --id $LOG_ID | tee real.log
     popd
 }
 arcion_full() {
     pushd $ARCION_HOME
-    PATH=$( logreader_path ) ./bin/replicant full \
+    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
-    --truncate-existing \
-    --overwrite \
+     ${ARCION_ARGS} \
     --id $LOG_ID | tee full.log
     popd
 }
 arcion_snapshot() {
     pushd $ARCION_HOME
     echo "$( arcion_param ${CFG_DIR} )"
-    PATH=$( logreader_path ) ./bin/replicant snapshot \
+    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
-    --replace-existing \
-    --overwrite \
+    ${ARCION_ARGS} \
     --id $LOG_ID | tee snap.log
     popd
 }
@@ -189,16 +193,18 @@ find_dstdb() {
         if (( count == 2 )); then echo $dir; fi; 
     done
 }
+
 find_hosts() {
     mkdir -p /tmp/arcion/nmap
-    if [ ! -f /tmp/arcion/nmap/names.$$.txt ]; then
-        ip=$( hostname -i | awk -F'.' '{print $1"."$2"."$3"."0"/24"}' )
+    if [ ! -f "/tmp/arcion/nmap/names.$$.txt" ]; then
+        ip=$( hostname -i | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
         nmap -sn -oG /tmp/arcion/nmap/names.$$.txt $ip >/dev/null
     fi
-    cat /tmp/arcion/nmap/names.$$.txt | grep 'arcnet' | awk -F'[ ()]' '{print $4}'
+    cat /tmp/arcion/nmap/names.$$.txt | grep "arcnet" | awk -F"[ \(\)]" '{print $4}'
 }
+
 ask_src_host() {
-    PS3='Please enter the SOURCE host: '
+    PS3="Please enter the SOURCE host: "
     options=( $(find_hosts) )
     select SRCDB_HOST in "${options[@]}"; do
         if [ ! -z "$SRCDB_HOST" ]; then break; else echo "invalid option"; fi
@@ -213,21 +219,21 @@ ask_dst_host() {
     done
     export DSTDB_HOST
 }
-ask_src_type() {
-    PS3='Please enter the source: '
+ask_src_dir() {
+    PS3='Please enter the source dir: '
     options=( $(find_srcdb) )
-    select SRCDB_TYPE in "${options[@]}"; do
-        if [ -d "$SRCDB_TYPE" ]; then break; else echo "invalid option"; fi
+    select SRCDB_DIR in "${options[@]}"; do
+        if [ -d "$SRCDB_DIR" ]; then break; else echo "invalid option"; fi
     done
-    export SRCDB_TYPE
+    export SRCDB_DIR
 }
-ask_dst_type() {
+ask_dst_dir() {
     PS3='Please enter the target: '
     options=( $(find_dstdb) )
-    select DSTDB_TYPE in "${options[@]}"; do
-        if [ -d "$DSTDB_TYPE" ]; then break; else echo "invalid option"; fi
+    select DSTDB_DIR in "${options[@]}"; do
+        if [ -d "$DSTDB_DIR" ]; then break; else echo "invalid option"; fi
     done
-    export DSTDB_TYPE
+    export DSTDB_DIR
 }
 ask_repl_mode() {
     PS3='Please enter the replication type: '
@@ -240,10 +246,10 @@ ask_repl_mode() {
 init_src() {
     rc=0
     # find src.init.sh
-    if [ -f "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh" ]; then
-        DB_INIT=${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh
+    if [ -f "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh" ]; then
+        DB_INIT=${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${SRCDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        DB_GRP=$(grep "^${SRCDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
         if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
         fi
@@ -254,17 +260,17 @@ init_src() {
             ( exec ${DB_INIT} ) 
             if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
-        echo "${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sh: not found. skipping"    
+        echo "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh: not found. skipping"    
     fi
     return $rc
 }
 init_dst() {
     rc=0
     # find dst.init.sh
-    if [ -f "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh" ]; then
-        DB_INIT=${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh
+    if [ -f "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh" ]; then
+        DB_INIT=${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${DSTDB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        DB_GRP=$(grep "^${DSTDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
         if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
         fi
@@ -275,7 +281,7 @@ init_dst() {
             ( exec ${DB_INIT} ) 
             if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
-        echo "${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sh: not found. skipping"    
+        echo "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh: not found. skipping"    
     fi
     return $rc
 }
@@ -288,6 +294,7 @@ echo ${CFG_DIR}
 
 # source
 SRCDB_HOST_old=${SRCDB_HOST}
+SRCDB_DIR_old=${SRCDB_DIR}
 SRCDB_TYPE_old=${SRCDB_TYPE}
 SRCDB_GRP_old=${SRCDB_GRP}
 SRCDB_PORT_old=${SRCDB_PORT}
@@ -297,14 +304,16 @@ while [ 1 ]; do
     echo "Setting up Source Host and Type"
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
-    if [ -z "${SRCDB_TYPE}" ]; then export SRCDB_TYPE=$( infer_dbtype "${SRCDB_HOST}" ); fi
-    if [ -z "${SRCDB_TYPE}" -o ! -d "${SRCDB_TYPE}" ]; then ask=1; ask_src_type; fi
+    if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
+    if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
+    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_DIR}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     init_src
     rc=$?
     echo "Source Host: ${SRCDB_HOST}"
+    echo "Source Dir: ${SRCDB_DIR}"
     echo "Source Type: ${SRCDB_TYPE}"
     echo "Source Grp: ${SRCDB_GRP}"
     echo "Source Port: ${SRCDB_PORT}"
@@ -317,6 +326,7 @@ while [ 1 ]; do
             break;
         else
             SRCDB_HOST=${SRCDB_HOST_old}
+            SRCDB_DIR=${SRCDB_DIR_old} 
             SRCDB_TYPE=${SRCDB_TYPE_old} 
             SRCDB_GRP=${SRCDB_GRP_old}
             SRCDB_PORT=${SRCDB_PORT_old}                
@@ -328,6 +338,7 @@ done
 # destination
 DSTDB_HOST_old=${DSTDB_HOST}
 DSTDB_TYPE_old=${DSTDB_TYPE}
+DSTDB_DIR_old=${DSTDB_DIR}
 DSTDB_GRP_old=${DSTDB_GRP}
 DSTDB_PORT_old=${DSTDB_PORT}
 DSTDB_ROOT_old=${DSTDB_ROOT}
@@ -336,8 +347,9 @@ while [ 1 ]; do
     echo "Setting up Target Host and Type"
     ask=0
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
-    if [ -z "${DSTDB_TYPE}" ]; then export DSTDB_TYPE=$( infer_dbtype "${DSTDB_HOST}" ); fi
-    if [ -z "${DSTDB_TYPE}" -o ! -d "${DSTDB_TYPE}"  ]; then ask=1; ask_dst_type; fi
+    if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
+    if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
+    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_DIR}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
@@ -345,6 +357,7 @@ while [ 1 ]; do
     rc=$?
     echo $rc
     echo "Destination Host: ${DSTDB_HOST}"
+    echo "Destination Dir: ${DSTDB_DIR}"
     echo "Destination Type: ${DSTDB_TYPE}"
     echo "Destination Grp: ${DSTDB_GRP}"
     echo "Destination Port: ${DSTDB_PORT}"    
@@ -357,6 +370,7 @@ while [ 1 ]; do
             break;
         else
             DSTDB_HOST=${DSTDB_HOST_old}
+            DSTDB_DIR=${DSTDB_DIR_old}   
             DSTDB_TYPE=${DSTDB_TYPE_old}   
             DSTDB_GRP=${DSTDB_GRP_old}
             DSTDB_PORT=${DSTDB_PORT_old}               
@@ -378,17 +392,19 @@ clear
 
 
 # set config 
-copy_yaml "${SRCDB_TYPE}" "${DSTDB_TYPE}" "${DSTDB_GRP}"
+copy_yaml "${SRCDB_DIR}" "${DSTDB_DIR}" "${DSTDB_GRP}"
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF
 # source
+export SRCDB_DIR=${SRCDB_DIR}
 export SRCDB_TYPE=${SRCDB_TYPE}
 export SRCDB_HOST=${SRCDB_HOST}
 export SRCDB_GRP=${SRCDB_GRP}
 export SRCDB_PORT=${SRCDB_PORT}
 export SRCDB_ROOT=${SRCDB_ROOT}
 # destination
+export DSTDB_DIR=${DSTDB_DIR}
 export DSTDB_TYPE=${DSTDB_TYPE}
 export DSTDB_HOST=${DSTDB_HOST}
 export DSTDB_GRP=${DSTDB_GRP}
@@ -396,6 +412,7 @@ export DSTDB_PORT=${DSTDB_PORT}
 export DSTDB_ROOT=${DSTDB_ROOT}
 # replication
 export REPL_TYPE=${REPL_TYPE}
+export ARCION_ARGS="${ARCION_ARGS}"
 # id/password
 export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
 export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}

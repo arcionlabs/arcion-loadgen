@@ -71,7 +71,6 @@ docker run -d \
     mysql \
     mysqld --default-authentication-plugin=mysql_native_password \
     --local-infile=true
-
 ```    
 
 For the Windows users, use the single line version of the above without the `\`

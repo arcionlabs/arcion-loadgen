@@ -13,7 +13,29 @@ col_pk_sql="SELECT column_name FROM information_schema.key_column_usage WHERE co
 
 #echo $col_name_sql | psql --csv -t postgresql://arc:password@postgresql/arc | paste -s -d,
 
-dump_db() {
+
+dump_table() {
+    local DB_TYPE=$1
+    local DB_ARC_USER=$2
+    local DB_ARC_PW=$3
+    local DB_HOST=$4
+    local DB_PORT=$5
+    local TABLE_NAME=$6
+    local REMOVE_COLS=${7:-ts}
+
+case ${DB_TYPE,,} in
+    mysql|mariadb|singlestore)
+        mysqldump --no-data -u${DB_ARC_USER} -p${DB_ARC_PW} -h${DB_HOST} -P${DB_PORT} ${DB_ARC_USER} 
+        ;;
+    postgresql|cockroach)
+        ;;
+    *)
+        echo "$0: ${DB_TYPE,,} needs to be handled."
+        ;;
+esac
+}
+
+dump_table() {
     local DB_TYPE=$1
     local DB_ARC_USER=$2
     local DB_ARC_PW=$3
@@ -57,10 +79,10 @@ case ${DB_TYPE,,} in
 esac
 }
 
-dump_db $SRCDB_TYPE $SRCDB_ARC_USER $SRCDB_ARC_PW $SRCDB_HOST $SRCDB_PORT sbtest1
-dump_db $SRCDB_TYPE $SRCDB_ARC_USER $SRCDB_ARC_PW $SRCDB_HOST $SRCDB_PORT usertable
-dump_db $DSTDB_TYPE $DSTDB_ARC_USER $DSTDB_ARC_PW $DSTDB_HOST $DSTDB_PORT sbtest1
-dump_db $DSTDB_TYPE $DSTDB_ARC_USER $DSTDB_ARC_PW $DSTDB_HOST $DSTDB_PORT usertable
+dump_table $SRCDB_TYPE $SRCDB_ARC_USER $SRCDB_ARC_PW $SRCDB_HOST $SRCDB_PORT sbtest1
+dump_table $SRCDB_TYPE $SRCDB_ARC_USER $SRCDB_ARC_PW $SRCDB_HOST $SRCDB_PORT usertable
+dump_table $DSTDB_TYPE $DSTDB_ARC_USER $DSTDB_ARC_PW $DSTDB_HOST $DSTDB_PORT sbtest1
+dump_table $DSTDB_TYPE $DSTDB_ARC_USER $DSTDB_ARC_PW $DSTDB_HOST $DSTDB_PORT usertable
 
 # run the diff
 for TABLE_NAME in sbtest1 usertable; do
