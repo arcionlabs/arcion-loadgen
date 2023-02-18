@@ -1,4 +1,4 @@
-group,type,port,root
+group,type,default_port,root_user
 mysql,mysql,3306,root
 mariadb,mysql,3306,root
 singlestore,mysql,3306,root

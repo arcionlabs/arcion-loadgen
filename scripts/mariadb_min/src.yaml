@@ -1,0 +1,13 @@
+type: MARIADB
+
+# will be set by envsubst from menu.sh 
+host: ${SRCDB_HOST}
+port: 3306
+
+username: arcsrc
+password: password
+
+# will be set by envsubst from menu.sh 
+slave-server-ids: [ ${PID} ]
+max-connections: 30
+

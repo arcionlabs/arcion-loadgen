@@ -9,43 +9,33 @@ SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
 DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcsrc}
 DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
 
-case "${SRCDB_TYPE,,}" in
+case "${SRCDB_GRP,,}" in
   mariadb| mysql|singlestore)
     SRC_JDBC_DRIVER="org.mariadb.jdbc.Driver"
     SRC_JDBC_URL="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme"
     ;;
-  postgresql)
+  postgresql|cockroach)
     SRC_JDBC_DRIVER="org.postgresql.Driver"
-    SRC_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?"   
+    SRC_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     SRC_PG_URL="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
     ;;
-  cockroach)
-    SRC_JDBC_DRIVER="org.postgresql.Driver"
-    SRC_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:26257/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
-    SRC_PG_URL="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
-    ;; 
   *)
-    echo "$0: SRCDB_TYPE: ${SRCDB_TYPE} need to code support"
+    echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support"
     ;;
 esac
 
-case "${DSTDB_TYPE,,}" in
+case "${DSTDB_GRP,,}" in
   mariadb| mysql|singlestore)
     DST_JDBC_DRIVER="org.mariadb.jdbc.Driver"
     DST_JDBC_URL="jdbc:mysql://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme"
     ;;
-  postgresql)
+  postgresql|cockroach)
     DST_JDBC_DRIVER="org.postgresql.Driver"
-    DST_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?"   
-    DST_PG_URL="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
-    ;;
-  cockroach)
-    DST_JDBC_DRIVER="org.postgresql.Driver"
-    DST_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}::${DSTDB_PORT}/${DSTDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
+    DST_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     DST_PG_URL="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
     ;; 
   *)
-    echo "$0: DSTDB_TYPE: ${DSTDB_TYPE} need to code support"
+    echo "$0: DSTDB_GRP: ${DSTDB_GRP} need to code support"
     ;;
 esac
 

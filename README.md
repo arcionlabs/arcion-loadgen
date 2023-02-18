@@ -25,60 +25,68 @@ Works
 - [SingleStore to SingleStore](./README.singlestore.md) 
 - [Postgresql to Postgresql](./README.postgres.md) 
 
+Examples assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
 
-## Step by Step Process
+# Required
 
-- Get Arcion License
+## Get Arcion License
 
 Make sure $ARCION_LICENSE is not blank and is valid
 
 ```bash
-export ARCION_LICENSE="$(cat replicant.lic | gzip -9 | base64)"
+export ARCION_LICENSE="$(cat replicant.lic | base64)"
 if [ -z "${ARCION_LICENSE}" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
-echo "${ARCION_LICENSE}" | base64 -d | gzip -d
+echo "${ARCION_LICENSE}" | base64 -d
 ```
 
 - Save Arcion License for reuse
 ```bash
-if [ -z "$( grep '^export ARCION_LICENSE=' ~/.zshrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.zshrc; fi
-if [ -z "$( grep '^export ARCION_LICENSE=' ~/.bashrc )" ]; then echo "export ARCION_LICENSE=${ARCION_LICENSE}" >> ~/.bashrc; fi
+if [ -f ~/.zshrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.zshrc; fi
+if [ -f ~/.bashrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.bashrc; fi
 ```
 
-- Create Docker network
+## Create Docker network
+
 ```bash
 docker network create arcnet
 ```
 
-- Start MySQL source and target
+## Postgres
 
-For OSX and Linux:
-
+Postgres will be used for:
+- Arcion's UI
+- Arcion replication metadata
+- Arcion source and destination
 ```bash
+# postgres with SSL setup
 docker run -d \
-    --name metadata \
+    --name postgresql \
     --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=password \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
+    -e POSTGRES_PASSWORD=password \
+    -p :5432 \
+    postgres \
+    -c wal_level=logical \
+    -c max_replication_slots=10 \
+    -c ssl=on \
+    -c max_connections=300 \
+    -c shared_buffers=80MB \
+    -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem \
+    -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key    
 
-docker run -d \
-    --name mysql \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=password \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
+# wait for db to come up
+while [ -z "$( docker logs postgresql 2>&1 | grep 'database system is ready to accept connections' )" ]; do sleep 10; done;
 
-```    
+# install wal2json for cdc
+docker exec -it postgresql sh -c "apt update && apt install -y postgresql-15-wal2json postgresql-contrib"
 
-For the Windows users, use the single line version of the above without the `\`
-
-- Start Arcion
-
-For OSX and Linux:
+# setup for Acrion UI and metadata
+docker exec -i postgresql psql -Upostgres<<EOF
+CREATE USER arcion PASSWORD 'password';
+CREATE DATABASE arcion WITH OWNER arcion;
+CREATE DATABASE io_replicate WITH OWNER arcion;
+EOF
+```
+## Arcion Load Generator
 
 ```bash
 docker run -d --name arcion-demo \
@@ -88,15 +96,55 @@ docker run -d --name arcion-demo \
     robertslee/sybench
 ```    
 
-For the Windows users, use the single line version of the above without the `\`
+# Optional for demos
 
-- Ensure Arcion License has not expired
+## Arcion UI
+```bash
+docker run -d --name arcion-ui \
+    --network arcnet \
+    -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -e DB_HOST=postgresql \
+    -e DB_PORT=5432 \
+    -e DB_DATABASE=arcion \
+    -e DB_USERNAME=arcion \
+    -e DB_PASSWORD=password \
+    -p 8080:8080 \
+    arcionlabs/replicant-on-premises:latest-arm64
 
+# make sure there are no warnings about license
+docker logs arcion-ui
+```    
+
+## MySQL
+
+```bash
+docker run -d \
+    --name mysql \
+    --network arcnet \
+    -e MYSQL_ROOT_PASSWORD=password \
+    -p :3306 \
+    mysql \
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
+
+# wait for db to come up
+while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
+```    
+
+## MariaDB
+
+```bash
+docker run -d \
+    --name mariadb \
+    --network arcnet \
+    -e MYSQL_ROOT_PASSWORD=password \
+    -p :3306 \
+    mariadb \
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --log-bin=mysql-log.bin \
+    --binlog-format=ROW
 ```
-docker logs arcion-demo
-```
 
-- Use the CLI [http://localhost:7681](http://localhost.7681)
 
 # Running the CLI demo
 

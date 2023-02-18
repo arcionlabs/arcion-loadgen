@@ -70,3 +70,6 @@ The following combinations do not work as of yet.  The configs can be viewed via
 export PGCLIENTENCODING='utf-8'
 psql postgresql://root:password@cockroach-1:26257/?sslmode=disable
 ```
+
+
+psql "postgresql://$CRL_USER:$CRL_PASS@$CRL_HOST:26257/defaultdb?sslmode=verify-full&sslrootcert=./root.crt"

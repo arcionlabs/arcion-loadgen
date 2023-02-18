@@ -18,5 +18,5 @@ realtime:
   txn-size-rows: 10000
   batch-size-rows: 1000
   skip-tables-on-failures : false
-
   use-quoted-identifiers: true
+  _traceDBTasks: true

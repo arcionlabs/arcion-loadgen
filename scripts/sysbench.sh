@@ -31,9 +31,9 @@ echo $SRC_JDBC_DRIVER
 echo $SRC_JDBC_URL
 
 # finally, run with lowercase SRCDB_TYPE
-case ${SRCDB_TYPE,,} in
+case ${SRCDB_GRP,,} in
     mysql|mariadb|singlestore)
-        echo ${SRCDB_HOST} ${SRCDB_TYPE}
+        echo ${SRCDB_HOST} ${SRCDB_GRP}
         sysbench oltp_read_write \
         --rand-type=uniform \
         --rate=${RATE} \
@@ -49,7 +49,7 @@ case ${SRCDB_TYPE,,} in
         run
     ;;
     postgresql)
-        echo ${SRCDB_HOST} ${SRCDB_TYPE}
+        echo ${SRCDB_HOST} ${SRCDB_GRP}
         sysbench oltp_read_write \
         --rand-type=uniform \
         --rate=${RATE} \
@@ -65,6 +65,6 @@ case ${SRCDB_TYPE,,} in
         run
         ;;
     *)
-        echo "Error: ${SRCDB_TYPE} needs to be supproted"
+        echo "Error: ${SRCDB_GRP} needs to be supproted"
         ;;
 esac
