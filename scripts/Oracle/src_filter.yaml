@@ -1,0 +1,7 @@
+allow:
+- schema : "arcsrc"
+  types: [TABLE]
+  allow:
+    usertable :
+    sbtest1 :
+
