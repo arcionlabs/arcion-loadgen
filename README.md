@@ -145,6 +145,67 @@ docker run -d \
     --binlog-format=ROW
 ```
 
+## SingleStore
+```bash
+docker run -d --net arcnet --name singlestore -i --init \
+    -e LICENSE_KEY="$SINGLESTORE_LICENSE" \
+    -e ROOT_PASSWORD="password" \
+    -e START_AFTER_INIT=Y \
+    -p :3306 -p :8080 \
+    singlestore/cluster-in-a-box
+```
+
+## CockroachDB
+```
+docker volume create roach1
+docker volume create roach2
+docker volume create roach3
+
+docker run -d \
+--name=cockroach-1 \
+--hostname=cockroach-1 \
+--net=arcnet \
+-p :26257 -p :8080  \
+-v "roach1:/cockroach/cockroach-data"  \
+cockroachdb/cockroach:v22.2.3 start \
+--insecure \
+--join=cockroach-1,cockroach-2,cockroach-3
+
+docker run -d \
+--name=cockroach-2 \
+--hostname=cockroach-2 \
+--net=arcnet \
+-p :26257 -p :8080  \
+-v "roach2:/cockroach/cockroach-data" \
+cockroachdb/cockroach:v22.2.3 start \
+--insecure \
+--join=cockroach-1,cockroach-2,cockroach-3
+
+docker run -d \
+--name=cockroach-3 \
+--hostname=cockroach-3 \
+--net=arcnet \
+-p :26257 -p :8080  \
+-v "roach3:/cockroach/cockroach-data" \
+cockroachdb/cockroach:v22.2.3 start \
+--insecure \
+--join=cockroach-1,cockroach-2,cockroach-3
+
+docker exec -it cockroach-1 ./cockroach init --insecure
+```   
+# Work In Progress
+
+Below is not in the demo YET but supports by the product.
+
+## YugaByte
+NOTE: This will run 
+```bash
+docker run -d --name yugabytesql \
+    --network arcnet \
+    -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
+    yugabytedb/yugabyte bin/yugabyted start\
+    --daemon=false
+```
 
 # Running the CLI demo
 
