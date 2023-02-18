@@ -1,0 +1,55 @@
+snapshot:
+  threads: 16
+
+  batch-size-rows: 100_000
+  txn-size-rows: 1_000_000
+
+#  skip-tables-on-failures : false
+#  init-views-as-views: false
+#  init-views-post-snapshot: true
+
+  bulk-load:
+    enable: true
+    type: FILE
+    save-file-on-error: true
+    serialize: false
+
+# native-load config is only available for Oracle -> Oracle replication
+#  native-load:
+#    enable: false
+#    stage-type: SHARED_FS
+#    directory: SHARED_STAGE
+#    shared-path: path-to-nfs
+
+#  user-role:
+#    init-user-roles: true
+
+#  enable-partition-load: true #true by default only if source type is oracle
+#  disable-partition-wise-load-on-failure: false
+
+#  enable-nologging: true #false by default, Enables no-logging on target if set to true, disables it back after completion of snapshot replication
+
+#  parallel-insert: false #true by default, disables parallel execution of DML and create table operation if set to false
+#  parallel-degree: 8 #default Degree Of Parallelism is 8, DOP will be set only if the parallel-insert is set to true
+
+#  index-parallel-degree: 8  # Degree of Parallelism for index creation. This will be used by Oracle destination. Default value: 8
+#  sort-area-size: 128  # Size of oracle sort area size in MB, Default is 128 MB
+#  index-thread-count: 8 # Number of indexes to be created in parallel, Default is 8
+
+#  create-index-for-pk: true # Explicitly create index on PK columns and use it for PK creation. Default is true.
+#  log-session-id: false  # If set, logs oracle session id for snapshot batch, default is false;
+
+realtime:
+  threads: 16
+  txn-size-rows: 10000
+  batch-size-rows: 1000
+#  skip-tables-on-failures : false
+
+# Transactional mode config
+# realtime:
+#   threads: 1
+#   batch-size-rows: 1000
+#   replay-consistency: GLOBAL
+#   txn-group-count: 100
+#   _oper-queue-size-rows: 20000
+#   skip-upto-cursors: #last failed cursor
