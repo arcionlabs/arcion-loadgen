@@ -16,16 +16,11 @@ graph LR
 
 [asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
-Instructions for MySQL source and various target databases:
+Database sources with:
+- Redo log such as MariaDB, MySQL, Postgres support Arcion's `snapshot`, `real-time`, `full`, and `delta-snapshot` replication modes.
+- No Redo log access such as `CockroachDB`, `SingleStore`, `YugaByteSQL` support Arcion's `snapshot` and `delta-snapshot` replication modes.
 
-Works
-
-- MySQL to MySQL below
-- [MariaDB to MariaDB](./README.mariadb.md) 
-- [SingleStore to SingleStore](./README.singlestore.md) 
-- [Postgresql to Postgresql](./README.postgres.md) 
-
-Examples assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
+Below instructions assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
 
 # Required
 
