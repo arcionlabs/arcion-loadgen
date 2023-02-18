@@ -6,11 +6,15 @@ TIMER=${1:-0}
 # TMUX
 TMUX_SESSION=arcion
 
-# metadata
-METADATA_DIR=metadata
+# metadata can be set to "" to not use metadata.
+# test is used to make sure METADATA_DIR is not set
+if test "${METADATA_DIR-default value}" ; then 
+    METADATA_DIR=postgresql_metadata
+    echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
+fi
 
 # arcion replicant command line flag
-ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite"}
+ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
 
 # default
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
@@ -58,7 +62,12 @@ copy_yaml() {
     local DSTDB_GRP=$3
 
     # copy the base src and dir config
-    for f in $SCRIPTS_DIR/$SRCDB_DIR/src*.yaml $SCRIPTS_DIR/$DSTDB_DIR/dst*.yaml $SCRIPTS_DIR/$METADATA_DIR/metadata.yaml; do 
+    for f in $SCRIPTS_DIR/$SRCDB_DIR/src*.yaml $SCRIPTS_DIR/$DSTDB_DIR/dst*.yaml; do
+        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
+    done
+
+    # metadata is hard coded
+    for f in $( find $SCRIPTS_DIR/$METADATA_DIR -maxdepth 1 -name metadata.yaml ); do 
         cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
     done
 
@@ -118,7 +127,7 @@ arcion_param() {
 
     # optional
     map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-    # metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
+    metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
     # construct the list
     arg="${src} ${dst}"

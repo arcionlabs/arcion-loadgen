@@ -28,8 +28,6 @@ services:
     volumes:
         - arcion1:/data
         - arcion_lic:/config
-#    image: robertslee/arcion:latest  
-#   above has arm64 
     image: arcionlabs/replicant-on-premises:latest  
 
   mysql:

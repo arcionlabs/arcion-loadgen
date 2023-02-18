@@ -53,8 +53,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
 # fix sysbench 
 RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/debian.bullseye-backports.main.list
 
-# openjdk8-jre and defaultjdk-jre do not build when run on Apple Silicon 
-RUN apt-get install -y curl openjdk-11-jre && java -version
+# Java 8 
+RUN apt-get update && apt-get install -y curl openjdk-8-jre && java -version
 
 # add pg, mysql, postgres
 RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y tzdata mysql-client postgresql-client postgresql postgresql-contrib

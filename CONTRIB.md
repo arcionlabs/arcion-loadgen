@@ -3,13 +3,13 @@ Instructions for mounting new Arcion binary and Script for development purposes.
 # Swap out default Arcion binary
 
 ```bash
-docker volume create arcion_bin
+docker volume create arcion_22113017
 
 - download from URL
 
 ARCION_BIN_URL="https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-22.11.30.17.zip"
 
-docker run -it --rm -v arcion_bin:/arcion -e ARCION_BIN_URL="$ARCION_BIN_URL" alpine sh -c '\
+docker run -it --rm -v arcion_22113017:/arcion -e ARCION_BIN_URL="$ARCION_BIN_URL" alpine sh -c '\
 cd /arcion;\
 wget $ARCION_BIN_URL;\
 unzip -q *.zip;\
@@ -32,16 +32,15 @@ mkdir run;\
 chown -R 1000 .;\
 '
 
-# Swap out scripts
+# Swap out volume and scripts
 
 ```bash
-docker run -d \
+docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
-    -p :7681 \
+    -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
     robertslee/sybench
-
 ```
 
 
