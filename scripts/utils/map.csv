@@ -5,3 +5,4 @@ singlestore,mysql,3306,root
 postgresql,postgresql,5432,postgres
 cockroach,postgresql,26257,root
 postgresql,postgresql,5433,postgres
+mongodb,mongodb,27017,root

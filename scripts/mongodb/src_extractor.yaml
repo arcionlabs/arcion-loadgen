@@ -1,0 +1,48 @@
+snapshot:
+  threads: 16
+  fetch-size-rows: 5000
+
+  min-job-size-rows: 1_000
+  max-jobs-per-chunk: 32
+
+  split-key: _id
+  _traceDBTasks: true
+#  fetch-user-roles: true
+#  fetch-system-tables: true
+  normalize:
+    enable: true
+    de-duplicate: false
+    extract-upto-depth: 2
+  per-table-config:
+  - schema: arcsrc
+    tables:
+      usertable:
+        split-key: _id
+#       extraction-priority: 2  #Higher value is higher priority. Both positive and negative values are allowed. Default priority is 0 if unspecified.
+
+
+realtime:
+  threads: 4 
+  fetch-size-rows: 10000
+  fetch-duration-per-extractor-slot-s: 3
+  _traceDBTasks: true
+  heartbeat:
+     enable: false
+     schema: io_replicate
+     interval-ms: 10_000
+
+  replicate-ddl: true      #use for replicaSet only, not for sharded cluster
+
+#   start-position:
+#     increment: 1
+#     timestamp-ms: 1598619575000
+
+#  normalize:
+#    enable: true
+#     extract-upto-depth: 2
+#   per-table-config:
+#   - schema: tpch
+#     tables:
+#       lineitem:
+#         normalize:
+#           extract-upto-depth: 3
