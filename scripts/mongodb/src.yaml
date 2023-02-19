@@ -1,0 +1,28 @@
+type: MONGODB
+
+url: "mongodb://arcsrc:password@mongodb:27017/arcsrc?w=majority"
+## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
+##  url: mongodb://<user_principal_name>%40<REALM>@<mongos_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
+max-connections: 30
+
+replica-sets:
+  mongors1:
+    url: "mongodb://arcsrc:password@mongodb:27017/arcsrc?w=majority"
+    ## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
+    ##  url: mongodb://<user_principal_name>%40<REALM>@<shard1_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+#ssl:
+#  key-store:
+#    path: '/path/to/key/store'
+#    password: 'ChangePassword'
+#  trust-store:
+#    path: '/path/to/trust/store'
+#    password: 'ChangePassword'
+
+#kerberos:
+#  realm: "<REALM>" # enter realm all uppercase (EXAMPLE: REPLICANT.IO)
+#  kdc: "<KDC FQDN>" # enter fully qualified domain name of the KDC (EXAMPLE: krb5.replicant.io)
+#  user-principal: "<PRINCIPAL NAME>" # enter principal name (EXAMPLE: name@REPLICANT.IO)

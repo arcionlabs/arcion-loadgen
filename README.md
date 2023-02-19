@@ -17,8 +17,10 @@ graph LR
 [asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
 Database sources with:
-- Redo log such as MariaDB, MySQL, Postgres support Arcion's `snapshot`, `real-time`, `full`, and `delta-snapshot` replication modes.
+- Redo log access such as MariaDB, MySQL, Postgres support Arcion's `snapshot`, `real-time`, `full`, and `delta-snapshot` replication modes.
 - No Redo log access such as `CockroachDB`, `SingleStore`, `YugaByteSQL` support Arcion's `snapshot` and `delta-snapshot` replication modes.
+
+Databases such as DB2, Oracle, SQL Server, Sybase will be added in the demo future.  
 
 Below instructions assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
 
@@ -157,37 +159,87 @@ docker volume create roach2
 docker volume create roach3
 
 docker run -d \
---name=cockroach-1 \
---hostname=cockroach-1 \
---net=arcnet \
--p :26257 -p :8080  \
--v "roach1:/cockroach/cockroach-data"  \
-cockroachdb/cockroach:v22.2.3 start \
---insecure \
---join=cockroach-1,cockroach-2,cockroach-3
+    --name=cockroach-1 \
+    --hostname=cockroach-1 \
+    --net=arcnet \
+    -p :26257 -p :8080  \
+    -v "roach1:/cockroach/cockroach-data"  \
+    cockroachdb/cockroach:v22.2.3 start \
+    --insecure \
+    --join=cockroach-1,cockroach-2,cockroach-3
 
 docker run -d \
---name=cockroach-2 \
---hostname=cockroach-2 \
---net=arcnet \
--p :26257 -p :8080  \
--v "roach2:/cockroach/cockroach-data" \
-cockroachdb/cockroach:v22.2.3 start \
---insecure \
---join=cockroach-1,cockroach-2,cockroach-3
+    --name=cockroach-2 \
+    --hostname=cockroach-2 \
+    --net=arcnet \
+    -p :26257 -p :8080  \
+    -v "roach2:/cockroach/cockroach-data" \
+    cockroachdb/cockroach:v22.2.3 start \
+    --insecure \
+    --join=cockroach-1,cockroach-2,cockroach-3
 
 docker run -d \
---name=cockroach-3 \
---hostname=cockroach-3 \
---net=arcnet \
--p :26257 -p :8080  \
--v "roach3:/cockroach/cockroach-data" \
-cockroachdb/cockroach:v22.2.3 start \
---insecure \
---join=cockroach-1,cockroach-2,cockroach-3
+    --name=cockroach-3 \
+    --hostname=cockroach-3 \
+    --net=arcnet \
+    -p :26257 -p :8080  \
+    -v "roach3:/cockroach/cockroach-data" \
+    cockroachdb/cockroach:v22.2.3 start \
+    --insecure \
+    --join=cockroach-1,cockroach-2,cockroach-3
 
 docker exec -it cockroach-1 ./cockroach init --insecure
-```   
+```
+
+## MongoDB
+
+https://www.mongodb.com/docs/manual/reference/sql-comparison/ is a good reference
+
+```bash
+docker run -d \
+    --name mongodb \
+    --network arcnet \
+    -e MONGO_INITDB_ROOT_USERNAME=root \
+    -e MONGO_INITDB_ROOT_PASSWORD=password \
+    -p :27017 \
+    -v `pwd`/docker_entrypoint_initdb/mongo:/docker-entrypoint-initdb.d \
+    mongo 
+
+docker run -d \
+    --name mongodb-express \
+    --network arcnet \
+    -e ME_CONFIG_MONGODB_ADMINUSERNAME=root \
+    -e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
+    -e ME_CONFIG_MONGODB_URL="mongodb://root:password@mongodb:27017/" \
+    -p 8082:8081 \
+    mongo-express 
+```
+
+## Kafka
+
+Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker/)
+
+https://docs.confluent.io/platform/current/platform-quickstart.html#step-1-download-and-start-cp
+
+```bash
+curl --silent --output docker-compose-kafka.yml \
+  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
+
+cat >>docker-compose-kafka.yml <<EOF 
+networks:
+  default:
+    name: arcnet
+    external: true
+EOF
+
+docker compose -f docker-compose-kafka-quickstart.yaml up -d
+
+docker compose exec broker \
+kafka-topics --bootstrap-server broker:9092 \
+             --create \
+             --topic quickstart
+```
+
 # Work In Progress
 
 Below is not in the demo YET but supports by the product.
