@@ -37,8 +37,9 @@ map_dbtype() {
 }
 map_dbgrp() {
     local DB_TYPE=${1}
+    local DB_GRP
     if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | head -n 1 | cut -d',' -f2)
     fi
     echo $DB_GRP
 }
@@ -60,10 +61,12 @@ copy_yaml() {
     local SRCDB_DIR=$1
     local DSTDB_DIR=$2
     local DSTDB_GRP=$3
+    local PID
 
     # copy the base src and dir config
-    for f in $SCRIPTS_DIR/$SRCDB_DIR/src*.yaml $SCRIPTS_DIR/$DSTDB_DIR/dst*.yaml; do
-        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
+    for f in $( find $SCRIPTS_DIR/$SRCDB_DIR -maxdepth 1 -name src*.yaml ) $( find $SCRIPTS_DIR/$DSTDB_DIR -maxdepth 1 -name dst*.yaml ); do
+        echo copy $f
+        cat "${f}" | PID=$$ envsubst > $CFG_DIR/$(basename "${f}") 
     done
 
     # metadata is hard coded
@@ -73,12 +76,11 @@ copy_yaml() {
 
     # override the base from destionation specific
     for f in $CFG_DIR/*.yaml; do
-        filename=$( basename $f )   
-
-        if [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
+        filename=$( basename $f ) 
+        if [ ! -z "$DSTDB_GRP" ] && [ ! -z "$DSTDB_DIR" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
             echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename | PID=$$ envsubst > $CFG_DIR/$filename
-        elif [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
+        elif [ ! -z "$DSTDB_GRP" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
             echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
         fi
@@ -253,20 +255,23 @@ ask_repl_mode() {
     export REPL_TYPE
 }
 init_src() {
-    rc=0
+    local DB_INIT
+    local DB_GRP
+    local rc=0
     # find src.init.sh
     if [ -f "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh" ]; then
         DB_INIT=${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
         DB_GRP=$(grep "^${SRCDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
-        if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
+        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
+            echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
         fi
     fi
     # run src.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} ) 
+            ( exec ${DB_INIT} | tee -a $CFG_DIR/src.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh: not found. skipping"    
@@ -274,20 +279,24 @@ init_src() {
     return $rc
 }
 init_dst() {
-    rc=0
+    local DB_INIT
+    local DB_GRP
+    local rc=0    
     # find dst.init.sh
     if [ -f "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh" ]; then
         DB_INIT=${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
         DB_GRP=$(grep "^${DSTDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
-        if [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
+        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
+            echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
         fi
     fi
+
     # run dst.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} ) 
+            ( exec ${DB_INIT} | tee -a $CFG_DIR/dst.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh: not found. skipping"    

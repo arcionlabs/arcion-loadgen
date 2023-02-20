@@ -1,7 +1,8 @@
 type: KAFKA
 
-username: '' #Replace replicant with the username of your user that connects to your Kafka server
-password: '' #Replace Replicant#123 with your user's password
+# not used when auth type = NOne
+#username: '' #Replace replicant with the username of your user that connects to your Kafka server
+#password: '' #Replace Replicant#123 with your user's password
 
 #ssl:
 #  enable: true

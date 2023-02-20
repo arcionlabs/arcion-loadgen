@@ -1,0 +1,38 @@
+snapshot:
+  threads: 16
+
+  batch-size-rows: 5000
+  txn-size-rows: 5000
+#  map-key-to-id: false
+#  skip-tables-on-failures : false
+  bulk-load:
+    enable: false
+    type: FILE   # PIPE, FILE
+  handle-failed-opers: true
+  initIndexesPostSnapshot: true
+#   denormalize:
+#     enable: true
+#  user-role:
+#    init-user-roles: true
+#  init-system-tables: true
+
+realtime:
+  threads: 8
+  batch-size-rows: 1000
+  txn-size-rows: 2_0000
+  handle-failed-opers: true
+#  map-key-to-id: false
+#  skip-tables-on-failures : false
+#   perTableConfig:
+#   - schema: tpch
+#     tables:
+#       CUSTOMER:
+#         skip-upto-cursor: '{"extractorId":0,"replicaSetName":"mongors1","resumeToken":6868517489379115009,"seqNum":3,"v":1,"timestamp":1599201348000}'
+
+# Transactional mode config  
+# realtime:
+#   threads: 1
+#   batch-size-rows: 1000
+#   replay-consistency: GLOBAL #allowed values are GLOBAL/EVENTUAL
+#   txn-group-count: 100
+#   skip-upto-cursors: ['{"extractorId":0,"replicaSetName":"mongors1","resumeToken":6868517489379115009,"seqNum":3,"v":1,"timestamp":1599201348000}']

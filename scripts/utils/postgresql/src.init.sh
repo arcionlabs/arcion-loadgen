@@ -66,9 +66,10 @@ banner ycsb
 
 usertable_cnt=$(echo 'select count(*) from usertable;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log | tail -1)
 
-pushd ${YCSB}
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
+    pushd ${YCSB}/*jdbc*/
     bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.postgresql.Driver  -p db.url="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${ARCSRC_USER}?sslmode=disable&reWriteBatchedInserts=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd="${SRCDB_ARC_PW}" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    popd
 else
   echo "Info: usertable ${usertable_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
 fi
@@ -76,5 +77,3 @@ cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${
 select count(*) from usertable; 
 select * from usertable limit 1;
 EOF
-
-popd

@@ -14,7 +14,7 @@ echo $SRC_JDBC_DRIVER
 echo $SRC_JDBC_URL
 
 # .0 is source .1 is destination
-tmux split-window -d -h -t :3
+tmux split-window -d -v -t :3
 if [ "$?" != "0" ]; then echo "could not split window"; exit 1; fi
 
 # .0 is source .1 is destination

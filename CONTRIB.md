@@ -34,6 +34,7 @@ chown -R 1000 .;\
 
 # Swap out volume and scripts
 
+mkdir -p ~/Downloads/arcion-demo/configs
 ```bash
 docker run -d --name arcion-demo \
     --network arcnet \
@@ -42,6 +43,7 @@ docker run -d --name arcion-demo \
     -v `pwd`/scripts:/scripts \
     robertslee/sybench
 ```
+    -v `~/Downloads/arcion-demo/configs`:/tmp/arcion \
 
 
 

@@ -19,6 +19,11 @@ case "${SRCDB_GRP,,}" in
     SRC_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     SRC_PG_URL="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
     ;;
+  mongodb)
+    SRCDB_ROOT_URL="mongodb://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/"
+    SRCDB_ARC_USER_URL="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
+    SRC_JDBC_URL="${SRCDB_ARC_USER_URL}?w=0"   
+    ;;     
   *)
     echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support"
     ;;
@@ -34,6 +39,11 @@ case "${DSTDB_GRP,,}" in
     DST_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     DST_PG_URL="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
     ;; 
+  mongodb)
+    DSTDB_ROOT_URL="mongodb://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/"
+    DSTDB_ARC_USER_URL="mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
+    DST_JDBC_URL="${DSTDB_ARC_USER_URL}?w=0"   
+    ;; 
   *)
     echo "$0: DSTDB_GRP: ${DSTDB_GRP} need to code support"
     ;;
@@ -42,7 +52,11 @@ esac
 export SRC_JDBC_DRIVER
 export SRC_JDBC_URL
 export SRC_PG_URL
+export SRCDB_ROOT_URL
+export SRCDB_ARC_USER_URL
 
 export DST_JDBC_DRIVER
 export DST_JDBC_URL
 export DST_PG_URL
+export DSTDB_ROOT_URL
+export DSTDB_ARC_USER_URL
