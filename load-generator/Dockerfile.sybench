@@ -23,7 +23,7 @@ ENV JSQSH_DIR=/opt/jsqsh
 
 # YCSB version
 ENV YCSB_VERSION=0.17.0 \
-    YCSB_BINDING=("mongodb-binding" "jdbc-binding") \
+    YCSB_BINDING="mongodb-binding jdbc-binding" \
     PATH=${PATH}:/usr/bin
 ENV YCSB=/opt/ycsb
 
@@ -68,7 +68,13 @@ RUN apt-get -y install tmux sysvbanner vim dstat gettext net-tools nmap
 RUN apt-get -y install ttyd
 
 # mongodb support
-
+RUN apt-get -y install wget && \
+    apt-get -y install gnupg && \
+    wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - && \
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
+    apt-get update && \
+    apt-get install -y mongodb-mongosh
+    
 # add YCSB with just JDBC binding
 RUN mkdir -p $YCSB && chown $USERNAME $YCSB
 RUN mkdir -p $ARCION_HOME && chown $USERNAME $ARCION_HOME
@@ -81,7 +87,7 @@ USER $USERNAME
 
 # download ycsb
 COPY --chown=${USERNAME} scripts/utils/setenv.sh $YCSB/. 
-RUN cd $YCSB; for b in ${YCSB_BINDING[@]}; do curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; rm ycsb-${b}-${YCSB_VERSION}.tar.gz; done
+RUN cd $YCSB; for b in ${YCSB_BINDING}; do curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; rm ycsb-${b}-${YCSB_VERSION}.tar.gz; done
      
 # download mariadb and unextract it
 RUN cd ${MARIADB_DIR} \

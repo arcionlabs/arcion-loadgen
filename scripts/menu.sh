@@ -37,8 +37,9 @@ map_dbtype() {
 }
 map_dbgrp() {
     local DB_TYPE=${1}
+    local DB_GRP
     if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
+        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | head -n 1 | cut -d',' -f2)
     fi
     echo $DB_GRP
 }
@@ -75,12 +76,11 @@ copy_yaml() {
 
     # override the base from destionation specific
     for f in $CFG_DIR/*.yaml; do
-        filename=$( basename $f )   
-
-        if [ ! -z "$DSTDB_GRP" -a ! -z "$DSTDB_DIR" -a -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
+        filename=$( basename $f ) 
+        if [ ! -z "$DSTDB_GRP" ] && [ ! -z "$DSTDB_DIR" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
             echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename | PID=$$ envsubst > $CFG_DIR/$filename
-        elif [ ! -z "$DSTDB_GRP" -a -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
+        elif [ ! -z "$DSTDB_GRP" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
             echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
             cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
         fi
@@ -263,7 +263,7 @@ init_src() {
         DB_INIT=${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
         DB_GRP=$(grep "^${SRCDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
-        if [ ! -z "$DB_GRP" -a -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
+        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
             echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
         fi
@@ -287,7 +287,7 @@ init_dst() {
         DB_INIT=${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
         DB_GRP=$(grep "^${DSTDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
-        if [ ! -z "$DB_GRP" -a -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
+        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
             echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
         fi
