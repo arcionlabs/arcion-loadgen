@@ -2,29 +2,100 @@ This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://doc
 
 # Overview
 The diagram below depicts the components of the demo.
+- Load Generator
+- Source host
+- Arcion host with dedicated metadata database
+- Target host
 
 ```mermaid
 graph LR
+    L[Load Generator<br>sysbench<br>YCSB] --> S
     subgraph Arcion Cluster
         A1
         M[(Meta <br>Data)]
     end
-    S[(Source <br>Database)] --> A1[Arcion <br> Node 1]
-    A1 --> T[(Target <br>Database)]
+    S[(Source <br>Host)] --> A1[Arcion <br> Node 1]
+    A1 --> T[(Target <br>Host)]
 ```
+
+A host has two database and two user IDs.  The Load Generator is setup to use `arcsrc` username and write to `arcsrc` database.
+
+```mermaid
+graph LR
+    L[Load Generator<br>sysbench<br>YCSB] --> arcsrc
+    subgraph Source Host
+        arcsrc
+        arcdst
+    end
+   
+```
+
+Data is replicated from `arcsrc` to `arcdst` database.
+
+```mermaid
+graph LR
+    subgraph Target
+        das[Target arcsrc]
+        dad[Target arcdst]
+    end   
+    subgraph Source
+        sas[Source arcsrc]
+        sad[Source arcdst]
+    end
+    sas --> Arcion
+    Arcion --> dad
+ 
+```
+
+Source and Target can be the same host. `arcsrc` database is replicated to `arcdst` database.
+
+```mermaid
+graph TB
+    subgraph Host
+        arcsrc
+        arcdst
+    end   
+    arcsrc --> Arcion
+    Arcion --> arcdst
+ 
+```
+
+# Demo data source and targets
+
+Arcion has the following replication types: 
+- `snapshot` does bulk export and import
+- `real-time` does CDC
+- `full` does `snapahot` + `realtime`
+- `delta-snapshot` does export at 10 sec intervals
+
+## Source 
+Database sources support `real-time`, `snapshot` and `full`
+- Kafka (work in progress)
+- MariaDB
+- MongoDB (works as target for now)
+- MySQL
+- Postgres
+
+Data sources supports `snapshot` and potentially `delta-snapshot`:
+- CockroachDB
+- SingleStore
+- YugaByte (work in progress)
+
+Databases such as DB2, Oracle, SQL Server, Sybase will be added to the demo in the future.  
+
+## Target
+
+All databases can be targets
+
 # CLI Demo Instructions
+
+![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 
 [asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
-Database sources with:
-- Redo log access such as MariaDB, MySQL, Postgres support Arcion's `snapshot`, `real-time`, `full`, and `delta-snapshot` replication modes.
-- No Redo log access such as `CockroachDB`, `SingleStore`, `YugaByteSQL` support Arcion's `snapshot` and `delta-snapshot` replication modes.
-
-Databases such as DB2, Oracle, SQL Server, Sybase will be added in the demo future.  
-
 Below instructions assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
 
-# Required
+# Minimal Demo Docker Setup
 
 ## Get Arcion License
 
@@ -93,7 +164,7 @@ docker run -d --name arcion-demo \
     robertslee/sybench
 ```    
 
-# Optional for demos
+# Optional Databases
 
 ## Arcion UI
 ```bash
@@ -202,7 +273,6 @@ docker run -d \
     -e MONGO_INITDB_ROOT_USERNAME=root \
     -e MONGO_INITDB_ROOT_PASSWORD=password \
     -p :27017 \
-    -v `pwd`/docker_entrypoint_initdb/mongo:/docker-entrypoint-initdb.d \
     mongo 
 
 docker run -d \
@@ -217,15 +287,14 @@ docker run -d \
 
 ## Kafka
 
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker/)
+Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker/https://docs.confluent.io/platform/current/platform-quickstart.html#step-1-download-and-start-cp)
 
-https://docs.confluent.io/platform/current/platform-quickstart.html#step-1-download-and-start-cp
 
 ```bash
-curl --silent --output docker-compose-kafka.yml \
+curl --silent --output docker-compose-kafka-quickstart.yml \
   https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
 
-cat >>docker-compose-kafka.yml <<EOF 
+cat >>docker-compose-kafka-quickstart.yml <<EOF 
 networks:
   default:
     name: arcnet
@@ -234,15 +303,13 @@ EOF
 
 docker compose -f docker-compose-kafka-quickstart.yaml up -d
 
-docker compose exec broker \
-kafka-topics --bootstrap-server broker:9092 \
-             --create \
-             --topic quickstart
+docker compose exec kafka kafka-topics --bootstrap-server kafka:9092 --create --topic quickstart
+
 ```
 
 # Work In Progress
 
-Below is not in the demo YET but supports by the product.
+Below is not in the demo YET but supports by Arcion.
 
 ## YugaByte
 NOTE: This will run 
@@ -263,7 +330,6 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
  
 In the console windows, type the following for fully automated mode.
 
-![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 - run mysql source and target with Arcion snapshot mode
 ```bash
 SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
