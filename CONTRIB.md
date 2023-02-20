@@ -41,7 +41,7 @@ docker run -d --name arcion-demo \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
-    robertslee/sybench
+    robertslee/arcdemo
 ```
     -v `~/Downloads/arcion-demo/configs`:/tmp/arcion \
 

@@ -4,8 +4,8 @@ type: SINGLESTORE
 host: ${SRCDB_HOST}
 port: 3306
 
-username: arcsrc
-password: password
+username: ${SRCDB_ARC_USER}
+password: ${SRCDB_ARC_PW}
 
 max-connections: 30
 max-retries: 10

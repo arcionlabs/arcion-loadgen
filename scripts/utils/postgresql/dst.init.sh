@@ -18,7 +18,7 @@ ping_db () {
   local db_port=${4:-5432}
   rc=1
   while [ ${rc} != 0 ]; do
-    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${db_host} as ${db_user} to connect"
@@ -31,11 +31,11 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 2>&1 | tee -a $CFG_DIR/dst.init.sh.log
+if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql ]; then
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql  | envsubst | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 
 fi
 
 # with the arcdst user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcdst.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcdst.sql | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/dst.init.sh.log
+if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql ]; then
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql  | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 
 fi

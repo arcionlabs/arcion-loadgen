@@ -40,7 +40,7 @@ realtime:
 
   heartbeat:
     enable: true
-    catalog: arcsrc
+    catalog: ${SRCDB_ARC_USER}
     interval-ms: 10000
 
 delta-snapshot:

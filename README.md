@@ -130,6 +130,7 @@ Postgres will be used for:
 docker run -d \
     --name postgresql \
     --network arcnet \
+    -e POSTGRES_USER=root \
     -e POSTGRES_PASSWORD=password \
     -p :5432 \
     postgres \
@@ -148,7 +149,7 @@ while [ -z "$( docker logs postgresql 2>&1 | grep 'database system is ready to a
 docker exec -it postgresql sh -c "apt update && apt install -y postgresql-15-wal2json postgresql-contrib"
 
 # setup for Acrion UI and metadata
-docker exec -i postgresql psql -Upostgres<<EOF
+docker exec -i postgresql psql -Uroot<<EOF
 CREATE USER arcion PASSWORD 'password';
 CREATE DATABASE arcion WITH OWNER arcion;
 CREATE DATABASE io_replicate WITH OWNER arcion;
@@ -161,7 +162,7 @@ docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -p 7681:7681 \
-    robertslee/sybench
+    robertslee/arcdemo
 ```    
 
 # Optional Databases
@@ -300,19 +301,40 @@ networks:
     name: arcnet
     external: true
 EOF
+```
+modify the compose file with the following:
+```bash
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
 
 docker compose -f docker-compose-kafka-quickstart.yaml up -d
-
-docker compose exec kafka kafka-topics --bootstrap-server kafka:9092 --create --topic quickstart
-
 ```
+
+## Minio
+
+Using Minio instruction from [here](https://min.io/docs/minio/container/index.html) with the following changes:
+- add `-d`
+- change name to `s3`
+- add `--network arcnet`
+- change client port to `9100` and `9190`
+
+```bash
+docker run -d \
+    --name s3 \
+    --network arcnet \
+    -p 9100:9000 \
+    -p 9190:9090 \
+    -e MINIO_ROOT_USER=root \
+    -e MINIO_ROOT_PASSWORD=password \
+    quay.io/minio/minio server /data --console-address ":9090"
+```  
 
 # Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
 ## YugaByte
-NOTE: This will run 
+
 ```bash
 docker run -d --name yugabytesql \
     --network arcnet \

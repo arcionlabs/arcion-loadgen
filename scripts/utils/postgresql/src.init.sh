@@ -18,7 +18,7 @@ ping_db () {
   local db_port=${4:-5432}
   rc=1
   while [ ${rc} != 0 ]; do
-    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${db_host} as ${db_user} to connect"
@@ -33,29 +33,28 @@ ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 # setup database permissions
 banner src root
 
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.sql | psql --echo-all postgresql://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ROOT} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.sql | envsubst | psql --echo-all postgresql://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ROOT} 
 
 banner src user
 
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.sql | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
-
+cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.sql | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
 
 # sysbench data population
 banner sysbench 
 
-sbtest1_cnt=$(echo 'select count(*) from sbtest1;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log | tail -1)
+sbtest1_cnt=$(echo 'select count(*) from sbtest1;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} )
 
 if [[ ${sbtest1_cnt} == "0" ]]; then
   # on existing table, create new rows
-  sysbench oltp_read_write --skip_table_create=on --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT} prepare 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+  sysbench oltp_read_write --skip_table_create=on --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT} prepare 
 elif [[ ${sbtest1_cnt} == "" ]]; then
   # create default table with new rows  
-  sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT}  prepare 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+  sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT}  prepare 
 else
-  echo "Info: sbtest1 ${sbtest1_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: sbtest1 ${sbtest1_cnt} rows exist. skipping"  
 fi
 
-cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
 select count(*) from sbtest1; 
 select sum(k) from sbtest1;
 select * from sbtest1 limit 1;
@@ -64,16 +63,16 @@ EOF
 # ycsb data population 
 banner ycsb 
 
-usertable_cnt=$(echo 'select count(*) from usertable;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log | tail -1)
+usertable_cnt=$(echo 'select count(*) from usertable;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} )
 
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
     pushd ${YCSB}/*jdbc*/
-    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.postgresql.Driver  -p db.url="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${ARCSRC_USER}?sslmode=disable&reWriteBatchedInserts=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd="${SRCDB_ARC_PW}" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.postgresql.Driver  -p db.url="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${ARCSRC_USER}?sslmode=disable&reWriteBatchedInserts=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd="${SRCDB_ARC_PW}" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 
     popd
 else
-  echo "Info: usertable ${usertable_cnt} rows exist. skipping" 2>&1 | tee -a $CFG_DIR/src.init.sh.log 
+  echo "Info: usertable ${usertable_cnt} rows exist. skipping" 
 fi
-cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 2>&1 | tee -a $CFG_DIR/src.init.sh.log
+cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
 select count(*) from usertable; 
 select * from usertable limit 1;
 EOF

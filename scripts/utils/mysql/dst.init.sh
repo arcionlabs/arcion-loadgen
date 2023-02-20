@@ -18,7 +18,7 @@ ping_db () {
   local db_port=${4:-3306}
   rc=1
   while [ ${rc} != 0 ]; do
-    mysql -h${db_host} -u${db_user} -p${db_pw} -e "show databases; status;" --verbose 2>&1 | tee -a $CFG_DIR/dst.init.sh.log
+    mysql -h${db_host} -u${db_user} -p${db_pw} -e "show databases; status;" --verbose 
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${db_host} as ${db_user} to connect"
@@ -31,11 +31,11 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.sql | mysql -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose 2>&1 | tee -a $CFG_DIR/dst.init.sh.log
+if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql ]; then
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose 
 fi
 
 # with the arcsrc user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcdst.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.arcdst.sql | mysql -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose 2>&1 | tee -a $CFG_DIR/dst.init.sh.log
+if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql ]; then
+    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose 
 fi
