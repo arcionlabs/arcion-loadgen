@@ -3,10 +3,10 @@ SET GLOBAL log_output = 'TABLE';
 SET GLOBAL general_log = 'ON';
 
 -- arcion user
-CREATE USER 'arcdst' IDENTIFIED BY 'password';
+CREATE USER '${DSTDB_ARC_USER}' IDENTIFIED BY '${DSTDB_ARC_PW}';
 
-GRANT ALL ON arcdst.* to 'arcdst';
-GRANT ALL ON io_replicate.* to 'arcdst';
+GRANT ALL ON ${DSTDB_ARC_USER}.* to '${DSTDB_ARC_USER}';
+GRANT ALL ON io_replicate.* to '${DSTDB_ARC_USER}';
 
 -- show binlogs
 show variables like "%log_bin%";
@@ -15,5 +15,5 @@ FLUSH PRIVILEGES;
 
 
 -- arcion database
-create database IF NOT EXISTS arcdst;
+create database IF NOT EXISTS ${DSTDB_ARC_USER};
 create database IF NOT EXISTS io_replicate;

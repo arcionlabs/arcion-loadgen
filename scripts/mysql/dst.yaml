@@ -4,8 +4,8 @@ type: MYSQL
 host: ${DSTDB_HOST}
 port: 3306
 
-username: arcdst
-password: password
+username: ${DSTDB_ARC_USER}
+password: ${DSTDB_ARC_PW}
 
 max-connections: 30
 

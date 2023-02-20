@@ -1,10 +1,20 @@
 #!/usr/bin/env bash 
 
+# id/password
+export SRCDB_ROOT=${SRCDB_ROOT:-root}
+export SRCDB_PW=${SRCDB_PW:-password}
+export DSTDB_ROOT=${DSTDB_ROOT:-root}
+export DSTDB_PW=${DSTDB_PW:-password}
+export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
+
 # for non interactive demo, kill jobs after certain time has passed
 TIMER=${1:-0}
 
 # TMUX
-TMUX_SESSION=arcion
+export TMUX_SESSION=arcion
 
 # metadata can be set to "" to not use metadata.
 # test is used to make sure METADATA_DIR is not set
@@ -432,10 +442,10 @@ export DSTDB_ROOT=${DSTDB_ROOT}
 export REPL_TYPE=${REPL_TYPE}
 export ARCION_ARGS="${ARCION_ARGS}"
 # id/password
-export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
-export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
+export SRCDB_ARC_USER=${SRCDB_ARC_USER}
+export SRCDB_ARC_PW=${SRCDB_ARC_PW}
+export DSTDB_ARC_USER=${DSTDB_ARC_USER}
+export DSTDB_ARC_PW=${DSTDB_ARC_PW}
 # cfg
 export CFG_DIR=${CFG_DIR}
 export LOG_ID=${LOG_ID}

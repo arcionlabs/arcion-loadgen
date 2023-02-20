@@ -6,3 +6,4 @@ postgresql,postgresql,5432,postgres
 cockroach,postgresql,26257,root
 yugabyte,postgresql,5433,postgres
 mongodb,mongodb,27017,root
+s3,s3,9000,root

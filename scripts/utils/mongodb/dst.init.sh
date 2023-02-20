@@ -28,14 +28,14 @@ DSTDB_ROOT_URL="mongodb://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/
 
 DSTDB_USER_URL="mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
 
-# wait for src db to be ready to connect
+# wait for dst db to be ready to connect
 ping_db "${DSTDB_ROOT_URL}" 
 
 # setup database permissions
 banner dst root
 
-[ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/src.init.js ] && cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/src.init.js | mongosh ${DSTDB_ROOT_URL} 
+[ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.js ] && cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.js | envsubst | mongosh ${DSTDB_ROOT_URL} 
 
 banner dst user
 
-[ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/src.init.arcdst.js ] && cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/src.init.arcsrc.js | mongosh ${DSTDB_USER_URL} 
+[ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.js ] && cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.js | envsubst | mongosh ${DSTDB_USER_URL} 

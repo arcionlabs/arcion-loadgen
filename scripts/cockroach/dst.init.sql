@@ -1,6 +1,0 @@
-CREATE USER arcdst; -- PASSWORD 'password';
-ALTER USER arcdst CREATEDB;
--- ALTER ROLE arcdst WITH REPLICATION;
-create database root;
-CREATE DATABASE arcdst WITH OWNER arcdst; -- ENCODING 'UTF8';
-CREATE DATABASE io WITH OWNER arcdst; -- ENCODING 'UTF8';

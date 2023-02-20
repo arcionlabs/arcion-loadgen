@@ -34,11 +34,11 @@ ping_db "${SRCDB_ROOT_URL}"
 # setup database permissions
 banner src root
 
-[ -f ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.js ] && cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.js | mongosh ${SRCDB_ROOT_URL} 
+[ -f ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.js ] && cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.js | envsubst | mongosh ${SRCDB_ROOT_URL} 
 
 banner src user
 
-[ -f ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.js ] && cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.arcsrc.js | mongosh ${SRCDB_ARC_USER_URL} 
+[ -f ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.js ] && cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.js | envsubst | mongosh ${SRCDB_ARC_USER_URL} 
 
 # sysbench data population
 banner sysbench 

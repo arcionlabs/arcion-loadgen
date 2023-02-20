@@ -1,0 +1,14 @@
+type: S3
+
+access-key: "root"
+secret-key: "password"
+
+bucket: "bucket_name"
+root: "root_dir"
+
+stage:
+  type: SHARED_FS
+  root-dir: /home/user/stage #directory where CSV files will be staged before uploading to S3
+
+# file-format: CSV
+max-connections: 50

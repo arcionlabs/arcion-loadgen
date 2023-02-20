@@ -3,23 +3,24 @@ LABEL MAINTAINER sangkyulee@gmail.com
 
 # Test image locally
 #   cd arcion-demo
-#   docker build -t robertslee/sybench -f load-generator/Dockerfile.sybench .
+#   docker build -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
 # Publish amd64, arm64  
 #   docker buildx create --name mybuilder
 #   docker buildx use mybuilder
 #   docker buildx inspect --bootstrap
-#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.sybench .
+#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/sybench -f load-generator/Dockerfile.arcdemo .
 # To start a container 
-#     docker run -it --rm -p 7681:7681 robertslee/sybench
+#     docker run -it --rm -p 7681:7681 robertslee/arcdemo
 # To push to docker hub
-#     docker tag 597de83199f4 robertslee/sybench
-#     docker push robertslee/sybench
+#     docker tag 597de83199f4 robertslee/arcdemo
+#     docker push robertslee/arcdemo
 
 ENV ARCION_HOME=/arcion
 ENV SCRIPTS_DIR=/scripts
 ENV MARIADB_DIR=/opt/mariadb
 ENV MYSQL_DIR=/opt/mysql
 ENV JSQSH_DIR=/opt/jsqsh
+ENV MINIO_DIR=/opt/minio
 
 # YCSB version
 ENV YCSB_VERSION=0.17.0 \
@@ -81,6 +82,7 @@ RUN mkdir -p $ARCION_HOME && chown $USERNAME $ARCION_HOME
 RUN mkdir -p $SCRIPTS_DIR && chown $USERNAME $SCRIPTS_DIR
 RUN mkdir -p $MARIADB_DIR && chown $USERNAME $MARIADB_DIR
 RUN mkdir -p $MYSQL_DIR && chown $USERNAME $MYSQL_DIR
+RUN mkdir -p $MINIO_DIR && chown $USERNAME $MINIO_DIR
 
 # run as regular user beyond this point
 USER $USERNAME
@@ -89,12 +91,12 @@ USER $USERNAME
 COPY --chown=${USERNAME} scripts/utils/setenv.sh $YCSB/. 
 RUN cd $YCSB; for b in ${YCSB_BINDING}; do curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; rm ycsb-${b}-${YCSB_VERSION}.tar.gz; done
      
-# download mariadb and unextract it
+# download mariadb 
 RUN cd ${MARIADB_DIR} \
     && apt-get download mariadb-server-10.6 \
     && ls *.deb | xargs -I % dpkg -x % .  
 
-# download mysql and unextract it
+# download mysql 
 RUN cd ${MYSQL_DIR} \
     && apt-get download mysql-server-core-8.0 \
     && ls *.deb | xargs -I % dpkg -x % .  
@@ -102,6 +104,13 @@ RUN cd ${MYSQL_DIR} \
 # /usr/share/sysbench/oltp_common.lua
 # modify to add ts so that delta snap can work
 COPY  scripts/utils/oltp_common.lua /usr/share/sysbench/. 
+
+# download minio client
+# TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
+RUN cd $MINIO_DIR; curl https://dl.min.io/client/mc/release/linux-${TARGETARCH}/mc \
+  --create-dirs \
+  -o mc && \
+  chmod a+x mc
 
 EXPOSE 7681
 
