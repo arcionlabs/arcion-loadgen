@@ -70,16 +70,31 @@ Arcion has the following replication types:
 
 ## Source 
 Database sources support `real-time`, `snapshot` and `full`
-- Kafka (work in progress)
 - MariaDB
-- MongoDB (works as target for now)
 - MySQL
 - Postgres
+- Kafka (works as destination for now)
+- MongoDB (works as destination for now)
 
 Data sources supports `snapshot` and potentially `delta-snapshot`:
 - CockroachDB
 - SingleStore
-- YugaByte (work in progress)
+
+The above sources work as destinations as well.  For example:
+
+```bash
+SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=mysql DSTDB_HOST=mariadb REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=cockroach-1 DSTDB_HOST=postgresql REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=postgresql DSTDB_HOST=kafka REPL_TYPE=snapshot ./menu.sh
+
+SRCDB_HOST=postgresql DSTDB_HOST=mongodb REPL_TYPE=snapshot ./menu.sh
+```
 
 Databases such as DB2, Oracle, SQL Server, Sybase will be added to the demo in the future.  
 
@@ -235,7 +250,6 @@ docker run -d \
     --hostname=cockroach-1 \
     --net=arcnet \
     -p :26257 -p :8080  \
-    -v "roach1:/cockroach/cockroach-data"  \
     cockroachdb/cockroach:v22.2.3 start \
     --insecure \
     --join=cockroach-1,cockroach-2,cockroach-3
@@ -245,7 +259,6 @@ docker run -d \
     --hostname=cockroach-2 \
     --net=arcnet \
     -p :26257 -p :8080  \
-    -v "roach2:/cockroach/cockroach-data" \
     cockroachdb/cockroach:v22.2.3 start \
     --insecure \
     --join=cockroach-1,cockroach-2,cockroach-3
@@ -255,7 +268,6 @@ docker run -d \
     --hostname=cockroach-3 \
     --net=arcnet \
     -p :26257 -p :8080  \
-    -v "roach3:/cockroach/cockroach-data" \
     cockroachdb/cockroach:v22.2.3 start \
     --insecure \
     --join=cockroach-1,cockroach-2,cockroach-3
