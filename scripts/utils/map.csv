@@ -7,3 +7,5 @@ cockroach,postgresql,26257,root,password
 yugabytesql,postgresql,5433,postgres,password
 mongodb,mongodb,27017,root,password
 s3,s3,9000,root,password
+sqlserver,sqlserver,1433,root,Passw0rd
+oracle,oracle,1521,root,Passw0rd

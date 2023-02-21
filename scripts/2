@@ -1,0 +1,94 @@
+CREATE USER arcdst PASSWORD 'password';
+ALTER USER arcdst CREATEDB;
+ALTER ROLE
+CREATE DATABASE arcdst WITH OWNER arcdst ENCODING 'UTF8';
+CREATE TABLE if not exists sbtest1(
+    id INTEGER,
+    k INTEGER DEFAULT '0' NOT NULL,
+    c CHAR(120) DEFAULT '' NOT NULL,
+    pad CHAR(60) DEFAULT '' NOT NULL,
+    primary key (id),
+    ts TIMESTAMP(6)
+);
+CREATE TABLE
+-- ts is used for snapshot delta. 
+CREATE TABLE if not exists usertable (
+    ycsb_key VARCHAR(255) PRIMARY KEY,
+    field0 TEXT, field1 TEXT,
+    field2 TEXT, field3 TEXT,
+    field4 TEXT, field5 TEXT,
+    field6 TEXT, field7 TEXT,
+    field8 TEXT, field9 TEXT,
+    ts TIMESTAMP(6)
+);
+CREATE TABLE
+###  #####
+ #    #  #       #       #    #
+ #    #   ####   #####   #    #
+ #    #       #  #       #####
+ #    #  #    #  #       #   #
+  ####    ####   ######  #    #
+
+CREATE TABLE if not exists sbtest1(
+	id INTEGER,
+  	k INTEGER DEFAULT '0' NOT NULL,
+  	c TEXT DEFAULT '' NOT NULL,
+  	pad TEXT DEFAULT '' NOT NULL,
+	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+	PRIMARY KEY (id)
+);
+CREATE TABLE
+-- ts is used for snapshot delta. 
+CREATE TABLE if not exists usertable (
+	ycsb_key VARCHAR(255) PRIMARY KEY,
+	field0 TEXT, field1 TEXT,
+	field2 TEXT, field3 TEXT,
+	field4 TEXT, field5 TEXT,
+	field6 TEXT, field7 TEXT,
+	field8 TEXT, field9 TEXT,
+	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+);
+CREATE TABLE
+
+  ####    #   #   ####   #####   ######  #    #   ####   #    #
+ #         # #   #       #    #  #       ##   #  #    #  #    #
+  ####      #     ####   #####   #####   # #  #  #       ######
+      #     #         #  #    #  #       #  # #  #       #    #
+ #    #     #    #    #  #    #  #       #   ##  #    #  #    #
+  ####      #     ####   #####   ######  #    #   ####   #    #
+
+Info: sbtest1 10000 rows exist. skipping
+ count 
+-------
+ 10000
+(1 row)
+
+   sum    
+----------
+ 50172917
+(1 row)
+
+ id  |  k   |                                                            c                                                            |                             pad                             |             ts             
+-----+------+-------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+----------------------------
+ 854 | 4493 | 38727708094-57624772616-07462797227-76992390842-87005175432-58345807665-27779082809-53968783132-49746927732-27271065043 | 63656942783-86091893429-72243360710-43612885037-41748940762 | 2023-02-21 17:17:31.419797
+(1 row)
+
+
+  #   #   ####    ####   #####
+   # #   #    #  #       #    #
+    #    #        ####   #####
+    #    #            #  #    #
+    #    #    #  #    #  #    #
+    #     ####    ####   #####
+
+Info: usertable 10000 rows exist. skipping
+ count 
+-------
+ 10000
+(1 row)
+
+       ycsb_key        |                                                 field0                                                  |                                                 field1                                                  |                                                field2                                                |                                                   field3                                                   |                                                field4                                                |                                                field5                                                |                                                field6                                                |                                                 field7                                                  |                                                field8                                                |                                                field9                                                |             ts             
+-----------------------+---------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+----------------------------
+ user98017693589094841 | *Yw&/`2;|/O96Oy2A7'!r+.t 'd?M\x7F)&z2Bo26r&Rk*&6=7&2C%8+x<(z6\1=[?-T;.#x#"x+Je"Xo8Co3N;:Gk;Gk/Ia&:z4=x" | 6K\x7F#L-="(<By/("-)4-^58P+73&9*p?[;%!x-9r2#v8"j:Y5/1x+52?*z:P9192)8~>Ls>Pe5"85$l7;b#)":1n#Ja6:n>!44>|* | 9+()?f)#x2T{!Dk.Gy#Jm/V;,]}282**|&6~&_18H-2 28#|1>z.7~2C1-[{+\/(-r*"f3?~%_m.=f8:(%Kk6X11*"?G70\y-6x# | "/>9I-8\a:Xu6Xk*A{++" <<:]\x7F:60:0 -("#%h/W+4%" 06*)p"Oa2-v?(`+!(8Uu+D3%I\x7F()*0;6.5x7]i$?v*>x/2h;*`'=h6 | ,W9=A;"2$!G) \;0F-+H?(>p>;"-J-*8f/Jq#D/% (-[g72.2'l2<$1]#456&"x*U74Tm;,2$[s.Js0Vw2B+8/b;Ak$1|.C'&)j3 | 7@-$5<(D75Zc<Hk+2j4%4<Sw2<88#d/-r+:l)<~/Bu,'$(;6>)b+#t!Y3=!:!5~+*.62z2]{*Fy6<"&6d:]k"W%)>.8Ti2R/+Wi7 | )Hy'2l &. D5"=4)Pe8S?%Ce8Mc>G#"Ku"J/5K542,1(l6$$3M!1,*$A;$44<K+)+*6/v?%28Xc.Ba'Ik:,4%=:<[12Oa.A!,Ba+ | 5^)8Ki;Z\x7F;0t4W;0V3=9>8^--^a?C7<#f.9(.,:-:. [94S'#!"1Cy*W?,-*6<z;*  Rm2%t F9-"f8-6=?`;Fg"0n A5)8~?=~& | .I) <l/U;8Fc1Wo">82D+=M%*)t"%2:20-T-.Q/$B+6E{&5t Pa"B+&X#,:n$&x&"x0.t?P=) &,(b:5r&W3?$,0/&1=b6_;0T?= | /. %'`$ j3Q15!,5&4,2,)'r&)r.X'%Am+Oi0He+:p>Lu:Ja#12$-p0;f'&r<Le;?:%Ak"Dk6R78K}'P15C?0>655n)!~35<0<&4 | 2023-02-21 17:17:42.917404
+(1 row)
+
