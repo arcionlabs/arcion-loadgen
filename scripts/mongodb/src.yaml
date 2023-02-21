@@ -11,8 +11,6 @@ replica-sets:
     ## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
     ##  url: mongodb://<user_principal_name>%40<REALM>@<shard1_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
 
-max-retries: 10
-retry-wait-duration-ms: 1000
 
 #ssl:
 #  key-store:

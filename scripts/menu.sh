@@ -1,15 +1,5 @@
 #!/usr/bin/env bash 
 
-# id/password
-export SRCDB_ROOT=${SRCDB_ROOT:-root}
-export SRCDB_PW=${SRCDB_PW:-password}
-export DSTDB_ROOT=${DSTDB_ROOT:-root}
-export DSTDB_PW=${DSTDB_PW:-password}
-export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
-export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
-
 # for non interactive demo, kill jobs after certain time has passed
 TIMER=${1:-0}
 
@@ -40,33 +30,39 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 # DSTDB_DIR
 # REPL_TYPE
 
+map_db() {
+    local DB_TYPE=${1}
+    local COLUMN_INDEX=${2:-2}  
+    local COLUMN_VALUE
+    # column position in the map.csv
+    # type(1),group(2),default_port(3),root_user(4),root_pw(5)
+    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
+        ROW=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | head -n 1)
+        COLUMN_VALUE=$(echo ${ROW} | cut -d',' -f${COLUMN_INDEX})
+    fi
+    if [ -z "${ROW}" ]; then 
+        echo "Error: $1 not defined in map.csv." >&2
+    fi
+    echo $COLUMN_VALUE
+}
 map_dbtype() {
     local DB_DIR=${1}
     DB_TYPE=$( echo $DB_DIR | awk -F'[_-/.]' '{print $1}' )
     echo "${DB_TYPE}"
 }
 map_dbgrp() {
-    local DB_TYPE=${1}
-    local DB_GRP
-    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | head -n 1 | cut -d',' -f2)
-    fi
-    echo $DB_GRP
+    map_db "$1" 2
 }
 map_dbport() {
-    local DB_TYPE=${1}
-    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_PORT=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f3)
-    fi
-    echo $DB_PORT
+    map_db "$1" 3
 }
 map_dbroot() {
-    local DB_TYPE=${1}
-    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_ROOT=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f4)
-    fi
-    echo $DB_ROOT
+    map_db "$1" 4
 }
+map_dbrootpw() {
+    map_db "$1" 5
+}
+
 copy_yaml() {
     local SRCDB_DIR=$1
     local DSTDB_DIR=$2
@@ -265,38 +261,56 @@ ask_repl_mode() {
     export REPL_TYPE
 }
 init_src() {
+    local DB_TYPE="$1"
+    local DB_GRP="$2"
     local DB_INIT
     local DB_GRP
     local rc=0
+
+    # src id/password
+    export SRCDB_ROOT=${SRCDB_ROOT:-$( map_dbroot "$DB_TYPE" )}
+    export SRCDB_PW=${SRCDB_PW:-$( map_dbrootpw "$DB_TYPE" )}
+    export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+    export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+
     # find src.init.sh
     if [ -f "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh" ]; then
         DB_INIT=${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${SRCDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
         if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
             echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
         fi
     fi
+
     # run src.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} | tee -a $CFG_DIR/src.init.sh.log ) 
+            ( exec ${DB_INIT} >2&1 | tee -a $CFG_DIR/src.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh: not found. skipping"    
     fi
+
     return $rc
 }
 init_dst() {
+    local DB_TYPE="$1"
+    local DB_GRP="$2"
     local DB_INIT
     local DB_GRP
     local rc=0    
+
+    # dst id/password
+    export DSTDB_ROOT=${DSTDB_ROOT:-$( map_dbroot "$DB_TYPE" )}
+    export DSTDB_PW=${DSTDB_PW:-$( map_dbrootpw "$DB_TYPE" )}
+    export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+    export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
+
     # find dst.init.sh
     if [ -f "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh" ]; then
         DB_INIT=${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh
     elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        DB_GRP=$(grep "^${DSTDB_DIR}," ${SCRIPTS_DIR}/utils/map.csv | cut -d',' -f2)
         if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
             DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
             echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
@@ -306,11 +320,12 @@ init_dst() {
     # run dst.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} | tee -a $CFG_DIR/dst.init.sh.log ) 
+            ( exec ${DB_INIT} >2&1 | tee -a $CFG_DIR/dst.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh: not found. skipping"    
     fi
+
     return $rc
 }
 
@@ -338,7 +353,7 @@ while [ 1 ]; do
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
-    init_src
+    init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
     rc=$?
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
@@ -381,7 +396,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
-    init_dst
+    init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
     rc=$?
     echo $rc
     echo "Destination Host: ${DSTDB_HOST}"
@@ -430,18 +445,21 @@ export SRCDB_TYPE=${SRCDB_TYPE}
 export SRCDB_HOST=${SRCDB_HOST}
 export SRCDB_GRP=${SRCDB_GRP}
 export SRCDB_PORT=${SRCDB_PORT}
-export SRCDB_ROOT=${SRCDB_ROOT}
 # destination
 export DSTDB_DIR=${DSTDB_DIR}
 export DSTDB_TYPE=${DSTDB_TYPE}
 export DSTDB_HOST=${DSTDB_HOST}
 export DSTDB_GRP=${DSTDB_GRP}
 export DSTDB_PORT=${DSTDB_PORT}
-export DSTDB_ROOT=${DSTDB_ROOT}
 # replication
 export REPL_TYPE=${REPL_TYPE}
 export ARCION_ARGS="${ARCION_ARGS}"
-# id/password
+# root id/password
+export SRCDB_ROOT=${SRCDB_ROOT}
+export SRCDB_PW=${SRCDB_PW}
+export DSTDB_ROOT=${DSTDB_ROOT}
+export DSTDB_PW=${DSTDB_PW}
+# user id/password
 export SRCDB_ARC_USER=${SRCDB_ARC_USER}
 export SRCDB_ARC_PW=${SRCDB_ARC_PW}
 export DSTDB_ARC_USER=${DSTDB_ARC_USER}

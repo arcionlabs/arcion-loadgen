@@ -5,11 +5,8 @@ host: ${DSTDB_HOST}
 port: 5433
 
 # should be same name as the source database to prevent cross database
-database: 'arcdst'
-username: 'arcdst'
-password: 'password'
+database: '${DSTDB_ARC_USER}'
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
 
-max-connections: 100
-socket-timeout-s: 60 #The timeout value used for socket read operations. The timeout is specified in seconds and a value of zero means that it is disabled.
-max-retries: 10
-retry-wait-duration-ms: 1000
+max-connections: 30

@@ -40,7 +40,7 @@ realtime:
 
   heartbeat:
     enable: true
-    catalog: arcsrc
+    catalog: ${SRCDB_ARC_USER}
     schema: public
     table-name: replicate_io_cdc_heartbeat
     column-name: timestamp

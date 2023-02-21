@@ -69,16 +69,17 @@ Arcion has the following replication types:
 - `delta-snapshot` does export at 10 sec intervals
 
 ## Source 
-Database sources support `real-time`, `snapshot` and `full`
+Database sources that support `snapshot`, `real-time` and `full`
 - MariaDB
 - MySQL
 - Postgres
 - Kafka (works as destination for now)
 - MongoDB (works as destination for now)
 
-Data sources supports `snapshot` and potentially `delta-snapshot`:
+Data sources that support `snapshot` and potentially `delta-snapshot`:
 - CockroachDB
 - SingleStore
+- YugaByteSQL
 
 The above sources work as destinations as well.  For example:
 
@@ -300,7 +301,7 @@ docker run -d \
 
 ## Kafka
 
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker/https://docs.confluent.io/platform/current/platform-quickstart.html#step-1-download-and-start-cp)
+Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
 
 
 ```bash
@@ -341,19 +342,23 @@ docker run -d \
     quay.io/minio/minio server /data --console-address ":9090"
 ```  
 
-# Work In Progress
-
-Below is not in the demo YET but supports by Arcion.
-
 ## YugaByte
 
+Using instructions from https://docs.yugabyte.com/preview/quick-start/docker/ 
+
 ```bash
-docker run -d --name yugabytesql \
+docker run -d 
+    --name yugabytesql \
     --network arcnet \
     -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
     yugabytedb/yugabyte bin/yugabyted start\
     --daemon=false
 ```
+
+# Work In Progress
+
+Below is not in the demo YET but supports by Arcion.
+
 
 # Running the CLI demo
 
