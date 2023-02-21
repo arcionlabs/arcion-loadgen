@@ -14,7 +14,7 @@ type: KAFKA
 brokers:
    broker1: #Replace broker1 with your broker name
        host: $DSTDB_HOST #Replace localhost with your broker's host
-       port: 9092 #Replace 19092 with your broker's port
+       port: 29092 #Replace 19092 with your broker's port
 
 _timeout-sec: 30
 max-retries: #Number of times any operation on the system will be re-attempted on failures.
