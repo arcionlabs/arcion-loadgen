@@ -300,7 +300,7 @@ docker run -d \
 
 ## Kafka
 
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker/https://docs.confluent.io/platform/current/platform-quickstart.html#step-1-download-and-start-cp)
+Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
 
 
 ```bash

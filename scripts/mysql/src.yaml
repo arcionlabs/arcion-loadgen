@@ -11,5 +11,14 @@ password: ${SRCDB_ARC_PW}
 slave-server-ids: [ ${PID} ]
 max-connections: 30
 
-max-retries: 10
-retry-wait-duration-ms: 1000
+# Optional parameters with default values
+# ddl-connection:
+# id:null
+# max-retries:20
+# proxy-source:FALSE
+# retry-wait-duration:10000
+# source-failover:FALSE
+# timeout-millis:30000
+# xa-realtime-failure-strategy:null
+# xa-resume-on-reconnection:null
+# xa-snapshot-failure-strategy:null
