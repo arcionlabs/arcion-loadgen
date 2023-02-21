@@ -295,7 +295,7 @@ docker run -d \
     -e ME_CONFIG_MONGODB_ADMINUSERNAME=root \
     -e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
     -e ME_CONFIG_MONGODB_URL="mongodb://root:password@mongodb:27017/" \
-    -p 8082:8081 \
+    -p 18081:8081 \
     mongo-express 
 ```
 
@@ -303,24 +303,21 @@ docker run -d \
 
 Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
 
-
-```bash
-curl --silent --output docker-compose-kafka-quickstart.yml \
+```
+curl --silent --output docker-compose.yml \
   https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
 
-cat >>docker-compose-kafka-quickstart.yml <<EOF 
+# change broker name to kafka to make demo easier
+cat docker-compose.yml | sed s/broker/kafka/g > docker-compose-kafka.yml
+
+cat >>docker-compose-kafka.yml <<EOF 
 networks:
   default:
     name: arcnet
     external: true
 EOF
-```
-modify the compose file with the following:
-```bash
-      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
 
-docker compose -f docker-compose-kafka-quickstart.yaml up -d
+docker compose -f docker-compose-kafka.yml up -d
 ```
 
 ## Minio

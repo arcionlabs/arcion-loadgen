@@ -286,7 +286,7 @@ init_src() {
     # run src.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} >2&1 | tee -a $CFG_DIR/src.init.sh.log ) 
+            ( exec ${DB_INIT} 2>&1 | tee -a $CFG_DIR/src.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh: not found. skipping"    
@@ -320,7 +320,7 @@ init_dst() {
     # run dst.init.sh
     if [ -f "${DB_INIT}" ]; then
             # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} >2&1 | tee -a $CFG_DIR/dst.init.sh.log ) 
+            ( exec ${DB_INIT} 2>&1 | tee -a $CFG_DIR/dst.init.sh.log ) 
             if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
     else
         echo "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh: not found. skipping"    
