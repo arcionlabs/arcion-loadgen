@@ -1,6 +1,7 @@
+replication-format: JSON
+
 snapshot:
  threads: 16
-
 
 realtime:
   txn-size-rows: 1000

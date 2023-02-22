@@ -1,4 +1,4 @@
 rules:
-  [${DSTDB_ARC_USER}, public]:
+  [${DSTDB_ARC_USER}]:
     source:
     - [${SRCDB_ARC_USER}, public]
