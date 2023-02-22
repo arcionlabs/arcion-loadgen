@@ -101,6 +101,12 @@ RUN cd ${MYSQL_DIR} \
     && apt-get download mysql-server-core-8.0 \
     && ls *.deb | xargs -I % dpkg -x % .  
 
+# download jsqsj
+RUN cd ${JSQSH_DIR} \
+    && wget https://github.com/scgray/jsqsh/releases/download/jsqsh-2.3/jsqsh-2.3-bin.tar.gz \
+    && gzip -dc jsqsh* | tar -xvf - \
+    && rm *.tar.gz
+
 # /usr/share/sysbench/oltp_common.lua
 # modify to add ts so that delta snap can work
 COPY  scripts/utils/oltp_common.lua /usr/share/sysbench/. 
@@ -120,5 +126,7 @@ COPY --chown=${USERNAME} replicant-cli/ /arcion/
 COPY --chown=${USERNAME} scripts/ /scripts/
 
 WORKDIR /scripts
+
+export CLASSPATH=/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 

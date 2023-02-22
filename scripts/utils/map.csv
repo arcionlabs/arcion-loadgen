@@ -10,3 +10,4 @@ s3,s3,9000,root,password
 sqlserver,sqlserver,1433,root,Passw0rd
 oracle,oracle,1521,root,Passw0rd
 kafka,kafka,29092,root,password
+broker,kafka,29092,root,password
