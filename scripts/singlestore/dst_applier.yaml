@@ -1,5 +1,5 @@
 snapshot:
-  threads: 32
+  threads: ${CPUS}
 #  batch-size-rows: 10_000
 #  txn-size-rows: 1_000_000
 
@@ -22,7 +22,7 @@ snapshot:
 #    init-user-roles: true
 
 realtime:
-  threads: 32
+  threads: ${CPUS}
   batch-size-rows: 10_000
   txn-size-rows: 1_00_000
   replay-replace-as-upsert: false

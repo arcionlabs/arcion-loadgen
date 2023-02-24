@@ -1,5 +1,5 @@
 snapshot:
-  threads: 16
+  threads: ${CPUS}
 
   batch-size-rows: 5000
   txn-size-rows: 5000
@@ -17,7 +17,7 @@ snapshot:
 #  init-system-tables: true
 
 realtime:
-  threads: 8
+  threads: ${CPUS}
   batch-size-rows: 1000
   txn-size-rows: 2_0000
   handle-failed-opers: true

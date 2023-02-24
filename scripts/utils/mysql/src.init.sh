@@ -33,11 +33,16 @@ ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 # setup database permissions
 banner src root
 
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.sql | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose 
+for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.*sql; do
+  echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose"
+  cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose 
+done
 
 banner src user
-
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.sql | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
+for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.*sql; do
+  echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose" 
+  cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
+done
 
 # sysbench data population
 banner sysbench 

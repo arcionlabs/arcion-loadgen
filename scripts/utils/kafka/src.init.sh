@@ -24,3 +24,5 @@ ping_db () {
     fi
   done
 }
+
+ping_db $SRCDB_HOST $SRCDB_PORT

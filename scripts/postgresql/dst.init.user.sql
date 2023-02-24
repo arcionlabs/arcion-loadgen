@@ -17,3 +17,4 @@ CREATE TABLE if not exists usertable (
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6)
 );
+

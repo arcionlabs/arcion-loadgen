@@ -1,5 +1,9 @@
 #!/usr/bin/env bash 
 
+# thread to match the CPUs on the system
+export CPUS=${CPUS:-$(getconf _NPROCESSORS_ONLN)}
+if [ -z "$CPUS" ]; then CPUS=1; fi
+
 # for non interactive demo, kill jobs after certain time has passed
 TIMER=${1:-0}
 
@@ -14,7 +18,9 @@ if test "${METADATA_DIR-default value}" ; then
 fi
 
 # arcion replicant command line flag
-ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
+# ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
+# does not work on apple silicon w/ mysql to mysql
+ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite --verbose"}
 
 # default
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
@@ -63,34 +69,54 @@ map_dbrootpw() {
     map_db "$1" 5
 }
 
+copy_hier_as_flat() {
+    local SRC=${1:-"./"}
+    local PREFIX=$2
+    local DST=${3:-/tmp/$(basename $(realpath $SRC))}
+    [ ! -d "${DST}" ] && mkdir -p ${DST}
+    dir=""
+    for d in $( echo $SRC |  tr "/" "\n" ); do
+        echo "*${d}"
+        dir="${dir}${d}"
+        if [ ! -d "${dir}" ]; then continue; fi
+        for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js ); do
+            filename=$(basename $f)
+            if [ -f $DST/$filename ]; then
+                echo override $f $DST/$filename
+            else
+                echo cp $f $DST/$filename
+            fi 
+            cat "${f}" | PID=$$ envsubst > $DST/$filename
+        done
+        dir="${dir}/"
+    done
+}
+
 copy_yaml() {
-    local SRCDB_DIR=$1
-    local DSTDB_DIR=$2
-    local DSTDB_GRP=$3
+    local SRCDB_DIR="$1"
+    local DSTDB_DIR="$2"
+    local DSTDB_GRP="$3"
+    local DSTDB_TYPE="$4"
     local PID
 
-    # copy the base src and dir config
-    for f in $( find $SCRIPTS_DIR/$SRCDB_DIR -maxdepth 1 -name src*.yaml ) $( find $SCRIPTS_DIR/$DSTDB_DIR -maxdepth 1 -name dst*.yaml ); do
-        echo copy $f
-        cat "${f}" | PID=$$ envsubst > $CFG_DIR/$(basename "${f}") 
-    done
+    [ -z "$SRCDB_DIR" ] && echo "copy_yaml: SRCDB_DIR is blank" >&2
+    [ -z "$DSTDB_DIR" ] && echo "copy_yaml: DSTDB_DIR is blank" >&2
+    [ -z "$DSTDB_GRP" ] && echo "copy_yaml: DSTDB_GRP is blank" >&2
+    [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
-    # metadata is hard coded
-    for f in $( find $SCRIPTS_DIR/$METADATA_DIR -maxdepth 1 -name metadata.yaml ); do 
-        cat $f | PID=$$ envsubst > $CFG_DIR/$(basename $f) 
-    done
+    # copy the src and dst configs into a flat dir
+    pushd $SCRIPTS_DIR
+    copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
+    copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
+    copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
+    popd
 
-    # override the base from destionation specific
-    for f in $CFG_DIR/*.yaml; do
-        filename=$( basename $f ) 
-        if [ ! -z "$DSTDB_GRP" ] && [ ! -z "$DSTDB_DIR" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename" ]; then
-            echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
-            cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$DSTDB_DIR/$filename | PID=$$ envsubst > $CFG_DIR/$filename
-        elif [ ! -z "$DSTDB_GRP" ] && [ -f "$SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename" ]; then
-            echo override cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename \| PID=$$ envsubst \> $CFG_DIR/$filename
-            cat $SCRIPTS_DIR/$SRCDB_DIR/$DSTDB_GRP/$filename | PID=$$ envsubst > $CFG_DIR/$filename
-        fi
-    done
+    # override the destionation specific
+    if [ -d $SRCDB_DIR/src_dst_map ]; then
+        pushd $SRCDB_DIR/src_dst_map
+        copy_hier_as_flat $DSTDB_GRP/$DSTDB_TYPE/ src $CFG_DIR
+        popd
+    fi
 
     echo "Config at $CFG_DIR"
 }
@@ -435,7 +461,7 @@ clear
 
 
 # set config 
-copy_yaml "${SRCDB_DIR}" "${DSTDB_DIR}" "${DSTDB_GRP}"
+copy_yaml "${SRCDB_DIR}" "${DSTDB_DIR}" "${DSTDB_GRP}" "${DSTDB_TYPE}"
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF

@@ -1,10 +1,12 @@
 replication-format: JSON
 
 snapshot:
- threads: 16
+ threads: ${CPUS}
+ skip-tables-on-failures : true
 
 realtime:
   txn-size-rows: 1000
+  skip-tables-on-failures : true
   before-image-format: ALL  # Allowed values : KEY, ALL
   after-image-format: ALL   # Allowed values : UPDATED, ALL
   # kafka-compression-type: lz4

@@ -9,5 +9,3 @@ password: ${SRCDB_ARC_PW}
 
 max-connections: 30
 
-max-retries: 10
-retry-wait-duration-ms: 1000

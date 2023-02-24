@@ -31,11 +31,13 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose 
-fi
+for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.*sql; do
+    echo "cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose "
+    cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose 
+done
 
 # with the arcsrc user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose 
+for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.*sql; do
+    echo "cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose"
+    cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose"
 fi

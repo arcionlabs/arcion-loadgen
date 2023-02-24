@@ -1,5 +1,5 @@
 snapshot:
-  threads: 16
+  threads: ${CPUS}
   fetch-size-rows: 5000
 
   min-job-size-rows: 1_000
@@ -22,7 +22,7 @@ snapshot:
 
 
 realtime:
-  threads: 4 
+  threads: ${CPUS} 
   fetch-size-rows: 10000
   fetch-duration-per-extractor-slot-s: 3
   _traceDBTasks: true

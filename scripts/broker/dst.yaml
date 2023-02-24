@@ -16,6 +16,3 @@ brokers:
        host: $DSTDB_HOST #Replace localhost with your broker's host
        port: 29092 #Replace 19092 with your broker's port
 
-_timeout-sec: 30
-max-retries: #Number of times any operation on the system will be re-attempted on failures.
-retry-wait-duration-ms : #Duration in milliseconds replicant should wait before performing then next retry of a failed operation

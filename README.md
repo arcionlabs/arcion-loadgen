@@ -92,7 +92,7 @@ SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=cockroach-1 DSTDB_HOST=postgresql REPL_TYPE=snapshot ./menu.sh
 
-SRCDB_HOST=postgresql DSTDB_HOST=kafka REPL_TYPE=snapshot ./menu.sh
+SRCDB_HOST=postgresql DSTDB_HOST=broker REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=postgresql DSTDB_HOST=mongodb REPL_TYPE=snapshot ./menu.sh
 ```
@@ -242,38 +242,13 @@ docker run -d --net arcnet --name singlestore -i --init \
 
 ## CockroachDB
 ```
-docker volume create roach1
-docker volume create roach2
-docker volume create roach3
-
 docker run -d \
     --name=cockroach-1 \
     --hostname=cockroach-1 \
     --net=arcnet \
     -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start \
-    --insecure \
-    --join=cockroach-1,cockroach-2,cockroach-3
-
-docker run -d \
-    --name=cockroach-2 \
-    --hostname=cockroach-2 \
-    --net=arcnet \
-    -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start \
-    --insecure \
-    --join=cockroach-1,cockroach-2,cockroach-3
-
-docker run -d \
-    --name=cockroach-3 \
-    --hostname=cockroach-3 \
-    --net=arcnet \
-    -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start \
-    --insecure \
-    --join=cockroach-1,cockroach-2,cockroach-3
-
-docker exec -it cockroach-1 ./cockroach init --insecure
+    cockroachdb/cockroach:v22.2.3 start-single-node \
+    --insecure 
 ```
 
 ## MongoDB
@@ -301,27 +276,9 @@ docker run -d \
 
 ## Kafka
 
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
-
-```
-curl --silent --output docker-compose.yml \
-  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
-
-# change broker name to kafka to make demo easier
-cat docker-compose.yml | sed s/broker/kafka/g > docker-compose-kafka.yml
-
-cat >>docker-compose-kafka.yml <<EOF 
-networks:
-  default:
-    name: arcnet
-    external: true
-EOF
-
-docker compose -f docker-compose-kafka.yml up -d
-```
-Alternate setup that only has zookeeper and Kafka https://developer.confluent.io/quickstart/kafka-docker/
-```
-cat > compose-kafka-quickstart.yaml <EOF
+Docker compose of zookeeper and broker from https://developer.confluent.io/quickstart/kafka-docker/
+```bash
+cat >docker-compose-kafka-quickstart.yaml <<EOF
 ---
 version: '3'
 services:
@@ -334,7 +291,7 @@ services:
 
   broker:
     image: confluentinc/cp-kafka:7.3.0
-    container_name: kafka
+    container_name: broker
     ports:
     # To learn about configuring Kafka for access across networks see
     # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
@@ -349,13 +306,67 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+networks:
+  default:
+    name: arcnet
+    external: true
 EOF
 
-docker compose -f docker-compose-kafka-quickstart.yml up -d
+docker compose -f docker-compose-kafka-quickstart.yaml up -d
+```
 
-docker exec -it kafka kafka-console-consumer --bootstrap-server kafka:29092 \
-                       --topic arcdst \
+Test the broker
+```bash
+docker exec broker \
+kafka-topics --bootstrap-server broker:9092 \
+             --create \
+             --topic quickstart
+
+docker exec -i broker \
+kafka-console-producer --bootstrap-server broker:9092 \
+                       --topic quickstart <<EOF
+Hi $( date )
+EOF
+
+docker exec --interactive --tty broker \
+kafka-console-consumer --bootstrap-server broker:9092 \
+                       --topic quickstart \
                        --from-beginning
+```
+
+
+```bash
+docker exec broker \
+kafka-topics --bootstrap-server broker:9092 --list
+
+docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
+    --from-beginning --topic arcdst_usertable
+docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
+    --from-beginning --topic arcdst_sbtest1
+
+docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
+    --from-beginning --topic arcdst_sbtest1_cdc_logs
+docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
+    --from-beginning --topic arcdst_usertable_cdc_logs
+
+Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
+
+```
+curl --silent --output docker-compose-confluent.yml \
+  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
+
+# change broker name to kafka to make demo easier
+# sed -i.bak s/broker/kafka/g > docker-compose-confluent.yml
+
+cat >>docker-compose-quickstart.yml <<EOF 
+networks:
+  default:
+    name: arcnet
+    external: true
+EOF
+
+docker compose -f docker-compose-confluent.yml up -d
+```
 
 ## Minio
 

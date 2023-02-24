@@ -1,5 +1,5 @@
 snapshot:
-  threads: 16
+  threads: ${CPUS}
   fetch-size-rows: 15_000
 
 # min-job-size-rows: 1_000_000
@@ -24,7 +24,7 @@ snapshot:
 #        row-identifier-key: [O_ORDERKEY]
 
 delta-snapshot:
-  #threads: 32
+  threads: ${CPUS}
   #fetch-size-rows: 10_000
 
   #min-job-size-rows: 1_000_000
@@ -38,7 +38,7 @@ delta-snapshot:
   replicate-deletes: false
 
   per-table-config:
-  - catalog: arcsrc
+  - catalog: ${SRCDB_ARC_USER}
     tables:
       usertable:
         # NOTE: this field name is case sensitive
