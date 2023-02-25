@@ -34,14 +34,14 @@ ping_db "${DSTDB_ROOT_URL}"
 # setup database permissions
 banner dst root
 
-for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.*js; do 
+for f in ${CFG}/dst.init.root.*js; do 
   echo "cat $f | envsubst | mongosh ${DSTDB_ROOT_URL}"
   cat $f | envsubst | mongosh ${DSTDB_ROOT_URL} 
 done  
 
 banner dst user
 
-for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.*js; do
+for f in ${CFG}/dst.init.user.*js; do
   echo "cat $f | envsubst | mongosh ${DSTDB_USER_URL}"
   cat $f | envsubst | mongosh ${DSTDB_USER_URL} 
 done

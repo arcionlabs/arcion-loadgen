@@ -34,14 +34,14 @@ ping_db "${SRCDB_ROOT_URL}"
 # setup database permissions
 banner src root
 
-for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.*js; do
+for f in ${CFG}/src.init.root.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ROOT_URL}"
   cat $f | envsubst | mongosh ${SRCDB_ROOT_URL} 
 done
 
 banner src user
 
-for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.*js; do
+for f in ${CFG}/src.init.user.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL}"
   cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL} 
 done

@@ -33,11 +33,15 @@ ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 # setup database permissions
 banner src root
 
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.sql | envsubst | psql --echo-all postgresql://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ROOT} 
+for f in ${CFG_DIR}/src.init.root.*sql; do
+  cat ${f} | envsubst | psql --echo-all postgresql://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ROOT} 
+done
 
 banner src user
 
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.sql | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
+for f in ${CFG_DIR}/src.init.user.*sql; do
+  cat ${f} | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
+done
 
 # sysbench data population
 banner sysbench 

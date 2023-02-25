@@ -31,11 +31,11 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.sql  | envsubst | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 
-fi
+for f in ${CFG_DIR}/dst.init.root.*sql ]; do
+    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 
+done
 
 # with the arcdst user
-if [ -f ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql ]; then
-    cat ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.sql  | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 
-fi
+for f in ${CFG_DIR}/dst.init.user.*sql; do
+    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 
+done

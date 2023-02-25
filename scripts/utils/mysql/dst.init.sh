@@ -4,12 +4,6 @@
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-DSTDB_ROOT=${DSTDB_ROOT:-root}
-DSTDB_PW=${DSTDB_PW:-password}
-DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcsrc}
-DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
-DSTDB_PORT=${DSTDB_PORT:-3306}
-
 # util functions
 ping_db () {
   local db_host=$1
@@ -31,13 +25,13 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.root.*sql; do
+for f in ${CFG_DIR}/dst.init.root.*sql; do
     echo "cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose "
     cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ROOT} -p${DSTDB_PW} --verbose 
 done
 
 # with the arcsrc user
-for f in ${SCRIPTS_DIR}/${DSTDB_TYPE}/dst.init.user.*sql; do
+for f in ${CFG_DIR}/dst.init.user.*sql; do
     echo "cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose"
-    cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose"
-fi
+    cat $f | envsubst | mysql --force -h${DSTDB_HOST} -u${DSTDB_ARC_USER} -p${DSTDB_ARC_PW} -D${DSTDB_ARC_USER} --verbose
+done

@@ -115,6 +115,7 @@ if [ ! -z "$2" ]; then
     [ "${uri_port}" ] && export SRCDB_PORT=${uri_port}
     [ "${uri_path}" ] && export SRCDB_SUBDIR=${uri_path}
 fi
+
 # set from DST URL command line
 if [ ! -z "$3" ]; then
     uri_parser "$3"
@@ -126,6 +127,11 @@ if [ ! -z "$3" ]; then
     [ "${uri_path}" ] && export DSTDB_SUBDIR=${uri_path}
 fi
 
+export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+
+export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcsrc}
+export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
 
 # thread to match the CPUs on the system
 export CPUS=${CPUS:-$(getconf _NPROCESSORS_ONLN)}
@@ -212,10 +218,15 @@ copy_hier_as_flat() {
             filename=$(basename $f)
             if [ -f $DST/$filename ]; then
                 echo override $f $DST/$filename
-            else
-                echo cp $f $DST/$filename
             fi 
-            cat "${f}" | PID=$$ envsubst > $DST/$filename
+            local suffix=$( echo $f | awk -F. '{print $NF}' )
+            if [ "$suffix" = "sh" ]; then 
+                echo cp $f $DST/$filename
+                cp ${f} $DST/$filename 
+            else
+                echo "cat "${f}" | PID=$$ envsubst > $DST/$filename"
+                cat "${f}" | PID=$$ envsubst > $DST/$filename
+            fi    
         done
         dir="${dir}/"
     done
@@ -223,24 +234,34 @@ copy_hier_as_flat() {
 
 copy_yaml() {
     local SRCDB_DIR="$1"
-    local DSTDB_DIR="$2"
-    local DSTDB_GRP="$3"
-    local DSTDB_TYPE="$4"
+    local SRCDB_GRP="$2"
+    local SRCDB_TYPE="$3"    
+    local DSTDB_DIR="$4"
+    local DSTDB_GRP="$5"
+    local DSTDB_TYPE="$6"
     local PID
 
     [ -z "$SRCDB_DIR" ] && echo "copy_yaml: SRCDB_DIR is blank" >&2
+    [ -z "$SRCDB_GRP" ] && echo "copy_yaml: SRCDB_GRP is blank" >&2
+    [ -z "$SRCDB_TYPE" ] && echo "copy_yaml: SRCDB_TYPE is blank" >&2
     [ -z "$DSTDB_DIR" ] && echo "copy_yaml: DSTDB_DIR is blank" >&2
     [ -z "$DSTDB_GRP" ] && echo "copy_yaml: DSTDB_GRP is blank" >&2
     [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
+    # copy from template
+    pushd ${SCRIPTS_DIR}/utils
+    copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
+    copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
+    popd
+
     # copy the src and dst configs into a flat dir
-    pushd $SCRIPTS_DIR
+    pushd ${SCRIPTS_DIR}
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
     popd
 
-    # override the destionation specific
+    # override the destination specific
     if [ -d $SRCDB_DIR/src_dst_map ]; then
         pushd $SRCDB_DIR/src_dst_map
         copy_hier_as_flat $DSTDB_GRP/$DSTDB_TYPE/ src $CFG_DIR
@@ -428,24 +449,13 @@ init_src() {
     export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
     export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
 
-    # find src.init.sh
-    if [ -f "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh" ]; then
-        DB_INIT=${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh
-    elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh" ]; then
-            DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
-            echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/src.init.sh
-        fi
-    fi
-
-    # run src.init.sh
-    if [ -f "${DB_INIT}" ]; then
-            # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} 2>&1 | tee -a $CFG_DIR/src.init.sh.log ) 
-            if [ ! -z "$( cat $CFG_DIR/src.init.sh.log | grep -i failed )" ]; then rc=1; fi  
-    else
-        echo "${SCRIPTS_DIR}/${SRCDB_DIR}/src.init.sh: not found. skipping"    
-    fi
+    for f in $( ls $CFG_DIR/src.init.*sh ); do
+        echo "Running $f"
+        banner $SRCDB_HOST
+        # NOTE: do not remove () below as that will exit this script
+        ( exec ${f} 2>&1 | tee -a $f.log ) 
+        if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
+    done
 
     return $rc
 }
@@ -509,8 +519,7 @@ while [ 1 ]; do
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
-    init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
-    rc=$?
+
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
     echo "Source Type: ${SRCDB_TYPE}"
@@ -553,9 +562,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
-    init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
-    rc=$?
-    echo $rc
+
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Dir: ${DSTDB_DIR}"
     echo "Destination Type: ${DSTDB_TYPE}"
@@ -592,7 +599,16 @@ clear
 
 
 # set config 
-copy_yaml "${SRCDB_DIR}" "${DSTDB_DIR}" "${DSTDB_GRP}" "${DSTDB_TYPE}"
+
+copy_yaml "${SRCDB_DIR}" "${SRCDB_GRP}" "${SRCDB_TYPE}" "${DSTDB_DIR}"  "${DSTDB_GRP}" "${DSTDB_TYPE}"
+
+init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
+rc=$?
+echo $rc
+
+init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
+rc=$?
+echo $rc
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF
@@ -644,21 +660,21 @@ tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 case ${REPL_TYPE,,} in
   full)
     arcion_full &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
     arcion_snapshot &
     ;;
   delta-snapshot)
     arcion_delta &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
     ;;
   real-time)
     arcion_real &
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 10; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 10; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"

@@ -1,36 +1,7 @@
 snapshot:
   threads: ${CPUS}
-#  batch-size-rows: 10_000
-#  txn-size-rows: 1_000_000
-
-  bulk-load:
-    # if mysql.cnf local_infile system variable=0
-    enable: false
-    # if mysql.cnf local_infile system variable=1
-    # enable: true
-    type: FILE
-
   skip-tables-on-failures : true
-  _traceDBTasks: true
-#  handle-failed-opers: true
-#  use-upsert-based-recovery: false
-
-#  user-role:
-#    init-user-roles: true
 
 realtime:
   threads: ${CPUS}
-  batch-size-rows: 10_000
-  txn-size-rows: 1_00_000
   skip-tables-on-failures : true
-#  replay-replace-as-upsert: false
-#  handle-failed-opers: true
-
-# Transactional mode config
-# realtime:
-#   threads: 1
-#   batch-size-rows: 1000
-#   replay-consistency: GLOBAL
-#   txn-group-count: 100
-#   _oper-queue-size-rows: 20000
-#   skip-upto-cursors: #last failed cursor

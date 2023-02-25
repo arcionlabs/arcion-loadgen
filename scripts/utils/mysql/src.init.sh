@@ -4,12 +4,6 @@
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-SRCDB_ROOT=${SRCDB_ROOT:-root}
-SRCDB_PW=${SRCDB_PW:-password}
-SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-SRCDB_PORT=${SRCDB_PORT:-3306}
-
 # util functions
 ping_db () {
   local db_host=$1
@@ -32,14 +26,13 @@ ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 
 # setup database permissions
 banner src root
-
-for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.*sql; do
+for f in ${CFG_DIR}/src.init.root.*sql; do
   echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose"
   cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose 
 done
 
 banner src user
-for f in ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.*sql; do
+for f in ${CFG_DIR}/src.init.user.*sql; do
   echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose" 
   cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
 done
