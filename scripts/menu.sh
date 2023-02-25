@@ -1,5 +1,132 @@
 #!/usr/bin/env bash 
 
+function usage() {
+    echo "Usage: arcdemo [repl type] [src uri] [dst uri] 
+    Examples:
+        snapshot replication from postgresql to mysql 
+            SRCDB_HOST postgresql-1
+            SRCDB_DIR  postgresql/large
+
+            $0 snapshot postgresq-1/large mysql 
+
+        real-time replication from mysql to mariadb 
+            $0 real-time mysql mariadb
+
+        full replication from mysql to mariadb 
+            $0 full mysql mariadb
+
+        delta-snapshot replication from mysql to mariadb 
+            $0 full mysql mariadb            
+    "
+    exit 2
+}
+
+# process options
+options=$(getopt -o h --long help -- "$@")
+[ $? -eq 0 ] || { 
+    echo "Incorrect options provided"
+    exit 1
+}
+eval set -- "$options"
+while true; do
+    case "$1" in
+    -h|--help)
+        usage
+        ;;
+    --)
+        shift
+        break
+        ;;
+    esac
+    shift
+done
+
+# parse URLs
+function uri_parser() {
+    # https://vpalos.com/2010/02/03/uri-parsing-using-bash-built-in-features/
+    # [jdbc:]postgresql://user:password@host:port/db?key=value
+
+    #
+    # URI parsing function
+    #
+    # The function creates global variables with the parsed results.
+    # It returns 0 if parsing was successful or non-zero otherwise.
+    #
+    # [schema://][user[:password]@]host[:port][/path][?[arg1=val1]...][#fragment]
+    #
+    # uri capture
+    uri="$@"
+
+    # safe escaping
+    uri="${uri//\`/%60}"
+    uri="${uri//\"/%22}"
+
+    # top level parsing
+    pattern='^(([a-z]{3,5})://)?((([^:\/]+)(:([^@\/]*))?@)?([^:\/?]+)(:([0-9]+))?)(\/[^?]*)?(\?[^#]*)?(#.*)?$'
+    [[ "$uri" =~ $pattern ]] || return 1;
+
+    # component extraction
+    uri=${BASH_REMATCH[0]}
+    uri_schema=${BASH_REMATCH[2]}
+    uri_address=${BASH_REMATCH[3]}
+    uri_user=${BASH_REMATCH[5]}
+    uri_password=${BASH_REMATCH[7]}
+    uri_host=${BASH_REMATCH[8]}
+    uri_port=${BASH_REMATCH[10]}
+    uri_path=${BASH_REMATCH[11]}
+    uri_query=${BASH_REMATCH[12]}
+    uri_fragment=${BASH_REMATCH[13]}
+
+    # path parsing
+    count=0
+    path="$uri_path"
+    pattern='^/+([^/]+)'
+    while [[ $path =~ $pattern ]]; do
+        eval "uri_parts[$count]=\"${BASH_REMATCH[1]}\""
+        path="${path:${#BASH_REMATCH[0]}}"
+        let count++
+    done
+
+    # query parsing
+    count=0
+    query="$uri_query"
+    pattern='^[?&]+([^= ]+)(=([^&]*))?'
+    while [[ $query =~ $pattern ]]; do
+        eval "uri_args[$count]=\"${BASH_REMATCH[1]}\""
+        eval "uri_arg_${BASH_REMATCH[1]}=\"${BASH_REMATCH[3]}\""
+        query="${query:${#BASH_REMATCH[0]}}"
+        let count++
+    done
+
+    # return success
+    return 0
+}
+# set REPL_TYPE from command line
+if [ ! -z "$1" ]; then 
+    REPL_TYPE=$1; 
+fi
+# set from SRC URI command line
+if [ ! -z "$2" ]; then 
+    uri_parser "$2"
+    [ "${uri_schema}" ] && export SRCDB_TYPE=${uri_schema} 
+    [ "${uri_user}" ] && export SRCDB_ARC_USER=${uri_user}
+    [ "${uri_password}" ] && export SRCDB_ARC_PW=${uri_password}
+    [ "${uri_host}" ] && export SRCDB_HOST=${uri_host}
+    [ "${uri_port}" ] && export SRCDB_PORT=${uri_port}
+    [ "${uri_path}" ] && export SRCDB_SUBDIR=${uri_path}
+fi
+# set from DST URL command line
+if [ ! -z "$3" ]; then
+    uri_parser "$3"
+    [ "${uri_schema}" ] && export DSTDB_TYPE=${uri_schema} 
+    [ "${uri_user}" ] && export DSTDB_ARC_USER=${uri_user}
+    [ "${uri_password}" ] && export DSTDB_ARC_PW=${uri_password}
+    [ "${uri_host}" ] && export DSTDB_HOST=${uri_host}
+    [ "${uri_port}" ] && export DSTDB_PORT=${uri_port}
+    [ "${uri_path}" ] && export DSTDB_SUBDIR=${uri_path}
+fi
+
+
 # thread to match the CPUs on the system
 export CPUS=${CPUS:-$(getconf _NPROCESSORS_ONLN)}
 if [ -z "$CPUS" ]; then CPUS=1; fi
@@ -35,6 +162,8 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 # SRCDB_DIR
 # DSTDB_DIR
 # REPL_TYPE
+
+
 
 map_db() {
     local DB_TYPE=${1}
@@ -130,7 +259,7 @@ infer_dbdir() {
     fi
     if [ -z "${DB_DIR}" ]; then 
         # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_DIR=$( echo ${DB_HOST} | awk -F'[-.]' '{print $1}' )
+        DB_DIR=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
         if [ -d ${SCRIPTS_DIR}/${DB_DIR} ]; then
             echo "$DB_DIR inferred from hostname." >&2
             echo "$DB_DIR"
@@ -374,6 +503,7 @@ while [ 1 ]; do
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
+    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
     if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_DIR}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
@@ -417,6 +547,7 @@ while [ 1 ]; do
     ask=0
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
+    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
     if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_DIR}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
