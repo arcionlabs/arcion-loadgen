@@ -98,7 +98,7 @@ ycsb_create() {
 }
 
 ycsb_load() { 
-# https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload
+  # https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload
   local HOST="${1:-mysql}"  
   local USER="${2:-arcsrc}"
   local PW="${3:-password}"
@@ -162,36 +162,30 @@ ycsb_run() {
   fi
 }
 
-RATE=${1:-1}
-THREADS=${2:-1}
+# get the setting from the menu
+if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
+
+# inputs
+[ ! -z "${1}" ] && LOADGEN_TPS=$1
+[ ! -z "${2}" ] && LOADGEN_THREADS=$2
+[ ! -z "${3}" ] && TIMER=$3
+[ -z "${TIMER}" ] && TIMER=600
 
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
-
-SRCDB_ROOT=${SRCDB_ROOT:-root}
-SRCDB_PW=${SRCDB_PW:-password}
-SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-
-# get the setting from the menu
-if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
-# get the jdbc driver to match
-. ${SCRIPTS_DIR}/ini_jdbc.sh
-echo $SRC_JDBC_DRIVER
-echo $SRC_JDBC_URL
 
 # start the YCSB
 
 case "${SRCDB_GRP,,}" in
   mysql|postgresql)
     pushd ${YCSB}/*jdbc*/  
-    bin/ycsb.sh run jdbc -s -threads ${THREADS} -target ${RATE} \
+    bin/ycsb.sh run jdbc -s -threads ${LOADGEN_THREADS} -target ${LOADGEN_TPS} \
     -P workloads/workloada \
     -p requestdistribution=uniform \
     -p readproportion=0 \
     -p recordcount=10000 \
-    -p operationcount=$((10000*$THREADS)) \
+    -p operationcount=$((1000000*$LOADGEN_THREADS)) \
     -p db.driver=${SRCDB_JDBC_DRIVER} \
     -p db.url="${SRCDB_JDBC_URL}" \
     -p db.user=${SRCDB_ARC_USER} \
@@ -204,12 +198,12 @@ case "${SRCDB_GRP,,}" in
 ;;
   mongodb)
     pushd ${YCSB}/*mongodb*/  
-    bin/ycsb.sh load mongodb -s -threads ${THREADS} -target ${RATE} \
+    bin/ycsb.sh load mongodb -s -threads ${LOADGEN_THREADS} -target ${LOADGEN_TPS} \
     -P workloads/workloada \
     -p requestdistribution=uniform \
     -p readproportion=0 \
     -p recordcount=10000 \
-    -p operationcount=$((10000*$THREADS)) \
+    -p operationcount=$((1000000*$LOADGEN_THREADS)) \
     -p mongodb.url="${SRCDB_JDBC_URL}"
     popd  
     ;; 

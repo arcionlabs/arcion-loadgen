@@ -1,4 +1,4 @@
 rules:
-  [${DSTDB_ARC_USER}]:
+  [${DSTDB_ARC_USER} ${DSTDB_COMMA_SCHEMA}]:
     source:
-    - [${SRCDB_ARC_USER}]
+    - [${SRCDB_ARC_USER} ${SRCDB_COMMA_SCHEMA}]

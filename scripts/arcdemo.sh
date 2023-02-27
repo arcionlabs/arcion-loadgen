@@ -18,9 +18,9 @@ if test "${METADATA_DIR-default value}" ; then
 fi
 
 # arcion replicant command line flag
-ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
+# ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
 # does not work on apple silicon w/ mysql to mysql
-# ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite --verbose"}
+ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite --verbose"}
 
 # default
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
@@ -28,7 +28,7 @@ ARCION_HOME=${ARCION_HOME:-/arcion}
 if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
 
 
-function usage() {
+usage() {
     echo "Usage: arcdemo [repl type] [src uri] [dst uri] 
     Examples:
         snapshot replication from postgresql to mysql 
@@ -49,25 +49,69 @@ function usage() {
     exit 2
 }
 
+parse_threads() {
+    local arg="$1"
+    if [ ! -z "$arg" ]; then
+        [ ! -z "$( echo $arg | cut -d: -f1 )" ] && LOADGEN_TPS=$( echo $arg | cut -d: -f1 )
+        [ ! -z "$( echo $arg | cut -d: -f2 )" ] && LOADGEN_THREADS=$( echo $arg | cut -d: -f2 )
+        [ ! -z "$( echo $arg | cut -d: -f3 )" ] && SRCDB_SNAPSHOT_THREADS=$( echo $arg | cut -d: -f3 )
+        [ ! -z "$( echo $arg | cut -d: -f4 )" ] && DSTDB_SNAPSHOT_THREADS=$( echo $arg | cut -d: -f4 )
+        [ ! -z "$( echo $arg | cut -d: -f5 )" ] && SRCDB_REALTIME_THREADS=$( echo $arg | cut -d: -f5 )
+        [ ! -z "$( echo $arg | cut -d: -f6 )" ] && DSTDB_REALTIME_THREADS=$( echo $arg | cut -d: -f6 )        
+        [ ! -z "$( echo $arg | cut -d: -f7 )" ] && SRCDB_DELTA_SNAPSHOT_THREADS=$( echo $arg | cut -d: -f7 )
+    fi 
+
+    LOADGEN_TPS=${LOADGEN_TPS:-1}
+    LOADGEN_THREADS=${LOADGEN_THREADS:-$CPUS}
+
+    [ -z "${SRCDB_SNAPSHOT_THREADS}" ] && SRCDB_SNAPSHOT_THREADS=$LOADGEN_THREADS
+    [ -z "${DSTDB_SNAPSHOT_THREADS}" ] && DSTDB_SNAPSHOT_THREADS=$SRCDB_SNAPSHOT_THREADS
+
+    [ -z "${SRCDB_REALTIME_THREADS}" ] && SRCDB_REALTIME_THREADS=$SRCDB_SNAPSHOT_THREADS
+    [ -z "${DSTDB_REALTIME_THREADS}" ] && DSTDB_REALTIME_THREADS=$DSTDB_SNAPSHOT_THREADS
+
+    [ -z "${SRCDB_DELTA_SNAPSHOT_THREADS}" ] && SRCDB_DELTA_SNAPSHOT_THREADS=$SRCDB_REALTIME_THREADS
+
+    export LOADGEN_TPS
+    export LOADGEN_THREADS
+    export SRCDB_SNAPSHOT_THREADS
+    export SRCDB_REALTIME_THREADS
+    export SRCDB_DELTA_SNAPSHOT_THREADS
+    export DSTDB_SNAPSHOT_THREADS
+    export DSTDB_REALTIME_THREADS
+}
+
 # process options
-options=$(getopt -o h --long help -- "$@")
+options=$(getopt -o ht: --long help -- "$@")
 [ $? -eq 0 ] || { 
     echo "Incorrect options provided"
     exit 1
 }
 eval set -- "$options"
 while true; do
+    echo $1
     case "$1" in
     -h|--help)
         usage
+        ;;
+    -t|--threads)
+        echo "$2"
+        arg="$2"
+        parse_threads "$arg"
+        shift
         ;;
     --)
         shift
         break
         ;;
+    *) echo "Unexpected option: $1 - this should not happen."
+       usage 
+       ;;    
     esac
     shift
 done
+
+parse_threads
 
 # parse URLs
 function uri_parser() {
@@ -203,6 +247,10 @@ map_dbroot() {
 }
 map_dbrootpw() {
     map_db "$1" 5
+}
+
+map_dbschema() {
+    map_db "$1" 6
 }
 
 copy_hier_as_flat() {
@@ -498,13 +546,16 @@ while [ 1 ]; do
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
-
+    [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+    [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
+    
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
     echo "Source Type: ${SRCDB_TYPE}"
     echo "Source Grp: ${SRCDB_GRP}"
     echo "Source Port: ${SRCDB_PORT}"
     echo "Source Root: ${SRCDB_ROOT}"
+    echo "Source Schema: ${SRCDB_SCHEMA}"
     if (( ask == 0 )); then 
         break
     else
@@ -542,6 +593,8 @@ while [ 1 ]; do
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+    [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
 
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Dir: ${DSTDB_DIR}"
@@ -549,6 +602,7 @@ while [ 1 ]; do
     echo "Destination Grp: ${DSTDB_GRP}"
     echo "Destination Port: ${DSTDB_PORT}"    
     echo "Destination Root: ${DSTDB_ROOT}"    
+    echo "Destination Schema: ${DSTDB_SCHEMA}"    
     if (( ask == 0 )); then 
         break
     else
@@ -629,6 +683,19 @@ export DSTDB_JSQSH_DRIVER="$DSTDB_JSQSH_DRIVER"
 # YCSB
 export SRCDB_YCSB_DRIVER="$SRCDB_YCSB_DRIVER"
 export DSTDB_YCSB_DRIVER="$DSTDB_YCSB_DRIVER"
+# SCHEMA
+export SRCDB_SCHEMA=${SRCDB_SCHEMA}
+export SRCDB_COMMA_SCHEMA=${SRCDB_COMMA_SCHEMA}
+export DSTDB_SCHEMA=${DSTDB_SCHEMA}
+export DSTDB_COMMA_SCHEMA=${DSTDB_COMMA_SCHEMA}
+# THREADS
+export LOADGEN_TPS=${LOADGEN_TPS}
+export LOADGEN_THREADS=${LOADGEN_THREADS}
+export SRCDB_SNAPSHOT_THREADS=${SRCDB_SNAPSHOT_THREADS}
+export SRCDB_REALTIME_THREADS=${SRCDB_REALTIME_THREADS}
+export SRCDB_DELTA_SNAPSHOT_THREADS=${SRCDB_DELTA_SNAPSHOT_THREADS}
+export DSTDB_SNAPSHOT_THREADS=${DSTDB_SNAPSHOT_THREADS}
+export DSTDB_REALTIME_THREADS=${DSTDB_REALTIME_THREADS}
 EOF
 
 # run init scripts

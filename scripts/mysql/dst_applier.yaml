@@ -1,7 +1,7 @@
 snapshot:
-  threads: ${CPUS}
+  threads: ${DSTDB_SNAPSHOT_THREADS}
   skip-tables-on-failures : true
 
 realtime:
-  threads: ${CPUS}
+  threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
