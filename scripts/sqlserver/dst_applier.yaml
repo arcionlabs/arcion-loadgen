@@ -1,0 +1,7 @@
+snapshot:
+  threads: ${CPUS}
+  skip-tables-on-failures : true
+
+realtime:
+  threads: ${CPUS}
+  skip-tables-on-failures : true

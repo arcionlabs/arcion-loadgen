@@ -1,0 +1,4 @@
+rules:
+  [${DSTDB_ARC_USER},dbo]:
+    source:
+    - [${SRCDB_ARC_USER},dbo]

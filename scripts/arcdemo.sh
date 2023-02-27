@@ -1,5 +1,33 @@
 #!/usr/bin/env bash 
 
+# thread to match the CPUs on the system
+export CPUS=${CPUS:-$(getconf _NPROCESSORS_ONLN)}
+if [ -z "$CPUS" ]; then CPUS=1; fi
+
+# for non interactive demo, kill jobs after certain time has passed
+TIMER=${1:-0}
+
+# TMUX
+export TMUX_SESSION=arcion
+
+# metadata can be set to "" to not use metadata.
+# test is used to make sure METADATA_DIR is not set
+if test "${METADATA_DIR-default value}" ; then 
+    METADATA_DIR=postgresql_metadata
+    echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
+fi
+
+# arcion replicant command line flag
+ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
+# does not work on apple silicon w/ mysql to mysql
+# ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite --verbose"}
+
+# default
+SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
+ARCION_HOME=${ARCION_HOME:-/arcion}
+if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+
+
 function usage() {
     echo "Usage: arcdemo [repl type] [src uri] [dst uri] 
     Examples:
@@ -128,37 +156,10 @@ if [ ! -z "$3" ]; then
 fi
 
 export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
+export SRCDB_ARC_PW=${SRCDB_ARC_PW:-Passw0rd}
 
-export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcsrc}
-export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
-
-# thread to match the CPUs on the system
-export CPUS=${CPUS:-$(getconf _NPROCESSORS_ONLN)}
-if [ -z "$CPUS" ]; then CPUS=1; fi
-
-# for non interactive demo, kill jobs after certain time has passed
-TIMER=${1:-0}
-
-# TMUX
-export TMUX_SESSION=arcion
-
-# metadata can be set to "" to not use metadata.
-# test is used to make sure METADATA_DIR is not set
-if test "${METADATA_DIR-default value}" ; then 
-    METADATA_DIR=postgresql_metadata
-    echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
-fi
-
-# arcion replicant command line flag
-# ARCION_ARGS=${ARCION_ARGS:-"--truncate-existing --overwrite --verbose"}
-# does not work on apple silicon w/ mysql to mysql
-ARCION_ARGS=${ARCION_ARGS:-"--replace-existing --overwrite --verbose"}
-
-# default
-SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
-ARCION_HOME=${ARCION_HOME:-/arcion}
-if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+export DSTDB_ARC_PW=${DSTDB_ARC_PW:-Passw0rd}
 
 # env vars that can be set to skip questions
 # unset DSTDB_DIR DSTDB_HOST
@@ -443,12 +444,6 @@ init_src() {
     local DB_GRP
     local rc=0
 
-    # src id/password
-    export SRCDB_ROOT=${SRCDB_ROOT:-$( map_dbroot "$DB_TYPE" )}
-    export SRCDB_PW=${SRCDB_PW:-$( map_dbrootpw "$DB_TYPE" )}
-    export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-    export SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-
     for f in $( ls $CFG_DIR/src.init.*sh ); do
         echo "Running $f"
         banner $SRCDB_HOST
@@ -466,30 +461,13 @@ init_dst() {
     local DB_GRP
     local rc=0    
 
-    # dst id/password
-    export DSTDB_ROOT=${DSTDB_ROOT:-$( map_dbroot "$DB_TYPE" )}
-    export DSTDB_PW=${DSTDB_PW:-$( map_dbrootpw "$DB_TYPE" )}
-    export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
-    export DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
-
-    # find dst.init.sh
-    if [ -f "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh" ]; then
-        DB_INIT=${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh
-    elif [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        if [ ! -z "$DB_GRP" ] && [ -f "${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh" ]; then
-            DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
-            echo DB_INIT=${SCRIPTS_DIR}/utils/${DB_GRP}/dst.init.sh
-        fi
-    fi
-
-    # run dst.init.sh
-    if [ -f "${DB_INIT}" ]; then
-            # NOTE: do not remove () below as that will exit this script
-            ( exec ${DB_INIT} 2>&1 | tee -a $CFG_DIR/dst.init.sh.log ) 
-            if [ ! -z "$( cat $CFG_DIR/dst.init.sh.log | grep -i failed )" ]; then rc=1; fi  
-    else
-        echo "${SCRIPTS_DIR}/${DSTDB_DIR}/dst.init.sh: not found. skipping"    
-    fi
+    for f in $( ls $CFG_DIR/dst.init.*sh ); do
+        echo "Running $f"
+        banner $DSTDB_HOST
+        # NOTE: do not remove () below as that will exit this script
+        ( exec ${f} 2>&1 | tee -a $f.log ) 
+        if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
+    done
 
     return $rc
 }
@@ -519,6 +497,7 @@ while [ 1 ]; do
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
 
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
@@ -562,6 +541,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
 
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Dir: ${DSTDB_DIR}"
@@ -599,16 +579,10 @@ clear
 
 
 # set config 
-
 copy_yaml "${SRCDB_DIR}" "${SRCDB_GRP}" "${SRCDB_TYPE}" "${DSTDB_DIR}"  "${DSTDB_GRP}" "${DSTDB_TYPE}"
 
-init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
-rc=$?
-echo $rc
-
-init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
-rc=$?
-echo $rc
+# setup the env vars
+. $SCRIPTS_DIR/ini_jdbc.sh
 
 # save the choices
 cat > /tmp/ini_menu.sh <<EOF
@@ -640,7 +614,34 @@ export DSTDB_ARC_PW=${DSTDB_ARC_PW}
 # cfg
 export CFG_DIR=${CFG_DIR}
 export LOG_ID=${LOG_ID}
+# JDBC
+export SRCDB_JDBC_DRIVER="$SRCDB_JDBC_DRIVER"
+export SRCDB_JDBC_URL="$SRCDB_JDBC_URL"
+export SRCDB_JDBC_URL_IDPW="$SRCDB_JDBC_URL_IDPW"
+export SRCDB_ROOT_URL="$SRCDB_ROOT_URL"
+export DSTDB_JDBC_DRIVER="$DSTDB_JDBC_DRIVER"
+export DSTDB_JDBC_URL="$DSTDB_JDBC_URL"
+export DSTDB_JDBC_URL_IDPW="$DSTDB_JDBC_URL_IDPW"
+export DSTDB_ROOT_URL="$DSTDB_ROOT_URL"
+# JSQSH
+export SRCDB_JSQSH_DRIVER="$SRCDB_JSQSH_DRIVER"
+export DSTDB_JSQSH_DRIVER="$DSTDB_JSQSH_DRIVER"
+# YCSB
+export SRCDB_YCSB_DRIVER="$SRCDB_YCSB_DRIVER"
+export DSTDB_YCSB_DRIVER="$DSTDB_YCSB_DRIVER"
 EOF
+
+# run init scripts
+init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
+rc=$?
+echo $rc
+
+init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
+rc=$?
+echo $rc
+
+
+
 
 # clear the view windows and configure it for this run
 tmux kill-window -t ${TMUX_SESSION}:1   # yaml

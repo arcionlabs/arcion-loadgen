@@ -147,7 +147,7 @@ docker run -d \
     --name postgresql \
     --network arcnet \
     -e POSTGRES_USER=root \
-    -e POSTGRES_PASSWORD=password \
+    -e POSTGRES_PASSWORD=Passw0rd \
     -p :5432 \
     postgres \
     -c wal_level=logical \
@@ -166,7 +166,7 @@ docker exec -it postgresql sh -c "apt update && apt install -y postgresql-15-wal
 
 # setup for Acrion UI and metadata
 docker exec -i postgresql psql -Uroot<<EOF
-CREATE USER arcion PASSWORD 'password';
+CREATE USER arcion PASSWORD 'Passw0rd';
 CREATE DATABASE arcion WITH OWNER arcion;
 CREATE DATABASE io_replicate WITH OWNER arcion;
 EOF
@@ -192,7 +192,7 @@ docker run -d --name arcion-ui \
     -e DB_PORT=5432 \
     -e DB_DATABASE=arcion \
     -e DB_USERNAME=arcion \
-    -e DB_PASSWORD=password \
+    -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
     arcionlabs/replicant-on-premises:latest-arm64
 
@@ -206,7 +206,7 @@ docker logs arcion-ui
 docker run -d \
     --name mysql \
     --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=password \
+    -e MYSQL_ROOT_PASSWORD=Passw0rd \
     -p :3306 \
     mysql \
     mysqld --default-authentication-plugin=mysql_native_password \
@@ -222,7 +222,7 @@ while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sl
 docker run -d \
     --name mariadb \
     --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=password \
+    -e MYSQL_ROOT_PASSWORD=Passw0rd \
     -p :3306 \
     mariadb \
     mysqld --default-authentication-plugin=mysql_native_password \
@@ -234,7 +234,7 @@ docker run -d \
 ```bash
 docker run -d --net arcnet --name singlestore -i --init \
     -e LICENSE_KEY="$SINGLESTORE_LICENSE" \
-    -e ROOT_PASSWORD="password" \
+    -e ROOT_PASSWORD="Passw0rd" \
     -e START_AFTER_INIT=Y \
     -p :3306 -p :8080 \
     singlestore/cluster-in-a-box
@@ -260,7 +260,7 @@ docker run -d \
     --name mongodb \
     --network arcnet \
     -e MONGO_INITDB_ROOT_USERNAME=root \
-    -e MONGO_INITDB_ROOT_PASSWORD=password \
+    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
     -p :27017 \
     mongo 
 
@@ -268,8 +268,8 @@ docker run -d \
     --name mongodb-express \
     --network arcnet \
     -e ME_CONFIG_MONGODB_ADMINUSERNAME=root \
-    -e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
-    -e ME_CONFIG_MONGODB_URL="mongodb://root:password@mongodb:27017/" \
+    -e ME_CONFIG_MONGODB_ADMINPASSWORD=Passw0rd \
+    -e ME_CONFIG_MONGODB_URL="mongodb://root:Passw0rd@mongodb:27017/" \
     -p 18081:8081 \
     mongo-express 
 ```
@@ -383,7 +383,7 @@ docker run -d \
     -p 9100:9000 \
     -p 9190:9090 \
     -e MINIO_ROOT_USER=root \
-    -e MINIO_ROOT_PASSWORD=password \
+    -e MINIO_ROOT_PASSWORD=Passw0rd \
     quay.io/minio/minio server /data --console-address ":9090"
 ```  
 

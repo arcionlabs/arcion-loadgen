@@ -5,7 +5,7 @@ connection:
   port: 5432
   database: io_replicate  # required and need to be same as catalog
   username: arcion
-  password: password
+  password: Passw0rd
   max-connections: 30
 
 catalog: io_replicate # required and need to be same as database
