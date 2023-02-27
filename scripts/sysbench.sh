@@ -7,7 +7,6 @@ if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 [ ! -z "${1}" ] && LOADGEN_TPS=$1
 [ ! -z "${2}" ] && LOADGEN_THREADS=$2
 [ ! -z "${3}" ] && TIMER=$3
-
 [ -z "${TIMER}" ] && TIMER=600
 
 # env

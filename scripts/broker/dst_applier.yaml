@@ -1,7 +1,7 @@
 replication-format: JSON
 
 snapshot:
- threads: ${CPUS}
+ threads: ${DSTDB_SNAPSHOT_THREADS}
  skip-tables-on-failures : true
 
 realtime:

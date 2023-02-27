@@ -82,7 +82,7 @@ parse_threads() {
 }
 
 # process options
-options=$(getopt -o ht: --long help -- "$@")
+options=$(getopt -o ht:d --long help -- "$@")
 [ $? -eq 0 ] || { 
     echo "Incorrect options provided"
     exit 1
@@ -93,11 +93,16 @@ while true; do
     case "$1" in
     -h|--help)
         usage
+        shift
         ;;
     -t|--threads)
         echo "$2"
         arg="$2"
         parse_threads "$arg"
+        shift
+        ;;
+    -d|--dryrun)
+        DRYRUN=1
         shift
         ;;
     --)
@@ -638,7 +643,7 @@ copy_yaml "${SRCDB_DIR}" "${SRCDB_GRP}" "${SRCDB_TYPE}" "${DSTDB_DIR}"  "${DSTDB
 # setup the env vars
 . $SCRIPTS_DIR/ini_jdbc.sh
 
-# save the choices
+# save the choices in /tmp/init_menu.sh and $CFG_DIR/ini_menu.sh
 cat > /tmp/ini_menu.sh <<EOF
 # source
 export SRCDB_DIR=${SRCDB_DIR}
@@ -697,6 +702,7 @@ export SRCDB_DELTA_SNAPSHOT_THREADS=${SRCDB_DELTA_SNAPSHOT_THREADS}
 export DSTDB_SNAPSHOT_THREADS=${DSTDB_SNAPSHOT_THREADS}
 export DSTDB_REALTIME_THREADS=${DSTDB_REALTIME_THREADS}
 EOF
+cp /tmp/ini_menu.sh $CFG_DIR/.
 
 # run init scripts
 init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
@@ -707,7 +713,8 @@ init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
 rc=$?
 echo $rc
 
-
+# do not run if dryrun
+if [ ! -z "${DRYRUN}" ]; then exit 0; fi
 
 
 # clear the view windows and configure it for this run
