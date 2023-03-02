@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. $SCRIPTS_DIR/lib/ycsb_jdbc.sh
+
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
@@ -65,18 +67,5 @@ select * from sbtest1 limit 1;
 EOF
 
 # ycsb data population 
-banner ycsb 
-
-usertable_cnt=$(echo 'select count(*) from usertable;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} )
-
-if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
-    pushd ${YCSB}/*jdbc*/
-    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.postgresql.Driver  -p db.url="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${ARCSRC_USER}?sslmode=disable&reWriteBatchedInserts=true" -p db.user=${SRCDB_ARC_USER} -p db.passwd="${SRCDB_ARC_PW}" -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 
-    popd
-else
-  echo "Info: usertable ${usertable_cnt} rows exist. skipping" 
-fi
-cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
-select count(*) from usertable; 
-select * from usertable limit 1;
-EOF
+banner ycsb
+ycsb_load_sf

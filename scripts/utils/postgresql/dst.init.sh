@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. $SCRIPTS_DIR/lib/ycsb_jdbc.sh
+
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"

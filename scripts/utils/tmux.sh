@@ -16,8 +16,9 @@ if [ -z "${exists}" ]; then
     tmux new-window -n validate -t $WIN:5
 
     # windows 0 to run commands
-    tmux split-window -v -t $WIN:0
-    tmux split-window -h -t $WIN:0
+    tmux split-window -v -t $WIN:0  # sysbench
+    tmux split-window -v -t $WIN:0  # ycsb
+    # suggested commands
     tmux send-keys -t $WIN:0.0 "# SRCDB_HOST=mysql DSTDB_HOST=postgresql REPL_TYPE=full ./menu.sh" Enter 
     tmux send-keys -t $WIN:0.1 "# /scripts/sysbench.sh" Enter
     tmux send-keys -t $WIN:0.2 "# /scripts/ycsb.sh" Enter

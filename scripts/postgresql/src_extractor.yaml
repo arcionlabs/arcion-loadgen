@@ -1,9 +1,9 @@
 snapshot:
-  threads: ${CPUS}
+  threads: ${SRCDB_SNAPSHOT_THREADS}
   fetch-size-rows: 15_000
 
 realtime:
-  threads: ${CPUS}
+  threads: ${SRCDB_REALTIME_THREADS}
   fetch-size-rows: 10_000
   fetch-duration-per-extractor-slot-s: 3
   _traceDBTasks: true

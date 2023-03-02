@@ -1,5 +1,5 @@
 snapshot:
-  threads: ${CPUS}
+  threads: ${SRCDB_SNAPSHOT_THREADS}
   fetch-size-rows: 15_000
 
 # min-job-size-rows: 1_000_000
@@ -24,7 +24,7 @@ snapshot:
 #        row-identifier-key: [O_ORDERKEY]
 
 delta-snapshot:
-  threads: ${CPUS}
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
   #fetch-size-rows: 10_000
 
   #min-job-size-rows: 1_000_000

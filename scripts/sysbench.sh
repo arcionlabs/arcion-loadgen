@@ -3,12 +3,6 @@
 # get the setting from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
-# inputs
-[ ! -z "${1}" ] && LOADGEN_TPS=$1
-[ ! -z "${2}" ] && LOADGEN_THREADS=$2
-[ ! -z "${3}" ] && TIMER=$3
-[ -z "${TIMER}" ] && TIMER=600
-
 # env
 SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 ARCION_HOME=${ARCION_HOME:-/arcion}
@@ -27,7 +21,7 @@ case ${SRCDB_GRP,,} in
         echo ${SRCDB_HOST} ${SRCDB_GRP}
         sysbench oltp_read_write \
         --rand-type=uniform \
-        --rate=${LOADGEN_TPS} \
+        --rate=${workload_rate} \
         --report-interval=10 \
         --mysql-host=${SRCDB_HOST} \
         --auto_inc=off \
@@ -35,15 +29,15 @@ case ${SRCDB_GRP,,} in
         --mysql-user=${SRCDB_ARC_USER} \
         --mysql-password=${SRCDB_ARC_PW} \
         --mysql-db=${SRCDB_ARC_USER} \
-        --time=${TIMER} \
-        --threads=${LOADGEN_THREADS} \
+        --time=${workload_timer} \
+        --threads=${workload_threads} \
         run
     ;;
     postgresql)
         echo ${SRCDB_HOST} ${SRCDB_GRP}
         sysbench oltp_read_write \
         --rand-type=uniform \
-        --rate=${LOADGEN_TPS} \
+        --rate=${workload_rate} \
         --report-interval=10 \
         --pgsql-host=${SRCDB_HOST} \
         --auto_inc=off \
@@ -51,8 +45,8 @@ case ${SRCDB_GRP,,} in
         --pgsql-user=${SRCDB_ARC_USER} \
         --pgsql-password=${SRCDB_ARC_PW} \
         --pgsql-db=${SRCDB_ARC_USER} \
-        --time=${TIMER} \
-        --threads=${LOADGEN_THREADS} \
+        --time=${workload_timer} \
+        --threads=${workload_threads} \
         run
         ;;
     *)

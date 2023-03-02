@@ -1,5 +1,5 @@
 snapshot:
-  threads: ${CPUS}
+  threads: ${DSTDB_SNAPSHOT_THREADS}
 #  batch-size-rows: 10_000
 #  txn-size-rows: 1_000_000
 
@@ -22,7 +22,7 @@ snapshot:
 #    init-user-roles: true
 
 realtime:
-  threads: ${CPUS}
+  threads: ${DSTDB_REALTIME_THREADS}
   batch-size-rows: 10_000
   txn-size-rows: 1_00_000
   replay-replace-as-upsert: false

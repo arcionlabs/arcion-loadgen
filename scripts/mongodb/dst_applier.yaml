@@ -1,5 +1,5 @@
 snapshot:
-  threads: ${CPUS}
+  threads: ${DSTDB_SNAPSHOT_THREADS}
 
   batch-size-rows: 5000
   txn-size-rows: 5000
@@ -17,7 +17,7 @@ snapshot:
 #  init-system-tables: true
 
 realtime:
-  threads: ${CPUS}
+  threads: ${DSTDB_REALTIME_THREADS}
   batch-size-rows: 1000
   txn-size-rows: 2_0000
   handle-failed-opers: true
