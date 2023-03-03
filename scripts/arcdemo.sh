@@ -227,8 +227,8 @@ tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_I
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
 # show sysbench and ycsb changes 
-tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sysbench.sh" Enter
-tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.ycsb.sh" Enter 
+tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sh id sbtest1 3" Enter
+tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.sh ycsb_key usertable 4" Enter 
 
 tmux select-window -t ${TMUX_SESSION}:0.0
 
@@ -236,28 +236,14 @@ tmux select-window -t ${TMUX_SESSION}:0.0
 control_c() {
     tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
     tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
-    for pid in $(jobs -p); do
-        echo kill -9 $pid
-        kill -9 $pid 2>/dev/null
-    done
+    kill_jobs
 }
+
+# allow ctl-c to terminate background jobs
 trap control_c SIGINT
-JOBS_CNT=1
-while (( JOBS_CNT != 0 )); do
-    # jobs exist?
-    JOBS_CNT=0
-    JOBS=$(jobs -p)
-    for pid in $JOBS; do
-        if (( $(ps $pid | wc -l) > 1 )); then
-            JOBS_CNT=$(( JOBS_CNT + 1 )) 
-        fi
-    done
-    if (( JOBS_CNT > 0 )); then
-        sleep 1
-    else
-        break
-    fi
-done
+
+# wait for background jobs to finish
+wait_jobs
 
 echo "cfg is at $CFG_DIR"
 echo "log is at ${ARCION_HOME}/data/$LOG_ID"
