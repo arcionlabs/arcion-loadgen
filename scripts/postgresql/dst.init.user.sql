@@ -6,6 +6,7 @@ CREATE TABLE if not exists sbtest1(
     primary key (id),
     ts TIMESTAMP(6)
 );
+CREATE INDEX ON sbtest1(ts);
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists usertable (
@@ -17,3 +18,5 @@ CREATE TABLE if not exists usertable (
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6)
 );
+CREATE INDEX ON usertable(ts);
+

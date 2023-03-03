@@ -1,5 +1,5 @@
 snapshot:
-  threads: 16
+  threads: ${SRCDB_SNAPSHOT_THREADS}
   fetch-size-rows: 15_000
 
 # min-job-size-rows: 1_000_000
@@ -24,7 +24,7 @@ snapshot:
 #        row-identifier-key: [O_ORDERKEY]
 
 realtime:
-  threads: 4
+  threads: ${SRCDB_REALTIME_THREADS}
   fetch-size-rows: 10_000
   fetch-duration-per-extractor-slot-s: 3
   _traceDBTasks: true
@@ -44,7 +44,7 @@ realtime:
     interval-ms: 10000
 
 delta-snapshot:
-  #threads: 32
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
   #fetch-size-rows: 10_000
 
   #min-job-size-rows: 1_000_000

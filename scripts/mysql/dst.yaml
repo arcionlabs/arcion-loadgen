@@ -8,16 +8,3 @@ username: ${DSTDB_ARC_USER}
 password: ${DSTDB_ARC_PW}
 
 max-connections: 30
-
-# Optional parameters with default values
-# ddl-connection:
-# id:null
-# max-retries:20
-# proxy-source:FALSE
-# retry-wait-duration:10000
-# slave-server-ids:[1]
-# source-failover:FALSE
-# timeout-millis:30000
-# xa-realtime-failure-strategy:null
-# xa-resume-on-reconnection:null
-# xa-snapshot-failure-strategy:null

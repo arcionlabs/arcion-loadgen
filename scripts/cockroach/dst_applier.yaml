@@ -1,5 +1,5 @@
 snapshot:
-  threads: 1
+  threads: ${DSTDB_SNAPSHOT_THREADS}
   # CRL serializes so batch is not good for usertable
   batch-size-rows: 100
   txn-size-rows: 100
@@ -18,7 +18,7 @@ snapshot:
   use-quoted-identifiers: true
 
 realtime:
-  threads: 8
+  threads: ${DSTDB_REALTIME_THREADS}
   txn-size-rows: 10000
   batch-size-rows: 1000
   skip-tables-on-failures : false

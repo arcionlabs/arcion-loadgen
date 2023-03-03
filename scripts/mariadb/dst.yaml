@@ -1,6 +1,5 @@
 type: MARIADB
 
-# will be set by envsubst from menu.sh 
 host: ${DSTDB_HOST}
 port: 3306
 
@@ -9,5 +8,3 @@ password: ${DSTDB_ARC_PW}
 
 max-connections: 30
 
-max-retries: 10
-retry-wait-duration-ms: 1000

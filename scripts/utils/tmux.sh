@@ -13,12 +13,14 @@ if [ -z "${exists}" ]; then
     tmux new-window -n logs -t $WIN:2
     tmux new-window -n sysbench -t $WIN:3
     tmux new-window -n ycsb -t $WIN:4
-    tmux new-window -n validate -t $WIN:5
+    tmux new-window -n verificator -t $WIN:5
+    tmux new-window -n veri_log -t $WIN:6
 
     # windows 0 to run commands
-    tmux split-window -v -t $WIN:0
-    tmux split-window -h -t $WIN:0
-    tmux send-keys -t $WIN:0.0 "# SRCDB_HOST=mysql DSTDB_HOST=postgresql REPL_TYPE=full ./menu.sh" Enter 
+    tmux split-window -v -t $WIN:0  # sysbench
+    tmux split-window -v -t $WIN:0  # ycsb
+    # suggested commands
+    tmux send-keys -t $WIN:0.0 "# ./arcdemo.sh full mysql postgresql" Enter 
     tmux send-keys -t $WIN:0.1 "# /scripts/sysbench.sh" Enter
     tmux send-keys -t $WIN:0.2 "# /scripts/ycsb.sh" Enter
     # windows 1 to view config files
@@ -30,7 +32,8 @@ if [ -z "${exists}" ]; then
     # windows 3 
     # windows 4 
     # windows 5
-    tmux send-keys -t $WIN:5.0 "# /scripts/validate.sh" Enter
+    tmux send-keys -t $WIN:5.0 "# /scripts/arcveri.sh" Enter
+    # windows 6
     # activate $WIN:0
     tmux select-window -t $WIN:0.0
     tmux select-pane -t $WIN:0.0

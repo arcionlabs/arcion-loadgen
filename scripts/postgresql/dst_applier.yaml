@@ -1,8 +1,8 @@
 snapshot:
-  threads: 16
+  threads: ${DSTDB_SNAPSHOT_THREADS}
   batch-size-rows: 5_000
   txn-size-rows: 1_000_000
-  skip-tables-on-failures: false
+  skip-tables-on-failures: true
 
   map-bit-to-boolean: false
 
@@ -14,9 +14,10 @@ snapshot:
   use-quoted-identifiers: true
 
 realtime:
-  threads: 8
+  threads: ${DSTDB_REALTIME_THREADS}
   txn-size-rows: 10000
   batch-size-rows: 1000
-  skip-tables-on-failures : false
+  skip-tables-on-failures : true
   use-quoted-identifiers: true
   _traceDBTasks: true
+  

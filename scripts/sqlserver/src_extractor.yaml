@@ -1,0 +1,23 @@
+# DB capable of snapshot.  Take default options except the CPUs
+snapshot:
+  threads: ${SRCDB_SNAPSHOT_THREADS}
+  
+# DB capable of real-time.  Take default options except the CPUs
+realtime:
+  threads: ${SRCDB_REALTIME_THREADS}
+  # enable DDL replication
+  ddl-replication:
+    catalog: ${SRCDB_ARC_USER}
+    schema: ${SRCDB_SCHEMA}
+    detect-ddl-interval: 100  
+    enable: true                 
+    ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
+  # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
+  heartbeat:
+    enable: true
+    catalog: ${SRCDB_ARC_USER}
+    schema: ${SRCDB_SCHEMA}
+
+delta-snapshot:
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  delta-snapshot-key: ts

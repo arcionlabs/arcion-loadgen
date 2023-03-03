@@ -1,10 +1,13 @@
 replication-format: JSON
 
 snapshot:
- threads: 16
+ threads: ${DSTDB_SNAPSHOT_THREADS}
+ skip-tables-on-failures : true
 
 realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
   txn-size-rows: 1000
+  skip-tables-on-failures : true
   before-image-format: ALL  # Allowed values : KEY, ALL
   after-image-format: ALL   # Allowed values : UPDATED, ALL
   # kafka-compression-type: lz4

@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 
+. $SCRIPTS_DIR/lib/ycsb_jdbc.sh
+
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
-
-SRCDB_ROOT=${SRCDB_ROOT:-root}
-SRCDB_PW=${SRCDB_PW:-password}
-SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-SRCDB_PORT=${SRCDB_PORT:-3306}
 
 # util functions
 ping_db () {
@@ -32,12 +28,16 @@ ping_db "${SRCDB_HOST}" "${SRCDB_ROOT}" "${SRCDB_PW}" "${SRCDB_PORT}"
 
 # setup database permissions
 banner src root
-
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.root.sql | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose 
+for f in ${CFG_DIR}/src.init.root.*sql; do
+  echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose"
+  cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ROOT} -p${SRCDB_PW} --verbose 
+done
 
 banner src user
-
-cat ${SCRIPTS_DIR}/${SRCDB_TYPE}/src.init.user.sql | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
+for f in ${CFG_DIR}/src.init.user.*sql; do
+  echo "cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose" 
+  cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
+done
 
 # sysbench data population
 banner sysbench 
@@ -57,13 +57,4 @@ mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} 
 
 # ycsb data population 
 banner ycsb 
-
-usertable_cnt=$(mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -sN -e 'select count(*) from usertable;' | tail -1)
-if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
-    pushd ${YCSB}/*jdbc*/
-    bin/ycsb.sh load jdbc -s -P workloads/workloada -p db.driver=org.mariadb.jdbc.Driver -p db.url="jdbc:mariadb://${SRCDB_HOST}/${SRCDB_ARC_USER}?rewriteBatchedStatements=true&permitMysqlScheme&restrictedAuth=mysql_native_password" -p db.user=${SRCDB_ARC_USER} -p db.passwd=${SRCDB_ARC_PW} -p db.batchsize=1000  -p jdbc.fetchsize=10 -p jdbc.autocommit=true -p jdbc.batchupdateapi=true -p db.batchsize=1000 -p recordcount=10000 
-    popd
-else
-  echo "Info: ${usertable_cnt} rows exist. skipping" 
-fi
-mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from usertable; desc usertable;select * from usertable limit 1' 
+ycsb_load_sf

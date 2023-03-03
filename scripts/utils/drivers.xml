@@ -1,0 +1,21 @@
+<Drivers>
+   <Driver name="mysql"
+           url="jdbc:mariadb://${server}:${port}#if($db)/${db}#end"
+           class="org.mariadb.jdbc.Driver"
+           target="MySQL"
+           analyzer="org.sqsh.analyzers.ANSIAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+      <Classpath><![CDATA[4]]></Classpath>
+      <Variable name="server"><![CDATA[localhost]]></Variable>
+      <Variable name="port"><![CDATA[3306]]></Variable>
+   </Driver>
+   <Driver name="sybase"
+           url="jdbc:sybase:Tds:${server}:${port}#if($db)/${db}#end"
+           class="com.sybase.jdbc4.jdbc.SybDriver"
+           target="Sybase ASE"
+           analyzer="org.sqsh.analyzers.TSQLAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+      <Variable name="server"><![CDATA[localhost]]></Variable>
+      <Variable name="port"><![CDATA[4100]]></Variable>
+   </Driver>
+</Drivers>
