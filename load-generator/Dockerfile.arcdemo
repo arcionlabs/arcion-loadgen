@@ -16,6 +16,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 #     docker push robertslee/arcdemo
 
 ENV ARCION_HOME=/arcion
+ENV VERIFICATOR_HOME=/arcion_verificator
 ENV SCRIPTS_DIR=/scripts
 ENV MARIADB_DIR=/opt/mariadb
 ENV MYSQL_DIR=/opt/mysql
@@ -79,6 +80,7 @@ RUN apt-get -y install wget && \
 # add YCSB with just JDBC binding
 RUN mkdir -p $YCSB && chown $USERNAME $YCSB
 RUN mkdir -p $ARCION_HOME && chown $USERNAME $ARCION_HOME
+RUN mkdir -p $VERIFICATOR_HOME && chown $USERNAME $VERIFICATOR_HOME
 RUN mkdir -p $SCRIPTS_DIR && chown $USERNAME $SCRIPTS_DIR
 RUN mkdir -p $MARIADB_DIR && chown $USERNAME $MARIADB_DIR
 RUN mkdir -p $MYSQL_DIR && chown $USERNAME $MYSQL_DIR
@@ -122,12 +124,17 @@ RUN cd $MINIO_DIR; curl https://dl.min.io/client/mc/release/linux-${TARGETARCH}/
 EXPOSE 7681
 
 # arcion binary
-COPY --chown=${USERNAME} replicant-cli/ /arcion/
+COPY --chown=${USERNAME} replicant-cli/ ${ARCION_HOME}
+COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
 # TODO: maybe separate scripts which will be changing often
 COPY --chown=${USERNAME} scripts/ /scripts/
 
+# jsqsh
+RUN mkdir ~/.jsqsh
+COPY --chown=${USERNAME} scripts/utils/drivers.xml ~/.jsqsh/
+
 WORKDIR /scripts
 
-ENV CLASSPATH=/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar
+ENV CLASSPATH=/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 

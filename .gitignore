@@ -1,6 +1,7 @@
 logs/*
 bin/*
 replicant-cli/*
+replicate-row-verificator/*
 arcion/*
 jsqsh-dist-2.3/*
 scripts/HammerDB-4.6/*

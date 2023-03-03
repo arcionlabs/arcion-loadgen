@@ -184,11 +184,16 @@ tmux kill-window -t ${TMUX_SESSION}:1   # yaml
 tmux kill-window -t ${TMUX_SESSION}:2   # log
 tmux kill-window -t ${TMUX_SESSION}:3   # sysbench
 tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
+tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
+tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
+
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
 tmux new-window -d -n logs -t ${TMUX_SESSION}:2
 tmux new-window -d -n sysbench -t ${TMUX_SESSION}:3
 tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
+tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
+tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
 # clear the sysbench and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
@@ -230,6 +235,11 @@ tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter
 tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sh id sbtest1 3" Enter
 tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.sh ycsb_key usertable 4" Enter 
 
+# show verificator
+tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
+tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
+
+# 
 tmux select-window -t ${TMUX_SESSION}:0.0
 
 # wait for jobs to finish for ctrl-c to exit
