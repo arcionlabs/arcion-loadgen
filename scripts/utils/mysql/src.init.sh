@@ -57,4 +57,4 @@ mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} 
 
 # ycsb data population 
 banner ycsb 
-ycsb_load_sf
+ycsb_load_src
