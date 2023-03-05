@@ -15,8 +15,12 @@ if [ -z "$LOG_ID" ]; then LOG_ID=$$; fi
 # remove realtime params
 # type must be upper case
 # mysql as group works
-cat $CFGDIR/src.yaml | grep -v -e "^slave" -e "^extractor" | sed "s/^type: \(.*\)/type: ${SRCDB_GRP^^}/i" > $CFGDIR/src.verificator.yaml
-cat $CFGDIR/dst.yaml | sed "s/^type: \(.*\)/type: ${DSTDB_GRP^^}/i" > $CFGDIR/dst.verificator.yaml
+cat $CFGDIR/src.yaml | \
+    grep -v -e "^slave" -e "^extractor" | \
+    sed "s/^type: \(.*\)/type: ${SRCDB_GRP^^}/i" > $CFGDIR/src.verificator.yaml
+    
+cat $CFGDIR/dst.yaml | \
+    sed "s/^type: \(.*\)/type: ${DSTDB_GRP^^}/i" > $CFGDIR/dst.verificator.yaml
 
 # run 
 pushd $VERIFICATOR_HOME
