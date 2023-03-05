@@ -13,6 +13,19 @@ col_pk_sql="SELECT column_name FROM information_schema.key_column_usage WHERE co
 
 #echo $col_name_sql | psql --csv -t postgresql://arc:password@postgresql/arc | paste -s -d,
 
+list_tables() {
+    local X=${1:-"SRC"}  # SRC|DST
+    # use parameter expansion 
+    # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+    local DB_HOST=$( x="${X}DB_HOST"; echo ${!x} )
+    local DB_PORT=$( x="${X}DB_PORT"; echo ${!x} )
+    local DB_ARC_USER=$( x="${X}DB_ARC_USER"; echo ${!x} )
+    local DB_ARC_PW=$( x="${X}DB_ARC_PW"; echo ${!x} )
+    local DB_GRP=$( x="${X}DB_GRP"; echo ${!x} )
+    local DB_JSQSH_DRIVER=$( x="${X}DB_JSQSH_DRIVER"; echo ${!x} )
+
+    echo "\tables --type=table" | jdbc_cli_${X,,} "-n -v headers=false -v footers=false" | awk -F'|' '{for (i=0; i<=NF; i++) printf $i FS}'
+}
 
 dump_table() {
     local DB_TYPE=$1
