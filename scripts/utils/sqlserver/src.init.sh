@@ -37,5 +37,5 @@ done
 
 
 # ycsb data population 
-banner ycsb
-ycsb_load_sf
+banner ycsb 
+ycsb_load_src
