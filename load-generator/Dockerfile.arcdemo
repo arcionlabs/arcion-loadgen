@@ -131,6 +131,7 @@ COPY --chown=${USERNAME} scripts/ /scripts/
 
 # jsqsh
 RUN mkdir ~/.jsqsh
+RUN touch ~/.jsqsh/.welcome
 COPY --chown=${USERNAME} scripts/utils/drivers.xml ~/.jsqsh/
 
 WORKDIR /scripts
