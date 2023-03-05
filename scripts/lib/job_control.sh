@@ -37,7 +37,8 @@ wait_jobs() {
     fi
     # wait until jobs are done 
     for pid in $JOBS; do
-        if (( $(ps $pid | wc -l) > 1 )); then
+        PID_CNT=$( ps $pid | wc -l )
+        if [ ! -z "$PID_CNT" ] && [ "$PID_CNT" -gt 1 ]; then
           # echo "still running $JOBS"
           JOBS_CNT=$(( JOBS_CNT + 1 )) 
         fi

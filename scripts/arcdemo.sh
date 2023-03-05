@@ -247,9 +247,8 @@ control_c() {
     # send first time
     tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
     tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
-    # send second time
-    tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
-    tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
+    # give chance to CDC to drain
+    sleep 1
     # kill jobs from this pane
     kill_jobs
 }
