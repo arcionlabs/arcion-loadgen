@@ -20,11 +20,12 @@ kill_jobs() {
 wait_jobs() {
   local PIDS="$1"
   local TIMER="${2:-600}"
+  local TRAP_CTL_C=${3}
   local JOBS_CNT=1
   local waited_sec=0
 
   # allow ctl-c to kill background jobs
-  trap kill_jobs SIGINT
+  if [ ! -z "$TRAP_CTL_C" ]; then trap kill_jobs SIGINT; fi
 
   while (( JOBS_CNT != 0 )); do
     JOBS_CNT=0

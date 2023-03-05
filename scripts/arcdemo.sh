@@ -244,8 +244,13 @@ tmux select-window -t ${TMUX_SESSION}:0.0
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
+    # send first time
     tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
     tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
+    # send second time
+    tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
+    tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
+    # kill jobs from this pane
     kill_jobs
 }
 

@@ -200,7 +200,7 @@ ycsb_run() {
   # wait 
   if (( ycsb_timer != 0 )); then
     echo "YCSB: will be killed in ${ycsb_timer} secs" >&2
-    wait_jobs "$YCSB_RUN_PID" "${ycsb_timer}"
+    wait_jobs "$YCSB_RUN_PID" "${ycsb_timer}" "1"
   fi  
 }
 

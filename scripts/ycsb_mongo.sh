@@ -100,6 +100,6 @@ ycsb_run() {
   export YCSB_RUN_PID="$!"
   # wait 
   if (( ycsb_timer != 0 )); then
-    wait_jobs "$YCSB_RUN_PID" "${ycsb_timer}"
+    wait_jobs "$YCSB_RUN_PID" "${ycsb_timer}" "1"
   fi
 }
