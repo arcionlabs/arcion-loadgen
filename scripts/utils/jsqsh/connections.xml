@@ -1,0 +1,160 @@
+<connections>
+   <connection name="pgsrc"
+               driver="pgsql"
+               server="postgresql"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="pgdst"
+               driver="pgsql"
+               server="postgresql"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="cosrc"
+               driver="pgsql"
+               server="cockroach"
+               port="26257"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="codst"
+               driver="pgsql"
+               server="cockroach"
+               port="26257"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="yusrc"
+               driver="pgsql"
+               server="yugabytesql"
+               port="5433"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="yudst"
+               driver="pgsql"
+               server="yugabytesql"
+               port="5433"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="mysrc"
+               driver="mysql"
+               server="mysql"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="mydst"
+               driver="mysql"
+               server="mysql"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="masrc"
+               driver="mysql"
+               server="mariadb"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="madst"
+               driver="mysql"
+               server="mysql"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+
+   <connection name="sisrc"
+               driver="mysql"
+               server="singlestore"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="sidst"
+               driver="mysql"
+               server="singlestore"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="sqsrc"
+               driver="mssql2k5"
+               server="sqlserver"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="sqdst"
+               driver="mssql2k5"
+               server="sqlserver"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="sysrc"
+               driver="sybase"
+               server="sybase"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="sydst"
+               driver="sybase"
+               server="sybase"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="insrc"
+               driver="db2"
+               server="informix"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="indst"
+               driver="db2"
+               server="informix"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+</connections>

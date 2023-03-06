@@ -1,10 +1,11 @@
 CREATE TABLE if not exists sbtest1(
     id INTEGER,
     k INTEGER DEFAULT '0' NOT NULL,
-    c CHAR(120) DEFAULT '' NOT NULL,
-    pad CHAR(60) DEFAULT '' NOT NULL,
+    c TEXT,
+    pad TEXT,
     primary key (id),
-    ts TIMESTAMP(6)
+    ts TIMESTAMP(6),
+    index (ts)
 );
 
 -- ts is used for snapshot delta. 
@@ -15,5 +16,10 @@ CREATE TABLE if not exists usertable (
     field4 TEXT, field5 TEXT,
     field6 TEXT, field7 TEXT,
     field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6)
+    ts TIMESTAMP(6),
+    index (ts)
 );
+
+alter table sbtest1 ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+alter table usertable ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
+

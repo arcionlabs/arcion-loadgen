@@ -243,8 +243,8 @@ docker run -d --net arcnet --name singlestore -i --init \
 ## CockroachDB
 ```
 docker run -d \
-    --name=cockroach-1 \
-    --hostname=cockroach-1 \
+    --name=cockroach \
+    --hostname=cockroach \
     --net=arcnet \
     -p :26257 -p :8080  \
     cockroachdb/cockroach:v22.2.3 start-single-node \
@@ -396,7 +396,7 @@ docker run -d \
     --name yugabytesql \
     --network arcnet \
     -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
-    yugabytedb/yugabyte bin/yugabyted start\
+    yugabytedb/yugabyte:2.17.1.0-b439 bin/yugabyted start\
     --daemon=false
 ```
 

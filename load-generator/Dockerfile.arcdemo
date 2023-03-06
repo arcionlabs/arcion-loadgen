@@ -65,7 +65,7 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y tzda
 RUN apt-get -y install sysbench
 
 # add ttyd for running terminal commands
-RUN apt-get -y install tmux sysvbanner vim dstat gettext net-tools nmap bfs
+RUN apt-get -y install tmux sysvbanner vim dstat gettext net-tools nmap less
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
 
@@ -111,8 +111,8 @@ RUN cd ${JSQSH_DIR} \
     && rm *.tar.gz
 
 # /usr/share/sysbench/oltp_common.lua
-# modify to add ts so that delta snap can work
-COPY  scripts/utils/oltp_common.lua /usr/share/sysbench/. 
+# schema with ts column so that delta snap can work
+COPY  scripts/utils/sysbench/oltp_common.lua /usr/share/sysbench/. 
 
 # download minio client
 # TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
@@ -130,11 +130,15 @@ COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
 COPY --chown=${USERNAME} scripts/ /scripts/
 
 # jsqsh
-RUN mkdir ~/.jsqsh
-COPY --chown=${USERNAME} scripts/utils/drivers.xml ~/.jsqsh/
+RUN mkdir -p /home/${USERNAME}/.jsqsh
+RUN touch /home/${USERNAME}/.jsqsh/.welcome
+COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
+COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
 
 WORKDIR /scripts
 
 ENV CLASSPATH=/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar
+
+ENV PATH=/opt/jsqsh/jsqsh-dist-2.3/bin:$PATH
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 

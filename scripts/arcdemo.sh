@@ -236,6 +236,8 @@ tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sh id sbtest1 3" En
 tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.sh ycsb_key usertable 4" Enter 
 
 # show verificator
+tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter
+tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
 tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
 tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
 
@@ -244,8 +246,12 @@ tmux select-window -t ${TMUX_SESSION}:0.0
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
+    # send first time
     tmux send-keys -t ${TMUX_SESSION}:0.1 send-keys C-c
     tmux send-keys -t ${TMUX_SESSION}:0.2 send-keys C-c
+    # give chance to CDC to drain
+    sleep 1
+    # kill jobs from this pane
     kill_jobs
 }
 

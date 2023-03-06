@@ -15,7 +15,8 @@ top10_query() {
     local TS2_SEL="$4"
     local TS2_ORD="$5"
 
-    # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+    # use parameter expansion 
+    # https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
     local DB_HOST=$( x="${X}DB_HOST"; echo ${!x} )
     local DB_PORT=$( x="${X}DB_PORT"; echo ${!x} )
     local DB_ARC_USER=$( x="${X}DB_ARC_USER"; echo ${!x} )
@@ -52,10 +53,10 @@ if [ "$?" != "0" ]; then echo "could not split window"; exit 1; fi
 # .0 is source .1 is destination
 if [ "$?" != "0" ]; then echo "pane .0 does not exist"; exit 1; fi
 
-ts2_exists=$( echo "\show columns -p ts2 $TABLE" | jdbc_cli_dst -n -v headers=false -v footers=false | awk -F'|' 'NF>1 {print $5}' )
+ts2_exists=$( echo "\show columns -p ts2 $TABLE" | jdbc_cli_dst "-n -v headers=false -v footers=false" | awk -F'|' 'NF>1 {print $5}' )
 if [ ! -z "${ts2_exists}" ]; then
     TS2_ORD=',ts2 desc'
-    TS2_SEL=',ts2-ts'
+    TS2_SEL=',ts2-ts as \"ts2-ts\"'
 fi
 
 # show lastest 10 the source
