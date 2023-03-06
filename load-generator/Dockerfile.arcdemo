@@ -130,15 +130,15 @@ COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
 COPY --chown=${USERNAME} scripts/ /scripts/
 
 # jsqsh
-RUN mkdir ~/.jsqsh
-RUN touch ~/.jsqsh/.welcome
-COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml ~/.jsqsh/
-COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml ~/.jsqsh/
+RUN mkdir -p /home/${USERNAME}/.jsqsh
+RUN touch /home/${USERNAME}/.jsqsh/.welcome
+COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
+COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
 
 WORKDIR /scripts
 
 ENV CLASSPATH=/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar
 
-ENV PATH=/opt/jsqsh/jsqsh-dist-2.3/bin
+ENV PATH=/opt/jsqsh/jsqsh-dist-2.3/bin:$PATH
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 
