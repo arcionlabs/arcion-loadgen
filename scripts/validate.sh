@@ -5,8 +5,6 @@ if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 # get the jdbc driver to match
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
 
-col_name_sql="SELECT column_name FROM information_schema.columns WHERE table_name='sbtest1' order by ordinal_position; -m csv"
-
 dump_table() {
     local TABLE_NAME="$1"    # usertable|sbtest1
     local X="$2"        # SRC|DST
