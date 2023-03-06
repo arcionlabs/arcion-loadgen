@@ -1,3 +1,8 @@
+-- create arcsrc for retrivial
+CREATE rowstre TABLE if not exists replicate_io_cdc_heartbeat(
+  timestamp BIGINT NOT NULL,
+  PRIMARY KEY(timestamp)
+);
 
 CREATE rowstore TABLE if not exists sbtest1(
 	id INTEGER,
