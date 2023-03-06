@@ -9,6 +9,7 @@ fi
 
 # pickup LOGID of the replication
 . $CFGDIR/ini_menu.sh
+. lib/jdbc_cli.sh
 
 if [ -z "$LOG_ID" ]; then LOG_ID=$$; fi
 
@@ -21,6 +22,16 @@ cat $CFGDIR/src.yaml | \
     
 cat $CFGDIR/dst.yaml | \
     sed "s/^type: \(.*\)/type: ${DSTDB_GRP^^}/i" > $CFGDIR/dst.verificator.yaml
+
+# remove ts2 from destination to match the source
+cat <<EOF | jdbc_cli_dst
+-- for all destionations
+alter table usertable drop column ts2;
+alter table sbtest1 drop column ts2;
+-- only for postgresql destinations
+drop trigger update_ts2_on_usertable_on on usertable;
+drop trigger update_ts2_on_sbtest1_on on sbtest1;
+EOF
 
 # run 
 pushd $VERIFICATOR_HOME

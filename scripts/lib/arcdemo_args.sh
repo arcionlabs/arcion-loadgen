@@ -12,8 +12,8 @@ export default_gui_run=0
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
 
-export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
-# export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"}
+# export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
+export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
 
 export default_TMUX_SESSION=arcion
 

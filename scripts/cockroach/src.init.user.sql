@@ -4,16 +4,20 @@ CREATE TABLE if not exists replicate_io_cdc_heartbeat(
   PRIMARY KEY(timestamp)
 );
 
+-- ts is used for snapshot delta. 
+-- cockroach supports mysql style on update
 CREATE TABLE if not exists sbtest1(
 	id INTEGER,
   	k INTEGER DEFAULT '0' NOT NULL,
-  	c TEXT DEFAULT '' NOT NULL,
-  	pad TEXT DEFAULT '' NOT NULL,
-	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+  	c TEXT,
+  	pad TEXT,
+	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+	index (ts),
 	PRIMARY KEY (id)
 );
 
 -- ts is used for snapshot delta. 
+-- cockroach supports mysql style on update
 CREATE TABLE if not exists usertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
@@ -21,7 +25,8 @@ CREATE TABLE if not exists usertable (
 	field4 TEXT, field5 TEXT,
 	field6 TEXT, field7 TEXT,
 	field8 TEXT, field9 TEXT,
-	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+	index (ts)
 );
 
 -- will only happen if source and destion was flipped

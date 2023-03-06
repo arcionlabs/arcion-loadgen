@@ -29,6 +29,7 @@ case ${SRCDB_GRP,,} in
         --mysql-user=${SRCDB_ARC_USER} \
         --mysql-password=${SRCDB_ARC_PW} \
         --mysql-db=${SRCDB_ARC_USER} \
+        --mysql-port=${SRCDB_PORT} \
         --time=${workload_timer} \
         --threads=${workload_threads} \
         run
@@ -45,6 +46,7 @@ case ${SRCDB_GRP,,} in
         --pgsql-user=${SRCDB_ARC_USER} \
         --pgsql-password=${SRCDB_ARC_PW} \
         --pgsql-db=${SRCDB_ARC_USER} \
+        --pgsql-port=${SRCDB_PORT} \
         --time=${workload_timer} \
         --threads=${workload_threads} \
         run

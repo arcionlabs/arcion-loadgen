@@ -19,6 +19,7 @@
    <connection name="cosrc"
                driver="pgsql"
                server="cockroach"
+               port="26257"
    >
       <username><![CDATA[arcsrc]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
@@ -27,6 +28,7 @@
    <connection name="codst"
                driver="pgsql"
                server="cockroach"
+               port="26257"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
@@ -35,7 +37,8 @@
 
    <connection name="yusrc"
                driver="pgsql"
-               server="yugabyte"
+               server="yugabytesql"
+               port="5433"
    >
       <username><![CDATA[arcsrc]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
@@ -43,7 +46,8 @@
    </connection>
    <connection name="yudst"
                driver="pgsql"
-               server="yugabyte"
+               server="yugabytesql"
+               port="5433"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>

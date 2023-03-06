@@ -15,7 +15,9 @@ realtime:
     catalog: ${SRCDB_ARC_USER}
     schema: ${SRCDB_SCHEMA}
 
-
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-key: ts
+  delta-snapshot-keys: [ts]
+  split-key: [ts]
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10  

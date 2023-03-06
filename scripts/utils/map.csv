@@ -3,7 +3,7 @@ mysql,mysql,3306,root,Passw0rd,
 mariadb,mysql,3306,root,Passw0rd,
 singlestore,mysql,3306,root,Passw0rd,
 postgresql,postgresql,5432,root,Passw0rd,public
-cockroach,postgresql,26257,root,Passw0rd,defaultdb
+cockroach,postgresql,26257,root,Passw0rd,public
 yugabytesql,postgresql,5433,postgres,Passw0rd,public
 mongodb,mongodb,27017,root,Passw0rd,
 s3,s3,9000,root,Passw0rd,

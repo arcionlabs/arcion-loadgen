@@ -1,6 +1,6 @@
 allow:
 - catalog: "${SRCDB_ARC_USER}"
-  schema: "public"
+  schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
     # without any tables, all of the tables are scoped up

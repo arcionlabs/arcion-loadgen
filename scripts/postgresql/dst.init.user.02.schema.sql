@@ -1,12 +1,12 @@
 CREATE TABLE if not exists sbtest1(
     id INTEGER,
     k INTEGER DEFAULT '0' NOT NULL,
-    c CHAR(120) DEFAULT '' NOT NULL,
-    pad CHAR(60) DEFAULT '' NOT NULL,
+    c TEXT,
+    pad TEXT,
     primary key (id),
     ts TIMESTAMP(6)
 );
-CREATE INDEX ON sbtest1(ts);
+create index on sbtest1 (ts);
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists usertable (
@@ -18,5 +18,9 @@ CREATE TABLE if not exists usertable (
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6)
 );
-CREATE INDEX ON usertable(ts);
+create index on usertable (ts);
+
+-- if the table was not created by this script
+alter table sbtest1 ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
+alter table usertable ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6);
 

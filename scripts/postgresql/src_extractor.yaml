@@ -1,12 +1,9 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
-  fetch-size-rows: 15_000
 
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}
-  fetch-size-rows: 10_000
-  fetch-duration-per-extractor-slot-s: 3
-  _traceDBTasks: true
+
   #ddl-replication:
     # This config enables detection of DDLs fire on source. Supported values are true/false.   
   #  enable: true       
@@ -26,17 +23,12 @@ realtime:
   heartbeat:
     enable: true
     catalog: ${SRCDB_ARC_USER}
-    schema: public
-    table-name: replicate_io_cdc_heartbeat
-    column-name: timestamp
-    interval-ms: 10000
+    schema: ${SRCDB_SCHEMA}
 
 delta-snapshot:
-  max-jobs-per-chunk: 32
-  _max-delete-jobs-per-chunk: 32
-
-  delta-snapshot-key: ts
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  delta-snapshot-keys: [ts]
+  split-key: [ts]
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10
-  replicate-deletes: false
 

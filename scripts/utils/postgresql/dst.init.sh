@@ -27,7 +27,7 @@ ping_db () {
 ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
 
 # with root user
-for f in ${CFG_DIR}/dst.init.root.*sql ]; do
+for f in ${CFG_DIR}/dst.init.root.*sql; do
     cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 
 done
 

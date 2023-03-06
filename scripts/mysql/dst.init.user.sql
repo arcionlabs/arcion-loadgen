@@ -23,5 +23,5 @@ CREATE TABLE if not exists usertable (
     ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     index(ts2)
 );
--- if the table was not created by this script0
+-- if the table was not created by this script
 alter table usertable ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);

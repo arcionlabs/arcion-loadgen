@@ -56,7 +56,7 @@ if [ "$?" != "0" ]; then echo "pane .0 does not exist"; exit 1; fi
 ts2_exists=$( echo "\show columns -p ts2 $TABLE" | jdbc_cli_dst "-n -v headers=false -v footers=false" | awk -F'|' 'NF>1 {print $5}' )
 if [ ! -z "${ts2_exists}" ]; then
     TS2_ORD=',ts2 desc'
-    TS2_SEL=',ts2-ts'
+    TS2_SEL=',ts2-ts as \"ts2-ts\"'
 fi
 
 # show lastest 10 the source

@@ -1,47 +1,10 @@
+# DB capable of snapshot.  Take default options except the CPUs
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
-  fetch-size-rows: 15_000
-
-# min-job-size-rows: 1_000_000
-# max-jobs-per-chunk: 32
-
-  _traceDBTasks: true
-#  fetch-user-roles: true
-
-#  per-table-config:
-#  - catalog: tpch
-#    tables:
-#      ORDERS:
-#        num-jobs: 1
-#      LINEITEM:
-#        row-identifier-key: [L_ORDERKEY]
-#        split-key: l_orderkey
-#        split-hints:
-#          row-count-estimate: 15000
-#          split-key-min-value: 1
-#          split-key-max-value: 60_000
-#      ORDERS1:
-#        row-identifier-key: [O_ORDERKEY]
+  
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  #fetch-size-rows: 10_000
-
-  #min-job-size-rows: 1_000_000
-  max-jobs-per-chunk: 32
-  _max-delete-jobs-per-chunk: 32
-
-  delta-snapshot-key: ts
+  delta-snapshot-keys: [ts]
   delta-snapshot-interval: 10
-  delta-snapshot-delete-interval: 10
-  _traceDBTasks: true
-  replicate-deletes: false
-
-  per-table-config:
-  - catalog: ${SRCDB_ARC_USER}
-    tables:
-      usertable:
-        # NOTE: this field name is case sensitive
-        row-identifier-key: [ycsb_key]
-      sbtest1:
-        row-identifier-key: [id]
+  delta-snapshot-delete-interval: 10  
