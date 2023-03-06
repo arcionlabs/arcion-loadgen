@@ -13,6 +13,9 @@ show variables like "%log_bin%";
 -- flush
 FLUSH PRIVILEGES;
 
+-- make default rowstore
+set global default_table_type=rowstore;
+SELECT @@GLOBAL.default_table_type;
 
 -- arcion database
 create database IF NOT EXISTS ${DSTDB_ARC_USER};
