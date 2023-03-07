@@ -1,4 +1,4 @@
-replication-format: NATIVE
+replication-format: JSON
 
 snapshot:
  threads: ${DSTDB_SNAPSHOT_THREADS}

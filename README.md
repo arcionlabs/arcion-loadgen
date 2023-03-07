@@ -212,6 +212,15 @@ docker run -d \
     mysqld --default-authentication-plugin=mysql_native_password \
     --local-infile=true
 
+docker run -d \
+    --name mysql2 \
+    --network arcnet \
+    -e MYSQL_ROOT_PASSWORD=Passw0rd \
+    -p :3306 \
+    mysql \
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
+    
 # wait for db to come up
 while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
 ```    
