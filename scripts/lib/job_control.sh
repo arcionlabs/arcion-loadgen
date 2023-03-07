@@ -10,6 +10,7 @@ kill_recurse() {
 }
 
 kill_jobs() {
+  # echo "kill_jobs $(jobs -p)"
   for pid in $(jobs -p); do
     # kill -2 kills parent and the child
     echo kill_recurse $pid
@@ -20,7 +21,7 @@ kill_jobs() {
 wait_jobs() {
   local PIDS="$1"
   local TIMER="${2:-600}"
-  local TRAP_CTL_C=${3}
+  local TRAP_CTL_C="${3}"
   local JOBS_CNT=1
   local waited_sec=0
 
@@ -36,6 +37,7 @@ wait_jobs() {
       JOBS=$PIDS
     fi
     # wait until jobs are done 
+    # echo "waiting for $JOBS to finish"
     for pid in $JOBS; do
         PID_CNT=$( ps $pid | wc -l )
         if [ ! -z "$PID_CNT" ] && [ "$PID_CNT" -gt 1 ]; then
