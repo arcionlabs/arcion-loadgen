@@ -4,7 +4,7 @@ CREATE TABLE sbtest1(
 	c CHAR(120) DEFAULT '' NOT NULL,
 	pad CHAR(60) DEFAULT '' NOT NULL,
 	primary key (id),
-	ts datetime DEFAULT CURRENT_TIMESTAMP,
+	ts datetime2 DEFAULT CURRENT_TIMESTAMP,
 	index ts (ts)
 );
 
@@ -16,6 +16,9 @@ CREATE TABLE usertable (
 	field4 TEXT, field5 TEXT,
 	field6 TEXT, field7 TEXT,
 	field8 TEXT, field9 TEXT,
-	ts datetime DEFAULT CURRENT_TIMESTAMP,
+	ts datetime2 DEFAULT CURRENT_TIMESTAMP,
 	index ts (ts)
 );
+
+alter table sbtest1 ADD ts2 datetime2 DEFAULT CURRENT_TIMESTAMP;
+alter table usertable ADD ts2 datetime2 DEFAULT CURRENT_TIMESTAMP;

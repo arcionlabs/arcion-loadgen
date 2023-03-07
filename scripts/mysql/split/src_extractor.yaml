@@ -8,7 +8,7 @@ snapshot:
      tables:
        usertable:
         # row-identifier-key: [ycsb_key]
-        split-key: ycsb_key
+        split-key: ts
         # split-hints:
           # row-count-estimate: 15000
           # split-key-min-value: 1

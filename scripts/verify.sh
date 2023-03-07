@@ -37,6 +37,7 @@ top10_query() {
             DB_CLI="psql postgresql://${DB_ARC_USER}:${DB_ARC_PW}@${DB_HOST}:${DB_PORT}/${DB_ARC_USER}"
         ;;
         sqlserver)
+            if [ ! -z "${TS2_SEL}" ]; then TS2_SEL=',datediff(millisecond, ts2, ts2) as \"ts2-ts1\"'; fi
             DB_SELECT="select top 10 $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc;"
             DB_CLI="${JSQSH_DIR}/*/bin/jsqsh -n --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_ARC_USER}"
         ;;    

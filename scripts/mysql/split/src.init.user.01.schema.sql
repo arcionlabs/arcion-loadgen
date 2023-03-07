@@ -24,7 +24,7 @@ CREATE TABLE usertable (
 	field8 TEXT, field9 TEXT,
 	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     ycsb_id bigint GENERATED ALWAYS AS (substring(ycsb_key,5)),
-	index(ts),
-	unique key (ycsb_id)
+	index(ts)
+	#,unique key (ycsb_id)
 );
 
