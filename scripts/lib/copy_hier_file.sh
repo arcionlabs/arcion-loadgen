@@ -76,7 +76,7 @@ infer_dbdir() {
     fi
     if [ -z "${DB_DIR}" ]; then 
         # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_DIR=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
+        DB_DIR=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
         if [ -d ${SCRIPTS_DIR}/${DB_DIR} ]; then
             echo "$DB_DIR inferred from hostname." >&2
             echo "$DB_DIR"
