@@ -194,7 +194,7 @@ docker run -d --name arcion-ui \
     -e DB_USERNAME=arcion \
     -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
-    arcionlabs/replicant-on-premises:latest-arm64
+    arcionlabs/replicant-on-premises
 
 # make sure there are no warnings about license
 docker logs arcion-ui
