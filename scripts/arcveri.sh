@@ -24,6 +24,10 @@ cat $CFGDIR/dst.yaml | \
     sed "s/^type: \(.*\)/type: ${DSTDB_GRP^^}/i" > $CFGDIR/dst.verificator.yaml
 
 # remove ts2 from destination to match the source
+# TODO: 
+#  compare src and dst and 
+#  drop column on dst not on the source
+#  add column to dst not on the source
 cat <<EOF | jdbc_cli_dst
 -- for all destionations
 alter table usertable drop column ts2;

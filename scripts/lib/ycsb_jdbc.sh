@@ -197,11 +197,12 @@ ycsb_run() {
   -p insertorder=ordered &    
   # save the PID  
   export YCSB_RUN_PID="$!"
-  # wait 
-  if (( ycsb_timer != 0 )); then
-    echo "YCSB: will be killed in ${ycsb_timer} secs" >&2
-    wait_jobs "$YCSB_RUN_PID" "${ycsb_timer}" "1"
-  fi  
+  # wait for job to finish, expire, or killed by ctl-c
+  trap kill_jobs SIGINT
+  echo "ycsb waiting ${ycsb_timer}"
+  wait_jobs "${ycsb_timer}"
+  echo "ycsb waiting ${ycsb_timer} done"
+  kill_jobs
 }
 
 function ycsb_run_src() {

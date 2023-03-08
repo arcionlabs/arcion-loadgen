@@ -172,3 +172,4 @@ resources/.DS_Store
 *.swp
 *.gz
 .DS_Store
+scripts/test.sh

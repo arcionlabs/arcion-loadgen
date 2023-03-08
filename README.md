@@ -194,7 +194,7 @@ docker run -d --name arcion-ui \
     -e DB_USERNAME=arcion \
     -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
-    arcionlabs/replicant-on-premises:latest-arm64
+    arcionlabs/replicant-on-premises
 
 # make sure there are no warnings about license
 docker logs arcion-ui
@@ -212,6 +212,15 @@ docker run -d \
     mysqld --default-authentication-plugin=mysql_native_password \
     --local-infile=true
 
+docker run -d \
+    --name mysql2 \
+    --network arcnet \
+    -e MYSQL_ROOT_PASSWORD=Passw0rd \
+    -p :3306 \
+    mysql \
+    mysqld --default-authentication-plugin=mysql_native_password \
+    --local-infile=true
+    
 # wait for db to come up
 while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
 ```    
@@ -404,6 +413,14 @@ docker run -d \
 
 Below is not in the demo YET but supports by Arcion.
 
+## Redis
+
+```
+docker run -d \
+    --name redis \
+    --network arcnet \
+    redis
+```
 
 # Running the CLI demo
 
