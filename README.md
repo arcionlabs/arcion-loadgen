@@ -413,6 +413,14 @@ docker run -d \
 
 Below is not in the demo YET but supports by Arcion.
 
+## Redis
+
+```
+docker run -d \
+    --name redis \
+    --network arcnet \
+    redis
+```
 
 # Running the CLI demo
 
