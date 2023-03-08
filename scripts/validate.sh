@@ -64,9 +64,11 @@ list_columns() {
     fi
 }
 
+
 dump_table() {
     local LOC="${1:-SRC}"        # SRC|DST
     local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
+    local col_names=$3
     local REMOVE_COLS=${3:-ts2}
 
     # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
@@ -81,25 +83,32 @@ dump_table() {
 
     case ${DB_GRP,,} in
         mysql)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position; -m csv"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
             ;;
         postgresql|sqlserver)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position; -m csv"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
             ;;
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
             ;;
     esac
 
-    # grab the column names
-    col_names=$( echo ${col_name_sql} | jdbc_cli_${X,,} "-n -v headers=false -v footers=false" | grep -v ${REMOVE_COLS} | paste -s -d, )
-    col_names_pk=$( echo ${col_pk_sql} | jdbc_cli_${X,,} "-n -v headers=false -v footers=false" | grep -v ${REMOVE_COLS} | paste -s -d, )
+    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v ${REMOVE_COLS} | paste -s -d, )
 
     # show the column names to be validated
-    echo "${X} select $col_names from $TABLE_NAME order by $col_names_pk;"
+    echo "${LOC} select ${col_names} from $TABLE_NAME order by $col_names_pk;"
     
     # dump the table in CSV
-    echo "select $col_names from $TABLE_NAME order by $col_names_pk; -m csv" | jdbc_cli_${X,,} "-n -v headers=false -v footers=false" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+    echo "select ${col_names} from $TABLE_NAME order by $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+}
+
+dump_table_test() {
+    local LOC="${1:-SRC}"        # SRC|DST
+    local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
+    local -n cols=$3
+    local REMOVE_COLS=${3:-ts2}
+
+    for x in ${cols[@]}; do echo $x; done
 }
 
 # dump the tables common to both src and dst
@@ -107,27 +116,27 @@ dump_tables() {
     list_tables src > /tmp/validate.src_tables.$$
     list_tables dst > /tmp/validate.dst_tables.$$
     for t in $( comm -12 /tmp/validate.src_tables.$$ /tmp/validate.dst_tables.$$ ); do
-        echo $t
+        echo "$t: retrieving columns"
         list_columns src $t > /tmp/validate.src_$t.$$ 
         list_columns dst $t > /tmp/validate.dst_$t.$$
-        # save fields in bash array
-        cols=( $(comm -12 /tmp/validate.src_$t.$$ /tmp/validate.dst_$t.$$) )
-        for c in "${cols[@]}"; do echo $c; done
-    #dump_table sbtest1 src
-    #dump_table usertable src
-    #dump_table sbtest1 dst
-    #dump_table usertable dst
+        # save the common columns between source and target
+        common_cols=( $(comm -12 /tmp/validate.src_$t.$$ /tmp/validate.dst_$t.$$ |  paste -s -d,) )
+        echo "$t: ${common_cols} are common"
+        echo "$t: retrieving the data from the tables"
+        dump_table src $t "$common_cols"
+        dump_table dst $t "$common_cols"
+        # diff the two filesA
+        echo "$t: running diff on the dataset"
+        echo "ls ${CFG_DIR}/*.${t}.tsv | xargs diff > ${CFG_DIR}/${t}.diff"
+        ls ${CFG_DIR}/*.${t}.tsv | xargs diff > ${CFG_DIR}/${t}.diff
+        if [ "$?" == "0" ]; then
+            echo "$t: src and dst match"
+        else
+            echo "$t: display the first 10 diff from ${CFG_DIR}/${t}.diff"
+            head -n 10 ${CFG_DIR}/${t}.diff
+        fi
     done
     rm /tmp/validate.*.$$
-}
-
-# run the diff
-diff_tables() {
-    for TABLE_NAME in sbtest1 usertable; do
-        echo ls ${CFG_DIR}/*.${TABLE_NAME}.tsv \| xargs diff 
-        ls ${CFG_DIR}/*.${TABLE_NAME}.tsv | xargs diff | head -n 10
-        #> ${CFG_DIR}.${TABLE_NAME}.diff
-    done
 }
 
 sourced="0"
@@ -144,5 +153,4 @@ fi
 
 if [ "$sourced" = "0" ]; then
     dump_tables
-    diff_tables
 fi

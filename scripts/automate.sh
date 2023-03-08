@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-./arcdemo.sh full mysql mariadb
+./arcdemo.sh -w 60 full mysql mariadb
 ./validate.sh
