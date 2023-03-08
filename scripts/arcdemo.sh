@@ -157,6 +157,7 @@ control_c() {
     tmux send-keys -t :0.2 C-c
     tmux select-pane -t :0.0  # ycsb
     # give chance to quiet down
+    echo "Waiting 5 sec for CDC to finish" >&2
     sleep 5
     kill_jobs
 }
@@ -165,7 +166,7 @@ control_c() {
 trap control_c SIGINT
 
 # wait for background jobs to finish
-sleep "$workload_timer"
+jobs_left=$( wait_jobs "$workload_timer" )
 control_c
 
 echo "cfg is at $CFG_DIR"

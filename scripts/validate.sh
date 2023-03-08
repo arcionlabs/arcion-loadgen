@@ -1,9 +1,34 @@
 #!/usr/bin/env bash
 
+JSQSH_CSV="-n -v headers=false -v footers=false"
+
 # get the host name and type from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 # get the jdbc driver to match
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
+
+list_tables() {
+    local LOC=${1:-SRC}
+    local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
+
+    case ${DB_GRP,,} in
+        mysql)
+    local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SQL="SELECT table_name, table_schema, table_catalog FROM information_schema.tables where table_type='BASE TABLE' and table_schema='${DB_SCHEMA}' order by table_name;"
+        ;;
+        postgresql|sqlserver)
+    local DB_CATALOG=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT table_name, table_schema, table_catalog FROM information_schema.tables where table_type='BASE TABLE' and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
+        ;;
+    *)
+        echo "$0: ${DB_TYPE,,} needs to be handled."
+        ;;
+    esac
+    if [ ! -z "$DB_SQL" ]; then
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV"
+    fi
+}
 
 dump_table() {
     local TABLE_NAME="$1"    # usertable|sbtest1
