@@ -66,10 +66,20 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \
     redis-tools
 
 # add sysbench 
-RUN apt-get -y install sysbench
+RUN apt-get install -y sysbench
 
 # add ttyd for running terminal commands
-RUN apt-get -y install tmux sysvbanner vim dstat gettext net-tools nmap less
+RUN apt-get install -y \
+    tmux \
+    sysvbanner \
+    vim \
+    dstat \
+    gettext \
+    net-tools \
+    nmap \
+    less \
+    python3-pip \
+    python3-venv
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
 
@@ -140,6 +150,9 @@ RUN mkdir -p /home/${USERNAME}/.jsqsh
 RUN touch /home/${USERNAME}/.jsqsh/.welcome
 COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
 COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
+
+# python hydra
+RUN pip install hydra-core --upgrade
 
 WORKDIR /scripts
 
