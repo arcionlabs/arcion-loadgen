@@ -30,7 +30,7 @@ wait_jobs() {
     if [ -z "${PIDS}" ]; then
       JOBS=$(jobs -p)
     else
-      JOBS=$PIDS
+      JOBS="$PIDS"
     fi
     # wait until jobs are done 
     # echo "waiting for $JOBS to finish"

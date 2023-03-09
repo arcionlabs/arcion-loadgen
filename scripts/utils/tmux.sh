@@ -15,6 +15,7 @@ if [ -z "${exists}" ]; then
     tmux new-window -n ycsb -t $WIN:4
     tmux new-window -n verificator -t $WIN:5
     tmux new-window -n veri_log -t $WIN:6
+    tmux new-window -n dstat -t $WIN:7
 
     # windows 0 to run commands
     tmux split-window -v -t $WIN:0  # sysbench
