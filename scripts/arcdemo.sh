@@ -93,6 +93,7 @@ tmux kill-window -t ${TMUX_SESSION}:3   # sysbench
 tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
 tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
 tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
+tmux kill-window -t ${TMUX_SESSION}:7   # dstat
 
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
@@ -101,6 +102,8 @@ tmux new-window -d -n sysbench -t ${TMUX_SESSION}:3
 tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
 tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
 tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
+tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
+
 # clear the sysbench and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
@@ -109,21 +112,21 @@ tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;
   real-time)
     arcion_real
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 1; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 1; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
@@ -139,8 +142,6 @@ tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_I
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
 # show sysbench and ycsb changes 
-#tmux send-keys -t ${TMUX_SESSION}:3.0 "cd /scripts; ./verify.sh id sbtest1 3" Enter
-#tmux send-keys -t ${TMUX_SESSION}:4.0 "cd /scripts; ./verify.sh ycsb_key usertable 4" Enter 
 /scripts/verify.sh id sbtest1 3 &
 /scripts/verify.sh ycsb_key usertable 4 & 
 
@@ -150,13 +151,17 @@ tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
 tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
 tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
 
-# 
+# dstat
+tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
+
+# back to the conole
 tmux select-window -t ${TMUX_SESSION}:0.0
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
     tmux send-keys -t :0.1 C-c
     tmux send-keys -t :0.2 C-c
+    tmux send-keys -t :7.0 C-c
     tmux select-pane -t :0.0  # ycsb
     # give chance to quiet down
     echo "Waiting 5 sec for CDC to finish" >&2
@@ -166,9 +171,10 @@ control_c() {
 
 # allow ctl-c to terminate background jobs
 trap control_c SIGINT
+tail -f $CFG_DIR/arcion.log &
 
 # wait for background jobs to finish
-jobs_left=$( wait_jobs "$workload_timer" )
+jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
 control_c
 
 echo "cfg is at $CFG_DIR"

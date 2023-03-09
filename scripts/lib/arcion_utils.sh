@@ -53,7 +53,8 @@ arcion_delta() {
     PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID | tee delta.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    export ARCION_PID=$!
     popd
 }
 arcion_real() {
@@ -64,7 +65,8 @@ arcion_real() {
     PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID | tee real.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    export ARCION_PID=$!
     popd
 }
 arcion_full() {    
@@ -75,7 +77,8 @@ arcion_full() {
     PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
-    --id $LOG_ID | tee full.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    export ARCION_PID=$!
     popd
 }
 arcion_snapshot() {
@@ -87,7 +90,8 @@ arcion_snapshot() {
     PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID | tee snap.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    export ARCION_PID=$!
     popd
 }
 # find source DB dir that has src.yaml, filter.yaml and extractor.yarm

@@ -19,3 +19,5 @@ docker run -d --name sqlserver --network arcnet \
 -p 1433:1433 \
 mcr.microsoft.com/azure-sql-edge
 ```
+
+
