@@ -36,3 +36,11 @@ map_dbrootpw() {
 map_dbschema() {
     map_db "$1" 6
 }
+
+map_benchbase_type() {
+    map_db "$1" 7
+}
+
+map_benchbase_isolation() {
+    map_db "$1" 8
+}

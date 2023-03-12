@@ -19,72 +19,75 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 # process args advance the args to positional
 arcdemo_opts $*
 shift $(( OPTIND - 1 ))
-arcdemo_positional $*
 
+if [ ! -z "$CFG_DIR" ]; then
+  . $CFG_DIR/ini_menu.sh
+else
+  arcdemo_positional $*
+  # validate the flag arguments
+  parse_arcion_thread_ratio
 
-# validate the flag arguments
-parse_arcion_thread_ratio
+  # metadata can be set to "" to not use metadata.
+  # test is used to make sure METADATA_DIR is not set
+  if test "${METADATA_DIR-default value}" ; then 
+      METADATA_DIR=postgresql_metadata
+      echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
+  fi
 
-# metadata can be set to "" to not use metadata.
-# test is used to make sure METADATA_DIR is not set
-if test "${METADATA_DIR-default value}" ; then 
-    METADATA_DIR=postgresql_metadata
-    echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
-fi
+  # default
+  SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
+  ARCION_HOME=${ARCION_HOME:-/arcion}
+  if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
 
-# default
-SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
-ARCION_HOME=${ARCION_HOME:-/arcion}
-if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+  # env vars that can be set to skip questions
+  # unset DSTDB_DIR DSTDB_HOST
+  # CFG_DIR
+  # SRCDB_HOST
+  # DSTDB_HOST
+  # SRCDB_DIR
+  # DSTDB_DIR
+  # REPL_TYPE
 
+  # these are from arc_utils.sh
+  set_src
+  set_dst
 
-# env vars that can be set to skip questions
-# unset DSTDB_DIR DSTDB_HOST
-# CFG_DIR
-# SRCDB_HOST
-# DSTDB_HOST
-# SRCDB_DIR
-# DSTDB_DIR
-# REPL_TYPE
+  # WARNING: log id length max is 9
+  export LOG_ID=$$
+  export CFG_DIR=/tmp/arcion/$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}" | tr '/' '-')-${LOG_ID}
+  mkdir -p $CFG_DIR
+  echo $CFG_DIR   
 
-# these are from arc_utils.sh
-set_src
-set_dst
+  # set replication type
+  clear
+  echo "Setting up Soure to Target Replication mode"
+  ask=0
+  if [ -z "${REPL_TYPE}" ]; then ask=1; ask_repl_mode; fi
+  echo "Replication Type: ${REPL_TYPE}"
+  if (( ask != 0 )); then read -rsp $'Press any key to continue...\n' -n1 key; fi
 
-# WARNING: log id length max is 9
-export LOG_ID=$$
-export CFG_DIR=/tmp/arcion/${LOG_ID}_$(echo "${SRCDB_HOST}_${DSTDB_HOST}_${REPL_TYPE}" | tr '/' '_')
-mkdir -p $CFG_DIR
-echo $CFG_DIR   
+  # LOGDIR required by copy_yaml
+  clear
 
-# set replication type
-clear
-echo "Setting up Soure to Target Replication mode"
-ask=0
-if [ -z "${REPL_TYPE}" ]; then ask=1; ask_repl_mode; fi
-echo "Replication Type: ${REPL_TYPE}"
-if (( ask != 0 )); then read -rsp $'Press any key to continue...\n' -n1 key; fi
+  # setup the JDBC env vars
+  set_jdbc_vars
 
-# LOGDIR required by copy_yaml
-clear
+  # set config 
+  copy_yaml "${SRCDB_DIR}" "${SRCDB_GRP}" "${SRCDB_TYPE}" "${DSTDB_DIR}"  "${DSTDB_GRP}" "${DSTDB_TYPE}"
 
-# set config 
-copy_yaml "${SRCDB_DIR}" "${SRCDB_GRP}" "${SRCDB_TYPE}" "${DSTDB_DIR}"  "${DSTDB_GRP}" "${DSTDB_TYPE}"
+  # save the choices in /tmp/init_menu.sh and $CFG_DIR/ini_menu.sh
+  export_env /tmp/ini_menu.sh $CFG_DIR
 
-# setup the JDBC env vars
-set_jdbc_vars
+  # run init scripts
+  init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
+  rc=$?
+  echo init_src rc=$rc
 
-# save the choices in /tmp/init_menu.sh and $CFG_DIR/ini_menu.sh
-export_env /tmp/ini_menu.sh $CFG_DIR
+  init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
+  rc=$?
+  echo init_dst rc=$rc
 
-# run init scripts
-init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
-rc=$?
-echo init_src rc=$rc
-
-init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
-rc=$?
-echo init_dst rc=$rc
+fi  
 
 # clear the view windows and configure it for this run
 tmux kill-window -t ${TMUX_SESSION}:1   # yaml
@@ -171,7 +174,9 @@ control_c() {
 
 # allow ctl-c to terminate background jobs
 trap control_c SIGINT
-tail -f $CFG_DIR/arcion.log &
+if [ -f $CFG_DIR/arcion.log ]; then
+  tail -f $CFG_DIR/arcion.log &
+fi
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )

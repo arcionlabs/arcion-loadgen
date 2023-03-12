@@ -65,6 +65,14 @@ export workload_rate="$workload_rate"
 export workload_threads="$workload_threads"
 export workload_timer="$workload_timer"
 export workload_size_factor="$workload_size_factor"
+# benchbase
+export SRCDB_BENCHBASE_TYPE="$SRCDB_BENCHBASE_TYPE"
+export SRCDB_JDBC_ISOLATION="$SRCDB_JDBC_ISOLATION"
+export SRCDB_JDBC_URL_BENCHBASE="$SRCDB_JDBC_URL_BENCHBASE"
+export DSTDB_BENCHBASE_TYPE="$DSTDB_BENCHBASE_TYPE"
+export DSTDB_JDBC_ISOLATION="$DSTDB_JDBC_ISOLATION"
+export DSTDB_JDBC_URL_BENCHBASE="$DSTDB_JDBC_URL_BENCHBASE"
+
 EOF
 cp $TMPINI $CFGINI/.
 }

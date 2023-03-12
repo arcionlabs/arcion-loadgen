@@ -1,8 +1,6 @@
 #!/usr/bin/env bash 
 
 function arcdemo_positional() {
-
-    banner here
     
     # set REPL_TYPE from command line
     if [ ! -z "$1" ]; then 

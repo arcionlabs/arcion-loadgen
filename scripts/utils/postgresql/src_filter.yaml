@@ -4,5 +4,5 @@ allow:
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
-    usertable:
-    sbtest1:
+    #usertable:
+    #sbtest1:

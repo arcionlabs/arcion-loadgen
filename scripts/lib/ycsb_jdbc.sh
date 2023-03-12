@@ -86,19 +86,24 @@ ycsb_load() {
       jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
       ;;
     postgresql)
-      jdbc_url="${jdbc_url}&eWriteBatchedInserts=true"
-    ;;
+      jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
+      ;;
+    #sqlserver)
+    #  jdbc_url="${jdbc_url};useBulkCopyForBatchInsert=true"
+    #  ;;
   esac 
 
-  ${YCSB}/*jdbc*/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
+  ycsbdir=$( cd ${YCSB}/*jdbc*${YCSB_VERSION}*/; pwd )
+  ${ycsbdir}/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
     -p workload=site.ycsb.workloads.CoreWorkload \
     -p db.driver="${jdbc_driver}" \
     -p db.url="${jdbc_url}" \
     -p db.user=${db_user} \
     -p db.passwd=${db_pw} \
     -p jdbc.fetchsize=10 \
-    -p jdbc.autocommit=true \
+    -p jdbc.autocommit=false \
     -p jdbc.batchupdateapi=true \
+    -p db.urlsharddelim='_' \
     -p db.batchsize=1024  \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
@@ -176,7 +181,7 @@ ycsb_run() {
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
-  ${YCSB}/*jdbc*/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
+  ${YCSB}/*jdbc*${YCSB_VERSION}*/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
   -p updateproportion=1 \
   -p readproportion=0 \
   -p workload=site.ycsb.workloads.CoreWorkload \
@@ -192,6 +197,7 @@ ycsb_run() {
   -p db.batchsize=1024  \
   -p jdbc.fetchsize=10 \
   -p jdbc.autocommit=true \
+  -p db.urlsharddelim='_' \
   -p requestdistribution=uniform \
   -p zeropadding=11 \
   -p insertorder=ordered &    

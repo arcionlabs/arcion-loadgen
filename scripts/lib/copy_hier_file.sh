@@ -10,7 +10,7 @@ copy_hier_as_flat() {
         echo "*${d}"
         dir="${dir}${d}"
         if [ ! -d "${dir}" ]; then continue; fi
-        for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js ); do
+        for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
             filename=$(basename $f)
             if [ -f $DST/$filename ]; then
                 echo override $f $DST/$filename
@@ -48,13 +48,15 @@ copy_yaml() {
     pushd ${SCRIPTS_DIR}/utils
     copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
+    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
     popd
 
-    # copy the src and dst configs into a flat dir
+    # override template from the src and dst configs into a flat dir
     pushd ${SCRIPTS_DIR}
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
+    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
     popd
 
     # override the destination specific
@@ -71,7 +73,7 @@ infer_dbdir() {
     local DB_HOST=${1}
     local DB_DIR=${2}
     if [ -z "${DB_HOST}" ]; then
-        echo '$1 should be DB_HOST'
+        echo '$1 should be DB_HOST' >&2
         return 1
     fi
     if [ -z "${DB_DIR}" ]; then 

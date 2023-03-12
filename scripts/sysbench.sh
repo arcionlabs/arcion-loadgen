@@ -32,6 +32,7 @@ case ${SRCDB_GRP,,} in
         --mysql-port=${SRCDB_PORT} \
         --time=${workload_timer} \
         --threads=${workload_threads} \
+        --tables=${workload_size_factor} \
         run
     ;;
     postgresql)
@@ -49,7 +50,8 @@ case ${SRCDB_GRP,,} in
         --pgsql-port=${SRCDB_PORT} \
         --time=${workload_timer} \
         --threads=${workload_threads} \
-        run
+        --tables=${workload_size_factor} \
+    run
         ;;
     *)
         echo "Error: ${SRCDB_GRP} needs to be supproted"

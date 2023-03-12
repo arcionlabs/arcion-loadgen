@@ -57,6 +57,8 @@ RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main
 
 # Java 8 
 RUN apt-get update && apt-get install -y curl openjdk-8-jre && java -version
+# sudo apt install openjdk-17-jdk
+# sudo update-alternatives --config java
 
 # add pg, mysql, postgres
 RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \

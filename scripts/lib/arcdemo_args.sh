@@ -12,8 +12,8 @@ export default_gui_run=0
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
 
-# export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
-export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
+export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
+# export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
 
 export default_TMUX_SESSION=arcion
 
@@ -40,6 +40,7 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_hostname_uri] [dst_hos
   params
     -b snapshot_thread_ratio=${snapshot_thread_ratio}
     -c cdc_thread_ratio=${cdc_thread_ratio}
+    -f cfg_dir=${CFG_DIR}
     -m max_cpus=${max_cpus}
     -r workload_rate=${workload_rate}
     -t workload_threads=${workload_threads}
@@ -68,7 +69,7 @@ function arcdemo_opts() {
   # these are args that can be overridden from the command line
   # override from command line
   local opt
-  while getopts "hga:b:c:m:r:s:t:w:" opt; do
+  while getopts "hga:b:c:f:m:r:s:t:w:" opt; do
       case $opt in
             # flag args
             g ) export gui_run=1 ;;
@@ -76,6 +77,7 @@ function arcdemo_opts() {
             a ) export ARCION_ARGS="$OPTARG" ;;
             b ) export snapshot_thread_ratio="$OPTARG" ;;
             c ) export cdc_thread_ratio="$OPTARG" ;;
+            f ) export CFG_DIR="$OPTARG" ;;
             m ) export max_cpus="$OPTARG" ;;
             r ) export workload_rate="$OPTARG" ;;
             t ) export workload_threads="$OPTARG" ;;
