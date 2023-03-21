@@ -17,7 +17,7 @@ password: '${CONFLUENT_CLUSTER_API_SECRET}'
 #Multiple Kafka brokers can be specified using the format below:
 brokers:
    broker1: #Replace broker1 with your broker name
-       host: pkc-419q3.us-east4.gcp.confluent.cloud #Replace localhost with your broker's host
+       host: ${CONFLUENT_BOOTSTRAP_SERVER} #Replace localhost with your broker's host
        port: 9092 #Replace 19092 with your broker's port
 
 _timeout-sec: 30
