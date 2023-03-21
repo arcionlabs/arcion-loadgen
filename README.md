@@ -302,7 +302,7 @@ https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-for-testing/
 https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-with-keyfile-access-control/#std-label-deploy-repl-set-with-auth
 
 
-## Kafka
+## Kafka Local
 
 Docker compose of zookeeper and broker from https://developer.confluent.io/quickstart/kafka-docker/
 ```bash
@@ -376,6 +376,15 @@ docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server
     --from-beginning --topic arcdst_sbtest1_cdc_logs
 docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
     --from-beginning --topic arcdst_usertable_cdc_logs
+
+
+## Kafka Cloud (Confluent)
+
+Get cluster is from Cluster Overview -> Cluster Setting
+
+pkc-419q3.us-east4.gcp.confluent.cloud:9092
+
+Create Kafka Cluater API Key
 
 ## Minio
 
