@@ -1,0 +1,6 @@
+virtualenv
+JayDeBeApi
+libtmux
+pyyaml
+psutil
+click
