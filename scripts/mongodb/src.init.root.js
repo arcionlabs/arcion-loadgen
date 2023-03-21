@@ -12,3 +12,34 @@ db.createUser(
         ]
     }
 );
+
+// create 3 node cluster
+rsconf = {
+    _id: "rs0",
+    members: [
+      {
+       _id: 0,
+       host: "mongodb:27017"
+      },
+      {
+       _id: 1,
+       host: "mongodb2:27017"
+      },
+      {
+       _id: 2,
+       host: "mongodb3:27017"
+      }
+     ]
+  }
+
+rs.initiate( rsconf );
+
+// shard the cluster
+enableShardingOnBlitzzCollection = () => {
+    authenticate();
+    db.getSiblingDB("${SRCDB_ARC_USER}");
+    sh.enableSharding("${SRCDB_ARC_USER}");
+    sh.shardCollection("${SRCDB_ARC_USER}.usertable", {"_id" : "hashed"})
+}
+
+enableShardingOnBlitzzCollection();

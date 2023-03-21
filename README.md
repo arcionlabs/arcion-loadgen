@@ -77,7 +77,6 @@ Database sources that support `snapshot`, `real-time` and `full`
 - MongoDB (works as destination for now)
 
 Data sources that support `snapshot` and potentially `delta-snapshot`:
-- CockroachDB
 - SingleStore
 - YugaByteSQL
 
@@ -89,8 +88,6 @@ SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 SRCDB_HOST=mysql DSTDB_HOST=mariadb REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=cockroach-1 DSTDB_HOST=postgresql REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=postgresql DSTDB_HOST=broker REPL_TYPE=snapshot ./menu.sh
 
@@ -177,6 +174,7 @@ EOF
 docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -e LANG=C.UTF-8 \
     -p 7681:7681 \
     robertslee/arcdemo
 ```    
@@ -194,7 +192,8 @@ docker run -d --name arcion-ui \
     -e DB_USERNAME=arcion \
     -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
-    arcionlabs/replicant-on-premises
+    -v `pwd`/tmp:/share \
+    arcionlabs/replicant-on-premises:test
 
 # make sure there are no warnings about license
 docker logs arcion-ui
@@ -202,24 +201,18 @@ docker logs arcion-ui
 
 ## MySQL
 
+Note: `-e LANG=C.UTF-8` makes MySQL CLI display UTF-8 characters correctly in the docker console.
+
 ```bash
 docker run -d \
     --name mysql \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
+    -e LANG=C.UTF-8 \
+    -p 3306:3306 \
     mysql \
     mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
-
-docker run -d \
-    --name mysql2 \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
+    --local-infile=true --secure-file-priv=""
     
 # wait for db to come up
 while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
@@ -232,7 +225,7 @@ docker run -d \
     --name mariadb \
     --network arcnet \
     -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
+    -p 3307:3306 \
     mariadb \
     mysqld --default-authentication-plugin=mysql_native_password \
     --log-bin=mysql-log.bin \
@@ -249,20 +242,17 @@ docker run -d --net arcnet --name singlestore -i --init \
     singlestore/cluster-in-a-box
 ```
 
-## CockroachDB
-```
-docker run -d \
-    --name=cockroach \
-    --hostname=cockroach \
-    --net=arcnet \
-    -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start-single-node \
-    --insecure 
-```
-
 ## MongoDB
 
-https://www.mongodb.com/docs/manual/reference/sql-comparison/ is a good reference
+- ssl and replication set are required for Arcion Snapshot.
+- sharding is required for Arcion Real Time support.
+ 
+
+```bash
+mkdir keyfile
+openssl rand -base64 756 > keyfile/mongodb.keyfile
+chmod 400 keyfile/mongodb.keyfile
+```
 
 ```bash
 docker run -d \
@@ -271,7 +261,27 @@ docker run -d \
     -e MONGO_INITDB_ROOT_USERNAME=root \
     -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
     -p :27017 \
-    mongo 
+    -v `pwd`/keyfile:/data/configdb/keyfile \
+    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
+
+docker run -d \
+    --name mongodb2 \
+    --network arcnet \
+    -e MONGO_INITDB_ROOT_USERNAME=root \
+    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
+    -p :27017 \
+    -v `pwd`/keyfile:/data/configdb/keyfile \
+    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
+
+docker run -d \
+    --name mongodb3 \
+    --network arcnet \
+    -e MONGO_INITDB_ROOT_USERNAME=root \
+    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
+    -p :27017 \
+    -v `pwd`/keyfile:/data/configdb/keyfile \
+    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
+
 
 docker run -d \
     --name mongodb-express \
@@ -282,6 +292,15 @@ docker run -d \
     -p 18081:8081 \
     mongo-express 
 ```
+
+As noted in [MongoDB's Docker Hub documentation](https://hub.docker.com/_/mongo),
+"authentication in MongoDB is fairly complex (although disabled by default)".  
+
+https://www.mongodb.com/docs/manual/reference/sql-comparison/ is a good reference
+https://www.mongodb.com/docs/manual/tutorial/convert-standalone-to-replica-set/
+https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-for-testing/
+https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-with-keyfile-access-control/#std-label-deploy-repl-set-with-auth
+
 
 ## Kafka
 
@@ -358,25 +377,6 @@ docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server
 docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
     --from-beginning --topic arcdst_usertable_cdc_logs
 
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
-
-```
-curl --silent --output docker-compose-confluent.yml \
-  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
-
-# change broker name to kafka to make demo easier
-# sed -i.bak s/broker/kafka/g > docker-compose-confluent.yml
-
-cat >>docker-compose-quickstart.yml <<EOF 
-networks:
-  default:
-    name: arcnet
-    external: true
-EOF
-
-docker compose -f docker-compose-confluent.yml up -d
-```
-
 ## Minio
 
 Using Minio instruction from [here](https://min.io/docs/minio/container/index.html) with the following changes:
@@ -405,7 +405,7 @@ docker run -d \
     --name yugabytesql \
     --network arcnet \
     -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
-    yugabytedb/yugabyte:2.17.1.0-b439 bin/yugabyted start\
+    yugabytedb/yugabyte bin/yugabyted start\
     --daemon=false
 ```
 
@@ -413,13 +413,62 @@ docker run -d \
 
 Below is not in the demo YET but supports by Arcion.
 
+## CockroachDB
+
+Stopped working working for source snapshot and destination.
+
+```bash
+docker run -d \
+    --name=cockroach \
+    --hostname=cockroach \
+    --net=arcnet \
+    -p :26257 -p :8080  \
+    cockroachdb/cockroach:v22.2.3 start-single-node \
+    --insecure 
+```
+
 ## Redis
 
-```
+```bash
 docker run -d \
     --name redis \
     --network arcnet \
     redis
+```
+
+## Oracle
+
+### Oracle Express Edition
+
+```bash
+git clone https://github.com/oracle/docker-images oracle-docker-images
+cd oracle-docker-images
+cd OracleDatabase/SingleInstance/dockerfiles
+./buildContainerImage.sh -x -i
+
+docker volume create oracle1
+docker run -d \
+    --name oracle \
+    --network arcnet \
+    -p 1521:1521 -p 5500:5500 \
+    -e ORACLE_PWD=Passw0rd \
+    -v oracle1:/opt/oracle/oradata \
+    oracle/database:21.3.0-xe
+```
+
+```
+alter session set "_ORACLE_SCRIPT"=true;
+
+CREATE USER arcsrc IDENTIFIED BY Passw0rd;
+
+grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcsrc;
+```
+
+## X11
+
+```bash
+sudo apt-get install x11-xserver-utils
+ docker run -it --rm -v ~/.Xauthority:/root/.Xauthority -e DISPLAY=$DISPLAY --network=host --name hammerdb tpcorg/hammerdb:oracle bash
 ```
 
 # Running the CLI demo

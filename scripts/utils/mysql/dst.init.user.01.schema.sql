@@ -17,3 +17,9 @@ CREATE TABLE if not exists usertable (
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6)
 );
+
+CREATE TABLE `unicode` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `str` text CHARACTER SET utf8mb4,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8mb4;

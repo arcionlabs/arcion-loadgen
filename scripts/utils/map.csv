@@ -8,6 +8,6 @@ yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_C
 mongodb,mongodb,27017,root,Passw0rd,,TRANSACTION_READ_COMMITTED
 s3,s3,9000,root,Passw0rd,,TRANSACTION_READ_COMMITTED
 sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED
-oracle,oracle,1521,root,Passw0rd,ORACLE,TRANSACTION_READ_COMMITTED
+oracle,oracle,1521,system,Passw0rd,ORACLE,TRANSACTION_READ_COMMITTED
 kafka,kafka,29092,root,Passw0rd,,TRANSACTION_READ_COMMITTED
 broker,kafka,29092,root,Passw0rd,,TRANSACTION_READ_COMMITTED

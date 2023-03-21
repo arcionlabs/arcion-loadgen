@@ -54,6 +54,6 @@ case ${SRCDB_GRP,,} in
     run
         ;;
     *)
-        echo "Error: ${SRCDB_GRP} needs to be supproted"
+        echo "sysbench.sh: ${SRCDB_GRP} needs to be supported"
         ;;
 esac

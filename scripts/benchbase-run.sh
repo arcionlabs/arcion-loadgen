@@ -68,5 +68,6 @@ bb_run_tables() {
 
 bb_chdir
 bb_run_tables
+trap kill_jobs SIGINT
 wait_jobs
 popd

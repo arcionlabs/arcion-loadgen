@@ -26,6 +26,12 @@ CREATE TABLE if not exists usertable (
 	index(ts)
 );
 
+CREATE TABLE `unicode` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `str` text CHARACTER SET utf8mb4,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8mb4;
+
 -- will only happen if source and destion was flipped
 ALTER TABLE usertable DROP COLUMN ts2;
 ALTER TABLE sbtest1 DROP COLUMN ts2;

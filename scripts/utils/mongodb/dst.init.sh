@@ -4,12 +4,6 @@
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-DSTDB_ROOT=${DSTDB_ROOT:-root}
-DSTDB_PW=${DSTDB_PW:-password}
-DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
-DSTDB_ARC_PW=${DSTDB_ARC_PW:-password}
-DSTDB_PORT=${DSTDB_PORT:-27017}
-
 # util functions
 ping_db () {
   local db_url=$1

@@ -81,7 +81,7 @@
    </connection>
    <connection name="madst"
                driver="mysql"
-               server="mysql"
+               server="mariadb"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
