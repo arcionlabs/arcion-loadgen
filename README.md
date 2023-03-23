@@ -87,8 +87,6 @@ SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=mysql DSTDB_HOST=mariadb REPL_TYPE=snapshot ./menu.sh
 
-SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
-
 SRCDB_HOST=postgresql DSTDB_HOST=broker REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=postgresql DSTDB_HOST=mongodb REPL_TYPE=snapshot ./menu.sh
@@ -179,8 +177,6 @@ docker run -d --name arcion-demo \
     robertslee/arcdemo
 ```    
 
-# Optional Databases
-
 ## Arcion UI
 ```bash
 docker run -d --name arcion-ui \
@@ -199,205 +195,29 @@ docker run -d --name arcion-ui \
 docker logs arcion-ui
 ```    
 
-## MySQL
+# Other databases that can be setup as source and targets
 
-Note: `-e LANG=C.UTF-8` makes MySQL CLI display UTF-8 characters correctly in the docker console.
-
-```bash
-docker run -d \
-    --name mysql \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -e LANG=C.UTF-8 \
-    -p 3306:3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true --secure-file-priv=""
-    
-# wait for db to come up
-while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
-```    
-
-## MariaDB
-
-```bash
-docker run -d \
-    --name mariadb \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p 3307:3306 \
-    mariadb \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --log-bin=mysql-log.bin \
-    --binlog-format=ROW
-```
-
-## SingleStore
-```bash
-docker run -d --net arcnet --name singlestore -i --init \
-    -e LICENSE_KEY="$SINGLESTORE_LICENSE" \
-    -e ROOT_PASSWORD="Passw0rd" \
-    -e START_AFTER_INIT=Y \
-    -p :3306 -p :8080 \
-    singlestore/cluster-in-a-box
-```
-
-## MongoDB
-
-- ssl and replication set are required for Arcion Snapshot.
-- sharding is required for Arcion Real Time support.
- 
-
-```bash
-mkdir keyfile
-openssl rand -base64 756 > keyfile/mongodb.keyfile
-chmod 400 keyfile/mongodb.keyfile
-```
-
-```bash
-docker run -d \
-    --name mongodb \
-    --network arcnet \
-    -e MONGO_INITDB_ROOT_USERNAME=root \
-    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
-    -p :27017 \
-    -v `pwd`/keyfile:/data/configdb/keyfile \
-    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
-
-docker run -d \
-    --name mongodb2 \
-    --network arcnet \
-    -e MONGO_INITDB_ROOT_USERNAME=root \
-    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
-    -p :27017 \
-    -v `pwd`/keyfile:/data/configdb/keyfile \
-    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
-
-docker run -d \
-    --name mongodb3 \
-    --network arcnet \
-    -e MONGO_INITDB_ROOT_USERNAME=root \
-    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
-    -p :27017 \
-    -v `pwd`/keyfile:/data/configdb/keyfile \
-    mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
-
-
-docker run -d \
-    --name mongodb-express \
-    --network arcnet \
-    -e ME_CONFIG_MONGODB_ADMINUSERNAME=root \
-    -e ME_CONFIG_MONGODB_ADMINPASSWORD=Passw0rd \
-    -e ME_CONFIG_MONGODB_URL="mongodb://root:Passw0rd@mongodb:27017/" \
-    -p 18081:8081 \
-    mongo-express 
-```
-
-As noted in [MongoDB's Docker Hub documentation](https://hub.docker.com/_/mongo),
-"authentication in MongoDB is fairly complex (although disabled by default)".  
-
-https://www.mongodb.com/docs/manual/reference/sql-comparison/ is a good reference
-https://www.mongodb.com/docs/manual/tutorial/convert-standalone-to-replica-set/
-https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-for-testing/
-https://www.mongodb.com/docs/manual/tutorial/deploy-replica-set-with-keyfile-access-control/#std-label-deploy-repl-set-with-auth
-
-
-## [Kafka on-prem](./README.kafka.md)
-## [Kafka Confluent Cloud](./README.kafka.md)
-
-## Minio
-
-Using Minio instruction from [here](https://min.io/docs/minio/container/index.html) with the following changes:
-- add `-d`
-- change name to `s3`
-- add `--network arcnet`
-- change client port to `9100` and `9190`
-
-```bash
-docker run -d \
-    --name s3 \
-    --network arcnet \
-    -p 9100:9000 \
-    -p 9190:9090 \
-    -e MINIO_ROOT_USER=root \
-    -e MINIO_ROOT_PASSWORD=Passw0rd \
-    quay.io/minio/minio server /data --console-address ":9090"
-```  
-
-## YugaByte
-
-Using instructions from https://docs.yugabyte.com/preview/quick-start/docker/ 
-
-```bash
-docker run -d \
-    --name yugabytesql \
-    --network arcnet \
-    -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
-    yugabytedb/yugabyte bin/yugabyted start\
-    --daemon=false
-```
+- [Kafka on-prem](./README.kafka.md)
+- [Kafka Confluent Cloud](./README.kafka.md)
+- [MariaDB](./README.maria.md)
+- [MySQL](./README.mysql.md)
+- [MongoDB](./README.mongodb.md)
+- [SingleStore](./README.singlestore.md)
+- [YugabyteSQL](./README.yugabyte.md)
 
 # Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
-## CockroachDB
+- [Minio](./README.minio.md)
+- [Oracle](./README.oracle.md)
+- [Redis](./README.redis.md)
 
-Stopped working working for source snapshot and destination.
+# Deprecated
 
-```bash
-docker run -d \
-    --name=cockroach \
-    --hostname=cockroach \
-    --net=arcnet \
-    -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start-single-node \
-    --insecure 
-```
+Below has worked in the past, but no longer working with Arcion at the moment.
 
-## Redis
-
-```bash
-docker run -d \
-    --name redis \
-    --network arcnet \
-    redis
-```
-
-## Oracle
-
-### Oracle Express Edition
-
-```bash
-git clone https://github.com/oracle/docker-images oracle-docker-images
-cd oracle-docker-images
-cd OracleDatabase/SingleInstance/dockerfiles
-./buildContainerImage.sh -x -i
-
-docker volume create oracle1
-docker run -d \
-    --name oracle \
-    --network arcnet \
-    -p 1521:1521 -p 5500:5500 \
-    -e ORACLE_PWD=Passw0rd \
-    -v oracle1:/opt/oracle/oradata \
-    oracle/database:21.3.0-xe
-```
-
-```
-alter session set "_ORACLE_SCRIPT"=true;
-
-CREATE USER arcsrc IDENTIFIED BY Passw0rd;
-
-grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcsrc;
-```
-
-## X11
-
-```bash
-sudo apt-get install x11-xserver-utils
- docker run -it --rm -v ~/.Xauthority:/root/.Xauthority -e DISPLAY=$DISPLAY --network=host --name hammerdb tpcorg/hammerdb:oracle bash
-```
+- [CockroachDB](./README.cockroach.md)
 
 # Running the CLI demo
 
@@ -405,7 +225,6 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
 
 [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
 
- 
 In the console windows, type the following for fully automated mode.
 
 - run mysql source and target with Arcion snapshot mode

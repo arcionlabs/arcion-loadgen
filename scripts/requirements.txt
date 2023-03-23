@@ -1,8 +1,10 @@
 virtualenv
-JayDeBeApi
 libtmux
 pyyaml
 psutil
-confluent-kafka
 omegaconf
 hydra-core
+# CDC load generator in lieu of Python JDBC Bridge
+# JayDeBeApi
+# failing on buildx
+# confluent-kafka
