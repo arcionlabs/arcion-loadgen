@@ -81,7 +81,7 @@
    </connection>
    <connection name="madst"
                driver="mysql"
-               server="mysql"
+               server="mariadb"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
@@ -151,6 +151,23 @@
    <connection name="indst"
                driver="db2"
                server="informix"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
+   <connection name="orsrc"
+               driver="oracle"
+               server="oracle"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="ordst"
+               driver="oracle"
+               server="oracle"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>

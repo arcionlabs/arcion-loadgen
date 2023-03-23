@@ -4,12 +4,6 @@
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-SRCDB_ROOT=${SRCDB_ROOT:-root}
-SRCDB_PW=${SRCDB_PW:-password}
-SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
-SRCDB_ARC_PW=${SRCDB_ARC_PW:-password}
-SRCDB_PORT=${SRCDB_PORT:-27017}
-
 # util functions
 ping_db () {
   local db_url=$1
@@ -34,14 +28,14 @@ ping_db "${SRCDB_ROOT_URL}"
 # setup database permissions
 banner src root
 
-for f in ${CFG}/src.init.root.*js; do
+for f in ${CFG_DIR}/src.init.root.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ROOT_URL}"
   cat $f | envsubst | mongosh ${SRCDB_ROOT_URL} 
 done
 
 banner src user
 
-for f in ${CFG}/src.init.user.*js; do
+for f in ${CFG_DIR}/src.init.user.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL}"
   cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL} 
 done

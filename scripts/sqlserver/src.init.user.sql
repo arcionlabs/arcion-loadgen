@@ -59,7 +59,7 @@ CREATE TABLE usertable (
 	field6 TEXT, field7 TEXT,
 	field8 TEXT, field9 TEXT,
 	ts datetime DEFAULT CURRENT_TIMESTAMP,
-	constraint usertable_pkey primary key (id),
+	constraint usertable_pkey primary key (ycsb_key),
 	index ts (ts)
 );
 

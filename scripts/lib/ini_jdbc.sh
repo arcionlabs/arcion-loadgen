@@ -4,11 +4,13 @@
 export SRCDB_JDBC_DRIVER
 export SRCDB_JDBC_URL
 export SRCDB_JDBC_URL_IDPW
+export SRCDB_JDBC_URL_BENCHBASE
 export SRCDB_ROOT_URL
 
 export DSTDB_JDBC_DRIVER
 export DSTDB_JDBC_URL
 export DSTDB_JDBC_URL_IDPW
+export DSTDB_JDBC_URL_BENCHBASE
 export DSTDB_ROOT_URL
 
 export SRCDB_YCSB_DRIVER
@@ -24,6 +26,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JSQSH_DRIVER="mysql"
     SRCDB_JDBC_DRIVER="org.mariadb.jdbc.Driver"
     SRCDB_JDBC_URL="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&amp;restrictedAuth=mysql_native_password&amp;rewriteBatchedStatements=true"
     SRCDB_JDBC_URL_IDPW="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     ;;
   postgresql)
@@ -31,6 +34,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JSQSH_DRIVER="pgsql"
     SRCDB_JDBC_DRIVER="org.postgresql.Driver"
     SRCDB_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&amp;sslmode=disable&amp;ssl=false&amp;reWriteBatchedInserts=true"   
     SRCDB_JDBC_URL_IDPW="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"
     ;;
   mongodb)
@@ -47,6 +51,7 @@ case "${SRCDB_GRP,,}" in
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
     SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};encrypt=false;useBulkCopyForBatchInsert=true"   
     SRCDB_JDBC_URL_IDPW="sqlserver://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}"
     ;;         
   *)
@@ -60,6 +65,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JSQSH_DRIVER="mysql"
     DSTDB_JDBC_DRIVER="org.mariadb.jdbc.Driver"
     DSTDB_JDBC_URL="jdbc:mysql://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:mysql://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&amp;restrictedAuth=mysql_native_password&amp;rewriteBatchedStatements=true"
     DSTDB_JDBC_URL_IDPW="jdbc:mysql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     ;;
   postgresql)
@@ -67,6 +73,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JSQSH_DRIVER="pgsql"
     DSTDB_JDBC_DRIVER="org.postgresql.Driver"
     DSTDB_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&amp;sslmode=disable&amp;ssl=false&amp;reWriteBatchedInserts=true"   
     DSTDB_JDBC_URL_IDPW="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"
     ;; 
   mongodb)
@@ -82,7 +89,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_DRIVER="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
-    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT}"
+    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false"
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false;useBulkCopyForBatchInsert=true"
     DSTDB_JDBC_URL_IDPW="sqlserver://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}"
     ;;     
   *)

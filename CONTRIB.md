@@ -34,16 +34,23 @@ chown -R 1000 .;\
 
 # Swap out volume and scripts
 
-mkdir -p ~/Downloads/arcion-demo/configs
 ```bash
+git clone https://github.com/robert-s-lee/arcion-demo
+cd arcion-demo/scripts
+mkdir -p ~/arcion-demo/logs
+mkdir -p ~/arcion-demo/configs
 docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -e LANG=C.UTF-8 \
     -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
+    -v ~/arcion-demo/logs/:/arcion/data/ \
     robertslee/arcdemo
 ```
-    -v `~/Downloads/arcion-demo/configs`:/tmp/arcion \
+
+    -v `~/arcion-demo/configs`:/tmp/arcion \
+
 
 
 

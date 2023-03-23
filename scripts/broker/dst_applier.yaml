@@ -3,11 +3,15 @@ replication-format: NATIVE
 snapshot:
  threads: ${DSTDB_SNAPSHOT_THREADS}
  skip-tables-on-failures : true
+ _traceDBTasks: true
+ replication-factor: 1  # must be 1 for the testing
 
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
-  txn-size-rows: 1000
   skip-tables-on-failures : true
+  _traceDBTasks: true
+  replication-factor: 1  # must be 1 for the testing
+
   before-image-format: ALL  # Allowed values : KEY, ALL
   after-image-format: ALL   # Allowed values : UPDATED, ALL
   # kafka-compression-type: lz4

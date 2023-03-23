@@ -77,7 +77,6 @@ Database sources that support `snapshot`, `real-time` and `full`
 - MongoDB (works as destination for now)
 
 Data sources that support `snapshot` and potentially `delta-snapshot`:
-- CockroachDB
 - SingleStore
 - YugaByteSQL
 
@@ -87,10 +86,6 @@ The above sources work as destinations as well.  For example:
 SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=mysql DSTDB_HOST=mariadb REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=mariadb DSTDB_HOST=cockroach-1 REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=cockroach-1 DSTDB_HOST=postgresql REPL_TYPE=snapshot ./menu.sh
 
 SRCDB_HOST=postgresql DSTDB_HOST=broker REPL_TYPE=snapshot ./menu.sh
 
@@ -177,11 +172,10 @@ EOF
 docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -e LANG=C.UTF-8 \
     -p 7681:7681 \
     robertslee/arcdemo
 ```    
-
-# Optional Databases
 
 ## Arcion UI
 ```bash
@@ -194,233 +188,36 @@ docker run -d --name arcion-ui \
     -e DB_USERNAME=arcion \
     -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
-    arcionlabs/replicant-on-premises
+    -v `pwd`/tmp:/share \
+    arcionlabs/replicant-on-premises:test
 
 # make sure there are no warnings about license
 docker logs arcion-ui
 ```    
 
-## MySQL
+# Other databases that can be setup as source and targets
 
-```bash
-docker run -d \
-    --name mysql \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
-
-docker run -d \
-    --name mysql2 \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
-    mysql \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --local-infile=true
-    
-# wait for db to come up
-while [ -z "$( docker logs mysql 2>&1 | grep 'ready for connections' )" ]; do sleep 10; done;    
-```    
-
-## MariaDB
-
-```bash
-docker run -d \
-    --name mariadb \
-    --network arcnet \
-    -e MYSQL_ROOT_PASSWORD=Passw0rd \
-    -p :3306 \
-    mariadb \
-    mysqld --default-authentication-plugin=mysql_native_password \
-    --log-bin=mysql-log.bin \
-    --binlog-format=ROW
-```
-
-## SingleStore
-```bash
-docker run -d --net arcnet --name singlestore -i --init \
-    -e LICENSE_KEY="$SINGLESTORE_LICENSE" \
-    -e ROOT_PASSWORD="Passw0rd" \
-    -e START_AFTER_INIT=Y \
-    -p :3306 -p :8080 \
-    singlestore/cluster-in-a-box
-```
-
-## CockroachDB
-```
-docker run -d \
-    --name=cockroach \
-    --hostname=cockroach \
-    --net=arcnet \
-    -p :26257 -p :8080  \
-    cockroachdb/cockroach:v22.2.3 start-single-node \
-    --insecure 
-```
-
-## MongoDB
-
-https://www.mongodb.com/docs/manual/reference/sql-comparison/ is a good reference
-
-```bash
-docker run -d \
-    --name mongodb \
-    --network arcnet \
-    -e MONGO_INITDB_ROOT_USERNAME=root \
-    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
-    -p :27017 \
-    mongo 
-
-docker run -d \
-    --name mongodb-express \
-    --network arcnet \
-    -e ME_CONFIG_MONGODB_ADMINUSERNAME=root \
-    -e ME_CONFIG_MONGODB_ADMINPASSWORD=Passw0rd \
-    -e ME_CONFIG_MONGODB_URL="mongodb://root:Passw0rd@mongodb:27017/" \
-    -p 18081:8081 \
-    mongo-express 
-```
-
-## Kafka
-
-Docker compose of zookeeper and broker from https://developer.confluent.io/quickstart/kafka-docker/
-```bash
-cat >docker-compose-kafka-quickstart.yaml <<EOF
----
-version: '3'
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  broker:
-    image: confluentinc/cp-kafka:7.3.0
-    container_name: broker
-    ports:
-    # To learn about configuring Kafka for access across networks see
-    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-networks:
-  default:
-    name: arcnet
-    external: true
-EOF
-
-docker compose -f docker-compose-kafka-quickstart.yaml up -d
-```
-
-Test the broker
-```bash
-docker exec broker \
-kafka-topics --bootstrap-server broker:9092 \
-             --create \
-             --topic quickstart
-
-docker exec -i broker \
-kafka-console-producer --bootstrap-server broker:9092 \
-                       --topic quickstart <<EOF
-Hi $( date )
-EOF
-
-docker exec --interactive --tty broker \
-kafka-console-consumer --bootstrap-server broker:9092 \
-                       --topic quickstart \
-                       --from-beginning
-```
-
-
-```bash
-docker exec broker \
-kafka-topics --bootstrap-server broker:9092 --list
-
-docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
-    --from-beginning --topic arcdst_usertable
-docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
-    --from-beginning --topic arcdst_sbtest1
-
-docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
-    --from-beginning --topic arcdst_sbtest1_cdc_logs
-docker exec --interactive --tty broker kafka-console-consumer --bootstrap-server broker:9092 \
-    --from-beginning --topic arcdst_usertable_cdc_logs
-
-Instructions from [here](https://developer.confluent.io/quickstart/kafka-docker)
-
-```
-curl --silent --output docker-compose-confluent.yml \
-  https://raw.githubusercontent.com/confluentinc/cp-all-in-one/7.3.1-post/cp-all-in-one/docker-compose.yml
-
-# change broker name to kafka to make demo easier
-# sed -i.bak s/broker/kafka/g > docker-compose-confluent.yml
-
-cat >>docker-compose-quickstart.yml <<EOF 
-networks:
-  default:
-    name: arcnet
-    external: true
-EOF
-
-docker compose -f docker-compose-confluent.yml up -d
-```
-
-## Minio
-
-Using Minio instruction from [here](https://min.io/docs/minio/container/index.html) with the following changes:
-- add `-d`
-- change name to `s3`
-- add `--network arcnet`
-- change client port to `9100` and `9190`
-
-```bash
-docker run -d \
-    --name s3 \
-    --network arcnet \
-    -p 9100:9000 \
-    -p 9190:9090 \
-    -e MINIO_ROOT_USER=root \
-    -e MINIO_ROOT_PASSWORD=Passw0rd \
-    quay.io/minio/minio server /data --console-address ":9090"
-```  
-
-## YugaByte
-
-Using instructions from https://docs.yugabyte.com/preview/quick-start/docker/ 
-
-```bash
-docker run -d \
-    --name yugabytesql \
-    --network arcnet \
-    -p7001:7001 -p9000:9000 -p5433:5433 -p9042:9042 \
-    yugabytedb/yugabyte:2.17.1.0-b439 bin/yugabyted start\
-    --daemon=false
-```
+- [Kafka on-prem](./README.kafka.md)
+- [Kafka Confluent Cloud](./README.kafka.md)
+- [MariaDB](./README.maria.md)
+- [MySQL](./README.mysql.md)
+- [MongoDB](./README.mongodb.md)
+- [SingleStore](./README.singlestore.md)
+- [YugabyteSQL](./README.yugabyte.md)
 
 # Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
-## Redis
+- [Minio](./README.minio.md)
+- [Oracle](./README.oracle.md)
+- [Redis](./README.redis.md)
 
-```
-docker run -d \
-    --name redis \
-    --network arcnet \
-    redis
-```
+# Deprecated
+
+Below has worked in the past, but no longer working with Arcion at the moment.
+
+- [CockroachDB](./README.cockroach.md)
 
 # Running the CLI demo
 
@@ -428,7 +225,6 @@ Open a browser with tabs for [Arcion CLI](http://localhost:7681)
 
 [tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
 
- 
 In the console windows, type the following for fully automated mode.
 
 - run mysql source and target with Arcion snapshot mode

@@ -1,0 +1,11 @@
+type: ORACLE
+
+# will be set by envsubst from menu.sh 
+host: ${DSTDB_HOST}
+port: 1521
+
+service-name: IO
+username: ${DSTDB_ARC_USER}
+password: ${DSTDB_ARC_PW}
+
+max-connections: 30

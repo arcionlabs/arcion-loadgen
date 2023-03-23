@@ -48,9 +48,11 @@ logreader_path() {
 arcion_delta() {
     # do not run if gui will be used to invoke
     if [ "${gui_run}" = "1" ]; then return 0; fi
+    
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME
-    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
+    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log &
@@ -61,8 +63,10 @@ arcion_real() {
     # do not run if gui will be used to invoke
     if [ "${gui_run}" = "1" ]; then return 0; fi
 
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+
     pushd $ARCION_HOME
-    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
+    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log &
@@ -73,8 +77,10 @@ arcion_full() {
     # do not run if gui will be used to invoke
     if [ "${gui_run}" = "1" ]; then return 0; fi
 
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+
     pushd $ARCION_HOME
-    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
+    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log &
@@ -85,9 +91,11 @@ arcion_snapshot() {
     # do not run if gui will be used to invoke
     if [ "${gui_run}" = "1" ]; then return 0; fi
 
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+
     pushd $ARCION_HOME
     echo "$( arcion_param ${CFG_DIR} )"
-    PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
+    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log &
@@ -218,7 +226,9 @@ while [ 1 ]; do
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
     [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
     [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
-    
+    [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=$( map_benchbase_type "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=$( map_benchbase_isolation "${SRCDB_TYPE}" )
+
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
     echo "Source Type: ${SRCDB_TYPE}"
@@ -267,6 +277,8 @@ while [ 1 ]; do
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
     [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DB_TYPE}" )
+    [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
 
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Dir: ${DSTDB_DIR}"

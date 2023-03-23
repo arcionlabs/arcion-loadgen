@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${SRCDB_BENCHBASE_TYPE}</type>
+    <driver>${SRCDB_JDBC_DRIVER}</driver>
+    <url>${SRCDB_JDBC_URL_BENCHBASE}</url>
+    <username>${SRCDB_ARC_USER}</username>
+    <password>${SRCDB_ARC_PW}</password>
+    <isolation>${SRCDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
+    <scalefactor>${workload_size_factor}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer}</time>
+            <rate>${workload_rate}</rate>
+            <weights>10, 0, 0, 20, 10, 15</weights>
+            <!-- <weights>10, 10, 35, 20, 10, 15</weights> -->
+        </work>
+    </works>
+
+    <!-- SEATS Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DeleteReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindFlights</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindOpenSeats</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateCustomer</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReservation</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
