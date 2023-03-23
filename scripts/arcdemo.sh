@@ -34,10 +34,11 @@ else
       echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
   fi
 
-  # default
+  # defaults
   SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
   ARCION_HOME=${ARCION_HOME:-/arcion}
   if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
+  export CONFLUENT_KEY_SECRET="`echo -n \"$CONFLUENT_CLUSTER_API_KEY:$CONFLUENT_CLUSTER_API_SECRET\" | base64 -w 0`"
 
   # env vars that can be set to skip questions
   # unset DSTDB_DIR DSTDB_HOST

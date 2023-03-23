@@ -157,4 +157,21 @@
       <catalog><![CDATA[arcdst]]></catalog>
    </connection>
 
+   <connection name="orsrc"
+               driver="oracle"
+               server="oracle"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
+   <connection name="ordst"
+               driver="oracle"
+               server="oracle"
+   >
+      <username><![CDATA[arcdst]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcdst]]></catalog>
+   </connection>
+
 </connections>

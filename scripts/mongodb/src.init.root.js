@@ -1,3 +1,4 @@
+// login in mongosh mongodb://root:Passw0rd@mongodb
 // create arcsrc db and user
 db = db.getSiblingDB("${SRCDB_ARC_USER}");
 db.dropUser("${SRCDB_ARC_USER}")
@@ -13,7 +14,7 @@ db.createUser(
     }
 );
 
-// create 3 node cluster
+// create replication set
 rsconf = {
     _id: "rs0",
     members: [
@@ -34,9 +35,8 @@ rsconf = {
 
 rs.initiate( rsconf );
 
-// shard the cluster
+// shard the cluster to enable realtime replication
 enableShardingOnBlitzzCollection = () => {
-    authenticate();
     db.getSiblingDB("${SRCDB_ARC_USER}");
     sh.enableSharding("${SRCDB_ARC_USER}");
     sh.shardCollection("${SRCDB_ARC_USER}.usertable", {"_id" : "hashed"})

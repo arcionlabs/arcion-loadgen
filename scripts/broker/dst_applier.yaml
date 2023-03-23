@@ -4,13 +4,13 @@ snapshot:
  threads: ${DSTDB_SNAPSHOT_THREADS}
  skip-tables-on-failures : true
  _traceDBTasks: true
- replication-factor: 3  # must be 3 for the cloud
+ replication-factor: 1  # must be 1 for the testing
 
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
   _traceDBTasks: true
-  replication-factor: 3  # must be 3 for the cloud
+  replication-factor: 1  # must be 1 for the testing
 
   before-image-format: ALL  # Allowed values : KEY, ALL
   after-image-format: ALL   # Allowed values : UPDATED, ALL

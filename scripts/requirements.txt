@@ -3,4 +3,6 @@ JayDeBeApi
 libtmux
 pyyaml
 psutil
-click
+confluent-kafka
+omegaconf
+hydra-core

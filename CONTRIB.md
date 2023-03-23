@@ -34,8 +34,8 @@ chown -R 1000 .;\
 
 # Swap out volume and scripts
 
-mkdir -p ~/Downloads/arcion-demo/configs
 ```bash
+git clone https://github.com/robert-s-lee/arcion-demo
 cd arcion-demo/scripts
 mkdir -p ~/arcion-demo/logs
 mkdir -p ~/arcion-demo/configs
