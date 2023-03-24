@@ -1,5 +1,5 @@
 
-NOTE: Does not run on Apple Silicon
+NOTE: SQL Server does not run on on Apple Silicon
 
 For amd64
 ```
@@ -10,7 +10,8 @@ docker run -d --name sqlserver  --network arcnet \
     -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-for arm64
+For arm64, use Azure SQL Edge
+
 ```
 docker run -d --name sqlserver --network arcnet \
 --cap-add SYS_PTRACE \

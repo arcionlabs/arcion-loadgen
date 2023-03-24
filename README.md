@@ -2,6 +2,8 @@ This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://doc
 
 # Overview
 The diagram below depicts the components of the demo.
+More details is available on the [demo kit](./docs/README.demo.md)
+
 - Load Generator
 - Source host
 - Arcion host with dedicated metadata database
@@ -18,95 +20,52 @@ graph LR
     A1 --> T[(Target <br>Host)]
 ```
 
-A host has two database and two user IDs.  The Load Generator is setup to use `arcsrc` username and write to `arcsrc` database.
+# How to Run a Demo
 
-```mermaid
-graph LR
-    L[Load Generator<br>sysbench<br>YCSB] --> arcsrc
-    subgraph Source Host
-        arcsrc
-        arcdst
-    end
-   
-```
-
-Data is replicated from `arcsrc` to `arcdst` database.
-
-```mermaid
-graph LR
-    subgraph Target
-        das[Target arcsrc]
-        dad[Target arcdst]
-    end   
-    subgraph Source
-        sas[Source arcsrc]
-        sad[Source arcdst]
-    end
-    sas --> Arcion
-    Arcion --> dad
- 
-```
-
-Source and Target can be the same host. `arcsrc` database is replicated to `arcdst` database.
-
-```mermaid
-graph TB
-    subgraph Host
-        arcsrc
-        arcdst
-    end   
-    arcsrc --> Arcion
-    Arcion --> arcdst
- 
-```
-
-# Demo data source and targets
-
-Arcion has the following replication types: 
-- `snapshot` does bulk export and import
-- `real-time` does CDC
-- `full` does `snapahot` + `realtime`
-- `delta-snapshot` does export at 10 sec intervals
-
-## Source 
-Database sources that support `snapshot`, `real-time` and `full`
-- MariaDB
-- MySQL
-- Postgres
-- Kafka (works as destination for now)
-- MongoDB (works as destination for now)
-
-Data sources that support `snapshot` and potentially `delta-snapshot`:
-- SingleStore
-- YugaByteSQL
-
-The above sources work as destinations as well.  For example:
+The demo can be run with as follows:
 
 ```bash
-SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=mysql DSTDB_HOST=mariadb REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=postgresql DSTDB_HOST=broker REPL_TYPE=snapshot ./menu.sh
-
-SRCDB_HOST=postgresql DSTDB_HOST=mongodb REPL_TYPE=snapshot ./menu.sh
+./arcdemo.sh {arcion replication} {source} {destination}
 ```
 
-Databases such as DB2, Oracle, SQL Server, Sybase will be added to the demo in the future.  
+Some simple examples demo runs:
 
-## Target
+```bash
+./arcdemo.sh snapshot mysql mysql
+./arcdemo.sh real-time mysql mariadb
+./arcdemo.sh full postgresql broker
+./arcdemo.sh delta-snapshot postgresql mongodb
+```
 
-All databases can be targets
+-  Replication Type
+Arcion has the following replication types.
+
+    - `snapshot` does bulk export and import
+    - `real-time` does CDC
+    - `full` does `snapahot` + `realtime`
+    - `delta-snapshot` does export at 10 sec intervals
+
+- Source and Destinations
+    - mysql, mariadb, singlestore
+    - postgresql, yugabyte
+    - oracle
+    - sqlserver
+    - sybase
+    - mongodb
+    - kafka on-prem, confluent cloud
 
 # CLI Demo Instructions
+
+The `arcdemo.sh` are entered on the top panel highlighted below.
+Use mouse to click Tmux windows and panes.
 
 ![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
 
 [asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
-Below instructions assume MacOS and Linux.  For the Windows users, use the single line version of the commands without the `\`
+# Demo Install Steps
 
-# Minimal Demo Docker Setup
+Below instructions assume Linux, Mac and Linux and Windows WSL2.
 
 ## Get Arcion License
 
@@ -130,7 +89,7 @@ if [ -f ~/.bashrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> 
 docker network create arcnet
 ```
 
-## Postgres
+## Postgres for Arcion UI and Source / Target
 
 Postgres will be used for:
 - Arcion's UI
@@ -195,77 +154,77 @@ docker run -d --name arcion-ui \
 docker logs arcion-ui
 ```    
 
-# Other databases that can be setup as source and targets
+# Other Sources and Destinations
 
-- [Kafka on-prem](./README.kafka.md)
-- [Kafka Confluent Cloud](./README.kafka.md)
-- [MariaDB](./README.maria.md)
-- [MySQL](./README.mysql.md)
-- [MongoDB](./README.mongodb.md)
-- [SingleStore](./README.singlestore.md)
-- [YugabyteSQL](./README.yugabyte.md)
+- [Kafka on-prem](./docs/README.kafka.md)
+- [Kafka Confluent Cloud](./docs/README.kafka.md)
+- [MariaDB](./docs/README.maria.md)
+- [MySQL](./docs/README.mysql.md)
+- [MongoDB](./docs/README.mongodb.md)
+- [SingleStore](./docs/README.singlestore.md)
+- [SQL Server](./docs/README.sqlserver.md)
+- [YugabyteSQL](./docs/README.yugabyte.md)
 
 # Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
-- [Minio](./README.minio.md)
-- [Oracle](./README.oracle.md)
-- [Redis](./README.redis.md)
+- [Informix](./docs/README.informix.md)
+- [Minio](./docs/README.minio.md)
+- [Oracle](./docs/README.oracle.md)
+- [Redis](./docs/README.redis.md)
 
 # Deprecated
 
 Below has worked in the past, but no longer working with Arcion at the moment.
 
-- [CockroachDB](./README.cockroach.md)
+- [CockroachDB](./docs/README.cockroach.md)
 
-# Running the CLI demo
+# Getting around the Demo Kit
 
-Open a browser with tabs for [Arcion CLI](http://localhost:7681)
+## Changing Scale and Performance
 
-[tmux](https://man7.org/linux/man-pages/man1/tmux.1.html) is used in this console. Useful `tmux` commands are:
+The demo kit is setup to use 1 CPU and generated 1 TPS by default.
+Use the following to change the CPUs and TPS.
 
-In the console windows, type the following for fully automated mode.
+For exmaple:
 
-- run mysql source and target with Arcion snapshot mode
-```bash
-SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=snapshot ./menu.sh
 ```
-- run mysql source and target with Arcion real-time mode
-```bash
-SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=real-time ./menu.sh
-```
-- run mysql source and target with Arcion real-time mode
-```bash
-SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=delta-snapshot ./menu.sh
-```
-- run mysql source and target with Arcion full mode
-```bash
-SRCDB_HOST=mysql DSTDB_HOST=mysql REPL_TYPE=full ./menu.sh
-```
-  NOTE: This mode does not stop.  type `pkill java` to stop the process.
+# uses 1 CPU for snapshot extract, 2 CPU for apply
+./arcdemo.sh -b 1:2 snapshot sqlserver broker/confluent
 
-- run in interactive mode where system asks for source and target
-```bash
-unset SRCDB_HOST SRCDB_TYPE DSTDB_HOST DSTDB_TYPE REPL_TYPE; ./menu.sh
+# generate 100 TPS of sysbench and YCSB
+./arcdemo.sh -r 100 snapshot sqlserver broker/confluent
 ```
-# view Conole, Cfg and Logs
 
-- To Stop the Run
+Full usage options and the default values:
+```
+./arcdemo.sh: arcdemo [snapshot|real-time|full|delta-snapshot] [src_hostname_uri] [dst_hostname]
+  flags
+    -g run using GUI=0
+  params
+    -b snapshot_thread_ratio=1:1
+    -c cdc_thread_ratio=1:1
+    -f cfg_dir=
+    -m max_cpus=20
+    -r workload_rate=1
+    -t workload_threads=1
+    -w workload_timer=600
+    -s workload_size_factor=1
+```
 
-1. press `[Ctrl + b]`, then `3` 
-2. type `pkill java`
-3. press `[Ctrl + b]`, then `0` 
+
+## View Conole, Cfg and Logs
 
 - Console View after successful run
 
-`[Ctrl + b]` then `0` for the Arcion YAML files.
+`[Ctrl + b]` then `0` for the demo console.
 
 ![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.14%20AM.png)
 
 - `[Ctrl + b]` then `1` for the Arcion YAML files.
 
-Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) directory tree view to navigate.
+  Use [vi](https://manpages.ubuntu.com/manpages/xenial/man1/nvi.1.html) directory tree view to navigate.
 
 ![Arcion YAML](./resources/images/cli/Screenshot%202023-01-26%20at%2010.10.37%20AM.png)
 

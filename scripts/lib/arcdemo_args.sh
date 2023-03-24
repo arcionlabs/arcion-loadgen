@@ -83,7 +83,7 @@ function arcdemo_opts() {
             t ) export workload_threads="$OPTARG" ;;
             w ) export workload_timer="$OPTARG" ;;
             s ) export workload_size_factor="$OPTARG" ;;
-            h | * ) export arcdemo_usage; exit 1 ;;
+            h | * ) arcdemo_usage; exit 1 ;;
       esac
   done
   # basic validataion of values
