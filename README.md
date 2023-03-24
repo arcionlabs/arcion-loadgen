@@ -156,14 +156,19 @@ docker logs arcion-ui
 
 # Other Sources and Destinations
 
+## Docker Based
+
 - [Kafka on-prem](./docs/README.kafka.md)
-- [Kafka Confluent Cloud](./docs/README.kafka.md)
 - [MariaDB](./docs/README.maria.md)
 - [MySQL](./docs/README.mysql.md)
 - [MongoDB](./docs/README.mongodb.md)
 - [SingleStore](./docs/README.singlestore.md)
 - [SQL Server](./docs/README.sqlserver.md)
 - [YugabyteSQL](./docs/README.yugabyte.md)
+
+## Cloud Based
+
+- [Kafka Confluent Cloud](./docs/README.kafka.md#kafka-cloud-confluent)
 
 # Work In Progress
 
