@@ -4,7 +4,7 @@
 https://docs.singlestore.com/db/v7.8/en/deploy/singlestoredb-dev-image.html for singlestore
 ```
 docker run --net mynet --name singlestore -i --init \
-    -e LICENSE_KEY="BDJiMzQwZmMxOGUyMzQxNGQ4N2Y3Nzk2NDNjMjU3OWM5AAAAAAAAAAAEAAAAAAAAACgwNQIZAO3cgLHC5OhS5dlb1T1a3bEPw/hQNwiCJAIYEjNHJ1v2B3nJfjcflChO9YrpERGxs3ioAA==" \
+    -e LICENSE_KEY="$SINGLESTORE_LIC" \
     -e ROOT_PASSWORD="password" \
     -p 3306:3306 -p 8081:8080 \
     singlestore/cluster-in-a-box
