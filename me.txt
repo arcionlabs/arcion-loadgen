@@ -1,2 +1,0 @@
-
-java -jar benchbase.jar -b tpcc -c /tmp/arcion/2733_mysql_singlestore_snapshot/sample_tpcc_config.xml --create=true --load=true --execute=true
