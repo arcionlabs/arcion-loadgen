@@ -2,7 +2,7 @@ This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://doc
 
 # Overview
 The diagram below depicts the components of the demo.
-More details is available on the [demo kit](./README.demo.md)
+More details is available on the [demo kit](./docs/README.demo.md)
 
 - Load Generator
 - Source host
@@ -156,29 +156,29 @@ docker logs arcion-ui
 
 # Other Sources and Destinations
 
-- [Kafka on-prem](./README.kafka.md)
-- [Kafka Confluent Cloud](./README.kafka.md)
-- [MariaDB](./README.maria.md)
-- [MySQL](./README.mysql.md)
-- [MongoDB](./README.mongodb.md)
-- [SingleStore](./README.singlestore.md)
-- [SQL Server](./README.sqlserver.md)
-- [YugabyteSQL](./README.yugabyte.md)
+- [Kafka on-prem](./docs/README.kafka.md)
+- [Kafka Confluent Cloud](./docs/README.kafka.md)
+- [MariaDB](./docs/README.maria.md)
+- [MySQL](./docs/README.mysql.md)
+- [MongoDB](./docs/README.mongodb.md)
+- [SingleStore](./docs/README.singlestore.md)
+- [SQL Server](./docs/README.sqlserver.md)
+- [YugabyteSQL](./docs/README.yugabyte.md)
 
 # Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
-- [Informix](./README.informix.md)
-- [Minio](./README.minio.md)
-- [Oracle](./README.oracle.md)
-- [Redis](./README.redis.md)
+- [Informix](./docs/README.informix.md)
+- [Minio](./docs/README.minio.md)
+- [Oracle](./docs/README.oracle.md)
+- [Redis](./docs/README.redis.md)
 
 # Deprecated
 
 Below has worked in the past, but no longer working with Arcion at the moment.
 
-- [CockroachDB](./README.cockroach.md)
+- [CockroachDB](./docs/README.cockroach.md)
 
 # Getting around the Demo Kit
 
