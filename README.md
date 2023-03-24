@@ -54,15 +54,6 @@ Arcion has the following replication types.
     - mongodb
     - kafka on-prem, confluent cloud
 
-# CLI Demo Instructions
-
-The `arcdemo.sh` are entered on the top panel highlighted below.
-Use mouse to click Tmux windows and panes.
-
-![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
-
-[asciinema](https://asciinema.org/a/554683) of typing the below commands.
-
 # Demo Install Steps
 
 Below instructions assume Linux, Mac and Linux and Windows WSL2.
@@ -186,6 +177,15 @@ Below has worked in the past, but no longer working with Arcion at the moment.
 - [CockroachDB](./docs/README.cockroach.md)
 
 # Getting around the Demo Kit
+
+## CLI Demo Instructions
+
+The `arcdemo.sh` are entered on the top panel highlighted below.
+Use mouse to click Tmux windows and panes.
+
+![console](./resources/images/cli/Screenshot%202023-01-26%20at%2010.08.03%20AM.png)
+
+[asciinema](https://asciinema.org/a/554683) of typing the below commands.
 
 ## Changing Scale and Performance
 
