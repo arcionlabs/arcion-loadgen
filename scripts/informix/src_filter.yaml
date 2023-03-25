@@ -1,8 +1,7 @@
 allow:
 - catalog: "${SRCDB_ARC_USER}"
-  schema: "dbo"
+  schema: "${SRCDB_SCHEMA}" 
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
     usertable:
-    sbtest1:

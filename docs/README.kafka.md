@@ -1,5 +1,5 @@
 
-## Kafka Local
+## Kafka 2 node local setup
 
 An exmaple of real-time replication from mysql to kafka broker
 

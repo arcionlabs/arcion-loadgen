@@ -1,14 +1,23 @@
-type: SQLSERVER
+type: INFORMIX
 
 host: ${SRCDB_HOST}
-port: 1433
+port: 9088  # In case of SSL connection use SSL port
 
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
-database: ${SRCDB_ARC_USER}
+server: '${SRCDB_HOST}'
+database: '${SRCDB_ARC_USER}'
+
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
+
+# for CDC
+informix-user-password: '${SRCDB_ROOT_PW}'
+
+lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
+
+#ssl:
+#  trust-store: 
+#    path: "/home/informix/ssl/truststore.jks" 
+#    password: "in4mix"
 
 max-connections: 30
-
-# real-time and full only
-extractor: CHANGE # {CHANGE|LOG}
 

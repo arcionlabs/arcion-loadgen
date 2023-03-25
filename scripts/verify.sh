@@ -42,7 +42,7 @@ top10_query() {
             DB_CLI="${JSQSH_DIR}/*/bin/jsqsh --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_ARC_USER}"
         ;;    
         *)
-            echo "verify.sh: Error: ${DB_GRP} needs to be supported" >&2
+            echo "verify.sh: Info: ${DB_GRP} needs to be supported" >&2
             ;;
     esac
 }

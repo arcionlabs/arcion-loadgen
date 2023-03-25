@@ -141,16 +141,18 @@
    </connection>
 
    <connection name="insrc"
-               driver="db2"
+               driver="informix"
                server="informix"
+               port="9088"
    >
       <username><![CDATA[arcsrc]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
       <catalog><![CDATA[arcsrc]]></catalog>
    </connection>
    <connection name="indst"
-               driver="db2"
+               driver="informix"
                server="informix"
+               port="9088"
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
@@ -173,5 +175,13 @@
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
       <catalog><![CDATA[arcdst]]></catalog>
    </connection>
-
+   <connection name="insrc"
+               driver="informix"
+               server="informix"
+               port="9088"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
+      <catalog><![CDATA[arcsrc]]></catalog>
+   </connection>
 </connections>

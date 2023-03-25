@@ -1,10 +1,25 @@
-type: SQLSERVER
+type: INFORMIX
 
 host: ${DSTDB_HOST}
-port: 1433
+port: 9088  # In case of SSL connection use SSL port
 
-username: ${DSTDB_ARC_USER}
-password: ${DSTDB_ARC_PW}
-database: ${DSTDB_ARC_USER}
+server: '${DSTDB_HOST}'
+database: '${DSTDB_ARC_USER}'
+
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
+informix-user-password: '${DSTDB_ARC_PW}'
+
+lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
+
+#stage:
+#  type: SHARED_FS
+#  root-dir: /data/shared_fs
+
+#ssl:
+#  trust-store: 
+#    path: "/home/informix/ssl/truststore.jks" 
+#    password: "in4mix"
 
 max-connections: 30
+

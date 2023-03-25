@@ -21,6 +21,14 @@ export DSTDB_JSQSH_DRIVER
 set_jdbc_vars() {
 
 case "${SRCDB_GRP,,}" in
+  informix)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="informix"
+    SRCDB_JDBC_DRIVER="com.informix.jdbc.IfxDriver"
+    SRCDB_JDBC_URL="jdbc:informix-sqli://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:informix-sqli://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"   
+    SRCDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
+    ;;
   mysql)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="mysql"
@@ -60,6 +68,14 @@ case "${SRCDB_GRP,,}" in
 esac
 
 case "${DSTDB_GRP,,}" in
+  informix)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="informix"
+    DSTDB_JDBC_DRIVER="com.informix.jdbc.IfxDriver"
+    DSTDB_JDBC_URL="jdbc:informix-sqli://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:informix-sqli://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"   
+    DSTDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
+    ;;
   mysql)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="mysql"
