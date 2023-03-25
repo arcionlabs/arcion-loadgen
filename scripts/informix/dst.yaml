@@ -21,5 +21,6 @@ lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout 
 #    path: "/home/informix/ssl/truststore.jks" 
 #    password: "in4mix"
 
-max-connections: 30
-
+# Warning: The IBM IDS Developer Edition license restriction limits
+# the number of connections to this server to 25.
+max-connections: 15

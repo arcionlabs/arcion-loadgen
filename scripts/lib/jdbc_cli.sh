@@ -41,7 +41,7 @@ list_tables() {
     local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
         ;;
     *)
-        echo "$0: ${DB_TYPE,,} needs to be handled."
+        echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
         ;;
     esac
     if [ ! -z "$DB_SQL" ]; then
@@ -73,7 +73,7 @@ list_columns() {
             
             ;;
         *)
-            echo "$0: ${DB_TYPE,,} needs to be handled."
+            echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
             ;;
     esac
 

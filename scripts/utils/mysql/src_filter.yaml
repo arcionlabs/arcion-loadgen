@@ -5,4 +5,4 @@ allow:
   allow:
     # all of the tables are scoped up automatically
     usertable:
-    sbtest1:
+    # sbtest1:

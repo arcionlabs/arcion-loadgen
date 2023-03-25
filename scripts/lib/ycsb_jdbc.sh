@@ -70,10 +70,11 @@ ycsb_rows_dst() {
 }
 
 ycsb_select_key() {
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
   local ycsb_key="$1"
+  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli "-n -v headers=false -v footers=false"
+  # HACK: Informix sends "^WARN in the output"
+  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli_src "-n -v headers=false -v footers=false" | grep -v "^WARN"
 }
 
 ycsb_load() {    
@@ -128,12 +129,13 @@ ycsb_load_sf() {
     # ycsb key are padded 11 digits
     ycsb_key=$(printf user%0${const_ycsb_zeropadding}d ${ycsb_insertstart})
 
+
     # key already there? 
     echo -n "YCSB: Checking existance of ycsb_key ${ycsb_key}"
     key_found=$( ycsb_select_key $ycsb_key )
-
+    
     # insert if not found
-    if [ ! -z "${key_found}" ]; then 
+    if [ -z "${key_found}" ]; then 
       echo " not found.  start insert at ${ycsb_insertstart}"
       ycsb_load ${ycsb_insertstart}
     else
