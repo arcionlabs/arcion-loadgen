@@ -155,8 +155,7 @@ function ycsb_load_src() {
 function ycsb_load_dst() { 
   ycsb_load_sf dst
 }
-
-
+ 
 ycsb_run() {
   local LOC="${1:-SRC}"        # SRC|DST
 
