@@ -47,21 +47,11 @@ function ycsb_opts() {
   [ "$args_ycsb_threads" = "0" ] && args_ycsb_threads=$(getconf _NPROCESSORS_ONLN)
 }
 
-ycsb_rows_src() {
+ycsb_rows() {
+  local LOC="${1:-src}"        # SRC|DST 
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  x=$( echo "select max(ycsb_key) from ${ycsb_table}; -m csv" | jdbc_cli_src "-n -v headers=false -v footers=false" )
-  if [ -z "$x" ]; then
-    echo "0"
-  else  
-    echo $x | sed 's/user//' | awk '{print int($1) + 1}'
-  fi
-}
-
-ycsb_rows_dst() {
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
-
-  x=$( echo "select max(ycsb_key) from ${ycsb_table}; -m csv" | jdbc_cli_dst "-n -v headers=false -v footers=false" )
+  x=$( echo "select max(ycsb_key) from ${ycsb_table}; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false" )
   if [ -z "$x" ]; then
     echo "0"
   else  
@@ -70,11 +60,11 @@ ycsb_rows_dst() {
 }
 
 ycsb_select_key() {
-  local ycsb_key="$1"
+  local LOC="${1:-src}"        # SRC|DST 
+  local ycsb_key="$2"
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  # HACK: Informix sends "^WARN in the output"
-  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli_src "-n -v headers=false -v footers=false" | grep -v "^WARN"
+  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
 
 ycsb_load() {    
@@ -89,7 +79,8 @@ ycsb_load() {
     postgresql)
       jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
-    #sqlserver)
+    # Does not improve perforamnce when autocommit=false
+    # sqlserver)
     #  jdbc_url="${jdbc_url};useBulkCopyForBatchInsert=true"
     #  ;;
   esac 
@@ -115,12 +106,24 @@ ycsb_load() {
 }
 
 ycsb_load_sf() {
+  local LOC="${1:-SRC}"        # SRC|DST
+
+  local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  local jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
+  local jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )  
+
+  local ycsb_size_factor=${workload_size_factor}
+
   local ycsb_size_factor=${ycsb_size_factor:-${default_ycsb_size_factor}}
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
   local ycsb_key 
   local key_found
   local i
-  local ycsb_key_start=$(( $(ycsb_rows_src) / const_ycsb_recordcount ))
+  local ycsb_key_start=$(( $(ycsb_rows $LOC) / const_ycsb_recordcount ))
 
   echo "YCSB: starting from size factor $ycsb_key_start to ${ycsb_size_factor}"
 
@@ -129,11 +132,10 @@ ycsb_load_sf() {
     # ycsb key are padded 11 digits
     ycsb_key=$(printf user%0${const_ycsb_zeropadding}d ${ycsb_insertstart})
 
-
     # key already there? 
     echo -n "YCSB: Checking existance of ycsb_key ${ycsb_key}"
-    key_found=$( ycsb_select_key $ycsb_key )
-    
+    key_found=$( ycsb_select_key $LOC $ycsb_key )
+
     # insert if not found
     if [ -z "${key_found}" ]; then 
       echo " not found.  start insert at ${ycsb_insertstart}"
@@ -147,39 +149,29 @@ ycsb_load_sf() {
 }
 
 function ycsb_load_src() { 
-  local db_host="${SRCDB_HOST}"  
-  local db_port="${SRCDB_PORT}"  
-  local db_user="${SRCDB_ARC_USER}"
-  local db_pw="${SRCDB_ARC_PW}"
-  local db_grp=${SRCDB_GRP}
-  local jdbc_url="${SRCDB_JDBC_URL}"
-  local jdbc_driver="${SRCDB_JDBC_DRIVER}"
-
-  local ycsb_size_factor=${workload_size_factor}
-
-  ycsb_load_sf
+  ycsb_load_sf src
 }
 
 function ycsb_load_dst() { 
-  local db_host="${DSTDB_HOST}"  
-  local db_port="${DSTDB_PORT}"  
-  local db_user="${DSTDB_ARC_USER}"
-  local db_pw="${DSTDB_ARC_PW}"
-  local db_grp=${DSTDB_GRP}
-  local jdbc_url="${DSTDB_JDBC_URL}"
-  local jdbc_driver="${DSTDB_JDBC_DRIVER}"
- 
-  local ycsb_size_factor=${workload_size_factor}
-
-  ycsb_load_sf
+  ycsb_load_sf dst
 }
 
 
 ycsb_run() {
-  local ycsb_rate=${ycsb_rate:-${default_ycsb_rate}}
-  local ycsb_threads=${ycsb_threads:-${default_ycsb_threads}}
-  local ycsb_timer=${ycsb_timer:-${default_ycsb_timer}}
+  local LOC="${1:-SRC}"        # SRC|DST
+
+  local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  local jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
+  local jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
+
+  local ycsb_rate=${workload_rate:-${default_ycsb_rate}}
+  local ycsb_threads=${workload_threads:-${default_ycsb_threads}}
+  local ycsb_timer=${workload_timer:-${default_ycsb_timer}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
+
+  local ycsb_recordcount=$(( $(ycsb_rows_dst) ))
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
@@ -214,31 +206,9 @@ ycsb_run() {
 }
 
 function ycsb_run_src() {
-  local db_user="${SRCDB_ARC_USER}"
-  local db_pw="${SRCDB_ARC_PW}"
-  local db_grp=${SRCDB_GRP}
-  local jdbc_url="${SRCDB_JDBC_URL}"
-  local jdbc_driver="${SRCDB_JDBC_DRIVER}"
-  local ycsb_recordcount=$(( $( ycsb_rows_src ) ))
-
-  local ycsb_rate=${workload_rate}
-  local ycsb_threads=${workload_threads}
-  local ycsb_timer=${workload_timer}
-
-  ycsb_run
+  ycsb_run src
 }
 
 function ycsb_run_dst() {
-  local db_user="${DSTDB_ARC_USER}"
-  local db_pw="${DSTDB_ARC_PW}"
-  local db_grp=${DSTDB_GRP}
-  local jdbc_url="${DSTDB_JDBC_URL}"
-  local jdbc_driver="${DSTDB_JDBC_DRIVER}"
-  local ycsb_recordcount=$(( $(ycsb_rows_dst) ))
-
-  local ycsb_rate=${workload_rate}
-  local ycsb_threads=${workload_threads}
-  local ycsb_timer=${workload_timer}
-  
-  ycsb_run
+  ycsb_run dst
 }

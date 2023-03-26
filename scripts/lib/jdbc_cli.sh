@@ -5,27 +5,23 @@ export JSQSH_CSV="-n -v headers=false -v footers=false"
 # informix hints from https://code.activestate.com/recipes/576621/
 
 jdbc_cli() { 
-  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}" 2>&1
+  local LOC="${1:-src}" # SRC|DST
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
+  local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
+  shift
+
+  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}"
 }
 
 jdbc_cli_src() {
-  local db_host="${SRCDB_HOST}"  
-  local db_user="${SRCDB_ARC_USER}"
-  local db_pw="${SRCDB_ARC_PW}"
-  local db_port="${SRCDB_PORT}"
-  local jsqsh_driver="${SRCDB_JSQSH_DRIVER}"
-
-  jdbc_cli "$*"
+  jdbc_cli src "$*"
 }
 
 jdbc_cli_dst() {
-  local db_host="${DSTDB_HOST}"  
-  local db_user="${DSTDB_ARC_USER}"
-  local db_pw="${DSTDB_ARC_PW}"
-  local db_port="${DSTDB_PORT}"
-  local jsqsh_driver="${DSTDB_JSQSH_DRIVER}"
-
-  jdbc_cli "$*"
+  jdbc_cli dst "$*"
 }
 
 list_tables() {
@@ -52,7 +48,7 @@ list_tables() {
     esac
     echo $DB_SQL
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^WARN " | sed 's/^BASE TABLE/TABLE/'
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
     fi
 }
 
@@ -88,7 +84,7 @@ list_columns() {
 
     # grab the column names
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" -e "^WARN " 
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" 
     fi
 }
 
@@ -119,7 +115,7 @@ dump_table() {
         informix)      
             local parts=$( seq 1 1 16 | xargs -I % echo part% | paste -s -d, )
             local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_ARC_USER}' and si.tabid >= 100"              
-            local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" -e "^WARN" | paste -s -d, )
+            local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
             col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_ARC_USER}' and t.tabid >= 100 order by c.colname" 
             ;;
         *)
@@ -128,21 +124,21 @@ dump_table() {
     esac
 
     # DEBUG: echo "$col_pk_sql"
-    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | grep -v -e "^WARN" | paste -s -d, )
-    # DEBUG: echo "$col_names_pk"
+    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
+    # DEBUG:echo "$col_names_pk"
     
     # if there is no primary key, then just sort by all of the columns
     if [ -z "${col_names_pk}" ]; then 
         # show the column names to be validated
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^WARN " | sort > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
     else 
         # show the column names to be validated
         col_names_pk="order by ${col_names_pk}"
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^WARN " > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
     fi
     echo "${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv" >&2 
 }

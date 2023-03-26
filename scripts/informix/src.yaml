@@ -21,5 +21,5 @@ lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout 
 
 # Warning: The IBM IDS Developer Edition license restriction limits
 # the number of connections to this server to 25.
-max-connections: 15
-
+max-connections: 10
+max-retries: 1
