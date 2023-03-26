@@ -2,6 +2,8 @@
 
 export JSQSH_CSV="-n -v headers=false -v footers=false"
 
+# informix hints from https://code.activestate.com/recipes/576621/
+
 jdbc_cli() { 
   ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}" 2>&1
 }
@@ -40,6 +42,10 @@ list_tables() {
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
         ;;
+        informix)
+    local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM informix.systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and AND t.tabid >= 100 order by table_name;"
+        ;;
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
         ;;
@@ -70,7 +76,9 @@ list_columns() {
             ;;
         postgresql|sqlserver)
             DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by column_name;"
-            
+            ;;
+        informix)
+            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_SCHEMA}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by column_name;"
             ;;
         *)
             echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
@@ -100,6 +108,24 @@ dump_table() {
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
 
+
+    local parts=$( seq 1 1 16 | xargs -n1 -I% echo part% | paste -s -d, )
+    local PK_COLS = "select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='usertable' and owner='arcsrc' and si.tabid > 100"
+     AND si.idxname = sc.idxname"
+    local KEYS_INFO_SQL = "select tabname, a.colname 
+        from sysconstraints sc, systables st, sysindexes si,  , syscolumns a
+        WHERE st.tabid >= 100
+        AND tabtype='T'
+        AND tabname[1] <> '_'
+        AND sc.tabid = st.tabid
+        and st.tabid = si.tabid
+        AND si.idxname = sc.idxname
+        AND sc.constrtype='P'
+        and a.colno = part1
+        and st.owner='arcsrc'
+        and st.tabname='a'
+        ORDER BY tabname, a.colname"
+
     case ${DB_GRP,,} in
         mysql)            
             col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
@@ -107,6 +133,9 @@ dump_table() {
         postgresql|sqlserver)            
             col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
             ;;
+        informix)            
+
+
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
             ;;
