@@ -3,7 +3,7 @@
 export JSQSH_CSV="-n -v headers=false -v footers=false"
 
 # informix hints from https://code.activestate.com/recipes/576621/
-
+ 
 jdbc_cli() { 
   local LOC="${1:-src}" # SRC|DST
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
