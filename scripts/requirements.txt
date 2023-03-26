@@ -4,6 +4,7 @@ pyyaml
 psutil
 omegaconf
 hydra-core
+streamlit
 # CDC load generator in lieu of Python JDBC Bridge
 # JayDeBeApi
 # failing on buildx

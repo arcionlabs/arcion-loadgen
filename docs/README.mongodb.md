@@ -1,8 +1,14 @@
 ## MongoDB
 
-- ssl and replication set are required for Arcion Snapshot.
-- sharding is required for Arcion Real Time support.
- 
+Note that:
+- Arcion Snapshot requires ssl and replication set
+    - 3 nodes are minimum
+- Arcion Real Time requires sharding
+    - 1 additional node is required
+
+https://www.mongodb.com/docs/manual/tutorial/deploy-shard-cluster/
+
+### SSL and Replication Set
 
 ```bash
 mkdir keyfile
@@ -11,6 +17,15 @@ chmod 400 keyfile/mongodb.keyfile
 ```
 
 ```bash
+docker run -d \
+    --name mongodbcfg \
+    --network arcnet \
+    -e MONGO_INITDB_ROOT_USERNAME=root \
+    -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
+    -p :27017 \
+    mongo mongod --replSet rs0 --configsvr 
+
+
 docker run -d \
     --name mongodb \
     --network arcnet \
@@ -48,6 +63,9 @@ docker run -d \
     -p 18081:8081 \
     mongo-express 
 ```
+
+### Sharding
+
 
 As noted in [MongoDB's Docker Hub documentation](https://hub.docker.com/_/mongo),
 "authentication in MongoDB is fairly complex (although disabled by default)".  

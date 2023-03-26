@@ -18,4 +18,12 @@
       <Variable name="server"><![CDATA[localhost]]></Variable>
       <Variable name="port"><![CDATA[4100]]></Variable>
    </Driver>
+   <Driver name="informix"
+           url="jdbc:informix-sqli://${server}:${port}#if($db)/${db}#end"
+           class="com.informix.jdbc.IfxDriver"
+           target="informix"
+           analyzer="org.sqsh.analyzers.ANSIAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+   </Driver>
 </Drivers>
+

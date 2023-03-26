@@ -8,7 +8,7 @@ if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  mysql|postgresql|sqlserver)
+  mysql|postgresql|sqlserver|informix)
     ycsb_run_src
 ;;
   mongodb)

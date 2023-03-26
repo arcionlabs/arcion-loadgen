@@ -16,7 +16,7 @@ realtime:
   heartbeat:
     enable: true
     catalog: ${SRCDB_ARC_USER}
-    schema: dbo
+    schema: ${SRCDB_SCHEMA}
 
 delta-snapshot:
   threads: ${DSTDB_DELTA_SNAPSHOT_THREADS}

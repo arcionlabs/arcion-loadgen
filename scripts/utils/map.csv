@@ -11,3 +11,4 @@ sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED
 oracle,oracle,1521,system,Passw0rd,ORACLE,TRANSACTION_READ_COMMITTED
 kafka,kafka,29092,root,Passw0rd,,TRANSACTION_READ_COMMITTED
 broker,kafka,29092,root,Passw0rd,,TRANSACTION_READ_COMMITTED
+informix,informix,9088,informix,in4mix,,TRANSACTION_READ_COMMITTED

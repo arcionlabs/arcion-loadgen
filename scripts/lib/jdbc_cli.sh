@@ -2,28 +2,26 @@
 
 export JSQSH_CSV="-n -v headers=false -v footers=false"
 
+# informix hints from https://code.activestate.com/recipes/576621/
+ 
 jdbc_cli() { 
-  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}" 2>&1
+  local LOC="${1:-src}" # SRC|DST
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
+  local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
+  shift
+
+  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}"
 }
 
 jdbc_cli_src() {
-  local db_host="${SRCDB_HOST}"  
-  local db_user="${SRCDB_ARC_USER}"
-  local db_pw="${SRCDB_ARC_PW}"
-  local db_port="${SRCDB_PORT}"
-  local jsqsh_driver="${SRCDB_JSQSH_DRIVER}"
-
-  jdbc_cli "$*"
+  jdbc_cli src "$*"
 }
 
 jdbc_cli_dst() {
-  local db_host="${DSTDB_HOST}"  
-  local db_user="${DSTDB_ARC_USER}"
-  local db_pw="${DSTDB_ARC_PW}"
-  local db_port="${DSTDB_PORT}"
-  local jsqsh_driver="${DSTDB_JSQSH_DRIVER}"
-
-  jdbc_cli "$*"
+  jdbc_cli dst "$*"
 }
 
 list_tables() {
@@ -40,10 +38,15 @@ list_tables() {
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
         ;;
+        informix)
+    local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname;"
+        ;;
     *)
-        echo "$0: ${DB_TYPE,,} needs to be handled."
+        echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
         ;;
     esac
+    echo $DB_SQL
     if [ ! -z "$DB_SQL" ]; then
         echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
     fi
@@ -66,20 +69,22 @@ list_columns() {
 
     case ${DB_GRP,,} in
         mysql)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_ARC_USER}' and table_name='${TABLE_NAME}' order by column_name;"
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_ARC_USER}' and table_name='${TABLE_NAME}' order by ordinal_position;"
             ;;
         postgresql|sqlserver)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by column_name;"
-            
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by ordinal_position;"
+            ;;
+        informix)
+            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_SCHEMA}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by colno;"
             ;;
         *)
-            echo "$0: ${DB_TYPE,,} needs to be handled."
+            echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
             ;;
     esac
 
     # grab the column names
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^${REMOVE_COLS}"
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" 
     fi
 }
 
@@ -87,7 +92,7 @@ list_columns() {
 dump_table() {
     local LOC="${1:-SRC}"        # SRC|DST
     local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
-    local col_names=${3:-$( list_columns $LOC $TABLE_NAME | sort | paste -s -d, )}
+    local col_names=${3:-$( list_columns $LOC $TABLE_NAME | paste -s -d, )}
     local REMOVE_COLS=${3:-ts2}
 
     # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
@@ -102,18 +107,26 @@ dump_table() {
 
     case ${DB_GRP,,} in
         mysql)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
             ;;
         postgresql|sqlserver)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
+            ;;
+        informix)      
+            local parts=$( seq 1 1 16 | xargs -I % echo part% | paste -s -d, )
+            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_ARC_USER}' and si.tabid >= 100"              
+            local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
+            col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_ARC_USER}' and t.tabid >= 100 order by c.colname" 
             ;;
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
             ;;
     esac
 
-    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v ${REMOVE_COLS} | paste -s -d, )
-
+    # DEBUG: echo "$col_pk_sql"
+    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
+    # DEBUG:echo "$col_names_pk"
+    
     # if there is no primary key, then just sort by all of the columns
     if [ -z "${col_names_pk}" ]; then 
         # show the column names to be validated

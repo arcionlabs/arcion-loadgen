@@ -11,7 +11,7 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 # bail if sysbench is not installed
 which sysbench > /dev/null 2>&1
 if [ $? != "0" ]; then
-    echo "Error: sysbench not found.  Try 'sudo apt-get install sysbench' or 'brew install sysbench'"
+    echo "Warning: sysbench not found.  Try 'sudo apt-get install sysbench' or 'brew install sysbench'"
     exit 1
 fi
 
