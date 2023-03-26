@@ -44,14 +44,15 @@ list_tables() {
         ;;
         informix)
     local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
-    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM informix.systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and AND t.tabid >= 100 order by table_name;"
+    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname;"
         ;;
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
         ;;
     esac
+    echo $DB_SQL
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^WARN " | sed 's/^BASE TABLE/TABLE/'
     fi
 }
 
@@ -72,13 +73,13 @@ list_columns() {
 
     case ${DB_GRP,,} in
         mysql)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_ARC_USER}' and table_name='${TABLE_NAME}' order by column_name;"
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_ARC_USER}' and table_name='${TABLE_NAME}' order by ordinal_position;"
             ;;
         postgresql|sqlserver)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by column_name;"
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by ordinal_position;"
             ;;
         informix)
-            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_SCHEMA}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by column_name;"
+            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_SCHEMA}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by colno;"
             ;;
         *)
             echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
@@ -87,7 +88,7 @@ list_columns() {
 
     # grab the column names
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^${REMOVE_COLS}"
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" -e "^WARN " 
     fi
 }
 
@@ -95,7 +96,7 @@ list_columns() {
 dump_table() {
     local LOC="${1:-SRC}"        # SRC|DST
     local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
-    local col_names=${3:-$( list_columns $LOC $TABLE_NAME | sort | paste -s -d, )}
+    local col_names=${3:-$( list_columns $LOC $TABLE_NAME | paste -s -d, )}
     local REMOVE_COLS=${3:-ts2}
 
     # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
@@ -108,53 +109,40 @@ dump_table() {
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
 
-
-    local parts=$( seq 1 1 16 | xargs -n1 -I% echo part% | paste -s -d, )
-    local PK_COLS = "select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='usertable' and owner='arcsrc' and si.tabid > 100"
-     AND si.idxname = sc.idxname"
-    local KEYS_INFO_SQL = "select tabname, a.colname 
-        from sysconstraints sc, systables st, sysindexes si,  , syscolumns a
-        WHERE st.tabid >= 100
-        AND tabtype='T'
-        AND tabname[1] <> '_'
-        AND sc.tabid = st.tabid
-        and st.tabid = si.tabid
-        AND si.idxname = sc.idxname
-        AND sc.constrtype='P'
-        and a.colno = part1
-        and st.owner='arcsrc'
-        and st.tabname='a'
-        ORDER BY tabname, a.colname"
-
     case ${DB_GRP,,} in
         mysql)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
             ;;
         postgresql|sqlserver)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.ordinal_position;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
             ;;
-        informix)            
-
-
+        informix)      
+            local parts=$( seq 1 1 16 | xargs -I % echo part% | paste -s -d, )
+            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_ARC_USER}' and si.tabid >= 100"              
+            local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" -e "^WARN" | paste -s -d, )
+            col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_ARC_USER}' and t.tabid >= 100 order by c.colname" 
+            ;;
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
             ;;
     esac
 
-    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v ${REMOVE_COLS} | paste -s -d, )
-
+    # DEBUG: echo "$col_pk_sql"
+    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | grep -v -e "^WARN" | paste -s -d, )
+    # DEBUG: echo "$col_names_pk"
+    
     # if there is no primary key, then just sort by all of the columns
     if [ -z "${col_names_pk}" ]; then 
         # show the column names to be validated
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^WARN " | sort > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
     else 
         # show the column names to be validated
         col_names_pk="order by ${col_names_pk}"
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v "^WARN " > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
     fi
     echo "${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv" >&2 
 }
