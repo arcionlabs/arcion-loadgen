@@ -10,7 +10,7 @@ username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 
 # for CDC
-informix-user-password: '${SRCDB_ROOT_PW}'
+informix-user-password: '${SRCDB_PW}'
 
 lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
 

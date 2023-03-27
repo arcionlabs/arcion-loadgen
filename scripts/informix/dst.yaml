@@ -12,9 +12,9 @@ informix-user-password: '${DSTDB_ARC_PW}'
 
 lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
 
-#stage:
-#  type: SHARED_FS
-#  root-dir: /data/shared_fs
+stage:
+  type: SHARED_FS
+  root-dir: /data
 
 #ssl:
 #  trust-store: 

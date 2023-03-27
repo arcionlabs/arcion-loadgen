@@ -170,7 +170,7 @@ ycsb_run() {
   local ycsb_timer=${workload_timer:-${default_ycsb_timer}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  local ycsb_recordcount=$(( $(ycsb_rows_dst) ))
+  local ycsb_recordcount=$(( $(ycsb_rows $LOC) ))
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
