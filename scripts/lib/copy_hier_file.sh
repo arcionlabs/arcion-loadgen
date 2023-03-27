@@ -48,15 +48,17 @@ copy_yaml() {
     pushd ${SCRIPTS_DIR}/utils
     copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
-    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
+    copy_hier_as_flat benchbase/src sample $CFG_DIR/benchbase/src
+    copy_hier_as_flat benchbase/dst sample $CFG_DIR/benchbase/dst
     popd
 
     # override template from the src and dst configs into a flat dir
     pushd ${SCRIPTS_DIR}
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
+    copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
+    copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
-    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
     popd
 
     # override the destination specific

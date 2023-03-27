@@ -25,6 +25,10 @@ bb_chdir() {
         sqlserver)
             pushd /opt/benchbase/benchbase-sqlserver
             ;;
+        informix)
+            pushd /opt/benchbase/benchbase-informix
+            ;;
+
         *)
             echo "SRCDB_GRP: ${SRCDB_GRP} unsupported" >&2
             return 1

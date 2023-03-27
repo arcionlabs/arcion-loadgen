@@ -285,7 +285,7 @@ while [ 1 ]; do
     if [ "${DSTDB_GRP,,}" = "informix" ]; then DSTDB_SCHEMA="${DSTDB_ARC_USER}"; fi
     
     [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DB_TYPE}" )
+    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
     [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
 
     echo "Destination Host: ${DSTDB_HOST}"

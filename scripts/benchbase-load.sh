@@ -1,5 +1,6 @@
 #!/usr/bin/env bash 
-CFG_DIR=${1:-/tmp}
+LOC=${1:-SRC}
+CFG_DIR=${2:-/tmp}
 
 # load the init file
 if [ -f "${CFG_DIR}/ini_menu.sh" ]; then
@@ -15,7 +16,15 @@ fi
 
 # switch into right dir
 bb_chdir() {
-    case ${SRCDB_GRP,,} in
+    db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+    db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+    db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+    jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
+    jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
+    db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+    db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" ) 
+
+    case ${db_grp,,} in
         mysql)
             pushd /opt/benchbase/benchbase-mariadb
             ;;
@@ -25,8 +34,11 @@ bb_chdir() {
         sqlserver)
             pushd /opt/benchbase/benchbase-sqlserver
             ;;
+        informix)
+            pushd /opt/benchbase/benchbase-informix
+            ;;
         *)
-            echo "SRCDB_GRP: ${SRCDB_GRP} unsupported" >&2
+            echo "benchbase-load.sh: ${db_grp} unsupported" >&2
             return 1
             ;;
     esac        
@@ -66,5 +78,9 @@ bb_run_tables() {
     done    
 }
 
-bb_run_tables
+bb_chdir
+bb_create_tables
+bb_load_tables
+trap kill_jobs SIGINT
+wait_jobs
 popd
