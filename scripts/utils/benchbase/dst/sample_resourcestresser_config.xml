@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${DSTDB_BENCHBASE_TYPE}</type>
+    <driver>${DSTDB_JDBC_DRIVER}</driver>
+    <url>${DSTDB_JDBC_URL_BENCHBASE}</url>
+    <username>${DSTDB_ARC_USER}</username>
+    <password>${DSTDB_ARC_PW}</password>
+    <isolation>${DSTDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
+    <scalefactor>${workload_size_factor}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer}</time>
+            <rate>${workload_rate}</rate>
+            <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
+        </work>
+    </works>
+
+    <!-- R/S Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>CPU1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>CPU2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>IO1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>IO2</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Contention1</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Contention2</name>
+        </transactiontype>
+    </transactiontypes>
+
+</parameters>
