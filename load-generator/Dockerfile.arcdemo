@@ -28,6 +28,7 @@ ENV MYSQL_DIR=/opt/mysql
 ENV JSQSH_DIR=/opt/jsqsh
 ENV MINIO_DIR=/opt/minio
 ENV KAFKA_DIR=/opt/confluent
+ENV BENCHBASE_DIR=/opt/benchbase
 
 # YCSB version
 ENV YCSB_VERSION=0.17.0 \
@@ -100,16 +101,17 @@ RUN apt-get -y install wget && \
     apt-get install -y mongodb-mongosh
     
 # add YCSB with just JDBC binding
-RUN mkdir -p $OPT_DIR && chown $USERNAME $OPT_DIR
-RUN mkdir -p $YCSB && chown $USERNAME $YCSB
-RUN mkdir -p $ARCION_HOME && chown $USERNAME $ARCION_HOME
-RUN mkdir -p $VERIFICATOR_HOME && chown $USERNAME $VERIFICATOR_HOME
-RUN mkdir -p $SCRIPTS_DIR && chown $USERNAME $SCRIPTS_DIR
-RUN mkdir -p $MARIADB_DIR && chown $USERNAME $MARIADB_DIR
-RUN mkdir -p $MYSQL_DIR && chown $USERNAME $MYSQL_DIR
-RUN mkdir -p $MINIO_DIR && chown $USERNAME $MINIO_DIR
-RUN mkdir -p $JSQSH_DIR && chown $USERNAME $JSQSH_DIR
-RUN mkdir -p $KAFKA_DIR && chown $USERNAME $KAFKA_DIR
+RUN mkdir -p $OPT_DIR && chown -R $USERNAME $OPT_DIR
+RUN mkdir -p $YCSB && chown -R $USERNAME $YCSB
+RUN mkdir -p $ARCION_HOME && chown -R $USERNAME $ARCION_HOME
+RUN mkdir -p $VERIFICATOR_HOME && chown -R $USERNAME $VERIFICATOR_HOME
+RUN mkdir -p $SCRIPTS_DIR && chown -R $USERNAME $SCRIPTS_DIR
+RUN mkdir -p $MARIADB_DIR && chown -R $USERNAME $MARIADB_DIR
+RUN mkdir -p $MYSQL_DIR && chown -R $USERNAME $MYSQL_DIR
+RUN mkdir -p $MINIO_DIR && chown -R $USERNAME $MINIO_DIR
+RUN mkdir -p $JSQSH_DIR && chown -R $USERNAME $JSQSH_DIR
+RUN mkdir -p $KAFKA_DIR && chown -R $USERNAME $KAFKA_DIR
+RUN mkdir -p $BENCHBASE_DIR && chown -R $USERNAME $BENCHBASE_DIR
 
 # run as regular user beyond this point
 USER $USERNAME
@@ -123,8 +125,6 @@ RUN cd $YCSB; for b in ${YCSB_BINDING}; do curl -O --location https://github.com
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work
 COPY  scripts/utils/sysbench/oltp_common.lua /usr/share/sysbench/. 
-
-
 
 # download mariadb for the binlog reader 
 RUN cd ${MARIADB_DIR} \
@@ -178,9 +178,20 @@ RUN curl -Ls https://sh.jbang.dev | bash -s - app setup
 RUN cd /opt \
     && wget https://github.com/rapiddweller/rapiddweller-benerator-ce/releases/download/3.1.0/rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz \
     && gzip -dc rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz | tar -xvf - \
-    && chmod a+x rapiddweller-benerator-ce-3.1.0-jdk-11/bin/*
+    && chmod a+x rapiddweller-benerator-ce-3.1.0-jdk-11/bin/* \
+    && rm rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz
+
 ENV BENERATOR_HOME=/opt/rapiddweller-benerator-ce-3.1.0-jdk-11
 COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties ~/rapiddweller/demo.env.properties
+
+# benchbase
+COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
+RUN cd ${BENCHBASE_DIR} \
+    && for w in informix mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # python hydra
 RUN pip install -r scripts/requirements.txt

@@ -45,7 +45,7 @@ docker run -d --name arcion-demo \
     -e LANG=C.UTF-8 \
     -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
-    -v ~/arcion-demo/logs/:/arcion/data/ \
+    -v `pwd`/data/:/arcion/data/ \
     robertslee/arcdemo
 ```
 
