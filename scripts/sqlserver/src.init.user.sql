@@ -1,6 +1,6 @@
 ALTER DATABASE ${SRCDB_ARC_USER} SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 2 DAYS, AUTO_CLEANUP = ON);
 ALTER TABLE sbtest1 ENABLE CHANGE_TRACKING;
-ALTER TABLE usertable ENABLE CHANGE_TRACKING;
+ALTER TABLE theusertable ENABLE CHANGE_TRACKING;
 
 create table replicate_io_audit_ddl("CURRENT_USER" NVARCHAR(128), "SCHEMA_NAME" NVARCHAR(128), "TABLE_NAME" NVARCHAR(128), "TYPE" NVARCHAR(30), "OPERATION_TYPE" NVARCHAR(30), "SQL_TXT" NVARCHAR(2000), "LOGICAL_POSITION" BIGINT, CONSTRAINT "null.replicate_io_audit_ddlPK" PRIMARY KEY("LOGICAL_POSITION"));
 
@@ -51,7 +51,7 @@ CREATE TABLE sbtest1(
 -- ts is used for snapshot delta. 
 -- mysql ignores primary_key and uses primary
 -- pg and sqlserver honor the provided name
-CREATE TABLE usertable (
+CREATE TABLE theusertable (
 	ycsb_key VARCHAR(255),
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
@@ -59,10 +59,10 @@ CREATE TABLE usertable (
 	field6 TEXT, field7 TEXT,
 	field8 TEXT, field9 TEXT,
 	ts datetime DEFAULT CURRENT_TIMESTAMP,
-	constraint usertable_pkey primary key (ycsb_key),
+	constraint theusertable_pkey primary key (ycsb_key),
 	index ts (ts)
 );
 
 -- will only happen if source and destion was flipped
-ALTER TABLE usertable DROP COLUMN ts2;
+ALTER TABLE theusertable DROP COLUMN ts2;
 ALTER TABLE sbtest1 DROP COLUMN ts2;

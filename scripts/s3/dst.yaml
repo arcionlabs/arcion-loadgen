@@ -12,3 +12,5 @@ stage:
 
 # file-format: CSV
 max-connections: 50
+max-retries: 1
+  

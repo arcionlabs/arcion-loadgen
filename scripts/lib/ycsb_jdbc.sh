@@ -8,7 +8,7 @@ export default_ycsb_rate=1
 export default_ycsb_threads=1
 export default_ycsb_timer=600
 export default_ycsb_size_factor=1
-export default_ycsb_table="usertable"
+export default_ycsb_table="theusertable"
 
 # command line arguments
 export ycsb_rate=${default_ycsb_rate}
@@ -79,6 +79,10 @@ ycsb_load() {
     postgresql)
       jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
+    # needs 0.18
+    # sqlserver)
+    #  jdbc_url="${jdbc_url}:IFX_USEPUT=1;"
+    #  ;;
     # Does not improve perforamnce when autocommit=false
     # sqlserver)
     #  jdbc_url="${jdbc_url};useBulkCopyForBatchInsert=true"
@@ -194,6 +198,7 @@ ycsb_run() {
   -p requestdistribution=uniform \
   -p zeropadding=11 \
   -p insertorder=ordered &    
+
   # save the PID  
   export YCSB_RUN_PID="$!"
   # wait for job to finish, expire, or killed by ctl-c

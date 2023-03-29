@@ -11,7 +11,7 @@ password: ${SRCDB_ARC_PW}
 max-connections: 30
 #max-fetch-schema-connections: 30  #default value same max-connections
 
-max-retries: 10
+max-retries: 1
 retry-wait-duration-ms: 1000
 continuous-log-mining: false     # for 12c, 18c, 19c, should set up as false, since not supported 
 #continuous-log-mining: true

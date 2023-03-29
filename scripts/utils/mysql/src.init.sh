@@ -39,21 +39,25 @@ for f in ${CFG_DIR}/src.init.user.*sql; do
   cat $f | envsubst | mysql --force -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose 
 done
 
+# benchbase data population
+banner benchbase
+${SCRIPTS_DIR}/bin/benchbase-load.sh
+
 # sysbench data population
-banner sysbench 
+sysbench_load() {
+  sbtest1_cnt=$(mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -sN -e 'select count(*) from sbtest1;' )
 
-sbtest1_cnt=$(mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} -sN -e 'select count(*) from sbtest1;' )
-
-if [[ ${sbtest1_cnt} == "0" ]]; then
-  # on existing table, create new rows
-  sysbench oltp_read_write --skip_table_create=on --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
-elif [[ ${sbtest1_cnt} == "" ]]; then
-  # create default table with new rows  
-  sysbench oltp_read_write --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
-else
-  echo "Info: ${sbtest1_cnt} rows exist. skipping"  
-fi
+  if [[ ${sbtest1_cnt} == "0" ]]; then
+    # on existing table, create new rows
+    sysbench oltp_read_write --skip_table_create=on --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
+  elif [[ ${sbtest1_cnt} == "" ]]; then
+    # create default table with new rows  
+    sysbench oltp_read_write --mysql-host=${SRCDB_HOST} --auto_inc=off --db-driver=mysql --mysql-user=${SRCDB_ARC_USER} --mysql-password=${SRCDB_ARC_PW} --mysql-db=${SRCDB_ARC_USER} prepare 
+  else
+    echo "Info: ${sbtest1_cnt} rows exist. skipping"  
+  fi
 mysql -h${SRCDB_HOST} -u${SRCDB_ARC_USER} -p${SRCDB_ARC_PW} -D${SRCDB_ARC_USER} --verbose -e 'select count(*) from sbtest1; select sum(k) from sbtest1;desc sbtest1;select * from sbtest1 limit 1' 
+}
 
 # ycsb data population 
 banner ycsb 

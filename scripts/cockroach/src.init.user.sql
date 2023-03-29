@@ -18,7 +18,7 @@ CREATE TABLE if not exists sbtest1(
 
 -- ts is used for snapshot delta. 
 -- cockroach supports mysql style on update
-CREATE TABLE if not exists usertable (
+CREATE TABLE if not exists theusertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
@@ -30,5 +30,5 @@ CREATE TABLE if not exists usertable (
 );
 
 -- will only happen if source and destion was flipped
-ALTER TABLE usertable DROP COLUMN ts2;
+ALTER TABLE theusertable DROP COLUMN ts2;
 ALTER TABLE sbtest1 DROP COLUMN ts2;

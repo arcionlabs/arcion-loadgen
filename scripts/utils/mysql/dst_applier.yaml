@@ -3,6 +3,13 @@ snapshot:
   skip-tables-on-failures : true
   _traceDBTasks: true
 
+  user-role:
+    init-user-roles: false  
+
+  bulk-load:
+    enable: true
+    type: FILE   # PIPE, FILE  
+
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true

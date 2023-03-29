@@ -46,7 +46,7 @@ list_tables() {
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
         ;;
     esac
-    echo $DB_SQL
+
     if [ ! -z "$DB_SQL" ]; then
         echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
     fi

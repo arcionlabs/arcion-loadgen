@@ -1,7 +1,7 @@
 #!/usr/bin/env bash 
 LOC=${1:-SRC}
-CFG_DIR=${2:-/tmp}
-WORKLOADS=${3}
+WORKLOADS=${2}
+CFG_DIR=${3:-/tmp}
 
 # load the init file
 if [ -f "${CFG_DIR}/ini_menu.sh" ]; then
@@ -20,7 +20,7 @@ fi
 # conflicts with ycsb: ycsb
 # conflict with tpcc: auctionmark epinions seats 
 # queries only: chbenchmark hyadapt otmetrics tpcds tpch
-workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter wikipedia"
+workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter wikipedia ycsb"
 
 # sqlserver bulk copy does not work with these
 # workloads="smallbank twitter wikipedia"
@@ -28,7 +28,7 @@ workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter wi
 bb_chdir $LOC
 trap kill_jobs SIGINT
 if [ -z "$WORKLOADS" ]; then 
-    bb_run_tables "$workloads"
+    bb_run_tables "$workloads_default"
 else
     bb_run_tables "$WORKLOADS"
 fi

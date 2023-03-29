@@ -1,6 +1,7 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   fetch-size-rows: 5000
+  fetch-user-roles: false
 
   min-job-size-rows: 1_000
   max-jobs-per-chunk: 32

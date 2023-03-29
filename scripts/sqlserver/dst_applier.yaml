@@ -1,6 +1,8 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   skip-tables-on-failures : true
+  user-role:
+    init-user-roles: false      
 
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}

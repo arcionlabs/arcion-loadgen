@@ -15,4 +15,5 @@ brokers:
    broker1: #Replace broker1 with your broker name
        host: $DSTDB_HOST #Replace localhost with your broker's host
        port: 29092 #Replace 19092 with your broker's port
+max-retries: 1
 

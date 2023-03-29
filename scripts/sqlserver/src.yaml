@@ -11,4 +11,5 @@ max-connections: 30
 
 # real-time and full only
 extractor: CHANGE # {CHANGE|LOG}
+max-retries: 1
 

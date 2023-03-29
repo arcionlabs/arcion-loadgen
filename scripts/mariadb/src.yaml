@@ -11,5 +11,5 @@ password: ${SRCDB_ARC_PW}
 slave-server-ids: [ ${PID} ]
 max-connections: 30
 
-#max-retries: 10
+max-retries: 1
 #retry-wait-duration-ms: 1000

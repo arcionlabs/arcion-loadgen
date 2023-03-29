@@ -8,4 +8,5 @@ username: ${DSTDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
 
 max-connections: 30
+max-retries: 1
 

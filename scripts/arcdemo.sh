@@ -93,7 +93,7 @@ fi
 # clear the view windows and configure it for this run
 tmux kill-window -t ${TMUX_SESSION}:1   # yaml
 tmux kill-window -t ${TMUX_SESSION}:2   # log
-tmux kill-window -t ${TMUX_SESSION}:3   # sysbench
+tmux kill-window -t ${TMUX_SESSION}:3   # benchbase
 tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
 tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
 tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
@@ -102,13 +102,13 @@ tmux kill-window -t ${TMUX_SESSION}:7   # dstat
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
 tmux new-window -d -n logs -t ${TMUX_SESSION}:2
-tmux new-window -d -n sysbench -t ${TMUX_SESSION}:3
+tmux new-window -d -n benchbase -t ${TMUX_SESSION}:3
 tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
 tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
 tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
 tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
 
-# clear the sysbench and ycsb panes
+# clear the benchbase and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 
@@ -116,7 +116,7 @@ tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;
   snapshot)
@@ -124,12 +124,12 @@ case ${REPL_TYPE,,} in
     ;;
   delta-snapshot)
     arcion_delta
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;
   real-time)
     arcion_real
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
     ;;    
   *)
@@ -145,9 +145,10 @@ tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
+# with benchbase too many tables for this.  offline validate
 # show sysbench and ycsb changes 
-/scripts/verify.sh id sbtest1 3 &
-/scripts/verify.sh ycsb_key usertable 4 & 
+#/scripts/verify.sh id sbtest1 3 &
+#/scripts/verify.sh ycsb_key usertable 4 & 
 
 # show verificator
 tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter

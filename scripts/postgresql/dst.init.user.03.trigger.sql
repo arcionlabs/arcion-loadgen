@@ -1,4 +1,4 @@
-drop trigger update_ts_on_usertable_on on usertable;
+drop trigger update_ts_on_usertable_on on theusertable;
 drop trigger update_ts_on_sbtest1_on on sbtest1;
 
 drop trigger update_ts2_on_usertable_on on usertable;
@@ -15,7 +15,7 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_ts2_on_usertable_on
     BEFORE UPDATE
     ON
-        usertable
+        theusertable
     FOR EACH ROW
 EXECUTE PROCEDURE update_ts2();
 

@@ -40,23 +40,6 @@ for f in ${CFG_DIR}/src.init.user.*js; do
   cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL} 
 done
 
-# sysbench data population
-banner sysbench 
-
-sbtest1_cnt=$( mongosh $SRCDB_ARC_USER_URL --quiet --eval 'db.sbtest1.countDocuments()' )
-
-if [[ ${sbtest1_cnt} == "0" ]]; then
-  # on existing table, create new rows
-  echo "TBD"
-elif [[ ${sbtest1_cnt} == "" ]]; then
-  # create default table with new rows  
-  echo "TBD"
-else
-  echo "Info: ${sbtest1_cnt} rows exist. skipping" 
-fi
-mongosh $SRCDB_ARC_USER_URL --quiet --eval 'db.sbtest1.countDocuments()' 
-mongosh $SRCDB_ARC_USER_URL --quiet --eval 'db.sbtest1.find().count(1)' 
-
 # ycsb data population 
 banner ycsb 
 

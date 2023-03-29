@@ -5,7 +5,7 @@ CREATE TABLE replicate_io_cdc_heartbeat(
 );
 
 -- ts is used for snapshot delta. 
-CREATE TABLE usertable (
+CREATE TABLE theusertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
@@ -15,5 +15,5 @@ CREATE TABLE usertable (
 );
 
 -- will only happen if source and destion was flipped
-ALTER TABLE usertable DROP (ts2);
+ALTER TABLE theusertable DROP (ts2);
 

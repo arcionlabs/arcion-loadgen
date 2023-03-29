@@ -186,12 +186,13 @@ COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties ~/rapiddwe
 
 # benchbase
 COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} bin/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} bin/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} bin/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
 RUN cd ${BENCHBASE_DIR} \
-    && for w in informix mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
+    && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # python hydra
 RUN pip install -r scripts/requirements.txt
@@ -201,6 +202,6 @@ WORKDIR /scripts
 # used by YCSB and jsqsh
 ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar
 
-ENV PATH=/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
+ENV PATH=/scripts/bin:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
 
 CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 

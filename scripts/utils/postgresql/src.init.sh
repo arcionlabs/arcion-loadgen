@@ -45,26 +45,9 @@ for f in ${CFG_DIR}/src.init.user.*sql; do
   cat ${f} | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
 done
 
-# sysbench data population
-banner sysbench 
-
-sbtest1_cnt=$(echo 'select count(*) from sbtest1;' | psql --csv -t postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} )
-
-if [[ ${sbtest1_cnt} == "0" ]]; then
-  # on existing table, create new rows
-  sysbench oltp_read_write --skip_table_create=on --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT} prepare 
-elif [[ ${sbtest1_cnt} == "" ]]; then
-  # create default table with new rows  
-  sysbench oltp_read_write --pgsql-host=${SRCDB_HOST} --auto_inc=off --db-driver=pgsql --pgsql-user=${SRCDB_ARC_USER} --pgsql-password=${SRCDB_ARC_PW} --pgsql-db=${SRCDB_ARC_USER} --pgsql-port=${SRCDB_PORT}  prepare 
-else
-  echo "Info: sbtest1 ${sbtest1_cnt} rows exist. skipping"  
-fi
-
-cat <<EOF | psql postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
-select count(*) from sbtest1; 
-select sum(k) from sbtest1;
-select * from sbtest1 limit 1;
-EOF
+# benchbase data population
+banner benchbase
+${SCRIPTS_DIR}/bin/benchbase-load.sh
 
 # ycsb data population 
 banner ycsb 

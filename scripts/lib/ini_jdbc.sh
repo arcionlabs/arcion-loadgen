@@ -18,6 +18,11 @@ export DSTDB_YCSB_DRIVER
 export SRCDB_JSQSH_DRIVER
 export DSTDB_JSQSH_DRIVER
 
+export SRCDB_JDBC_NO_REWRITE
+export SRCDB_JDBC_REWRITE
+export DSTDB_JDBC_NO_REWRITE
+export DSTDB_JDBC_REWRITE
+
 set_jdbc_vars() {
 
 case "${SRCDB_GRP,,}" in
@@ -30,6 +35,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL="jdbc:informix-sqli://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"   
     SRCDB_JDBC_URL_BENCHBASE="jdbc:informix-sqli://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}:IFX_USEPUT=1;"   
     SRCDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
+    SRCDB_JDBC_NO_REWRITE="s/IFX_USEPUT=1/IFX_USEPUT=0/g"
+    SRCDB_JDBC_REWRITE="s/IFX_USEPUT=0/IFX_USEPUT=1/g"
     ;;
   mysql)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -38,6 +45,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     SRCDB_JDBC_URL_BENCHBASE="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&amp;restrictedAuth=mysql_native_password&amp;rewriteBatchedStatements=true"
     SRCDB_JDBC_URL_IDPW="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
+    SRCDB_JDBC_NO_REWRITE="s/rewriteBatchedStatements=true/rewriteBatchedStatements=false/g"
+    SRCDB_JDBC_REWRITE="s/rewriteBatchedStatements=false/rewriteBatchedStatements=true/g"    
     ;;
   postgresql)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -46,6 +55,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     SRCDB_JDBC_URL_BENCHBASE="jdbc:postgresql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&amp;sslmode=disable&amp;ssl=false&amp;reWriteBatchedInserts=true"   
     SRCDB_JDBC_URL_IDPW="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"
+    SRCDB_JDBC_NO_REWRITE="s/reWriteBatchedInserts=true/reWriteBatchedInserts=false/g"
+    SRCDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g"   
     ;;
   mongodb)
     SRCDB_YCSB_DRIVER="mongodb"
@@ -63,6 +74,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT}"   
     SRCDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};encrypt=false;useBulkCopyForBatchInsert=true"   
     SRCDB_JDBC_URL_IDPW="sqlserver://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}"
+    SRCDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
+    SRCDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"      
     ;;         
   *)
     echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support" >&2
@@ -77,6 +90,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL="jdbc:informix-sqli://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"   
     DSTDB_JDBC_URL_BENCHBASE="jdbc:informix-sqli://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}:IFX_USEPUT=1;"   
     DSTDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}"
+    DSTDB_JDBC_NO_REWRITE="s/IFX_USEPUT=1/IFX_USEPUT=0/g"
+    DSTDB_JDBC_REWRITE="s/IFX_USEPUT=0/IFX_USEPUT=1/g"
     ;;
   mysql)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -85,6 +100,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL="jdbc:mysql://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     DSTDB_JDBC_URL_BENCHBASE="jdbc:mysql://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&amp;restrictedAuth=mysql_native_password&amp;rewriteBatchedStatements=true"
     DSTDB_JDBC_URL_IDPW="jdbc:mysql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?permitMysqlScheme&restrictedAuth=mysql_native_password"
+    DSTDB_JDBC_NO_REWRITE="s/rewriteBatchedStatements=true/rewriteBatchedStatements=false/g"
+    DSTDB_JDBC_REWRITE="s/rewriteBatchedStatements=false/rewriteBatchedStatements=true/g" 
     ;;
   postgresql)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -93,6 +110,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&sslmode=disable&ssl=false"   
     DSTDB_JDBC_URL_BENCHBASE="jdbc:postgresql://${DSTDB_HOST}:${DSTDB_PORT}/${ARCDST_USER}?autoReconnect=true&amp;sslmode=disable&amp;ssl=false&amp;reWriteBatchedInserts=true"   
     DSTDB_JDBC_URL_IDPW="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER}?autoReconnect=true&sslmode=disable&ssl=false"
+    DSTDB_JDBC_NO_REWRITE="s/reWriteBatchedInserts=true/reWriteBatchedInserts=false/g"
+    DSTDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g" 
     ;; 
   mongodb)
     DSTDB_YCSB_DRIVER="mongodb"
@@ -110,6 +129,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false"
     DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false;useBulkCopyForBatchInsert=true"
     DSTDB_JDBC_URL_IDPW="sqlserver://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}"
+    DSTDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
+    DSTDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"  
     ;;     
   *)
     echo "$0: DSTDB_GRP: ${DSTDB_GRP} need to code support" >&2
