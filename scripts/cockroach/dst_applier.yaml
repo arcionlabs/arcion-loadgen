@@ -1,0 +1,17 @@
+snapshot:
+  threads: ${DSTDB_SNAPSHOT_THREADS}
+  skip-tables-on-failures : true
+  _traceDBTasks: true
+
+  # cockroach does not support postgtres default priv model
+  user-role:
+    init-user-roles: false  
+
+  # cockroach does not support postgers default COPY statement
+  bulk-load:
+    enable: false
+    type: FILE   # PIPE, FILE  
+
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
+  skip-tables-on-failures : true
