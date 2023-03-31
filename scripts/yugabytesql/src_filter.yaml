@@ -1,9 +1,0 @@
-allow:
-- catalog: "${SRCDB_ARC_USER}"
-  schema: ${SRCDB_SCHEMA}
-  types: [TABLE]
-  allow:
-    # without any tables, all of the tables are scoped up
-    theusertable:
-    sbtest1:
-    # with full, replication table is automatically removed

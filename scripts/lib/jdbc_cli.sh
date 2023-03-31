@@ -81,7 +81,7 @@ dump_schema() {
 
     # grab the column names
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" 
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.sql  
     fi
 }
 

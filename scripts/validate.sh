@@ -28,9 +28,12 @@ dump_tables() {
         # save the common columns between source and target
         common_cols=( $(comm -12 /tmp/validate.src_$t.$$ /tmp/validate.dst_$t.$$ |  paste -s -d,) )
         echo "$t: ${common_cols} are common"
-        echo "$t: retrieving the data from the tables"
+        echo "$t: retrieving the data from src and dst"
         dump_table src $t "$common_cols"
-        dump_table dst $t "$common_cols"
+        dump_table dst $t "$common_cols"        
+        echo "$t: retrieving the schema from src and dst"
+        dump_schema src $t "$common_cols"
+        dump_schema dst $t "$common_cols"        
         # diff the two filesA
         echo "$t: running diff on the dataset"
         echo "ls ${CFG_DIR}/*.${t}.tsv | xargs diff > ${CFG_DIR}/${t}.diff"

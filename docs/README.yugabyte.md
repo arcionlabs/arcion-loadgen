@@ -3,6 +3,8 @@
 
 Using instructions from https://docs.yugabyte.com/preview/quick-start/docker/ 
 
+Note:  Stopping and restarting container does not with this setup.
+
 ```bash
 docker run -d \
     --name yugabytesql \
