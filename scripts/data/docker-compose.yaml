@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+  informix-14.0.7-src:
+    image: ibmcom/informix-developer-database:latest
+    container_name: replicate-informix-14.0.7-src
+    privileged: true
+    environment:
+      LICENSE: 'accept'
+      RUN_FILE_POST_INIT: post_init_script.sh
+      DB_INIT: 1
+#replicant env vars
+      CONTAINER_ROLE: src
+    #TODO should we move from <10000 k port range ?
+    ports:
+      - 9088:9088
+      - 9888:9888
+      - 9089:9089
+      - 27017:27017
+      - 27018:27018
+      - 27883:27883
+    volumes:
+#informix specific volume mappings
+      - ${REPLICANT_INFORMIX_ENV_VOLUMES}/config/post_init_script.sh:/opt/ibm/config/post_init_script.sh
+#volume mapped location
+      - ${REPLICANT_INFORMIX_ENV_VOLUMES}/sql/:/tmp/sql/
+#shared volume with mapped dataset
+      - ${REPLICANT_INFORMIX_ENV_SHARED}/dataset:/opt/dataset:ro
+
+
+  informix-14.0.7-dst:
+    image: ibmcom/informix-developer-database:latest
+    container_name: replicate-informix-14.0.7-dst
+    privileged: true
+    environment:
+      LICENSE: 'accept'
+      RUN_FILE_POST_INIT: post_init_script.sh
+      DB_INIT: 1
+      #replicant env vars
+      CONTAINER_ROLE: dst
+    #TODO set dst ports
+    ports:
+      - 59088:9088
+      - 59888:9888
+      - 59089:9089
+      - 57017:27017
+      - 57018:27018
+      - 57883:27883
+    volumes:
+      #informix specific volume mappings
+      - ${REPLICANT_INFORMIX_ENV_VOLUMES}/config/post_init_script.sh:/opt/ibm/config/post_init_script.sh
+      #volume mapped location
+      - ${REPLICANT_INFORMIX_ENV_VOLUMES}/sql/:/tmp/sql/

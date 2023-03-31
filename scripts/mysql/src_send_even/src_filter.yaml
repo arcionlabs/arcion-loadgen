@@ -1,0 +1,9 @@
+allow:
+- catalog: "${SRCDB_ARC_USER}"
+  schema: ${SRCDB_SCHEMA}  
+  types: [TABLE]
+  allow:
+    # all of the tables are scoped up automatically
+    t1:
+      # only replicate even number
+      conditions: "id%2 = 0"

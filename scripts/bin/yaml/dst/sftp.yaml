@@ -1,0 +1,11 @@
+type: SFTP
+
+host: localhost
+port: 22
+
+username: 'replicant'
+#password: 'replicant#123'
+key-path: "~/.ssh/replicate.pem"
+
+root: ""
+#user-dir-is-root: true

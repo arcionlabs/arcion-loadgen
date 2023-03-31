@@ -1,0 +1,3 @@
+user:
+    name: ${oc.env:PATH}
+#        home: /home/${oc.env:PATH}

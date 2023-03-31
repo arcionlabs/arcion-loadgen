@@ -1,0 +1,12 @@
+type: MARIADB
+
+host: localhost
+port: 57565
+
+username: "replicant"
+password: "Replicant#123"
+
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000

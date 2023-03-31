@@ -1,0 +1,13 @@
+rules:
+  ? [arcdst]
+  : source:
+    - [arcsrc]
+    tables:
+      t3:
+        source:
+          ? [arcsrc, t2]
+          : {}
+      t3:
+        source:
+          ? [arcsrc, t1]
+          : {}

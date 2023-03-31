@@ -1,0 +1,48 @@
+type: SQLSERVER
+
+host: localhost
+port: 1433
+
+username: 'replicant'
+#username: 'domain\replicant' # use this format for NTLM authentication
+password: 'Replicant#123' 
+#auth-type: [NATIVE, NTLM]
+#database: 'tpcc' # set only for managed SQL Azure 
+
+max-connections: 30
+
+#ssl:
+#  enable: true
+#  hostname-verification: false
+
+
+# All options below apply to FULL and REAL-TIME replication only
+
+#log-path: /data/transactions/ # used to cache DML received from the SQL Server agent
+
+# The following is the user that will run the SQL Server replication jobs on the source SQL Server system
+#sql-jobs-username: 'mwrightwin10\administrator'
+#sql-jobs-password: '<password>'
+
+#sql-proxy-connection:
+#  host: mwrightwin10 # For Azure Managed SQL, this must be an IP address or DNS name that is accessible from Azure
+#  port: 1433
+#  username: 'mwrightwin10\mwright'
+#  password: '<password>'
+#  auth-type: NTLM
+
+# Required for Azure Managed SQL
+#azure-file-storage-path: \\arcionsqldev.file.core.windows.net\replication # be sure to use backslashes in the path
+#azure-file-storage-key: DefaultEndpointsProtocol=https;AccountName=xxxxxx;AccountKey=xxxxxxxxxx/XXXXXXXXXXXX/xxxxxxxxxxxxxxx==;EndpointSuffix=core.windows.net
+
+# Path on source SQL Server to tempoorarily store schema info. No data is stored here and it can be physical or UNC path. NOT used for Azure SQL managed instances
+#sql-snapshot-folder: c:\transactions
+
+#agent-connection:
+#  host: mwrightwin10
+#  username: 'mwrightwin10\administrator' # Windows login for the replicant agent. This login must have access to the replication directory 
+#  password: '<password>'
+#  port: 6061
+#  mode: CONFIG
+
+

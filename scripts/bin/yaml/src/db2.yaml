@@ -1,0 +1,106 @@
+type: DB2
+
+database: tpch
+host: localhost
+port: 50002
+
+username: replicant
+password: "Replicant#123"
+
+#ssl:
+#  trust-store:
+#    path: '/path/to/truststore'
+#    password: 'Replicant#123'
+
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+#proxy-source: false
+
+cdc-log-config:
+  #cdc-log-storage: MQ #Allowed values are MQ, KAFKA_TRANSACTIONAL, KAFKA_EVENTUAL.
+  mqueue-connections:
+    queue-conn1:
+      host: localhost
+      port: 1450
+      queue-manager: CDC_QM
+      queue-channel: CDC_Q_CHANNEL
+      username: queue_manager
+      password: queue_manager
+      queues:
+      - name: CDC_LOG_Q
+      #message-format: XML #Allowed values are XML, DELIMITED.
+      #message-type: ROW #Allowed values are ROW, TRANSACTION. Valid only for message-format XML.
+      #lob-send-option: INLINE #Allowed values are INLINE, SEPARATE.
+      #  backup-mqueue-connection:
+      #    host: localhost
+      #    port: 1460
+      #    queue-manager: CDC_QM_BACKUP
+      #    queue-channel: CDC_Q_BACKUP_CHANNEL
+      #    username: backup_queue_manager
+      #    password: backup_queue_manager
+      #    queues:
+      #    - name: CDC_LOG_BACKUP_Q
+      #    ssl:
+      #      trust-store:
+      #        path: "/path/to/trust/store"
+      #        password: 'changeit'
+      #      key-store:  #Provide keystore details only in case of two-way SSL authentication i.e client authentication
+      #        path: "/path/to/key/store"
+      #        password: 'changeit'
+      #      ssl-cipher-suite: 'TLS_RSA_WITH_AES_128_CBC_SHA256' #Provide your encryption algorithm based what is configured on MQ Manager
+
+      #
+      #- name: CDC_LOG_Q_DELIMITED
+      #  message-format: DELIMITED #Allowed values are XML, DELIMITED.
+      #ssl:
+      #  trust-store:
+      #    path: "/path/to/trust/store"
+      #    password: 'changeit'
+      #  key-store:  #Provide keystore details only in case of two-way SSL authentication i.e client authentication
+      #    path: "/path/to/key/store"
+      #    password: 'changeit'
+      #  ssl-cipher-suite: 'TLS_RSA_WITH_AES_128_CBC_SHA256' #Provide your encryption algorithm based what is configured on MQ Manager
+
+  #cdc-log-storage: KAFKA_TRANSACTIONAL #Allowed values are MQ, KAFKA_TRANSACTIONAL, KAFKA_EVENTUAL.
+  #kafka-connection:
+  #  cdc-log-topic: cdc_log_topic
+  #  message-format: XML
+  #  message-type: ROW #Allowed values are ROW, TRANSACTION. Valid only for message-format XML.
+  #  lob-send-option: INLINE
+  #  connection:
+  #    brokers:
+  #      broker1:
+  #        host: localhost
+  #        port: 19092
+  #
+  #cdc-log-storage: KAFKA_TRANSACTIONAL #Allowed values are MQ, KAFKA_TRANSACTIONAL, KAFKA_EVENTUAL.
+  #kafka-connection:
+  #  cdc-log-topic: commitlog_stream_topic
+  #  message-format: KCOP_MULTIROW_AUDIT
+  #  connection:
+  #    brokers:
+  #      broker1:
+  #        host: localhost
+  #        port: 19092
+  #
+  #
+  #cdc-log-storage: KAFKA_EVENTUAL #Allowed values are MQ, KAFKA_TRANSACTIONAL, KAFKA_EVENTUAL.
+  #kafka-connection:
+  #  cdc-log-topic-prefix: "" #Common prefix for all Kafka IIDR topics.
+  #  cdc-log-topic-prefix-list: #List of mapping from common prefixes to source tables.
+  #  - cdc-log-topic-prefix: "" #Common prefix for all Kafka IIDR topics.
+  #    tables: [table1, table2]
+  #  - cdc-log-topic-prefix: "" #Common prefix for all Kafka IIDR topics.
+  #    tables: [table3, table4]
+
+  #  message-format: KCOP_MULTIROW_AUDIT
+  #  connection:
+  #    brokers:
+  #      broker1:
+  #        host: localhost
+  #        port: 19092
+  #    schema-registry-url: "http://localhost:8081"
+  #    consumer-group-id: blitzz

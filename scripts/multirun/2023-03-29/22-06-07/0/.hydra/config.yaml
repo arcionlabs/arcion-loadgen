@@ -1,0 +1,48 @@
+src:
+  type: MYSQL
+  host: localhost
+  port: 3306
+  username: replicant
+  password: Replicant#123
+  slave-server-ids:
+  - 1
+  max-connections: 30
+  max-retries: 10
+  retry-wait-duration-ms: 1000
+dst:
+  type: MARIADB
+  host: localhost
+  port: 57565
+  username: replicant
+  password: Replicant#123
+  max-connections: 30
+  max-retries: 10
+  retry-wait-duration-ms: 1000
+extractor:
+  snapshot:
+    threads: ${SRCDB_SNAPSHOT_THREADS}
+    fetch-user-roles: false
+  realtime:
+    threads: ${SRCDB_REALTIME_THREADS}
+    ddl-replication:
+      enable: true
+      ddl-replication-mode: INLINE
+    heartbeat:
+      enable: true
+      catalog: ${SRCDB_ARC_USER}
+      schema: ${SRCDB_SCHEMA}
+  delta-snapshot:
+    threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+    delta-snapshot-keys:
+    - ts
+    split-key:
+    - ts
+    delta-snapshot-interval: 10
+    delta-snapshot-delete-interval: 10
+filter:
+  allow:
+  - catalog: ${SRCDB_ARC_USER}
+    schema: ${SRCDB_SCHEMA}
+    types:
+    - TABLE
+    allow: null

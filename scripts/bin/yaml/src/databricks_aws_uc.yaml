@@ -1,0 +1,17 @@
+type: DATABRICKS_LAKEHOUSE
+
+host: "<hostname>"
+port: "<port>"
+
+url: "jdbc:databricks://<host>:<port>/<database-name>;transportMode=http;ssl=1;httpPath=<http-path>;AuthMech=3" # This url can be copied from databricks cluster info page"
+
+max-connections: 30
+
+# stage config section
+stage:
+  type: UNITY_CATALOG_PERSONAL_STAGE
+  staging-url: <staging-url> #temp staging url e.g. stage://tmp/userName/rootDir
+  file-format: PARQUET #(PARQUET/CSV) default is PARQUET
+
+#max-retries: 100
+#retry-wait-duration-ms: 1000

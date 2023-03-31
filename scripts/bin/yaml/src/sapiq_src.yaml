@@ -1,0 +1,12 @@
+type: SAP_IQ
+
+host: localhost
+port: 2638
+
+database: 'tpch'
+username: 'mandar'
+password: 'mandar'
+
+max-connections: 30
+max-retries: 10
+retry-wait-duration-ms: 1000

@@ -1,0 +1,5 @@
+type: REPLICATE_STAGE
+
+storage-location: "/path/to/nfs/mount/point"
+
+#source-failover: false

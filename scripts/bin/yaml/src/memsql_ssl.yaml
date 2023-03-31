@@ -1,0 +1,15 @@
+type: MEMSQL
+
+host: 127.0.0.1
+port: 3306
+
+username: "replicant"
+password: "Replicant#123"
+
+ssl:
+  enable: true
+  trust-store:
+    path: "~/ssl/truststore"
+    password: "zxcvb!@#$"
+
+max-connections: 30

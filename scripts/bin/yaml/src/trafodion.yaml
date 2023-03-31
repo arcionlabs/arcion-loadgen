@@ -1,0 +1,9 @@
+type: TRAFODION
+
+host: localhost
+port: 23400
+
+username: admin
+password: admin
+
+max-connections: 30

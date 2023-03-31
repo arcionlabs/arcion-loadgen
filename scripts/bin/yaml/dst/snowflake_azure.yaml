@@ -1,0 +1,22 @@
+type: SNOWFLAKE
+
+host: replicate_partner.snowflakecomputing.com
+port: 3306
+warehouse: "demo_wh"
+
+username: "xxx"
+password: "xxxx"
+
+max-connections: 20
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+# stage config section
+#stage:
+#  type: AZURE #Allowed values are NATIVE, AWS and AZURE.
+#  root-dir: <root-dir>    #specify a directory in azure which can be used to stage bulk-load files. e.g. replicate-stage/databricks-stage
+#  conn-url: <container-name>     # specify container name e.g. replicate-stage 
+#  account-name: <account-name>        #azure storage account name
+#  secret-key: ""    #azure storage secret key
+#  token: ""

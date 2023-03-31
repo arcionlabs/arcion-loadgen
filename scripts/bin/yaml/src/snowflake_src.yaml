@@ -1,0 +1,13 @@
+type: SNOWFLAKE
+
+host: replicate_partner.snowflakecomputing.com
+port: 3306
+#warehouse: "demo_wh"
+
+username: "xxx"
+password: "xxxx"
+
+max-connections: 20
+
+max-retries: 10
+retry-wait-duration-ms: 1000

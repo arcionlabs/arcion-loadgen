@@ -1,0 +1,9 @@
+type: SPARK
+
+host: local
+
+storage-location: "/tmp/parquet"
+storage-type: PARQUET
+
+max-retries: 10
+retry-wait-duration-ms: 1000

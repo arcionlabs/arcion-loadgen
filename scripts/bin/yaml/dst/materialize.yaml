@@ -1,0 +1,8 @@
+type: MATERIALIZE
+
+host: localhost
+port: 6875
+
+storage-location: "/path/to/avro/directory"
+
+max-connections: 30
