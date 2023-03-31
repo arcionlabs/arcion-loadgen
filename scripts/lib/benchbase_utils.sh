@@ -43,6 +43,8 @@ bb_create_tables() {
     local LOC=${1:-SRC}
     local workloads="${2:-tpcc}"
 
+    readarray -d, -t workloads <<<"${workloads}"
+
     bb_chdir $LOC
 
     echo $db_grp
@@ -61,7 +63,7 @@ bb_create_tables() {
     #echo ${EXISITNG_TAB_HASH[@]}
     #echo ${WORKLOAD_TABLE_HASH[@]}
 
-    for w in $workloads; do
+    for w in "${workloads[@]}"; do
         echo "Checking table create required for $w"
 
         # remove batch rewrite
@@ -97,10 +99,12 @@ bb_create_tables() {
     popd
 }
 
+# no longer used
 bb_load_tables() {
-    return
     local workloads="${1:-tpcc}"
-    for w in $workloads; do
+    readarray -d, -t workloads <<<"${workloads}"
+
+    for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
         $JAVA_HOME/bin/java -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
         --interval-monitor 10000 \
@@ -111,7 +115,9 @@ bb_load_tables() {
 
 bb_run_tables() {
     local workloads="${1:-tpcc}"
-    for w in $workloads; do
+    readarray -d, -t workloads <<<"${workloads}"
+
+    for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
         $JAVA_HOME/bin/java \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \

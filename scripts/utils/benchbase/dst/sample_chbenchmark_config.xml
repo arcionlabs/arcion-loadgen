@@ -32,7 +32,7 @@
             <time>${workload_timer}</time>
 
             <!-- Note: The rate can be set to UNLIMITED or DISABLED -->
-            <rate>${workload_rate}</rate>
+            <rate>${workload_rate_bb}</rate>
 
             <!-- Need to Specify transaction weights for each workload .. Otherwise the number of fields won't match -->
             <weights bench="tpcc">45,43,4,4,4</weights>
@@ -44,7 +44,7 @@
         <!-- <work> -->
         <!-- <time>${workload_timer}</time> -->
 
-        <!-- <rate>${workload_rate}</rate> -->
+        <!-- <rate>${workload_rate_bb}</rate> -->
         <!-- <rate bench="chbenchmark">disabled</rate> -->
 
         <!-- NOTE: TPCC workers won't be distributed evenly between warehouses if not all workers are active -->
@@ -61,7 +61,7 @@
         <work>
             <time>${workload_timer}</time>
 
-            <rate>${workload_rate}</rate>
+            <rate>${workload_rate_bb}</rate>
             <rate bench="chbenchmark">unlimited</rate>
 
             <weights bench="tpcc">45,43,4,4,4</weights>

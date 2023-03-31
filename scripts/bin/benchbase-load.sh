@@ -21,14 +21,14 @@ fi
 # conflict with tpcc: auctionmark epinions seats 
 # queries only: chbenchmark hyadapt otmetrics tpcds tpch
 # error when run from program but ok run manuall: wikipedia
-workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter ycsb"
+workloads_default="resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb"
 
 # sqlserver bulk copy does not work with these
 # workloads="smallbank twitter wikipedia"
 
 trap kill_jobs SIGINT
 if [ -z "$WORKLOADS" ]; then 
-    bb_create_tables $LOC "$workloads_default"
+    bb_create_tables $LOC "$workload_modules_bb"
 else
     bb_create_tables $LOC "$WORKLOADS"
 fi

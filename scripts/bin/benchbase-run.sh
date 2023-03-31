@@ -29,7 +29,7 @@ workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter yc
 bb_chdir $LOC
 trap kill_jobs SIGINT
 if [ -z "$WORKLOADS" ]; then 
-    bb_run_tables "$workloads_default"
+    bb_run_tables "$workload_modules_bb"
 else
     bb_run_tables "$WORKLOADS"
 fi

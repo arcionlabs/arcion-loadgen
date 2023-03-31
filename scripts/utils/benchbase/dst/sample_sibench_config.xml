@@ -17,7 +17,7 @@
     <works>
         <work>
             <time>${workload_timer}</time>
-            <rate>${workload_rate}</rate>
+            <rate>${workload_rate_bb}</rate>
             <weights>0,50</weights>
             <!-- <weights>50,50</weights> -->
         </work>

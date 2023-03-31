@@ -62,9 +62,11 @@ export DSTDB_REALTIME_THREADS=${DSTDB_REALTIME_THREADS}
 # workload control
 export max_cpus="$max_cpus"
 export workload_rate="$workload_rate"
+export workload_rate_bb="$workload_rate_bb"
 export workload_threads="$workload_threads"
 export workload_timer="$workload_timer"
 export workload_size_factor="$workload_size_factor"
+export workload_modules_bb="$workload_modules_bb"
 # benchbase
 export SRCDB_BENCHBASE_TYPE="$SRCDB_BENCHBASE_TYPE"
 export SRCDB_JDBC_ISOLATION="$SRCDB_JDBC_ISOLATION"
