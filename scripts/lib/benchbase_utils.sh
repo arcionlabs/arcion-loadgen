@@ -43,7 +43,11 @@ bb_create_tables() {
     local LOC=${1:-SRC}
     local workloads="${2:-tpcc}"
 
-    readarray -d, -t workloads <<<"${workloads}"
+    echo "x${workloads}x"
+
+    # NOTE: <<<$workloads add newline on the last element. 
+    # use < <(printf '%s' "$workloads") to fix that 
+    readarray -td, workloads < <(printf '%s' "$workloads")
 
     bb_chdir $LOC
 
@@ -102,7 +106,8 @@ bb_create_tables() {
 # no longer used
 bb_load_tables() {
     local workloads="${1:-tpcc}"
-    readarray -d, -t workloads <<<"${workloads}"
+
+    readarray -td, workloads < <(printf '%s' "$workloads")
 
     for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
@@ -115,7 +120,8 @@ bb_load_tables() {
 
 bb_run_tables() {
     local workloads="${1:-tpcc}"
-    readarray -d, -t workloads <<<"${workloads}"
+ 
+    readarray -td, workloads < <(printf '%s' "$workloads")
 
     for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
