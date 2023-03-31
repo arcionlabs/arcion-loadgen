@@ -52,6 +52,39 @@ list_tables() {
     fi
 }
 
+dump_schema() {
+    local LOC="${1:-SRC}"        # SRC|DST
+    local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
+    local REMOVE_COLS=${3:-ts2}
+
+    # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
+    local DB_HOST=$( x="${LOC^^}DB_HOST"; echo ${!x} )
+    local DB_PORT=$( x="${LOC^^}DB_PORT"; echo ${!x} )
+    local DB_ARC_USER=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_ARC_PW=$( x="${LOC^^}DB_ARC_PW"; echo ${!x} )
+    local DB_TYPE=$( x="${LOC^^}DB_GRP"; echo ${!x} )
+    local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
+
+    case ${DB_GRP,,} in
+        mysql)
+            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME}' and table_schema='${DB_ARC_USER}' order by ordinal_position;"
+            ;;
+        postgresql|sqlserver)
+            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME} and table_schema='${DB_SCHEMA}' and table_catalog='${DB_ARC_USER}' order by ordinal_position;"
+            ;;
+        *)
+            echo "jdbc_cli: dump_schema for ${DB_GRP,,} needs to be handled."
+            ;;
+    esac
+
+    # grab the column names
+    if [ ! -z "$DB_SQL" ]; then
+        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "^${REMOVE_COLS}" 
+    fi
+}
+
 list_columns() {
     local LOC="${1:-SRC}"        # SRC|DST
     local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
