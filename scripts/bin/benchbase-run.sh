@@ -20,7 +20,8 @@ fi
 # conflicts with ycsb: ycsb
 # conflict with tpcc: auctionmark epinions seats 
 # queries only: chbenchmark hyadapt otmetrics tpcds tpch
-workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter wikipedia ycsb"
+# error when run from program but ok run manuall: wikipedia
+workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter ycsb"
 
 # sqlserver bulk copy does not work with these
 # workloads="smallbank twitter wikipedia"

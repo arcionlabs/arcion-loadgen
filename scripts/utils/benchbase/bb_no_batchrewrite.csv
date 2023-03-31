@@ -1,3 +1,4 @@
 workload,database
+tpcc,informix
 wikipedia,informix
 smallbank,sqlserver

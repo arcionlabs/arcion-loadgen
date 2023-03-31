@@ -6,7 +6,7 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 [ -z "${PROG_DIR}" ] && PROG_DIR=${SCRIPTS_DIR} 
 . $PROG_DIR/lib/arcdemo_args.sh
 . $PROG_DIR/lib/arcion_thread_ratio.sh
-. $PROG_DIR/lib/uri_parse.sh
+. $PROG_DIR/lib/uri_parser.sh
 . $PROG_DIR/lib/job_control.sh
 . $PROG_DIR/lib/ini_jdbc.sh
 . $PROG_DIR/lib/map_csv.sh
@@ -21,6 +21,7 @@ arcdemo_opts $*
 shift $(( OPTIND - 1 ))
 
 if [ ! -z "$CFG_DIR" ]; then
+  echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
 else
   arcdemo_positional $*
