@@ -11,7 +11,7 @@
     <batchsize>128</batchsize>
 
     <!-- Scale factor is the number of warehouses in TPCC -->
-    <scalefactor>${workload_size_factor}</scalefactor>
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
 
     <!-- The workload -->
     <!-- Number of terminal per workload -->

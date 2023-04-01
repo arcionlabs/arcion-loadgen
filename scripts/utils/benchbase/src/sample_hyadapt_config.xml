@@ -9,7 +9,7 @@
     <isolation>${SRCDB_JDBC_ISOLATION}</isolation>
     <batchsize>128</batchsize>
 
-    <scalefactor>${workload_size_factor}</scalefactor>
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
 
     <terminals>${workload_threads}</terminals>
     <works>

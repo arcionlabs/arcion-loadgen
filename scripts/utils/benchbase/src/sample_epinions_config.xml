@@ -11,7 +11,7 @@
     <batchsize>128</batchsize>
 
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
-    <scalefactor>${workload_size_factor}</scalefactor>
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
 
     <!-- The workload -->
     <terminals>${workload_threads}</terminals>

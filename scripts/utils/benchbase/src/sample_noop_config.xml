@@ -12,7 +12,7 @@
 
     <!-- This parameter has no affect on this benchmark-->
     <!-- There is no data to load -->
-    <scalefactor>${workload_size_factor}</scalefactor>
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
 
     <!-- The workload -->
     <terminals>${workload_threads}</terminals>

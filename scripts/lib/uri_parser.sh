@@ -13,6 +13,8 @@
 # [schema://][user[:password]@]host[:port][/path][?[arg1=val1]...][#fragment]
 #
 function uri_parser() {
+    declare -n URLPARSE=$1
+    shift    
     # uri capture
     uri="$@"
 
@@ -21,24 +23,24 @@ function uri_parser() {
     uri="${uri//\"/%22}"
 
     # top level parsing
-    pattern='^(([a-z]{3,5})://)?((([^:\/]+)(:([^@\/]*))?@)?([^:\/?]+)(:([0-9]+))?)(\/[^?]*)?(\?[^#]*)?(#.*)?$'
+    pattern='^(([a-z0-9]*)://)?((([^:\/]+)(:([^@\/]*))?@)?([^:\/?]+)(:([0-9]+))?)(\/[^?]*)?(\?[^#]*)?(#.*)?$'
     [[ "$uri" =~ $pattern ]] || return 1;
 
     # component extraction
     uri=${BASH_REMATCH[0]}
-    uri_schema=${BASH_REMATCH[2]}
-    uri_address=${BASH_REMATCH[3]}
-    uri_user=${BASH_REMATCH[5]}
-    uri_password=${BASH_REMATCH[7]}
-    uri_host=${BASH_REMATCH[8]}
-    uri_port=${BASH_REMATCH[10]}
-    uri_path=${BASH_REMATCH[11]}
-    uri_query=${BASH_REMATCH[12]}
-    uri_fragment=${BASH_REMATCH[13]}
+    URLPARSE[scheme]=${BASH_REMATCH[2]}
+    URLPARSE[netloc]=${BASH_REMATCH[3]}
+    URLPARSE[username]=${BASH_REMATCH[5]}
+    URLPARSE[password]=${BASH_REMATCH[7]}
+    URLPARSE[hostname]=${BASH_REMATCH[8]}
+    URLPARSE[port]=${BASH_REMATCH[10]}
+    URLPARSE[path]=${BASH_REMATCH[11]}
+    URLPARSE[query]=${BASH_REMATCH[12]}
+    URLPARSE[fragment]=${BASH_REMATCH[13]}
 
     # path parsing
     count=0
-    path="$uri_path"
+    path="$uri[path]"
     pattern='^/+([^/]+)'
     while [[ $path =~ $pattern ]]; do
         eval "uri_parts[$count]=\"${BASH_REMATCH[1]}\""
@@ -48,7 +50,7 @@ function uri_parser() {
 
     # query parsing
     count=0
-    query="$uri_query"
+    query="$uri[query]"
     pattern='^[?&]+([^= ]+)(=([^&]*))?'
     while [[ $query =~ $pattern ]]; do
         eval "uri_args[$count]=\"${BASH_REMATCH[1]}\""
