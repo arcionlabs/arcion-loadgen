@@ -33,5 +33,5 @@ done
 
 # with the arcdst user
 for f in ${CFG_DIR}/dst.init.user.*sql; do
-    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 
+    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB} 
 done

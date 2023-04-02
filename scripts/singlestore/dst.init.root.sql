@@ -18,5 +18,5 @@ set global default_table_type=rowstore;
 SELECT @@GLOBAL.default_table_type;
 
 -- arcion database
-create database IF NOT EXISTS ${DSTDB_ARC_USER};
+create database IF NOT EXISTS ${DSTDB_DB};
 create database IF NOT EXISTS io_replicate;

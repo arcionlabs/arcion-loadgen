@@ -10,7 +10,7 @@ export default_workload_size_factor=1
 export default_workload_size_factor_bb=1
 export default_workload_modules_bb="tpcc"
 export default_gui_run=0
-export default_database_map="arcsrc:arcdst"
+export default_database_maps="arcsrc:arcdst"
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
@@ -29,7 +29,7 @@ export workload_timer="${workload_timer:-$default_workload_timer}"
 export workload_size_factor="${workload_size_factor:-$default_workload_size_factor}"
 export gui_run="${gui_run:-$default_gui_run}"
 export max_cpus="${max_cpus:-$default_max_cpus}"
-export database_map=${default_database_map}
+export database_maps=${default_database_maps}
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"
@@ -64,24 +64,15 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_hostname_uri] [dst_hos
     -t workload_threads=${workload_threads}
     -w workload_timer=${workload_timer}
     -s workload_size_factor=${workload_size_factor}
-    -D database_map=${database_map}
-    -W workload_modules_bb=${workload_modules_bb}
+    -D database_maps=${database_maps}[,source:destination]
+    -W workload_modules_bb=${workload_modules_bb}[,module]
+      module=resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb
 
 Examples:
-    snapshot replication from postgresql to mysql 
-        SRCDB_HOST postgresql-1
-        SRCDB_DIR  postgresql/large
+    arcdemo.sh snapshot postgresql mysql 
+    arcdemo.sh snapshot postgresql://pg:5433 mysql 
 
-        $0 snapshot postgresq-1/large mysql 
-
-    real-time replication from mysql to mariadb 
-        $0 real-time mysql mariadb
-
-    full replication from mysql to mariadb 
-        $0 full mysql mariadb
-
-    delta-snapshot replication from mysql to mariadb 
-        $0 full mysql mariadb  
+    arcdemo.sh real-time mysql broker 
 EOF
 }
 
@@ -103,7 +94,7 @@ function arcdemo_opts() {
             t ) export workload_threads="$OPTARG" ;;
             w ) export workload_timer="$OPTARG" ;;
             s ) export workload_size_factor="$OPTARG" ;;
-            D ) export database_map="$OPTARG" ;;
+            D ) export database_maps="$OPTARG" ;;
             W ) export workload_modules_bb="$OPTARG" ;;
             h | * ) arcdemo_usage; exit 1 ;;
       esac

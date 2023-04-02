@@ -14,6 +14,10 @@
 #
 function uri_parser() {
     declare -n URLPARSE=$1
+    declare -n PATHPARSE=$2
+    declare -n QUERYPARSE=$3
+    shift    
+    shift    
     shift    
     # uri capture
     uri="$@"
@@ -23,9 +27,18 @@ function uri_parser() {
     uri="${uri//\"/%22}"
 
     # top level parsing
-    pattern='^(([a-z0-9]*)://)?((([^:\/]+)(:([^@\/]*))?@)?([^:\/?]+)(:([0-9]+))?)(\/[^?]*)?(\?[^#]*)?(#.*)?$'
+    # https://tldp.org/LDP/abs/html/x17129.html
+    #                              N
+    #                              O
+    #                   0-n   0-1  T    1-n
+    #                      //              :           @             :             /           ?          #
+    pattern='^(([a-z0-9]*)://)?((([^:\/]+)(:([^@\/]*))?@)?([^:\/?]+)(:([0-9]+))?)(\/([^?]*))?(\?([^#]*))?(#(.*))?$'
+    #         1|               3||         6|             8hostname 9 10port     11 |        13 |        15
+    #          2scheme          4|          7password                               12path      14query    16frag
+    #                            5username          
     [[ "$uri" =~ $pattern ]] || return 1;
 
+    echo ${BASH_REMATCH[*]}
     # component extraction
     uri=${BASH_REMATCH[0]}
     URLPARSE[scheme]=${BASH_REMATCH[2]}
@@ -34,27 +47,27 @@ function uri_parser() {
     URLPARSE[password]=${BASH_REMATCH[7]}
     URLPARSE[hostname]=${BASH_REMATCH[8]}
     URLPARSE[port]=${BASH_REMATCH[10]}
-    URLPARSE[path]=${BASH_REMATCH[11]}
-    URLPARSE[query]=${BASH_REMATCH[12]}
-    URLPARSE[fragment]=${BASH_REMATCH[13]}
+    URLPARSE[path]=${BASH_REMATCH[12]}
+    URLPARSE[query]=${BASH_REMATCH[14]}
+    URLPARSE[fragment]=${BASH_REMATCH[16]}
 
     # path parsing
     count=0
-    path="$uri[path]"
-    pattern='^/+([^/]+)'
+    path="${URLPARSE[path]}"
+    pattern='^([^\/\?#]*)[\/\?#]+'
     while [[ $path =~ $pattern ]]; do
-        eval "uri_parts[$count]=\"${BASH_REMATCH[1]}\""
+        PATHPARSE[$count]="${BASH_REMATCH[1]}"
         path="${path:${#BASH_REMATCH[0]}}"
+        echo $path
         let count++
     done
+    [ "${path}" ] && PATHPARSE[$count]="${path}"
 
-    # query parsing
     count=0
-    query="$uri[query]"
-    pattern='^[?&]+([^= ]+)(=([^&]*))?'
+    query="${URLPARSE[query]}"
+    pattern='([^= ]+)(=([^&;]*))?[&;]+'
     while [[ $query =~ $pattern ]]; do
-        eval "uri_args[$count]=\"${BASH_REMATCH[1]}\""
-        eval "uri_arg_${BASH_REMATCH[1]}=\"${BASH_REMATCH[3]}\""
+        QUERYPARSE[${BASH_REMATCH[1]}]=${BASH_REMATCH[3]}
         query="${query:${#BASH_REMATCH[0]}}"
         let count++
     done

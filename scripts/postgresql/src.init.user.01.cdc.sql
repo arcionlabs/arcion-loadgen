@@ -1,5 +1,5 @@
 -- required for CDC
-SELECT 'init' FROM pg_create_logical_replication_slot('${SRCDB_ARC_USER}_w2j', 'wal2json');
+SELECT 'init' FROM pg_create_logical_replication_slot('${SRCDB_DB}_w2j', 'wal2json');
 SELECT * from pg_replication_slots;
 
 -- required for CDC

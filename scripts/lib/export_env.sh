@@ -11,12 +11,14 @@ export SRCDB_TYPE=${SRCDB_TYPE}
 export SRCDB_HOST=${SRCDB_HOST}
 export SRCDB_GRP=${SRCDB_GRP}
 export SRCDB_PORT=${SRCDB_PORT}
+export SRCDB_DB=${SRCDB_DB}
 # destination
 export DSTDB_DIR=${DSTDB_DIR}
 export DSTDB_TYPE=${DSTDB_TYPE}
 export DSTDB_HOST=${DSTDB_HOST}
 export DSTDB_GRP=${DSTDB_GRP}
 export DSTDB_PORT=${DSTDB_PORT}
+export DSTDB_DB=${DSTDB_DB}
 # replication
 export REPL_TYPE=${REPL_TYPE}
 export ARCION_ARGS="${ARCION_ARGS}"

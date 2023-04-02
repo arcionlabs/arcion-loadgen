@@ -20,7 +20,7 @@ ping_db () {
 
 SRCDB_ROOT_URL="mongodb://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/"
 
-SRCDB_ARC_USER_URL="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER}"
+SRCDB_ARC_USER_URL="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"
 
 # wait for src db to be ready to connect
 ping_db "${SRCDB_ROOT_URL}" 

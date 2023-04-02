@@ -28,6 +28,10 @@ else
   # validate the flag arguments
   parse_arcion_thread_ratio
 
+  # TODO: hard code the source and target database
+  export SRCDB_DB=$SRCDB_ARC_USER
+  export DSTDB_DB=$DSTDB_ARC_USER
+
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 

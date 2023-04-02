@@ -42,7 +42,7 @@ done
 banner src user
 
 for f in ${CFG_DIR}/src.init.user.*sql; do
-  cat ${f} | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_ARC_USER} 
+  cat ${f} | envsubst | psql --echo-all postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB} 
 done
 
 # benchbase data population

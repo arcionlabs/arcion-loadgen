@@ -36,8 +36,10 @@ urlparse() { # return associative array
     # safe escaping
     uri="${uri//\`/%60}"
     uri="${uri//\"/%22}"
+    # check pattern match
     [[ "$uri" =~ $pattern ]] || return 1;
 
+    # matched
     URLPARSE[scheme]="${BASH_REMATCH[2]}"
     URLPARSE[authority]="${BASH_REMATCH[4]}"
     URLPARSE[username]="${BASH_REMATCH[6]}"

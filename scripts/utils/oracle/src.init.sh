@@ -38,7 +38,7 @@ done
 banner src user
 
 for f in ${CFG_DIR}/src.init.user.*sql; do
-  cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port="${SRCDB_PORT}" --database="${SRCDB_ARC_USER}"
+  cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port="${SRCDB_PORT}" --database="${SRCDB_DB}"
 done
 
 # benchbase data population
