@@ -19,7 +19,7 @@ function arcdemo_positional() {
             [ "${uri[password]}" ] && export SRCDB_ARC_PW="${uri[password]}"
             [ "${uri[hostname]}" ] && export SRCDB_HOST="${uri[hostname]}"
             [ "${uri[port]}" ] && export SRCDB_PORT="${uri[port]}"
-            [ "${uri[path]}" ] && export SRCDB_SUBDIR="${uri[path]}"
+            [ "${uri[path]}" ] && export SRCDB_DIR="${uri_path[0]}"
             [ "${uri_query[dbs]}" ] && export SRCDB_DB="${uri_query[dbs]}"
         fi
     fi
@@ -36,7 +36,7 @@ function arcdemo_positional() {
             [ "${uri[password]}" ] && export DSTDB_ARC_PW="${uri[password]}"
             [ "${uri[hostname]}" ] && export DSTDB_HOST="${uri[hostname]}"
             [ "${uri[port]}" ] && export DSTDB_PORT="${uri[port]}"
-            [ "${uri[path]}" ] && export DSTDB_SUBDIR="${uri[path]}"
+            [ "${uri[path]}" ] && export DSTDB_DIR="${uri_path[0]}"
             [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
         fi
     fi

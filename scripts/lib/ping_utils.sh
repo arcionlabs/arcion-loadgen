@@ -3,6 +3,9 @@
 # confirm DB is up and can return list of databases
 # mysql container during the startup how up as up, but is not responding 
 ping_db () {
+  declare -n PINGDB=$1
+  shift
+
   local HOST=$1
   local PORT=$2
   local JSQSH_DRIVER=$3 
@@ -11,12 +14,16 @@ ping_db () {
 
   rc=1
   while [ ${rc} != 0 ]; do
-    echo '\databases' | jsqsh --driver="${JSQSH_DRIVER}" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${PORT}"
+    # NOTE: the quote is required to create the hash correctly
+    out=( $( echo '\databases' | jsqsh --driver="${JSQSH_DRIVER}" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${PORT}" | awk -F'|' 'NF>1 {print $2}' | tr -d ' ') )
     rc=$?
     if (( ${rc} != 0 )); then
       echo "waiting 10 sec for ${JSQSH_DRIVER}://${USER}@${HOST}:${PORT} to connect"
       sleep 10
     fi
+    for db in ${out[*]}; do
+      PINGDB[${db}]="${db}"
+    done
   done
 }
 

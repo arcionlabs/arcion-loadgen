@@ -3,8 +3,8 @@ type: INFORMIX
 host: ${SRCDB_HOST}
 port: 9088  # In case of SSL connection use SSL port
 
-server: '${SRCDB_HOST}'
-database: '${SRCDB_ARC_USER}'
+server: informix
+database: '${SRCDB_DB}'
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'

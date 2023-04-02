@@ -73,7 +73,7 @@ bb_create_tables() {
         # remove batch rewrite
         remove_batchrwrite=${WORKLOAD_DATABASE_NOREWRITE_HASH[$w]}
         if [ "$db_grp" = "$remove_batchrwrite" ]; then
-            echo "Remove batch rewrite"
+            echo "Remove batch rewrite per ${SCRIPTS_DIR}/utils/benchbase/bb_no_batchrewrite.csv"
             if [ -z "$db_jdbc_no_rewrite" ]; then
                 echo "no write available"
             else
@@ -93,6 +93,7 @@ bb_create_tables() {
         if [ -z "${workload_table_exists}" ]; then
             JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
             $JAVA_HOME/bin/java -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
+            --interval-monitor 10000 \
             --create=true --load=true --execute=false
         else
             # do not drop the existing tables as take time to refill them
