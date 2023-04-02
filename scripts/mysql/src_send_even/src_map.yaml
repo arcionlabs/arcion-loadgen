@@ -1,8 +1,8 @@
 rules:
-  [${DSTDB_ARC_USER} ${DSTDB_COMMA_SCHEMA}]:
+  [${DSTDB_DB} ${DSTDB_COMMA_SCHEMA}]:
     source:
-    - [${SRCDB_ARC_USER} ${SRCDB_COMMA_SCHEMA}]
+    - [${SRCDB_DB} ${SRCDB_COMMA_SCHEMA}]
     tables:
       [t1_even]:
         source:
-          [${SRCDB_ARC_USER} ${SRCDB_COMMA_SCHEMA}, t1]:
+          [${SRCDB_DB} ${SRCDB_COMMA_SCHEMA}, t1]:

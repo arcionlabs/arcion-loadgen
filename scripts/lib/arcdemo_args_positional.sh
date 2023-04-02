@@ -12,7 +12,7 @@ function arcdemo_positional() {
         unset uri; declare -A uri;  
         unset uri_path; declare -a uri_path;  
         unset uri_query; declare -a uri_query;  
-        uri_parser uri uri_path uri+query "$2"
+        uri_parser uri uri_path uri_query "$2"
         if [ "$?" = 0 ]; then
             [ "${uri[scheme]}" ] && export SRCDB_TYPE= "${uri[scheme]}" 
             [ "${uri[username]}" ] && export SRCDB_ARC_USER="${uri[username]}"
@@ -20,7 +20,7 @@ function arcdemo_positional() {
             [ "${uri[hostname]}" ] && export SRCDB_HOST="${uri[hostname]}"
             [ "${uri[port]}" ] && export SRCDB_PORT="${uri[port]}"
             [ "${uri[path]}" ] && export SRCDB_SUBDIR="${uri[path]}"
-            [ "${uri_path[0]}" ] && export SRCDB_DB="${uri_path[0]}"
+            [ "${uri_query[dbs]}" ] && export SRCDB_DB="${uri_query[dbs]}"
         fi
     fi
 
@@ -29,7 +29,7 @@ function arcdemo_positional() {
         unset uri; declare -A uri;  
         unset uri_path; declare -a uri_path;  
         unset uri_query; declare -a uri_query;  
-        uri_parser uri uri_path uri+query "$3"
+        uri_parser uri uri_path uri_query "$3"
         if [ "$?" = 0 ]; then
             [ "${uri[scheme]}" ] && export DSTDB_TYPE= "${uri[scheme]}" 
             [ "${uri[username]}" ] && export DSTDB_ARC_USER="${uri[username]}"
@@ -37,7 +37,7 @@ function arcdemo_positional() {
             [ "${uri[hostname]}" ] && export DSTDB_HOST="${uri[hostname]}"
             [ "${uri[port]}" ] && export DSTDB_PORT="${uri[port]}"
             [ "${uri[path]}" ] && export DSTDB_SUBDIR="${uri[path]}"
-            [ "${uri_path[0]}" ] && export DSTDB_DB="${uri_path[0]}"
+            [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
         fi
     fi
 

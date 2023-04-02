@@ -189,7 +189,7 @@ extractor:
       ddl-replication-mode: INLINE
     heartbeat:
       enable: true
-      catalog: ${SRCDB_ARC_USER}
+      catalog: ${SRCDB_DB}
       schema: ${SRCDB_SCHEMA}
   delta-snapshot:
     threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
@@ -201,7 +201,7 @@ extractor:
     delta-snapshot-delete-interval: 10
 filter:
   allow:
-  - catalog: ${SRCDB_ARC_USER}
+  - catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
     types:
     - TABLE

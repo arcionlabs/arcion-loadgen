@@ -1,2 +1,2 @@
 allow:
-- catalog: "arcsrc"
+- catalog: ${SRCDB_DB}

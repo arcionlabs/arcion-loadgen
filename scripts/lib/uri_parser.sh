@@ -41,33 +41,35 @@ function uri_parser() {
     echo ${BASH_REMATCH[*]}
     # component extraction
     uri=${BASH_REMATCH[0]}
-    URLPARSE[scheme]=${BASH_REMATCH[2]}
-    URLPARSE[netloc]=${BASH_REMATCH[3]}
-    URLPARSE[username]=${BASH_REMATCH[5]}
-    URLPARSE[password]=${BASH_REMATCH[7]}
-    URLPARSE[hostname]=${BASH_REMATCH[8]}
-    URLPARSE[port]=${BASH_REMATCH[10]}
-    URLPARSE[path]=${BASH_REMATCH[12]}
-    URLPARSE[query]=${BASH_REMATCH[14]}
-    URLPARSE[fragment]=${BASH_REMATCH[16]}
+    URLPARSE[scheme]="${BASH_REMATCH[2]}"
+    URLPARSE[netloc]="${BASH_REMATCH[3]}"
+    URLPARSE[username]="${BASH_REMATCH[5]}"
+    URLPARSE[password]="${BASH_REMATCH[7]}"
+    URLPARSE[hostname]="${BASH_REMATCH[8]}"
+    URLPARSE[port]="${BASH_REMATCH[10]}"
+    URLPARSE[path]="${BASH_REMATCH[12]}"
+    URLPARSE[query]="${BASH_REMATCH[14]}"
+    URLPARSE[fragment]="${BASH_REMATCH[16]}"
+
+    # save for parsing later
+    local path="${BASH_REMATCH[11]}"  # need the leading delim
+    local query="${BASH_REMATCH[13]}" # need the leading delim
 
     # path parsing
-    count=0
-    path="${URLPARSE[path]}"
-    pattern='^([^\/\?#]*)[\/\?#]+'
+    local count=0
+    local pattern='[\/\?;&#]+([^\/\;&?#]*)'
     while [[ $path =~ $pattern ]]; do
         PATHPARSE[$count]="${BASH_REMATCH[1]}"
         path="${path:${#BASH_REMATCH[0]}}"
         echo $path
         let count++
     done
-    [ "${path}" ] && PATHPARSE[$count]="${path}"
+    #[ "${path}" ] && PATHPARSE[$count]="${path}"
 
     count=0
-    query="${URLPARSE[query]}"
-    pattern='([^= ]+)(=([^&;]*))?[&;]+'
+    pattern='[\?\&\;]+([^= ]+)(=([^\?\&\;]*))'
     while [[ $query =~ $pattern ]]; do
-        QUERYPARSE[${BASH_REMATCH[1]}]=${BASH_REMATCH[3]}
+        QUERYPARSE[${BASH_REMATCH[1]}]="${BASH_REMATCH[3]}"
         query="${query:${#BASH_REMATCH[0]}}"
         let count++
     done

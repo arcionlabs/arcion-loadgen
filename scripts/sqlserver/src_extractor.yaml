@@ -8,7 +8,7 @@ realtime:
   threads: ${SRCDB_REALTIME_THREADS}
   # enable DDL replication
   ddl-replication:
-    catalog: ${SRCDB_ARC_USER}
+    catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
     detect-ddl-interval: 100  
     enable: true                 
@@ -16,7 +16,7 @@ realtime:
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
     enable: true
-    catalog: ${SRCDB_ARC_USER}
+    catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
 
 delta-snapshot:

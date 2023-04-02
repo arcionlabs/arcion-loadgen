@@ -11,9 +11,12 @@ jdbc_cli() {
   local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
   local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
+  local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
   shift
 
-  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}"
+  db_db=${db_db:-${db_user}}
+
+  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
 }
 
 jdbc_cli_src() {
@@ -30,16 +33,16 @@ list_tables() {
 
     case ${DB_GRP,,} in
         mysql)
-    local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' order by table_name;"
         ;;
         postgresql|sqlserver)
-    local DB_CATALOG=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
         ;;
         informix)
-    local DB_SCHEMA=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname;"
         ;;
     *)
@@ -66,13 +69,14 @@ dump_schema() {
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
+    local DB_DB=$( x="${LOC^^}DB_DB"; echo ${!x} )
 
     case ${DB_GRP,,} in
         mysql)
-            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME}' and table_schema='${DB_ARC_USER}' order by ordinal_position;"
+            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME}' and table_schema='${DB_DB}' order by ordinal_position;"
             ;;
         postgresql|sqlserver)
-            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME} and table_schema='${DB_SCHEMA}' and table_catalog='${DB_ARC_USER}' order by ordinal_position;"
+            DB_SQL="select column_name,data_type, column_default, is_nullable, character_maximum_length, numeric_precision, numeric_scale, datetime_precision from information_schema.columns WHERE table_name='${TABLE_NAME} and table_schema='${DB_SCHEMA}' and table_catalog='${DB_DB}' order by ordinal_position;"
             ;;
         *)
             echo "jdbc_cli: dump_schema for ${DB_GRP,,} needs to be handled."
@@ -99,16 +103,17 @@ list_columns() {
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
+    local DB_DB=$( x="${LOC^^}DB_DB"; echo ${!x} )
 
     case ${DB_GRP,,} in
         mysql)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_ARC_USER}' and table_name='${TABLE_NAME}' order by ordinal_position;"
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_schema='${DB_DB}' and table_name='${TABLE_NAME}' order by ordinal_position;"
             ;;
         postgresql|sqlserver)
-            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_ARC_USER}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by ordinal_position;"
+            DB_SQL="SELECT column_name FROM information_schema.columns WHERE table_catalog='${DB_DB}' and table_schema='${DB_SCHEMA}' and table_name='${TABLE_NAME}' order by ordinal_position;"
             ;;
         informix)
-            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_SCHEMA}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by colno;"
+            DB_SQL="SELECT TRIM(c.colname) as column_name FROM informix.systables AS t JOIN informix.syscolumns AS c ON t.tabid = c.tabid WHERE t.owner='${DB_DB}' and t.tabname='${TABLE_NAME}' AND t.tabid >= 100 order by colno;"
             ;;
         *)
             echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
@@ -137,19 +142,20 @@ dump_table() {
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo ${!x} )
+    local DB_DB=$( x="${LOC^^}DB_DB"; echo ${!x} )
 
     case ${DB_GRP,,} in
         mysql)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_ARC_USER}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_schema='${DB_DB}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
             ;;
         postgresql|sqlserver)            
-            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_ARC_USER}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
+            col_pk_sql="SELECT Col.Column_Name from INFORMATION_SCHEMA.TABLE_CONSTRAINTS Tab, INFORMATION_SCHEMA.key_column_usage Col WHERE Col.Constraint_Name = Tab.Constraint_Name AND Tab.Constraint_Type = 'PRIMARY KEY' AND Col.Table_Name = Tab.Table_Name AND Col.table_catalog='${DB_DB}' AND Col.table_schema='${DB_SCHEMA}' AND Col.table_name='${TABLE_NAME}' order by Col.Column_Name;"
             ;;
         informix)      
             local parts=$( seq 1 1 16 | xargs -I % echo part% | paste -s -d, )
-            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_ARC_USER}' and si.tabid >= 100"              
+            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_DB}' and si.tabid >= 100"              
             local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
-            col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_ARC_USER}' and t.tabid >= 100 order by c.colname" 
+            col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_DB}' and t.tabid >= 100 order by c.colname" 
             ;;
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
@@ -165,15 +171,15 @@ dump_table() {
         # show the column names to be validated
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_DB}.${TABLE_NAME}.tsv 
     else 
         # show the column names to be validated
         col_names_pk="order by ${col_names_pk}"
         echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" > ${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" > ${CFG_DIR}/${DB_DB}.${TABLE_NAME}.tsv 
     fi
-    echo "${CFG_DIR}/${DB_ARC_USER}.${TABLE_NAME}.tsv" >&2 
+    echo "${CFG_DIR}/${DB_DB}.${TABLE_NAME}.tsv" >&2 
 }
 
 # drop all tables first.  

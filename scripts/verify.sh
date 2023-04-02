@@ -23,6 +23,7 @@ top10_query() {
     local DB_ARC_PW=$( x="${X}DB_ARC_PW"; echo ${!x} )
     local DB_GRP=$( x="${X}DB_GRP"; echo ${!x} )
     local DB_JSQSH_DRIVER=$( x="${X}DB_JSQSH_DRIVER"; echo ${!x} )
+    local DB_DB=$( x="${X}DB_DB"; echo ${!x} )
 
     export DB_SELECT
     export DB_CLI
@@ -30,16 +31,16 @@ top10_query() {
     case ${DB_GRP,,} in
         mysql)
             DB_SELECT="select $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc limit 10\;"
-            DB_CLI="mysql -t -u${DB_ARC_USER} -h${DB_HOST} -p${DB_ARC_PW} -D${DB_ARC_USER} -P${DB_PORT}"
+            DB_CLI="mysql -t -u${DB_ARC_USER} -h${DB_HOST} -p${DB_ARC_PW} -D${DB_DB} -P${DB_PORT}"
         ;;
         postgresql)
             DB_SELECT="select $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc limit 10\;"
-            DB_CLI="psql postgresql://${DB_ARC_USER}:${DB_ARC_PW}@${DB_HOST}:${DB_PORT}/${DB_ARC_USER}"
+            DB_CLI="psql postgresql://${DB_ARC_USER}:${DB_ARC_PW}@${DB_HOST}:${DB_PORT}/${DB_DB}"
         ;;
         sqlserver)
             if [ ! -z "${TS2_SEL}" ]; then TS2_SEL=',datediff(millisecond, ts2, ts2) as "ts2-ts1"'; fi
             DB_SELECT="select top 10 $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc\;"
-            DB_CLI="${JSQSH_DIR}/*/bin/jsqsh --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_ARC_USER}"
+            DB_CLI="${JSQSH_DIR}/*/bin/jsqsh --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_DB}"
         ;;    
         *)
             echo "verify.sh: Info: ${DB_GRP} needs to be supported" >&2

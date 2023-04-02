@@ -43,13 +43,15 @@ export ARCION_ARGS=${ARCION_ARGS:-$default_ARCION_ARGS}
 
 arcdemo_usage() {
 cat <<EOF >&2
-$0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_hostname_uri] [dst_hostname] 
+$0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_uri] [dst_uri] 
   src_uri
-    mysql://username:password@hostname:port/subdir
+    mysql://username:password@hostname:port/dir?dbs=arcsrc[,db2]&tabs=tab[,tab2]
       scheme=default mysql|mariadb|singlestore|postgresql|yugabytesql|cockroach|....
       hostname=hostname
       username=default arcsrc
       password=default Passw0rd
+      dbs=default arcsrc comma separated
+      tabs=default * comma separated
   dst_uri
       username=default arcdst
       password=default Passw0rd
