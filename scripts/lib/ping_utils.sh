@@ -15,16 +15,23 @@ ping_db () {
   rc=1
   while [ ${rc} != 0 ]; do
     # NOTE: the quote is required to create the hash correctly
-    out=( $( echo '\databases' | jsqsh --driver="${JSQSH_DRIVER}" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${PORT}" | awk -F'|' 'NF>1 {print $2}' | tr -d ' ') )
-    rc=$?
+    echo '\databases' | jsqsh --driver="${JSQSH_DRIVER}" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${PORT}" 2>/tmp/ping_utils.err.$$ | awk -F'|' 'NF>1 {print $2}' | tr -d ' ' > /tmp/ping_utils.out.$$
+    rc=${PIPESTATUS[1]} # want jsqsh rc code
+    echo ${PIPESTATUS[*]}
     if (( ${rc} != 0 )); then
-      echo "waiting 10 sec for ${JSQSH_DRIVER}://${USER}@${HOST}:${PORT} to connect"
-      sleep 10
+      if [ -z "$( grep 'Socket fail to connect' /tmp/ping_utils.err.$$ )" ]; then
+        break
+      else
+        echo "waiting 10 sec for ${JSQSH_DRIVER}://${USER}@${HOST}:${PORT} to connect"
+        sleep 10
+      fi
     fi
-    for db in ${out[*]}; do
-      PINGDB[${db}]="${db}"
-    done
   done
+  for db in $( cat /tmp/ping_utils.out.$$ ); do
+    PINGDB[${db}]="${db}"
+  done
+  rm /tmp/ping_utils.out.$$
+  rm /tmp/ping_utils.err.$$
 }
 
 # verify host is up
