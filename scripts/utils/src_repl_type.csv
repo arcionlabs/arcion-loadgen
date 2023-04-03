@@ -1,0 +1,6 @@
+src,repl_type
+mysql,full
+mariadb,full
+postgresql,full
+informix,snapshot
+sqlserver,snapshot
