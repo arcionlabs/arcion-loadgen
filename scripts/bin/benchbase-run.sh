@@ -26,12 +26,15 @@ workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter yc
 # sqlserver bulk copy does not work with these
 # workloads="smallbank twitter wikipedia"
 
-bb_chdir $LOC
+if [ "${SRCDB_ARC_USER}" != "${SRCDB_DB}" ]; then
+  echo "benchbase-run: "${SRCDB_ARC_USER}" != "${SRCDB_DB} skipping
+  exit
+fi
+
 trap kill_jobs SIGINT
 if [ -z "$WORKLOADS" ]; then 
-    bb_run_tables "$workload_modules_bb"
+    bb_run_tables $LOC "$workload_modules_bb"
 else
-    bb_run_tables "$WORKLOADS"
+    bb_run_tables $LOC "$WORKLOADS"
 fi
 wait_jobs
-popd

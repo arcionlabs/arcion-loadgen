@@ -9,7 +9,7 @@ realtime:
   # enable DDL replication
   ddl-replication:
     catalog: ${SRCDB_DB}
-    schema:  ${SRCDB_ARC_USER}
+    schema:  ${SRCDB_SCHEMA}
     detect-ddl-interval: 100  
     enable: true                 
     ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
@@ -17,7 +17,7 @@ realtime:
   heartbeat:
     enable: true
     catalog: ${SRCDB_DB}
-    schema:  ${SRCDB_ARC_USER}
+    schema:  ${SRCDB_SCHEMA}
 
 delta-snapshot:
   threads: ${DSTDB_DELTA_SNAPSHOT_THREADS}

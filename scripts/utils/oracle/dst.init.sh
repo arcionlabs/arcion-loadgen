@@ -19,7 +19,7 @@ if [ -z "${EXISTING_DBS[${DSTDB_DB}]}" ]; then
     cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
   done
 
-  if [ "${DSTDB_DB}}" = "${DSTDB_ARC_USER}" ]; then
+  if [ "${DSTDB_DB}" = "${DSTDB_ARC_USER}" ]; then
     echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
     for f in ${CFG_DIR}/dst.init.user.*sql; do
       cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}" --database="${DSTDB_DB}"

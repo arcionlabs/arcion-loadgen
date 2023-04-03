@@ -1,5 +1,5 @@
 -- ts is used for snapshot delta. 
-CREATE TABLE theusertable (
+CREATE TABLE if not exists theusertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,

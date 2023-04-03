@@ -16,19 +16,21 @@ if [ -z "${EXISTING_DBS[${DSTDB_DB}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
   banner dst root
   for f in ${CFG_DIR}/dst.init.root.*sql; do
-    cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
+    cat ${f} | envsubst | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
   done
-
-  if [ "${DSTDB_DB}}" = "${DSTDB_ARC_USER}" ]; then
-    echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
-    for f in ${CFG_DIR}/dst.init.user.*sql; do
-      cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}" --database="${DSTDB_DB}"
-    done
-  else
-    echo "dst db ${DSTDB_ARC_USER} != ${DSTDB_DB} skipping user setup"
-  fi
 else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
 fi
+
+# setup user tables
+if [ "${DSTDB_DB}" = "${DSTDB_ARC_USER}" ]; then
+  echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
+  for f in ${CFG_DIR}/dst.init.user.*sql; do
+    cat ${f} | envsubst | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}" --database="${DSTDB_DB}"
+  done
+else
+  echo "dst db ${DSTDB_ARC_USER} != ${DSTDB_DB} skipping user setup"
+fi
+
 
 

@@ -104,24 +104,12 @@ bb_create_tables() {
     popd
 }
 
-# no longer used
-bb_load_tables() {
-    local workloads="${1:-tpcc}"
-
-    readarray -td, workloads < <(printf '%s' "$workloads")
-
-    for w in "${workloads[@]}"; do
-        JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
-        $JAVA_HOME/bin/java -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
-        --interval-monitor 10000 \
-        --create=false --load=true --execute=false
-    done    
-    count_all_tables ${LOC,,}
-}
-
 bb_run_tables() {
-    local workloads="${1:-tpcc}"
- 
+    local LOC=${1:-SRC}
+    local workloads="${2:-tpcc}"
+
+    bb_chdir $LOC
+
     readarray -td, workloads < <(printf '%s' "$workloads")
 
     for w in "${workloads[@]}"; do
@@ -131,4 +119,7 @@ bb_run_tables() {
         --interval-monitor 10000 \
         --create=false --load=false --execute=true &
     done    
+
+    popd
+
 }
