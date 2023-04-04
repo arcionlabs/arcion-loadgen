@@ -87,18 +87,25 @@ parse_params "$@"
 setup_colors
 
 
-src="${src:-mysql postgresql mariadb sqlserver informix}"
-dst="${dst:-mysql2 postgresql yugabytesql sqlserver informix}"
-repl="${repl:-snapshot}"
+src_real_time="${src:-mysql mariadb postgresql informix}"
+src_snapshot="${src:-cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
+dst="${dst:-broker cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
+repl="${repl:-snapshot real-time}"
+
+if [ -z "$src" ] && [ "$repl" = "real-time" | "$repl" = "full" ]; then
+  src=$src_real_time
+else
+  src=$src_snapshot
+fi
+
 for s in $src; do
   for d in $dst; do
     for r in $repl; do
         echo "./arcdemo.sh -w 60 $r $s $d"
         ./arcdemo.sh -w 60 $r $s $d
-        #$SCRIPTS_DIR/bin/validate.sh
     done
   done
 done
 
-echo "Looking for runs had data validation error"
-find /tmp/arcion -type f -name "*.diff" -size +0c
+# echo "Looking for runs had data validation error"
+# find /tmp/arcion -type f -name "*.diff" -size +0c

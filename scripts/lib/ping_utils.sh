@@ -19,7 +19,7 @@ ping_db () {
     rc=${PIPESTATUS[1]} # want jsqsh rc code
     echo ${PIPESTATUS[*]}
     if (( ${rc} != 0 )); then
-      if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' /tmp/ping_utils.err.$$ )" ]; then
+      if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' -e 'Verify the connection properties' /tmp/ping_utils.err.$$ )" ]; then
         break  
       else
         echo "waiting 10 sec for ${JSQSH_DRIVER}://${USER}@${HOST}:${PORT} to connect"

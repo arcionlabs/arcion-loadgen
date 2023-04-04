@@ -7,7 +7,7 @@ copy_hier_as_flat() {
     [ ! -d "${DST}" ] && mkdir -p ${DST}
     dir=""
     for d in $( echo $SRC |  tr "/" "\n" ); do
-        echo "*${d}"
+        # DEBUG: echo "*${d}"
         dir="${dir}${d}"
         if [ ! -d "${dir}" ]; then continue; fi
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
@@ -17,10 +17,10 @@ copy_hier_as_flat() {
             fi 
             local suffix=$( echo $f | awk -F. '{print $NF}' )
             if [ "$suffix" = "sh" ]; then 
-                echo cp $f $DST/$filename
+                # DEBUG: echo cp $f $DST/$filename
                 cp ${f} $DST/$filename 
             else
-                echo "cat "${f}" | PID=$$ envsubst > $DST/$filename"
+                # DEBUG: echo "cat "${f}" | PID=$$ envsubst > $DST/$filename"
                 cat "${f}" | PID=$$ envsubst > $DST/$filename
             fi    
         done
