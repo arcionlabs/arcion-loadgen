@@ -23,7 +23,7 @@ bb_chdir() {
             pushd /opt/benchbase/benchbase-mariadb
             ;;
         oracle)
-            pushd /opt/benchbase/benchbase-postgres
+            pushd /opt/benchbase/benchbase-oracle
             ;;
         postgresql)
             pushd /opt/benchbase/benchbase-postgres
