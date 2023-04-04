@@ -26,9 +26,19 @@ export DSTDB_JDBC_REWRITE
 set_jdbc_vars() {
 
 case "${SRCDB_GRP,,}" in
-  # JDBC settings 
-  # https://www.ibm.com/docs/en/informix-servers/12.10?topic=database-informix-environment-variables-informix-jdbc-driver
+  oracle)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="oracle"
+    SRCDB_JDBC_DRIVER="oracle.jdbc.OracleDriver"
+    SRCDB_JDBC_URL="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/XE"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/XE"   
+    SRCDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/XE"
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""
+    ;;
   informix)
+    # JDBC settings 
+    # https://www.ibm.com/docs/en/informix-servers/12.10?topic=database-informix-environment-variables-informix-jdbc-driver
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="informix"
     SRCDB_JDBC_DRIVER="com.informix.jdbc.IfxDriver"
@@ -78,11 +88,21 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"      
     ;;         
   *)
-    echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support" >&2
+    echo "ini_jdbc.sh: SRCDB_GRP: ${SRCDB_GRP} need to code support" >&2
     ;;
 esac
 
 case "${DSTDB_GRP,,}" in
+  oracle)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="oracle"
+    DSTDB_JDBC_DRIVER="oracle.jdbc.OracleDriver"
+    DSTDB_JDBC_URL="jdbc:oracle:thin:@//${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:oracle:thin:@//${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"   
+    DSTDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""
+    ;;
   informix)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="informix"
@@ -133,7 +153,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"  
     ;;     
   *)
-    echo "$0: DSTDB_GRP: ${DSTDB_GRP} need to code support" >&2
+    echo "ini_jdbc.sh: DSTDB_GRP: ${DSTDB_GRP} need to code support" >&2
     ;;
 esac
 }

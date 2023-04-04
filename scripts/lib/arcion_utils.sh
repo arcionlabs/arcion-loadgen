@@ -240,6 +240,7 @@ while [ 1 ]; do
     echo "Source Port: ${SRCDB_PORT}"
     echo "Source Root: ${SRCDB_ROOT}"
     echo "Source Schema: ${SRCDB_SCHEMA}"
+    echo "Source DB: ${SRCDB_DB}"
     if (( ask == 0 )); then 
         break
     else
@@ -295,6 +296,7 @@ while [ 1 ]; do
     echo "Destination Port: ${DSTDB_PORT}"    
     echo "Destination Root: ${DSTDB_ROOT}"    
     echo "Destination Schema: ${DSTDB_SCHEMA}"    
+    echo "Destination DB: ${DSTDB_DB}"    
     if (( ask == 0 )); then 
         break
     else

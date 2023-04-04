@@ -123,15 +123,15 @@ ycsb_load_sf() {
   local ycsb_size_factor=${workload_size_factor}
 
   local ycsb_size_factor=${ycsb_size_factor:-${default_ycsb_size_factor}}
-  local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
+  local ycsb_insertstart=$(ycsb_rows $LOC)
   local ycsb_key 
   local key_found
   local i
-  local ycsb_key_start=$(( $(ycsb_rows $LOC) / const_ycsb_recordcount ))
+  local ycsb_sf_start=$(( ycsb_insertstart / const_ycsb_recordcount ))
 
-  echo "YCSB: starting from size factor $ycsb_key_start to ${ycsb_size_factor}"
+  echo "YCSB: starting from size factor $ycsb_sf_start to ${ycsb_size_factor}"
 
-  for i in $( seq ${ycsb_key_start} 1 $(( ycsb_size_factor-1 )) ); do 
+  for i in $( seq ${ycsb_sf_start} 1 $(( ycsb_size_factor - 1 )) ); do 
 
     # ycsb key are padded 11 digits
     ycsb_key=$(printf user%0${const_ycsb_zeropadding}d ${ycsb_insertstart})

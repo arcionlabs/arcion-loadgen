@@ -165,7 +165,7 @@
    >
       <username><![CDATA[arcsrc]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
-      <catalog><![CDATA[arcsrc]]></catalog>
+      <catalog><![CDATA[XE]]></catalog>
    </connection>
    <connection name="ordst"
                driver="oracle"
@@ -173,7 +173,7 @@
    >
       <username><![CDATA[arcdst]]></username>
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
-      <catalog><![CDATA[arcdst]]></catalog>
+      <catalog><![CDATA[XE]]></catalog>
    </connection>
    <connection name="insrc"
                driver="informix"

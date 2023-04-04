@@ -3,12 +3,12 @@ type: ORACLE
 host: ${SRCDB_HOST}
 port: 1531
 
-service-name: IO
+service-name: XE
 
 username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
 
-max-connections: 30
+max-connections: 10
 #max-fetch-schema-connections: 30  #default value same max-connections
 
 max-retries: 1

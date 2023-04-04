@@ -11,11 +11,15 @@ ping_db () {
   local JSQSH_DRIVER=$3 
   local USER=$4
   local PW=$5
+  local DB=$6 # SID required for oracle 
 
   rc=1
+  ARGS="--driver=${JSQSH_DRIVER} --user=${USER} --password=${PW} --server=${HOST} --port=${PORT}"
+  if [ ! -z "${DB}" ]; then ARGS="${ARGS} --database ${DB}"; fi
+
   while [ ${rc} != 0 ]; do
     # NOTE: the quote is required to create the hash correctly
-    echo '\databases' | jsqsh --driver="${JSQSH_DRIVER}" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${PORT}" 2>/tmp/ping_utils.err.$$ | awk -F'|' 'NF>1 {print $2}' | tr -d ' ' > /tmp/ping_utils.out.$$
+    echo '\databases' | jsqsh ${ARGS} 2>/tmp/ping_utils.err.$$ | awk -F'|' 'NF>1 {print $2}' | tr -d ' ' > /tmp/ping_utils.out.$$
     rc=${PIPESTATUS[1]} # want jsqsh rc code
     echo ${PIPESTATUS[*]}
     if (( ${rc} != 0 )); then

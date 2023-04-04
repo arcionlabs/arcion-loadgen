@@ -6,15 +6,9 @@ snapshot:
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}
-  # enable DDL replication
-  ddl-replication:
-    enable: true                 
-    ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
-  # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
     enable: true
-    catalog: ${SRCDB_DB}
-    schema: ${SRCDB_SCHEMA}
+    schema: XE
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}

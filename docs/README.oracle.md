@@ -9,6 +9,10 @@ cd OracleDatabase/SingleInstance/dockerfiles
 
 ### Oracle Express Edition
 
+Default root id/password = Passw0rd
+
+jsqsh --driver oracle --server oracle --port 1521 --user system --password Passw0rd --database XE
+
 ```bash
 git clone https://github.com/oracle/docker-images oracle-docker-images
 cd oracle-docker-images
@@ -31,6 +35,10 @@ alter session set "_ORACLE_SCRIPT"=true;
 CREATE USER arcsrc IDENTIFIED BY Passw0rd;
 
 grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcsrc;
+
+CREATE USER arcdst IDENTIFIED BY Passw0rd;
+
+grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcdst;
 
 ```
 
