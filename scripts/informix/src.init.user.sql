@@ -1,5 +1,9 @@
+-- create with DB:owner.tablename
+CREATE TABLE if not exists replicate_io_cdc_heartbeat(
+  timestamp BIGINT NOT NULL,
+  PRIMARY KEY(timestamp)
+) LOCK MODE ROW;
 
--- ts is used for snapshot delta. 
 CREATE TABLE if not exists  theusertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,
 	field0 varchar(255), field1 varchar(255),

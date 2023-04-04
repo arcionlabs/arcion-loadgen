@@ -16,7 +16,11 @@ jdbc_cli() {
 
   db_db=${db_db:-${db_user}}
 
-  ${JSQSH_DIR}/*/bin/jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
+  # Not used but maybe helpful later
+  # if the flag as '-n meaning batch mode'
+  # if [[ "${1}" =~ (^|[^[:alnum:]_])-n([^[:alnum:]_]|$) ]]; then
+  # 
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
 }
 
 jdbc_cli_src() {

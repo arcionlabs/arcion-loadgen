@@ -7,7 +7,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-s|--src host ] [-d|--dst host ] [-r|--repltype type] 
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-s|--src host ] [-d|--dst host ] [-r|--repltype type] -- [options to pass to arcdemo.sh]
 
 Script description here.
 
@@ -88,7 +88,7 @@ setup_colors
 
 
 src="${src:-mysql postgresql mariadb sqlserver informix}"
-dst="${dst:-mysql2 postgresql yugabytesql}"
+dst="${dst:-mysql2 postgresql yugabytesql sqlserver informix}"
 repl="${repl:-snapshot}"
 for s in $src; do
   for d in $dst; do

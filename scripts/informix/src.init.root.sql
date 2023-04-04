@@ -5,9 +5,4 @@ database ${SRCDB_DB};
 grant resource to ${SRCDB_ARC_USER};
 grant connect to ${SRCDB_ARC_USER};
 
--- create with DB:owner.tablename
-CREATE TABLE if not exists ${SRCDB_DB}:${SRCDB_SCHEMA}.replicate_io_cdc_heartbeat(
-  timestamp BIGINT NOT NULL,
-  PRIMARY KEY(timestamp)
-) LOCK MODE ROW;
 
