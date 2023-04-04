@@ -25,5 +25,5 @@ stage:
 
 # Warning: The IBM IDS Developer Edition license restriction limits
 # the number of connections to this server to 25.
-max-connections: 10
+max-connections: 5
 max-retries: 1

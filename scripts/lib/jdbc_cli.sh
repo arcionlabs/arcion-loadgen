@@ -135,7 +135,7 @@ dump_table() {
     local LOC="${1:-SRC}"        # SRC|DST
     local TABLE_NAME="${2:-usertable}"    # usertable|sbtest1
     local col_names=${3:-$( list_columns $LOC $TABLE_NAME | paste -s -d, )}
-    local REMOVE_COLS=${3:-ts2}
+    local REMOVE_COLS=${4:-ts2}
 
     # use parameter expansion https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
     local DB_HOST=$( x="${LOC^^}DB_HOST"; echo ${!x} )
@@ -157,25 +157,36 @@ dump_table() {
             ;;
         informix)      
             local parts=$( seq 1 1 16 | xargs -I % echo part% | paste -s -d, )
-            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_DB}' and si.tabid >= 100"              
+            local pk_col_ids_sql="select $parts from sysconstraints sc, sysindexes si, systables st where sc.tabid = si.tabid and si.tabid=st.tabid and st.tabname='${TABLE_NAME}' and st.owner='${DB_DB}' and si.tabid >= 100"  
+            # DEBUG echo "${pk_col_ids_sql}"
             local pk_col_ids=$( echo "${pk_col_ids_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
-            col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_DB}' and t.tabid >= 100 order by c.colname" 
+
+            if [ -z "$pk_col_ids" ]; then
+                col_pk_sql=""
+            else                
+                col_pk_sql="select c.colname from syscolumns c, systables t where c.tabid=t.tabid and c.colno in ($pk_col_ids) and t.tabname='${TABLE_NAME}' and t.owner='${DB_DB}' and t.tabid >= 100 order by c.colname" 
+            fi
             ;;
         *)
             echo "$0: ${DB_TYPE,,} needs to be handled."
             ;;
     esac
 
-    # DEBUG: echo "$col_pk_sql"
-    col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
-    # DEBUG:echo "$col_names_pk"
+    # DEBUG: echo "pksql: $col_pk_sql"
+    if [ -z "${col_pk_sql}" ]; then 
+        col_names_pk=""
+    else
+        col_names_pk=$( echo "${col_pk_sql}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | grep -v -e "${REMOVE_COLS}" | paste -s -d, )
+    fi
+    # DEBUG:
+    echo "pk cols: $col_names_pk"
     
     # if there is no primary key, then just sort by all of the columns
     if [ -z "${col_names_pk}" ]; then 
         # show the column names to be validated
-        echo "${LOC} select ${col_names} from $TABLE_NAME $col_names_pk;"        
+        echo "${LOC} select ${col_names} from $TABLE_NAME;"        
         # dump the table in CSV
-        echo "select ${col_names} from $TABLE_NAME $col_names_pk; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_DB}.${TABLE_NAME}.tsv 
+        echo "select ${col_names} from $TABLE_NAME; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sort > ${CFG_DIR}/${DB_DB}.${TABLE_NAME}.tsv 
     else 
         # show the column names to be validated
         col_names_pk="order by ${col_names_pk}"

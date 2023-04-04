@@ -20,6 +20,6 @@ lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout 
 #    password: "in4mix"
 
 # Warning: The IBM IDS Developer Edition license restriction limits
-# the number of connections to this server to 25.
-max-connections: 10
+# the number of connections to this server to 15.
+max-connections: 5
 max-retries: 1

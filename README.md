@@ -149,6 +149,8 @@ docker logs arcion-ui
 
 ## Docker Based
 
+- [CockroachDB](./docs/cockroach.md)
+- [Informix](./docs/informix.md)
 - [Kafka on-prem](./docs/README.kafka.md)
 - [MariaDB](./docs/README.maria.md)
 - [MySQL](./docs/README.mysql.md)
@@ -165,16 +167,10 @@ docker logs arcion-ui
 
 Below is not in the demo YET but supports by Arcion.
 
-- [Informix](./docs/README.informix.md)
 - [Minio](./docs/README.minio.md)
 - [Oracle](./docs/README.oracle.md)
 - [Redis](./docs/README.redis.md)
 
-# Deprecated
-
-Below has worked in the past, but no longer working with Arcion at the moment.
-
-- [CockroachDB](./docs/README.cockroach.md)
 
 # Getting around the Demo Kit
 
