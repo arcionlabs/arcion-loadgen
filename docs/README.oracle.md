@@ -31,11 +31,6 @@ alter session set "_ORACLE_SCRIPT"=true;
 CREATE USER arcsrc IDENTIFIED BY Passw0rd;
 
 grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcsrc;
+
 ```
 
-## X11
-
-```bash
-sudo apt-get install x11-xserver-utils
- docker run -it --rm -v ~/.Xauthority:/root/.Xauthority -e DISPLAY=$DISPLAY --network=host --name hammerdb tpcorg/hammerdb:oracle bash
-```

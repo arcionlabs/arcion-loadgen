@@ -57,15 +57,15 @@ parse_params() {
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
     -s | --src) # example named parameter
-      src="${2-}"
+      args_src="${2-}"
       shift
       ;;
     -d | --dst) # example named parameter
-      dst="${2-}"
+      args_dst="${2-}"
       shift
       ;;
     -r | --repltype) # example named parameter
-      repl="${2-}"
+      args_repl="${2-}"
       shift
       ;;      
     -?*) die "Unknown option: $1" ;;
@@ -83,24 +83,34 @@ parse_params() {
   return 0
 }
 
+args_src=""
+args_dst=""
+args_repl=""
+
 parse_params "$@"
 setup_colors
-
 
 src_real_time="${src:-mysql mariadb postgresql informix}"
 src_snapshot="${src:-cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
 dst="${dst:-broker cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
 repl="${repl:-snapshot real-time}"
 
-if [ -z "$src" ] && [ "$repl" = "real-time" | "$repl" = "full" ]; then
-  src=$src_real_time
-else
-  src=$src_snapshot
-fi
+repl=${args_repl:-"${repl}"}
+dst=${args_dst:-"${dst}"}
 
-for s in $src; do
-  for d in $dst; do
-    for r in $repl; do
+for r in ${repl}; do
+  # the src changes for defaults
+  if [[ -z "${args_src}" ]]; then
+    if [[ "${repl}" = "real-time" || "${repl}" = "full" ]]; then
+      src=${src_real_time}
+    else
+      src=${src_snapshot}
+    fi
+  else
+    src=${args_src}        
+  fi
+  for s in $src; do
+    for d in $dst; do
         echo "./arcdemo.sh -w 60 $r $s $d"
         ./arcdemo.sh -w 60 $r $s $d
     done
