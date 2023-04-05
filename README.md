@@ -139,7 +139,7 @@ docker run -d --name arcion-ui \
     -e DB_PASSWORD=Passw0rd \
     -p 8080:8080 \
     -v `pwd`/tmp:/share \
-    arcionlabs/replicant-on-premises:test
+    arcionlabs/replicant-on-premises:latest
 
 # make sure there are no warnings about license
 docker logs arcion-ui

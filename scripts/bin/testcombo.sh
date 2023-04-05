@@ -93,7 +93,7 @@ setup_colors
 src_real_time="${src:-mysql mariadb postgresql informix}"
 src_snapshot="${src:-cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
 dst="${dst:-broker cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
-repl="${repl:-snapshot real-time}"
+repl="${repl:-snapshot}"
 
 repl=${args_repl:-"${repl}"}
 dst=${args_dst:-"${dst}"}

@@ -9,14 +9,14 @@
 
 # wait for dst db to be ready to connect
 declare -A EXISTING_DBS
-ping_db EXISTING_DBS ${DSTDB_HOST} ${DSTDB_PORT} ${DSTDB_JSQSH_DRIVER} ${DSTDB_ARC_USER} ${DSTDB_ARC_PW}
+ping_db EXISTING_DBS ${DSTDB_HOST} ${DSTDB_PORT} ${DSTDB_JSQSH_DRIVER} ${DSTDB_ARC_USER} ${DSTDB_ARC_PW} ${DSTDB_DB}
 
 # setup database permissions
 if [ -z "${EXISTING_DBS[${DSTDB_DB}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
   banner dst root
   for f in ${CFG_DIR}/dst.init.root.*sql; do
-    cat ${f} | envsubst | ${JSQSH_DIR}/*/bin/jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
+    cat ${f} | envsubst | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}" --database="${DSTDB_SCHEMA}"
   done
 
   if [ "${DSTDB_DB}" = "${DSTDB_ARC_USER}" ]; then

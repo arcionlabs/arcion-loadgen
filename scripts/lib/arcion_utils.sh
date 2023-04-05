@@ -224,14 +224,25 @@ while [ 1 ]; do
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
 
-    # HACK: for Informix, schema is same as the user name
-    if [ "${SRCDB_GRP,,}" = "informix" ]; then SRCDB_SCHEMA="${SRCDB_ARC_USER}"; fi
+    case "${SRCDB_GRP,,}" in
+        informix)
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
+            [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
+        ;;
+        oracle)
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=$( map_dbschema "${SRCDB_TYPE}" )
+            export SRCDB_COMMA_SCHEMA=""
+        ;;
+        *)
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+            [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
+        ;; 
+    esac
 
-    [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
     [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=$( map_benchbase_type "${SRCDB_TYPE}" )
     [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=$( map_benchbase_isolation "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
 
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
@@ -282,12 +293,31 @@ while [ 1 ]; do
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
 
+    case "${DSTDB_GRP,,}" in
+        informix)
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+        ;;
+        oracle)
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=$( map_dbschema "${DSTDB_TYPE}" )
+            export DSTDB_COMMA_SCHEMA=""
+        ;;
+        *)
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+        ;; 
+    esac
     # HACK: for Informix, schema is same as the user name
     if [ "${DSTDB_GRP,,}" = "informix" ]; then DSTDB_SCHEMA="${DSTDB_ARC_USER}"; fi
-    
-    [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+    # HACK: for Oracle, comma schema is always blank
+    if [ "${DSTDB_GRP,,}" = "oracle" ]; then 
+        export DSTDB_COMMA_SCHEMA=""
+    else    
+        [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+    fi
     [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
     [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
 
     echo "Destination Host: ${DSTDB_HOST}"
     echo "Destination Dir: ${DSTDB_DIR}"

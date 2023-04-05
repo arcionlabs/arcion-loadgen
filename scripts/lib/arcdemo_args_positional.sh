@@ -43,9 +43,7 @@ function arcdemo_positional() {
 
     export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
     export SRCDB_ARC_PW=${SRCDB_ARC_PW:-Passw0rd}
-    export SRCDB_DB=${SRCDB_DB:-${SRCDB_ARC_USER}}
 
     export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
     export DSTDB_ARC_PW=${DSTDB_ARC_PW:-Passw0rd}
-    export DSTDB_DB=${DSTDB_DB:-${DSTDB_ARC_USER}}
 }

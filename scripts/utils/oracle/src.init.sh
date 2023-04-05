@@ -22,7 +22,7 @@ else
   echo "src db ${SRCDB_DB} already setup. skipping db setup"
 fi
 
-if [ 1 ] || [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
+if [ 1 ]; then #  || [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
   echo "src db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
   for f in ${CFG_DIR}/src.init.user.*sql; do
     cat ${f} | envsubst | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port="${SRCDB_PORT}" --database="${SRCDB_DB}"
@@ -32,7 +32,7 @@ else
 fi
 
 # setup workloads
-if [ 1 ] || [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
+if [ 1 ]; then # || [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
   echo "src db ${SRCDB_ARC_USER}: workload setup"
   # benchbase data population
   banner benchbase

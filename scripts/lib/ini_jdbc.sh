@@ -30,9 +30,9 @@ case "${SRCDB_GRP,,}" in
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="oracle"
     SRCDB_JDBC_DRIVER="oracle.jdbc.OracleDriver"
-    SRCDB_JDBC_URL="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/XE"   
-    SRCDB_JDBC_URL_BENCHBASE="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/XE"   
-    SRCDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/XE"
+    SRCDB_JDBC_URL="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:oracle:thin:@//${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"   
+    SRCDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
     ;;

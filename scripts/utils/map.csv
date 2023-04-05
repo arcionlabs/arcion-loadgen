@@ -7,7 +7,7 @@ cockroach,postgresql,26257,root,Passw0rd,public,COCKROACHDB,TRANSACTION_READ_COM
 yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED
 mongodb,mongodb,27017,root,Passw0rd,,TRANSACTION_READ_COMMITTED
 sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED
-oracle,oracle,1521,system,Passw0rd,orcl,ORACLE,TRANSACTION_READ_COMMITTED
+oracle,oracle,1521,system,Passw0rd,orclpdb1,ORACLE,TRANSACTION_READ_COMMITTED
 informix,informix,9088,informix,in4mix,informix,INFORMIX,TRANSACTION_READ_COMMITTED
 kafka,kafka,29092,root,Passw0rd,,
 broker,kafka,29092,root,Passw0rd,,

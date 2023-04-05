@@ -1,9 +1,10 @@
 type: ORACLE
 
 host: ${SRCDB_HOST}
-port: 1531
+port: ${SRCDB_PORT}
 
-service-name: XE
+# SID and not service name
+service-name: ${SRCDB_DB}
 
 username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
