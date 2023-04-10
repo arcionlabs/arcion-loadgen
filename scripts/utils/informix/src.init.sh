@@ -12,15 +12,12 @@ declare -A EXISTING_DBS
 ping_db EXISTING_DBS ${SRCDB_HOST} ${SRCDB_PORT} ${SRCDB_JSQSH_DRIVER} ${SRCDB_ARC_USER} ${SRCDB_ARC_PW}
 
 # setup database permissions
-if [ -z "${EXISTING_DBS[${SRCDB_DB}]}" ]; then
-  echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
-  banner src root
-  for f in ${CFG_DIR}/src.init.root.*sql; do
-    cat ${f} | envsubst | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port="${SRCDB_PORT}"
-  done
-else
-  echo "src db ${SRCDB_DB} already setup. skipping db setup"
-fi
+echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
+banner src root
+for f in ${CFG_DIR}/src.init.root.*sql; do
+  cat ${f} | envsubst | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port="${SRCDB_PORT}"
+done
+
 
 # setup user tables
 if [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then

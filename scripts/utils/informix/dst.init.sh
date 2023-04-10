@@ -12,15 +12,12 @@ declare -A EXISTING_DBS
 ping_db EXISTING_DBS ${DSTDB_HOST} ${DSTDB_PORT} ${DSTDB_JSQSH_DRIVER} ${DSTDB_ARC_USER} ${DSTDB_ARC_PW}
 
 # setup database permissions
-if [ -z "${EXISTING_DBS[${DSTDB_DB}]}" ]; then
-  echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
-  banner dst root
-  for f in ${CFG_DIR}/dst.init.root.*sql; do
-    cat ${f} | envsubst | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
-  done
-else
-  echo "dst db ${DSTDB_DB} already setup. skipping db setup"
-fi
+echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
+banner dst root
+for f in ${CFG_DIR}/dst.init.root.*sql; do
+  cat ${f} | envsubst | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port="${DSTDB_PORT}"
+done
+
 
 # setup user tables
 if [ "${DSTDB_DB}" = "${DSTDB_ARC_USER}" ]; then

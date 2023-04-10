@@ -1,5 +1,10 @@
 #!/usr/bin/env bash 
 
+heredoc_file() {
+    # heredoc on a file
+    eval "$( echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF' | cat - $1 <(echo -e '\nEOF_EOF_EOF') )"    
+}
+
 copy_hier_as_flat() {
     local SRC=${1:-"./"}
     local PREFIX=$2
@@ -20,8 +25,8 @@ copy_hier_as_flat() {
                 # DEBUG: echo cp $f $DST/$filename
                 cp ${f} $DST/$filename 
             else
-                # DEBUG: echo "cat "${f}" | PID=$$ envsubst > $DST/$filename"
-                cat "${f}" | PID=$$ envsubst > $DST/$filename
+                # DEBUG: echo PID=$$ heredoc_file ${f} \> $DST/$filename
+                PID=$$ heredoc_file ${f} > $DST/$filename
             fi    
         done
         dir="${dir}/"

@@ -4,15 +4,6 @@ CREATE TABLE if not exists replicate_io_cdc_heartbeat(
   PRIMARY KEY(timestamp)
 );
 
-CREATE TABLE if not exists sbtest1(
-	id INTEGER,
-	k INTEGER DEFAULT '0' NOT NULL,
-	c CHAR(120) DEFAULT '' NOT NULL,
-	pad CHAR(60) DEFAULT '' NOT NULL,
-	primary key (id),
-	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-	index(ts)
-);
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists theusertable (
@@ -26,10 +17,10 @@ CREATE TABLE if not exists theusertable (
 	index(ts)
 );
 
-CREATE TABLE `unicode` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `str` text CHARACTER SET utf8mb4,
-  PRIMARY KEY (`id`)
+CREATE TABLE unicode (
+  id int unsigned NOT NULL AUTO_INCREMENT,
+  str text CHARACTER SET utf8mb4,
+  PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8mb4;
 
 -- will only happen if source and destion was flipped

@@ -47,8 +47,11 @@ logreader_path() {
 
 arcion_delta() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
-    
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
+
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME
@@ -61,7 +64,10 @@ arcion_delta() {
 }
 arcion_real() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
@@ -75,7 +81,10 @@ arcion_real() {
 }
 arcion_full() {    
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
@@ -89,8 +98,11 @@ arcion_full() {
 }
 arcion_snapshot() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
-
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
+    
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME
