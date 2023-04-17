@@ -1,13 +1,3 @@
-CREATE TABLE sbtest1(
-	id INTEGER,
-	k INTEGER DEFAULT '0' NOT NULL,
-	c CHAR(120) DEFAULT '' NOT NULL,
-	pad CHAR(60) DEFAULT '' NOT NULL,
-	primary key (id),
-	ts datetime2 DEFAULT CURRENT_TIMESTAMP,
-	index ts (ts)
-);
-
 -- ts is used for snapshot delta. 
 CREATE TABLE theusertable (
 	ycsb_key VARCHAR(255) PRIMARY KEY,

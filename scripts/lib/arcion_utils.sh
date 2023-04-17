@@ -1,5 +1,12 @@
 #!/usr/bin/env bash 
 
+. ${SCRIPTS_DIR}/lib/ping_utils.sh
+
+# $1=yaml file
+is_host_up() {
+    local host=$( yq -r ".host" src.yaml )    
+}
+
 # return command parm given source and target pair
 arcion_param() {
     local src_dir=${1:-.}
@@ -229,9 +236,9 @@ while [ 1 ]; do
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
-    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
     if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
-    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_DIR}" )
+    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
+    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_HOST}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
@@ -244,7 +251,9 @@ while [ 1 ]; do
         ;;
         oracle)
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=$( map_dbschema "${SRCDB_TYPE}" )
+            [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=$( map_root_db "${SRCDB_TYPE}" )
             export SRCDB_COMMA_SCHEMA=""
+            export SRCDB_ARC_USER="c##${SRCDB_ARC_USER}"
         ;;
         *)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
@@ -296,9 +305,9 @@ while [ 1 ]; do
     ask=0
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
-    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
     if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
-    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_DIR}" )
+    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_HOST}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
@@ -312,7 +321,9 @@ while [ 1 ]; do
         ;;
         oracle)
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=$( map_dbschema "${DSTDB_TYPE}" )
+            [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=$( map_root_db "${DSTDB_TYPE}" )
             export DSTDB_COMMA_SCHEMA=""
+            export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
         ;;
         *)
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )

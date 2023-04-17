@@ -140,7 +140,7 @@ RUN cd ${MYSQL_DIR} \
     && ls *.deb | xargs -I % dpkg -x % . \
     && rm *.deb   
 
-# download jsqsj
+# download jsqsh
 RUN cd ${JSQSH_DIR} \
     && wget https://github.com/scgray/jsqsh/releases/download/jsqsh-2.3/jsqsh-2.3-bin.tar.gz \
     && gzip -dc jsqsh* | tar -xvf - \
@@ -164,8 +164,6 @@ EXPOSE 7681
 # arcion binary
 COPY --chown=${USERNAME} replicant-cli/ ${ARCION_HOME}
 COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
-# TODO: maybe separate scripts which will be changing often
-COPY --chown=${USERNAME} scripts/ /scripts/
 
 # jsqsh
 RUN mkdir -p /home/${USERNAME}/.jsqsh
@@ -196,18 +194,15 @@ COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
 RUN cd ${BENCHBASE_DIR} \
     && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
+COPY --chown=${USERNAME} scripts/ /scripts/
 # python hydra
 RUN pip install -r scripts/requirements.txt
-
-# Oracle JDBC from Maven
-RUN cd /arcion/lib \
-    && wget https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc8/21.9.0.0/ojdbc8-21.9.0.0.jar
 
 WORKDIR /scripts
 
 # used by YCSB and jsqsh
-ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/ojdbc8-21.9.0.0.jar
+ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/ojdbc8.jar
 
-ENV PATH=/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
+ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
 
-CMD /scripts/utils/arclic.sh; ttyd /scripts/utils/tmux.sh 
+CMD /scripts/utils/arclic.sh; /scripts/utils/jdbc_download.sh; ttyd /scripts/utils/tmux.sh 

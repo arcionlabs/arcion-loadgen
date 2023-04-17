@@ -1,8 +1,13 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   skip-tables-on-failures : true
+
   user-role:
-    init-user-roles: false      
+    init-user-roles: false    
+    
+  bulk-load:
+    enable: false
+    type: FILE   # PIPE, FILE        
 
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}

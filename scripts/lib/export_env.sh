@@ -12,6 +12,7 @@ export SRCDB_HOST="${SRCDB_HOST}"
 export SRCDB_GRP="${SRCDB_GRP}"
 export SRCDB_PORT="${SRCDB_PORT}"
 export SRCDB_DB="${SRCDB_DB}"
+export SRCDB_ROOT_DB="${SRCDB_ROOT_DB}"
 # destination
 export DSTDB_DIR="${DSTDB_DIR}"
 export DSTDB_TYPE="${DSTDB_TYPE}"
@@ -19,6 +20,7 @@ export DSTDB_HOST="${DSTDB_HOST}"
 export DSTDB_GRP="${DSTDB_GRP}"
 export DSTDB_PORT="${DSTDB_PORT}"
 export DSTDB_DB="${DSTDB_DB}"
+export DSTDB_ROOT_DB="${DSTDB_ROOT_DB}"
 # replication
 export REPL_TYPE="${REPL_TYPE}"
 export ARCION_ARGS="${ARCION_ARGS}"
@@ -85,7 +87,8 @@ export DSTDB_JDBC_NO_REWRITE="$DSTDB_JDBC_NO_REWRITE"
 export DSTDB_JDBC_REWRITE="$DSTDB_JDBC_REWRITE"
 # oracle specific
 # for multi tenant, c## is required
-export ORA_USER_PREFIX="${ORA_USER_PREFIX}"
+export SRCDB_USER_PREFIX="${SRCDB_USER_PREFIX}"
+export DSTDB_USER_PREFIX="${DSTDB_USER_PREFIX}"
 EOF
 cp $TMPINI $CFGINI/.
 }

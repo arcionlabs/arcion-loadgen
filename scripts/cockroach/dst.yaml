@@ -1,4 +1,4 @@
-type: POSTGRESQL
+type: COCKROACH
 
 # will be set by envsubst from menu.sh 
 host: ${DSTDB_HOST}

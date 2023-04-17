@@ -1,5 +1,7 @@
 #!/usr/bin/env bash 
 
+. $PROG_DIR/lib/map_csv.sh
+
 heredoc_file() {
     # heredoc on a file
     eval "$( echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF' | cat - $1 <(echo -e '\nEOF_EOF_EOF') )"    
@@ -83,18 +85,39 @@ infer_dbdir() {
         echo '$1 should be DB_HOST' >&2
         return 1
     fi
-    if [ -z "${DB_DIR}" ]; then 
-        # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_DIR=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
-        if [ -d ${SCRIPTS_DIR}/${DB_DIR} ]; then
-            echo "$DB_DIR inferred from hostname." >&2
-            echo "$DB_DIR"
-        else
-            echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2
-            return 1
-        fi
-    else
-        echo ${DB_DIR}
+    if [ ! -z "${DB_DIR}" ]; then 
+        echo "$DB_DIR"
+        return 0
     fi
+    # hostname is exact match or dir name
+    if [ -d ${SCRIPTS_DIR}/${DB_HOST} ]; then
+        echo "$DB_HOST inferred from hostname." >&2
+        echo "$DB_HOST"
+        return 0
+    fi    
+    # infer srcdb type from the first word of ${SRCDB_HOST}
+    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
+    if [ -d ${SCRIPTS_DIR}/${DB_HOST_FIRST_WORD} ]; then
+        echo "$DB_HOST_FIRST_WORD inferred from hostname." >&2
+        echo "$DB_HOST_FIRST_WORD"
+        return 0
+    fi
+    # infer srcdb type from the full name 
+    local DB_GROUP=$( map_dbgrp ${DB_HOST} )
+    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
+        echo "$DB_GROUP inferred from group name." >&2
+        echo "$DB_GROUP"
+        return 0
+    fi
+    # infer srcdb type from the first word of host name
+    local DB_GROUP=$( map_dbgrp ${DB_HOST_FIRST_WORD} )
+    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
+        echo "$DB_GROUP inferred from group name based on hostname first word." >&2
+        echo "$DB_GROUP"
+        return 0
+    fi
+
+    echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2
+    return 1
 }
 
