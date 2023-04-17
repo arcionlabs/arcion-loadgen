@@ -1,0 +1,4 @@
+rules:
+  [${DSTDB_DB} ${DSTDB_COMMA_SCHEMA}]:
+    source:
+    - [${SRCDB_DB} ${SRCDB_COMMA_SCHEMA}]
