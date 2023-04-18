@@ -2,7 +2,7 @@
 
 # utility to parse uri 
 # https://vpalos.com/2010/02/03/uri-parsing-using-bash-built-in-features/
-# [jdbc:]postgresql://user:password@host:port/db?key=value
+# [jdbc:]postgresql://user:password@host:port/db?key=value#frag
 
 #
 # URI parsing function
@@ -12,6 +12,8 @@
 #
 # [schema://][user[:password]@]host[:port][/path][?[arg1=val1]...][#fragment]
 #
+# unset uri; declare -A uri; unset uri_path; declare -a uri_path; unset uri_query; declare -A uri_query;  
+# uri_parser uri uri_path uri_query "mysql://user:pass@host:port/db?a=1;
 function uri_parser() {
     declare -n URLPARSE=$1
     declare -n PATHPARSE=$2
@@ -38,7 +40,8 @@ function uri_parser() {
     #                            5username          
     [[ "$uri" =~ $pattern ]] || return 1;
 
-    echo ${BASH_REMATCH[*]}
+    # DEBUG
+    echo ${BASH_REMATCH[*]} >&2
     # component extraction
     uri=${BASH_REMATCH[0]}
     URLPARSE[scheme]="${BASH_REMATCH[2]}"
@@ -61,11 +64,13 @@ function uri_parser() {
     while [[ $path =~ $pattern ]]; do
         PATHPARSE[$count]="${BASH_REMATCH[1]}"
         path="${path:${#BASH_REMATCH[0]}}"
-        echo $path
+        # DEBUG
+        echo $path >&2
         let count++
     done
     #[ "${path}" ] && PATHPARSE[$count]="${path}"
 
+    # query parsing
     count=0
     pattern='[\?\&\;]+([^= ]+)(=([^\?\&\;]*))'
     while [[ $query =~ $pattern ]]; do
