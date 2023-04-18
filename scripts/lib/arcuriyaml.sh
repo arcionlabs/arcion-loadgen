@@ -10,6 +10,8 @@
 #   _i=int
 #   without are a string
 
+# TODO: max-connections 2 for mysql
+
 all_yaml() {
     declare -n all_yaml_uri_d=$1
     declare -n all_yaml_query_d=$2
@@ -19,11 +21,7 @@ type: ${all_yaml_uri_d[scheme]^^}
 host: ${all_yaml_uri_d[hostname]}
 username: ${all_yaml_uri_d[username]}
 password: ${all_yaml_uri_d[password]}
-
-# mysql requires at least 2  
 max-connections: ${all_yaml_query_d[max-connections]:-2}
-
-# easier to debug by failing fast
 max-retries: ${all_yaml_query_d[max-retries]:-1}
 EOF
 }
@@ -131,6 +129,7 @@ uri_yaml() {
         cockroach) cockroach_yaml uri uri_query;;
         yugabytesql) yugabytesql_yaml uri uri_query;;
         mysql|mariadb|singlestore) mysql_yaml uri uri_query;;
+        sqlserver) sqlserver_yaml uri uri_query;;
         informix) inf_yaml uri uri_query;;
         oracle) ora_yaml uri uri_query;;
         *) all_yaml uri uri_query;;

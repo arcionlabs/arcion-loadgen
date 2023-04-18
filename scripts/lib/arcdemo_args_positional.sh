@@ -11,7 +11,7 @@ function arcdemo_positional() {
     if [ ! -z "$2" ]; then 
         unset uri; declare -A uri;  
         unset uri_path; declare -a uri_path;  
-        unset uri_query; declare -a uri_query;  
+        unset uri_query; declare -A uri_query;  
         uri_parser uri uri_path uri_query "$2"
         if [ "$?" = 0 ]; then
             [ "${uri[scheme]}" ] && export SRCDB_TYPE= "${uri[scheme]}" 

@@ -13,7 +13,7 @@
 # [schema://][user[:password]@]host[:port][/path][?[arg1=val1]...][#fragment]
 #
 # unset uri; declare -A uri; unset uri_path; declare -a uri_path; unset uri_query; declare -A uri_query;  
-# uri_parser uri uri_path uri_query "mysql://user:pass@host:port/db?a=1;
+# uri_parser uri uri_path uri_query "mysql://user:pass@host:port/db?a=1?
 function uri_parser() {
     declare -n URLPARSE=$1
     declare -n PATHPARSE=$2
