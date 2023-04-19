@@ -1,4 +1,4 @@
-Convert URI to YAML file.  The resulting YAML can be used for source or destination.
+Convert URI to YAML file.  The resulting YAML can be used for source and destination.
 
 - create mysql.yaml
 
@@ -37,7 +37,7 @@ done
 - advanced usage to change the parameter
 
 ```bash
-uri_yaml "mysql://user:pass@host:1234/db?a=1?b=2"?a=3?max-connections=4
+uri_yaml "mysql://user:pass@host:1234/db?a=1?b=2?a=3?max-connections=4
 ```
 
 note `max-connections:4` in the resulting YAML.

@@ -121,7 +121,7 @@ USER $USERNAME
 # setup load generators
 
 # download ycsb
-COPY --chown=${USERNAME} scripts/utils/setenv.sh $YCSB/. 
+COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
 RUN cd $YCSB; for b in ${YCSB_BINDING}; do curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; rm ycsb-${b}-${YCSB_VERSION}.tar.gz; done
 
 # /usr/share/sysbench/oltp_common.lua
@@ -205,4 +205,4 @@ ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion
 
 ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
 
-CMD /scripts/utils/arclic.sh; /scripts/utils/jdbc_download.sh; ttyd /scripts/utils/tmux.sh 
+CMD /scripts/utils/init.d/arcdemo-init.sh

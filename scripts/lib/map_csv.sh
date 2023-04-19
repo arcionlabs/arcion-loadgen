@@ -40,7 +40,7 @@ map_benchbase_isolation() {
     map_db "$1" 8
 }
 
-map_root_db() {
+map_sid() {
     map_db "$1" 9
 }
 

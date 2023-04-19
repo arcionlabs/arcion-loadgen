@@ -243,6 +243,7 @@ while [ 1 ]; do
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
 
     case "${SRCDB_GRP,,}" in
         informix)
@@ -250,10 +251,10 @@ while [ 1 ]; do
             [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
         ;;
         oracle)
-            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=$( map_dbschema "${SRCDB_TYPE}" )
-            [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=$( map_root_db "${SRCDB_TYPE}" )
+            export SRCDB_SCHEMA=""
             export SRCDB_COMMA_SCHEMA=""
             export SRCDB_ARC_USER="c##${SRCDB_ARC_USER}"
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
         ;;
         *)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
@@ -313,6 +314,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
 
     case "${DSTDB_GRP,,}" in
         informix)
@@ -320,10 +322,10 @@ while [ 1 ]; do
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
         ;;
         oracle)
-            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=$( map_dbschema "${DSTDB_TYPE}" )
-            [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=$( map_root_db "${DSTDB_TYPE}" )
+            export DSTDB_SCHEMA=""
             export DSTDB_COMMA_SCHEMA=""
             export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER^^}
         ;;
         *)
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )

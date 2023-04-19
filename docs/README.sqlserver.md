@@ -4,7 +4,9 @@ NOTE: SQL Server does not run on on Apple Silicon
 
 For amd64
 ```
-docker run -d --name sqlserver  --network arcnet \
+docker run -d \
+    --name sqlserver \
+    --network arcnet \
     -e "ACCEPT_EULA=Y" \
     -e "MSSQL_SA_PASSWORD=Passw0rd" \
     -e "CONFIG_EDGE_BUILD=0" \

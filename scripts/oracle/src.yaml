@@ -4,7 +4,7 @@ host: ${SRCDB_HOST}
 port: ${SRCDB_PORT}
 
 # SID and not service name
-service-name: ${SRCDB_DB}
+service-name: ${SRCDB_SID}
 
 username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
