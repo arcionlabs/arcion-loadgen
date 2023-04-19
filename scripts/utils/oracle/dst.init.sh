@@ -22,7 +22,7 @@ else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
 fi
 
-if [ "${DSTDB_DB}" = "${DSTDB_ARC_USER}" ]; then
+if [ "${DSTDB_DB^^}" = "${DSTDB_ARC_USER^^}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
 
   for f in ${CFG_DIR}/dst.init.user.*sql; do

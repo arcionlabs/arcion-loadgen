@@ -12,6 +12,7 @@ jdbc_cli() {
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
   local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
   local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
+  local db_sid=$( x="${LOC^^}DB_SID"; echo "${!x}" )
   shift
 
   db_db=${db_db:-${db_user}}
@@ -20,7 +21,7 @@ jdbc_cli() {
   # if the flag as '-n meaning batch mode'
   # if [[ "${1}" =~ (^|[^[:alnum:]_])-n([^[:alnum:]_]|$) ]]; then
   # 
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid:-${db_db}}"
 }
 
 jdbc_cli_src() {

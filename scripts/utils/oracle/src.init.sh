@@ -21,7 +21,7 @@ else
   echo "src db ${SRCDB_DB} already setup. skipping db setup"
 fi
 
-if [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
+if [ "${SRCDB_DB^^}" = "${SRCDB_ARC_USER^^}" ]; then
   echo "src db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
 
   for f in ${CFG_DIR}/src.init.user.*sql; do
@@ -32,7 +32,7 @@ else
 fi
 
 # setup workloads
-if [ "${SRCDB_DB}" = "${SRCDB_ARC_USER}" ]; then
+if [ "${SRCDB_DB^^}" = "${SRCDB_ARC_USER^^}" ]; then
   echo "src db ${SRCDB_ARC_USER}: benchbase setup"
   # benchbase data population
   ${SCRIPTS_DIR}/bin/benchbase-load.sh
