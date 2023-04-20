@@ -1,8 +1,0 @@
-rules:
-  [${DSTDB_DB} ${DSTDB_COMMA_SCHEMA}]:
-    source:
-    - [${SRCDB_DB} ${SRCDB_COMMA_SCHEMA}]
-    tables:
-      [t1_even]:
-        source:
-          [${SRCDB_DB} ${SRCDB_COMMA_SCHEMA}, t1]:

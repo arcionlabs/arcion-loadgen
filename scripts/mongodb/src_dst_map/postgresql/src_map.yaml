@@ -1,4 +1,0 @@
-rules:
-  [${DSTDB_DB},public]:
-    source:
-    - [${SRCDB_DB}]

@@ -32,6 +32,40 @@ jdbc_cli_dst() {
   jdbc_cli dst "$*"
 }
 
+list_dbs() {
+    local LOC=${1:-SRC}
+    local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
+
+    case ${DB_GRP,,} in
+        mysql)
+    local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SQL="SELECT table_schema, count(*) FROM information_schema.tables group by table_catalog, table_schema order by 1;"
+        ;;
+        postgresql|sqlserver)
+    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT table_catalog, count(*) FROM information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2;"
+        ;;
+        informix)
+    local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SQL="SELECT t.owner, count(*) FROM systables as t where t.tabid >= 100 group by t.owner;"
+        ;;
+        oracle)
+    local DB_ARC_USER=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
+    #local DB_SQL="SELECT USERNAME FROM ALL_USERS where ORACLE_MAINTAINED='N' group BY USERNAME;"
+    # SELECT COUNT(*) FROM USER_TABLES;
+    local DB_SQL="select owner, count(table_name) from all_tables where owner='${DB_ARC_USER^^}' group by owner;"
+        ;;    
+    *)
+        echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
+        ;;
+    esac
+
+    if [ ! -z "$DB_SQL" ]; then
+        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV"
+        return ${PIPESTATUS[1]}
+    fi
+}
 list_tables() {
     local LOC=${1:-SRC}
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )

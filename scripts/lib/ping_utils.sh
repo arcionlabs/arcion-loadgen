@@ -1,34 +1,29 @@
 #!/usr/bin/env bash
 
+. $SCRIPTS_DIR/lib/jdbc_cli.sh
+
 # confirm DB is up and can return list of databases
 # mysql container during the startup how up as up, but is not responding 
 ping_db () {
   declare -n PINGDB=$1
-  shift
-
-  local HOST="$1"
-  local PORT="$2"
-  local JSQSH_DRIVER="$3" 
-  local USER="$4"
-  local PW="$5"
-  local DB="$6" # SID required for oracle 
-  local max_retries=${7:-0}
-
-  local rc=1
-  local ARGS="--driver='${JSQSH_DRIVER}' --user='${USER}' --password='${PW}' --server='${HOST}' --port='${PORT}'"
+  local LOC=${2:-SRC}
+  local max_retries=0
   local retry_count=0
-  if [ ! -z "${DB}" ]; then ARGS="${ARGS} --database='${DB}'"; fi
+  local rc=1
 
   while [ ${rc} != 0 ]; do
     # NOTE: the quote is required to create the hash correctly
-    echo '\databases' | jsqsh ${ARGS} 2>/tmp/ping_utils.err.$$ | awk -F'|' 'NF>1 {print $2}' | tr -d ' ' > /tmp/ping_utils.out.$$
-    rc=${PIPESTATUS[1]} # want jsqsh rc code
-    echo ${PIPESTATUS[*]}
-    if (( ${rc} != 0 )); then
-      # if host is down, then don't wait
-      if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' -e 'Verify the connection properties' /tmp/ping_utils.err.$$ )" ]; then
+    list_dbs $LOC >/tmp/ping_utils.out.$$ 2>/tmp/ping_utils.err.$$ 
+    rc=${?} # want jsqsh rc code
+    # DEBUG echo "x${?}x"
+    # DEBUG cat /tmp/ping_utils.out.$$ 
+    # DEBUG cat /tmp/ping_utils.err.$$ 
+    if [ "${rc}" == 0 ]; then break; fi
+
+    cat /tmp/ping_utils.err.$$
+    # if host is down, then don't wait
+    if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' -e 'Verify the connection properties' /tmp/ping_utils.err.$$ )" ]; then
         break  
-      fi
     fi
 
     # stop on max retries
@@ -42,8 +37,10 @@ ping_db () {
     sleep 10    
   done
 
-  for db in $( cat /tmp/ping_utils.out.$$ ); do
-    PINGDB[${db}]="${db}"
+  for line in $( cat /tmp/ping_utils.out.$$ ); do
+    db="$(echo $line | awk -F, '{print $1}')"
+    count="$(echo $line | awk -F, '{print $2}')"
+    PINGDB["${db}"]="${count}"
   done
   rm /tmp/ping_utils.out.$$
   rm /tmp/ping_utils.err.$$

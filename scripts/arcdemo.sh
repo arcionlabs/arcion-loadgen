@@ -114,25 +114,32 @@ tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 
+function tmux_bb_panel() {
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+}
+
+function tmux_ycsb_panel() {
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
+}
 # run the replication
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;
   real-time)
     arcion_real
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/bin/benchbase-run.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"

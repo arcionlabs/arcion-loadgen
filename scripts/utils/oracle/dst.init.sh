@@ -9,10 +9,10 @@
 
 # wait for dst db to be ready to connect
 declare -A EXISTING_DBS
-ping_db EXISTING_DBS ${DSTDB_HOST} ${DSTDB_PORT} ${DSTDB_JSQSH_DRIVER} ${DSTDB_ARC_USER} ${DSTDB_ARC_PW} ${DSTDB_SID:-${DSTDB_DB}}
+ping_db EXISTING_DBS dst
 
 # setup database permissions
-if [ -z "${EXISTING_DBS[${DSTDB_DB}]}" ]; then
+if [ -z "${EXISTING_DBS[${DSTDB_DB:-${DSTDB_SCHEMA}}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
 
   for f in ${CFG_DIR}/dst.init.root.*sql; do
@@ -22,7 +22,7 @@ else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
 fi
 
-if [ "${DSTDB_DB^^}" = "${DSTDB_ARC_USER^^}" ]; then
+if [ "${DSTDB_DB:-${DSTDB_SCHEMA}}" = "${DSTDB_ARC_USER}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
 
   for f in ${CFG_DIR}/dst.init.user.*sql; do
@@ -30,5 +30,8 @@ if [ "${DSTDB_DB^^}" = "${DSTDB_ARC_USER^^}" ]; then
   done
 
 else
-  echo "dst db ${DSTDB_ARC_USER} != ${DSTDB_DB} skipping user setup"
+  echo "dst db ${DSTDB_ARC_USER} != ${DSTDB_DB:-${DSTDB_SCHEMA}} skipping user setup"
 fi
+
+
+
