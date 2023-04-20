@@ -50,13 +50,17 @@ list_tables() {
     local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname;"
         ;;
+        oracle)
+    local DB_OWNER=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SQL="SELECT OBJECT_TYPE, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'TABLE' AND lower(OWNER) = lower('${DB_OWNER}');"
+        ;;    
     *)
-        echo "jdbc_cli: ${DB_GRP,,} needs to be handled."
+        echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
     esac
 
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}; -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
+        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
     fi
 }
 

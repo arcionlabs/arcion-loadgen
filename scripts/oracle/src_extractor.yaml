@@ -9,6 +9,8 @@ realtime:
   heartbeat:
     enable: true
     schema: ${SRCDB_DB}
+    # oracle is case sensitive
+    table-name: REPLICATE_IO_CDC_HEARTBEAT
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}

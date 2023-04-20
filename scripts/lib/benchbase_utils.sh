@@ -58,7 +58,7 @@ bb_create_tables() {
     # save the list of existing tables as bash associative array (the -A)
     # NOTE: the quote is required to create the hash correctly
     # hash of [tablename]=tablename
-    declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | awk -F, '/^TABLE/ {print $2}' | sort | sed 's/[^ ]*/[&]=&/g' | paste -s ) )"
+    declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | tr  '[:upper:]' '[:lower:]' | awk -F, '/^table/ {print $2}' | sort | sed 's/[^ ]*/[&]=&/g' | paste -s ) )"
     # hash of [worklaod]=tablename
     declare -A "WORKLOAD_TABLE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
     # hash of [worklaod]=database that do not work with batchrewrite
