@@ -13,5 +13,3 @@ CREATE TABLE if not exists  theusertable (
 	field8 varchar(255), field9 varchar(255)
 );
 
--- will only happen if source and destion was flipped
-ALTER TABLE theusertable DROP (ts2);

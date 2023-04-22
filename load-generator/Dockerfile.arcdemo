@@ -122,12 +122,23 @@ USER $USERNAME
 
 # download ycsb
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
+COPY --chown=${USERNAME} bin/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz ${YCSB}/
+
 RUN cd $YCSB; for b in ${YCSB_BINDING}; do \
-    curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; \
-    tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; \
-    cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; \ 
-    rm ycsb-${b}-${YCSB_VERSION}.tar.gz; \
+        curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; \
     done
+RUN cd ${YCSB}; for f in $( ls *gz ); do tar -xvf $f; rm $f; done;
+RUN cd ${YCSB}; for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done;
+
+# benchbase
+COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
+RUN cd ${BENCHBASE_DIR} \
+    && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work
@@ -206,11 +217,11 @@ RUN pip install -r scripts/requirements.txt
 WORKDIR /scripts
 
 # YCSB HOMEs
-ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.17.0
+ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # used by YCSB and jsqsh
-ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/ojdbc8.jar
+ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/ojdbc8.jar
 
 ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
 

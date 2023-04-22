@@ -28,7 +28,3 @@ CREATE TABLE if not exists theusertable (
 	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 	index (ts)
 );
-
--- will only happen if source and destion was flipped
-ALTER TABLE theusertable DROP COLUMN ts2;
-ALTER TABLE sbtest1 DROP COLUMN ts2;

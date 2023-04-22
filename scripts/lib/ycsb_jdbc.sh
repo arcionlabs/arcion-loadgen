@@ -3,7 +3,7 @@
 . ${SCRIPTS_DIR}/lib/job_control.sh
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
 
-[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
+[ -z "${YCSB_JDBC}" ] && YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
 # defaults for the command line
 export default_ycsb_rate=1
@@ -70,17 +70,19 @@ ycsb_select_key() {
   echo "select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
 
-ycsb_load() {    
+ycsb_load() {
+  local jdbc_url=${1}
+  local recordcount=${2}    
   local ycsb_threads=${workload_threads:-${default_ycsb_threads}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     mysql)
-      jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
+      local jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
       ;;
     postgresql)
-      jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
+      local jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
     # needs 0.18
     # sqlserver)
@@ -105,7 +107,7 @@ ycsb_load() {
     -p db.batchsize=1024  \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
-    -p recordcount=${const_ycsb_recordcount} \
+    -p recordcount=${recordcount} \
     -p requestdistribution=uniform \
     -p zeropadding=${const_ycsb_zeropadding} \
     -p jdbc.ycsbkeyprefix=false \
@@ -123,36 +125,19 @@ ycsb_load_sf() {
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )  
 
+  # number of new records to add
   local ycsb_size_factor=${workload_size_factor}
-
   local ycsb_size_factor=${ycsb_size_factor:-${default_ycsb_size_factor}}
   local ycsb_insertstart=$(ycsb_rows $LOC)
-  local ycsb_key 
-  local key_found
-  local i
-  local ycsb_sf_start=$(( ycsb_insertstart / const_ycsb_recordcount ))
+  local ycsb_insertend=$((ycsb_size_factor * const_ycsb_recordcount))
+  local ycsb_recordcount=$((ycsb_insertend - ycsb_insertstart))
 
-  echo "YCSB: starting from size factor $ycsb_sf_start to ${ycsb_size_factor}"
-
-  for i in $( seq ${ycsb_sf_start} 1 $(( ycsb_size_factor - 1 )) ); do 
-
-    # ycsb key are padded 11 digits
-    ycsb_key=$(printf %0${const_ycsb_zeropadding}d ${ycsb_insertstart})
-
-    # key already there? 
-    echo -n "YCSB: Checking existance of ycsb_key ${ycsb_key}"
-    key_found=$( ycsb_select_key $LOC $ycsb_key )
-
-    # insert if not found
-    if [ -z "${key_found}" ]; then 
-      echo " not found.  start insert at ${ycsb_insertstart}"
-      ycsb_load ${ycsb_insertstart}
-    else
-      echo " found.  skipping this factor"
-    fi
-
-    ycsb_insertstart=$(( ycsb_insertstart + const_ycsb_recordcount ))
-  done
+  echo "YCSB: insert from $ycsb_insertstart to $ycsb_insertend ($ycsb_recordcount)"
+  if (( ycsb_recordcount > 0 )); then
+    ycsb_load ${jdbc_url} ${ycsb_recordcount}
+  else
+    echo "YCSB: skipping"
+  fi
 }
 
 function ycsb_load_src() { 

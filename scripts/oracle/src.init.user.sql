@@ -12,6 +12,3 @@ CREATE TABLE theusertable (
 	field6 varchar(255), field7 varchar(255),
 	field8 varchar(255), field9 varchar(255)
 );
-
--- will only happen if source and destion was flipped
-ALTER TABLE theusertable DROP (ts2);

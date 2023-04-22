@@ -23,6 +23,3 @@ CREATE TABLE unicode (
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8mb4;
 
--- will only happen if source and destion was flipped
-ALTER TABLE theusertable DROP COLUMN ts2;
-ALTER TABLE sbtest1 DROP COLUMN ts2;
