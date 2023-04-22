@@ -7,9 +7,9 @@ CREATE TABLE if not exists sbtest1(
     ts TIMESTAMP(6)
 );
 
--- ts is used for snapshot delta. 
+-- ts is used for snapshot delta/
 CREATE TABLE if not exists theusertable (
-    ycsb_key VARCHAR(255) PRIMARY KEY,
+    ycsb_key int PRIMARY KEY,
     field0 TEXT, field1 TEXT,
     field2 TEXT, field3 TEXT,
     field4 TEXT, field5 TEXT,
@@ -17,9 +17,3 @@ CREATE TABLE if not exists theusertable (
     field8 TEXT, field9 TEXT,
     ts TIMESTAMP(6)
 );
-
-CREATE TABLE unicode (
-  id int unsigned NOT NULL AUTO_INCREMENT,
-  str text CHARACTER SET utf8mb4,
-  PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8mb4;

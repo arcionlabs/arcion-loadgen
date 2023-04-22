@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
+
 # source in libs
 . $(dirname "${BASH_SOURCE[0]}")/lib/ycsb_jdbc.sh
 
@@ -17,7 +19,7 @@ case "${SRCDB_GRP,,}" in
     ycsb_run_src
 ;;
   mongodb)
-    pushd ${YCSB}/*mongodb*/  
+    pushd ${YCSB_MONGODB}  
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \
     -P workloads/workloada \
     -p requestdistribution=uniform \

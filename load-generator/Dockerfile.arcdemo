@@ -122,7 +122,12 @@ USER $USERNAME
 
 # download ycsb
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
-RUN cd $YCSB; for b in ${YCSB_BINDING}; do curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; rm ycsb-${b}-${YCSB_VERSION}.tar.gz; done
+RUN cd $YCSB; for b in ${YCSB_BINDING}; do \
+    curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; \
+    tar xfz ycsb-${b}-${YCSB_VERSION}.tar.gz; \
+    cp setenv.sh ycsb-${b}-${YCSB_VERSION}/bin; \ 
+    rm ycsb-${b}-${YCSB_VERSION}.tar.gz; \
+    done
 
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work
@@ -199,6 +204,10 @@ COPY --chown=${USERNAME} scripts/ /scripts/
 RUN pip install -r scripts/requirements.txt
 
 WORKDIR /scripts
+
+# YCSB HOMEs
+ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.17.0
+ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # used by YCSB and jsqsh
 ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/orai18n-21.5.0.0.jar:/arcion/lib/postgresql-42.3.5.jar:/arcion/lib/ojdbc8.jar

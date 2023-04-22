@@ -1,4 +1,4 @@
-type: COCKROACH
+type: POSTGRESQL
 
 # will be set by envsubst from menu.sh 
 host: ${DSTDB_HOST}
@@ -9,6 +9,6 @@ database: '${DSTDB_ARC_USER}'
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 
-max-connections: 30
+max-connections: 2
 max-retries: 1
 

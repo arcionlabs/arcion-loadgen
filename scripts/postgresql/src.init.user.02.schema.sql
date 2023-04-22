@@ -10,7 +10,7 @@ CREATE INDEX ON sbtest1(ts);
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists theusertable (
-	ycsb_key VARCHAR(255),
+	ycsb_key int,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
 	field4 TEXT, field5 TEXT,

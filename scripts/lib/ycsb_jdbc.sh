@@ -3,6 +3,8 @@
 . ${SCRIPTS_DIR}/lib/job_control.sh
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
 
+[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
+
 # defaults for the command line
 export default_ycsb_rate=1
 export default_ycsb_threads=1
@@ -21,6 +23,7 @@ export const_ycsb_insertstart=0
 export const_ycsb_recordcount=100000
 export const_ycsb_operationcount=1000000000
 export const_ycsb_zeropadding=11
+export const_ycsb_ycsbkeyprefix=0
 
 ycsb_usage() {
   echo "ycsb: override on the command line or set
@@ -64,11 +67,11 @@ ycsb_select_key() {
   local ycsb_key="$2"
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
+  echo "select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
 
 ycsb_load() {    
-  local ycsb_threads=${ycsb_threads:-${default_ycsb_threads}}
+  local ycsb_threads=${workload_threads:-${default_ycsb_threads}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
   # want multirow inserts for supported DBs
@@ -89,23 +92,23 @@ ycsb_load() {
     #  ;;
   esac 
 
-  ycsbdir=$( cd ${YCSB}/*jdbc*${YCSB_VERSION}*/; pwd )
-  ${ycsbdir}/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
+  ${YCSB_JDBC}/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
     -p workload=site.ycsb.workloads.CoreWorkload \
     -p db.driver="${jdbc_driver}" \
     -p db.url="${jdbc_url}" \
-    -p db.user=${db_user} \
-    -p db.passwd=${db_pw} \
+    -p db.user="${db_user}" \
+    -p db.passwd="${db_pw}" \
     -p jdbc.fetchsize=10 \
     -p jdbc.autocommit=false \
-    -p jdbc.batchupdateapi=true \
-    -p db.urlsharddelim='_' \
+    -p jdbc.batchupdateapi=false \
+    -p db.urlsharddelim='___' \
     -p db.batchsize=1024  \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
     -p recordcount=${const_ycsb_recordcount} \
     -p requestdistribution=uniform \
     -p zeropadding=${const_ycsb_zeropadding} \
+    -p jdbc.ycsbkeyprefix=false \
     -p insertorder=ordered
 }
 
@@ -134,7 +137,7 @@ ycsb_load_sf() {
   for i in $( seq ${ycsb_sf_start} 1 $(( ycsb_size_factor - 1 )) ); do 
 
     # ycsb key are padded 11 digits
-    ycsb_key=$(printf user%0${const_ycsb_zeropadding}d ${ycsb_insertstart})
+    ycsb_key=$(printf %0${const_ycsb_zeropadding}d ${ycsb_insertstart})
 
     # key already there? 
     echo -n "YCSB: Checking existance of ycsb_key ${ycsb_key}"
@@ -178,7 +181,7 @@ ycsb_run() {
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
-  ${YCSB}/*jdbc*${YCSB_VERSION}*/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
+  ${YCSB_JDBC}/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
   -p updateproportion=1 \
   -p readproportion=0 \
   -p workload=site.ycsb.workloads.CoreWorkload \
@@ -194,10 +197,11 @@ ycsb_run() {
   -p db.batchsize=1024  \
   -p jdbc.fetchsize=10 \
   -p jdbc.autocommit=true \
-  -p db.urlsharddelim='_' \
+  -p db.urlsharddelim='___' \
   -p requestdistribution=uniform \
-  -p zeropadding=11 \
-  -p insertorder=ordered &    
+  -p zeropadding=${const_ycsb_zeropadding} \
+  -p jdbc.ycsbkeyprefix=false \
+  -p insertorder=ordered &
 
   # save the PID  
   export YCSB_RUN_PID="$!"

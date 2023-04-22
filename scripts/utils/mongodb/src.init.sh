@@ -46,7 +46,7 @@ banner ycsb
 usertable_cnt=$(mongosh $SRCDB_ARC_USER_URL --quiet --eval 'db.usertable.countDocuments()' )
 
 if [[ ${usertable_cnt} == "0" || ${usertable_cnt} == "" ]]; then
-    pushd ${YCSB}/*mongodb*/
+    pushd ${YCSB_MONGODB}  
     bin/ycsb.sh load mongodb -s -P workloads/workloada -p mongodb.url="${SRCDB_ARC_USER_URL}?w=0"  -p recordcount=10000 
     popd
 else
