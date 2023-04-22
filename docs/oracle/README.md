@@ -25,21 +25,30 @@ cd OracleDatabase/SingleInstance/dockerfiles
 
 ## Oracle EE
 
+- build the container image
+
 ```bash
 ./buildContainerImage.sh -v 19.3.0 -e -o '--build-arg SLIMMING=false'
 ```
 
+- options that can be set but left to default
+
+```bash
 -e INIT_SGA_SIZE=<your database SGA memory in MB> \
 -e INIT_PGA_SIZE=<your database PGA memory in MB> \
 -e INIT_CPU_COUNT=<cpu_count init-parameter> \
 -e INIT_PROCESSES=<processes init-parameter> \
 -e ORACLE_CHARACTERSET=<your character set> \
 -e ENABLE_TCPS=true \
-
 ```
-docker volume create oracle-ee-19-3-0
+
+- create the container
+
+```bash
+inst=2
+docker volume create oraee${inst}
 docker run -d \
-    --name oraee \
+    --name oraee${inst} \
     --network arcnet \
     -p :1521 \
     -p :5500 \
@@ -50,9 +59,15 @@ docker run -d \
     -e ORACLE_EDITION=enterprise \
     -e ENABLE_ARCHIVELOG=true \
     -e AUTO_MEM_CALCULATION=false \
-    -v oracle-ee-19-3-0:/opt/oracle/oradata \
+    -v oraee${inst}:/opt/oracle/oradata \
     oracle/database:19.3.0-ee
 ```
+
+- takes about 10 minutes to complete
+```bash
+while [ -z "$( docker logs oraee${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do sleep 10; done;
+```
+
 ### Oracle Express Edition
 
 SID cannot be changed

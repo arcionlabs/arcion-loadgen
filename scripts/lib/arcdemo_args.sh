@@ -33,6 +33,7 @@ export database_maps=${default_database_maps}
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"
+export workload_timer_bb="${workload_timer:-$default_workload_timer}"
 export workload_size_factor_bb="${workload_size_factor:-$default_workload_size_factor_bb}"
 export workload_modules_bb="${workload_modules_bb:-$default_workload_modules_bb}"
 
@@ -105,6 +106,9 @@ function arcdemo_opts() {
   # set TPS rate of benchbase modules
   workload_rate_bb="${workload_rate}"
   [ "${workload_rate_bb}" = "0" ] && workload_rate_bb="unlimited"   # 'unlimited' or 'disabled'
+
+  # set TIMER for benchbase adjusting to unlimited
+  workload_timer_bb="${workload_timer}"
 
   # TODO: sizefactor for BB is 1 as the code does not allow growing the dataset
 

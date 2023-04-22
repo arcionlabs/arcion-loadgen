@@ -69,6 +69,7 @@ export workload_rate="$workload_rate"
 export workload_rate_bb="$workload_rate_bb"
 export workload_threads="$workload_threads"
 export workload_timer="$workload_timer"
+export workload_timer_bb="$workload_timer_bb"
 export workload_size_factor="$workload_size_factor"
 export workload_modules_bb="$workload_modules_bb"
 # benchbase

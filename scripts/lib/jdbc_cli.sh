@@ -86,7 +86,7 @@ list_tables() {
         ;;
         oracle)
     local DB_OWNER=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT OBJECT_TYPE, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'TABLE' AND lower(OWNER) = lower('${DB_OWNER}');"
+    local DB_SQL="SELECT 'TABLE', table_name from user_tables;"
         ;;    
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2

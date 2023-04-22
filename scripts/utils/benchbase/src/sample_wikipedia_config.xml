@@ -17,7 +17,7 @@
     <terminals>${workload_threads}</terminals>
     <works>
         <work>
-            <time>${workload_timer}</time>
+            <time>${workload_timer_bb}</time>
             <rate>${workload_rate_bb}</rate>
             <weights>1,1,7,0,0</weights>
             <!-- <weights>1,1,7,90,1</weights> -->

@@ -17,19 +17,19 @@ bb_chdir() {
 
     case ${db_grp,,} in
         informix)
-            pushd /opt/benchbase/benchbase-informix
+            pushd /opt/benchbase/benchbase-informix >/dev/null
             ;;
         mysql)
-            pushd /opt/benchbase/benchbase-mariadb
+            pushd /opt/benchbase/benchbase-mariadb >/dev/null 
             ;;
         oracle)
-            pushd /opt/benchbase/benchbase-oracle
+            pushd /opt/benchbase/benchbase-oracle >/dev/null
             ;;
         postgresql)
-            pushd /opt/benchbase/benchbase-postgres
+            pushd /opt/benchbase/benchbase-postgres >/dev/null
             ;;
         sqlserver)
-            pushd /opt/benchbase/benchbase-sqlserver
+            pushd /opt/benchbase/benchbase-sqlserver >/dev/null
             ;;
         *)
             echo "benchbase-load.sh: ${db_grp} unsupported" >&2
@@ -43,17 +43,17 @@ bb_create_tables() {
     local LOC=${1:-SRC}
     local workloads="${2:-tpcc}"
 
-    echo "x${workloads}x"
+    # DEBUG
+    echo "benchbase worload: ${workloads}"
+    echo "benchbase db group: $db_grp"
+    echo "benchbase db type: $db_type"
+    echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
     # NOTE: <<<$workloads add newline on the last element. 
     # use < <(printf '%s' "$workloads") to fix that 
     readarray -td, workloads < <(printf '%s' "$workloads")
 
     bb_chdir $LOC
-
-    echo $db_grp
-    echo $db_type
-    echo $db_jdbc_no_rewrite
 
     # save the list of existing tables as bash associative array (the -A)
     # NOTE: the quote is required to create the hash correctly
@@ -101,7 +101,7 @@ bb_create_tables() {
         fi
     done    
 
-    popd
+    popd >/dev/null
 }
 
 bb_run_tables() {
@@ -120,6 +120,6 @@ bb_run_tables() {
         --create=false --load=false --execute=true &
     done    
 
-    popd
+    popd >/dev/null
 
 }

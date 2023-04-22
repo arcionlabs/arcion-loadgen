@@ -20,7 +20,7 @@
     <terminals>${workload_threads}</terminals>
     <works>
         <work>
-            <time>${workload_timer}</time>
+            <time>${workload_timer_bb}</time>
             <rate>${workload_rate_bb}</rate>
             <!-- <weights>50,5,15,10,10,10</weights> -->
             <weights>0,5,0,10,10,10</weights>

@@ -1,12 +1,3 @@
-CREATE TABLE if not exists sbtest1(
-	id INTEGER,
-  	k INTEGER DEFAULT '0' NOT NULL,
-  	c TEXT,
-  	pad TEXT,
-	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
-	constraint sbtest1_pkey primary key (id)
-);
-CREATE INDEX ON sbtest1(ts);
 
 -- ts is used for snapshot delta. 
 CREATE TABLE if not exists theusertable (
@@ -19,4 +10,4 @@ CREATE TABLE if not exists theusertable (
 	ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
 	constraint theusertable_pkey primary key (ycsb_key)
 );
-CREATE INDEX ON theusertable(ts);
+CREATE INDEX CREATE INDEX IF NOT EXISTS ON theusertable(ts);

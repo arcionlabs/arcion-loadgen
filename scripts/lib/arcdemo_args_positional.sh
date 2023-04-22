@@ -5,6 +5,13 @@ function arcdemo_positional() {
     # set REPL_TYPE from command line
     if [ ! -z "$1" ]; then 
         export REPL_TYPE=$1; 
+        case $REPL_TYPE in
+            snapshot|real-time|delta-snapshot|full) 
+                ;;
+            *) echo "Error: replication type $REPL_TYPE must be snapshot|real-time|delta-snapshot|full" >&2  
+               exit 1
+                ;;
+        esac
     fi
 
     # set from SRC URI command line

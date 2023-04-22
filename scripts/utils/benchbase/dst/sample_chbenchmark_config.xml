@@ -29,7 +29,7 @@
 
         <!-- A Basic WorkPhase for Mixed Workloads -->
         <work>
-            <time>${workload_timer}</time>
+            <time>${workload_timer_bb}</time>
 
             <!-- Note: The rate can be set to UNLIMITED or DISABLED -->
             <rate>${workload_rate_bb}</rate>
@@ -42,7 +42,7 @@
         <!-- Extra features showcase -->
         <!-- Extra features showcase -->
         <!-- <work> -->
-        <!-- <time>${workload_timer}</time> -->
+        <!-- <time>${workload_timer_bb}</time> -->
 
         <!-- <rate>${workload_rate_bb}</rate> -->
         <!-- <rate bench="chbenchmark">disabled</rate> -->
@@ -59,7 +59,7 @@
         <!-- Extra features -->
         <!--
         <work>
-            <time>${workload_timer}</time>
+            <time>${workload_timer_bb}</time>
 
             <rate>${workload_rate_bb}</rate>
             <rate bench="chbenchmark">unlimited</rate>
