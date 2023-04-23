@@ -1,0 +1,10 @@
+workloads,provider
+resourcestresser,bb
+sibench,bb
+smallbank,bb
+tatp,bb
+tpcc,bb
+twitter,bb
+voter,bb
+ycsb,bb
+theycsb,ycsb
