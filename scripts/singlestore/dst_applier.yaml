@@ -1,0 +1,28 @@
+snapshot:
+  threads: ${DSTDB_SNAPSHOT_THREADS}
+  skip-tables-on-failures : true
+  _traceDBTasks: true
+
+  user-role:
+    init-user-roles: false  
+
+  bulk-load:
+    enable: true
+    type: FILE   # PIPE, FILE  
+
+  table-store: ROW
+
+  per-table-config:
+  - catalog: ${DSTDB_ARC_USER}
+    tables:
+      # other databases are lower
+      theusertable:
+        table-store: COLUMN    
+      # oracle produces upper case
+      THEUSERTABLE:
+        table-store: COLUMN 
+        
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
+  skip-tables-on-failures : true
+  _traceDBTasks: true
