@@ -10,8 +10,6 @@ snapshot:
     enable: true
     type: FILE   # PIPE, FILE  
 
-  table-store: ROW
-
   per-table-config:
   - catalog: ${DSTDB_ARC_USER}
     tables:
@@ -21,7 +19,7 @@ snapshot:
       # oracle produces upper case
       THEUSERTABLE:
         table-store: COLUMN 
-        
+
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
