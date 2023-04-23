@@ -17,6 +17,9 @@ FLUSH PRIVILEGES;
 set global default_table_type=rowstore;
 SELECT @@GLOBAL.default_table_type;
 
+set global table_name_case_sensitivity=0;
+SELECT @@table_name_case_sensitivity;
+
 -- arcion database
 create database IF NOT EXISTS ${DSTDB_DB};
 create database IF NOT EXISTS io_replicate;

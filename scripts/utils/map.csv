@@ -1,7 +1,7 @@
 type,group,default_port,root_user,root_pw,default_schema,benchbase_name,txn_isolation,sid
 mysql,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,
 mariadb,mysql,3306,root,Passw0rd,,MARIADB,TRANSACTION_READ_COMMITTED,
-singlestore,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,
+singlestore,mysql,3306,root,Passw0rd,,SINGLESTORE,TRANSACTION_READ_COMMITTED,
 postgresql,postgresql,5432,root,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,
 cockroach,postgresql,26257,root,Passw0rd,public,COCKROACHDB,TRANSACTION_READ_COMMITTED,
 yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,

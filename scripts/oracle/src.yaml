@@ -14,8 +14,10 @@ max-connections: 10
 
 max-retries: 1
 retry-wait-duration-ms: 1000
-continuous-log-mining: false     # for 12c, 18c, 19c, should set up as false, since not supported 
+# for 12c, 18c, 19c, should set up as false, since not supported 
+continuous-log-mining: false     
 #continuous-log-mining: true
+
 #ssl:
 #   trust-store:
 #       ssl-store-type: 'JKS'

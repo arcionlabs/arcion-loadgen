@@ -43,17 +43,17 @@ bb_create_tables() {
     local LOC=${1:-SRC}
     local workloads="${2:-tpcc}"
 
-    # DEBUG
-    echo "benchbase worload: ${workloads}"
-    echo "benchbase db group: $db_grp"
-    echo "benchbase db type: $db_type"
-    echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
-
     # NOTE: <<<$workloads add newline on the last element. 
     # use < <(printf '%s' "$workloads") to fix that 
     readarray -td, workloads < <(printf '%s' "$workloads")
 
     bb_chdir $LOC
+
+    # DEBUG
+    echo "benchbase worload: ${workloads}"
+    echo "benchbase db group: $db_grp"
+    echo "benchbase db type: $db_type"
+    echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
     # save the list of existing tables as bash associative array (the -A)
     # NOTE: the quote is required to create the hash correctly

@@ -12,7 +12,8 @@ docker run -d \
     mysql \
     mysqld --default-authentication-plugin=mysql_native_password \
     --secure-file-priv="" \
-    --local-infile=true 
+    --local-infile=true \
+    --lower_case_table_names=1 
         
 docker run -d \
     --name mysql2 \
