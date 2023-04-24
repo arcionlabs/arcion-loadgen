@@ -47,9 +47,23 @@ CREATE TRIGGER update_ts_on_theusertable BEFORE UPDATE ON theusertable FOR EACH 
 go
 EOF
         ;;
+        oraee)
+            cat <<EOF
+CREATE TABLE theusertable (
+    ycsb_key NUMBER primary key,
+    field0 varchar2(255), field1 varchar2(255),
+    field2 varchar2(255), field3 varchar2(255),
+    field4 varchar2(255), field5 varchar2(255),
+    field6 varchar2(255), field7 varchar2(255),
+    field8 varchar2(255), field9 varchar2(255),
+    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+); 
+create index theusertable_ts on theusertable (ts);
+EOF
+        ;;
         *)
             cat <<EOF
-db_sql="CREATE TABLE if not exists theusertable (
+CREATE TABLE if not exists theusertable (
     ycsb_key int primary key,
     field0 TEXT, field1 TEXT,
     field2 TEXT, field3 TEXT,

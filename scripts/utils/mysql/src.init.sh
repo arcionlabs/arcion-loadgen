@@ -15,20 +15,20 @@ ping_db EXISTING_DBS src
 if [ -z "${EXISTING_DBS[${SRCDB_DB:-${SRCDB_SCHEMA}}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
-  for f in ${CFG_DIR}/src.init.root.*sql; do
+  for f in ${CFG_DIR}/src.init.root*sql; do
     # the root has no DB except Oracle that has SID
     if [ "${SRCDB_GRP}" = "oracle" ]; then
       cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${SRCDB_SID:-${SRCDB_DB}}"
     else
       cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT}
-    fi
+    fi  
   done
 else
   echo "src db ${SRCDB_DB} already setup. skipping db setup"
 fi
 
 # run if table needs to be created
-if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ] && [ ! -z "${SRCDB_INIT_USER}" ]; then
+if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ]; then
   echo "SRC db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
 
   for f in ${CFG_DIR}/src.init.user*sql; do
@@ -36,7 +36,7 @@ if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ] && [ ! -z "${SRCDB_I
   done
 
 else
-  echo "SRC db ${SRCDB_ARC_USER} ${SRCDB_DB:-${SRCDB_SCHEMA}} ${SRCDB_INIT_USER} and skipping user setup"
+  echo "SRC db ${SRCDB_ARC_USER} ${SRCDB_DB:-${SRCDB_SCHEMA}} skipping user setup"
 fi
 
 # setup workloads
