@@ -111,6 +111,7 @@ function arcdemo_opts() {
   workload_timer_bb="${workload_timer}"
 
   # TODO: sizefactor for BB is 1 as the code does not allow growing the dataset
+  workload_size_factor_bb="${workload_size_factor}"
 
   # basic validataion of values
   [ "$workload_threads" = "0" ] && workload_threads=$default_max_cpus
