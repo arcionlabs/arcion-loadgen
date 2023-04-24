@@ -62,9 +62,9 @@ ping_host () {
     # "-oG -" grep friendly to stdout
     nmap -sn -oG - ${db_url} | tee /tmp/nmap.$$
     grep "1 host up" /tmp/nmap.$$ 
-    rc=$?
+    rc=${?}
     echo $max_retries
-    if (( ${rc} == 0 )); then
+    if [ ${rc} == 0 ]; then
       break
     fi
 
@@ -97,7 +97,9 @@ ping_host_port () {
   while [ ${rc} != 0 ]; do
     nmap -p ${db_port} -oG - ${db_url} | tee /tmp/nmap.$$
     grep "Ports: ${db_port}/open/" /tmp/nmap.$$ 
-    if (( ${rc} == 0 )); then
+    rc=${?}
+    echo $rc
+    if [ ${rc} == 0 ]; then
       break
     fi
 

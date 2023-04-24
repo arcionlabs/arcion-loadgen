@@ -23,8 +23,10 @@ arcion_param() {
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
-    # optional
+    # src to dst map
     map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
+    
+    # optional
     metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
     # construct the list

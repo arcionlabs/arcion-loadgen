@@ -105,14 +105,13 @@ CREATE TABLE sbtest1(
 -- mysql ignores primary_key and uses primary
 -- pg and sqlserver honor the provided name
 CREATE TABLE theusertable (
-	ycsb_key VARCHAR(255),
+	ycsb_key int primary key,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
 	field4 TEXT, field5 TEXT,
 	field6 TEXT, field7 TEXT,
 	field8 TEXT, field9 TEXT,
 	ts datetime DEFAULT CURRENT_TIMESTAMP,
-	constraint theusertable_pkey primary key (ycsb_key),
 	index ts (ts)
 );
 

@@ -2,6 +2,7 @@
 
 . ${SCRIPTS_DIR}/lib/job_control.sh
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
+. ${SCRIPTS_DIR}/lib/ycsb_jdbc_create_table.sh
 
 [ -z "${YCSB_JDBC}" ] && YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
@@ -76,6 +77,8 @@ ycsb_load() {
   local ycsb_threads=${workload_threads:-${default_ycsb_threads}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
+  if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
+
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     mysql)
@@ -114,16 +117,33 @@ ycsb_load() {
     -p insertorder=ordered
 }
 
+# $1 = src|dst
+# $2 = list of tables in the database
 ycsb_load_sf() {
   local LOC="${1:-SRC}"        # SRC|DST
 
   local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
   local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
   local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  local db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
   local jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
   local jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )  
+
+  # need to create table def?
+  if [ -z ${2} ]; then
+    echo "ycsb_load_sf: retrieving the tables"
+    declare -A "ycsb_load_sf_db_tabs=( $( list_tables ${LOC,,} | tr '[:upper:]' '[:lower:]' | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+  else
+    local -n ycsb_load_sf_db_tabs=${2}
+  fi
+
+  echo ${ycsb_load_sf_db_tabs[*]}
+  if [ -z "${ycsb_load_sf_db_tabs[theusertable]}" ]; then 
+    echo "theusertable not found.  creating"
+    ycsb_create_table | jdbc_cli $LOC
+  fi
 
   # number of new records to add
   local ycsb_size_factor=${workload_size_factor}
@@ -141,11 +161,11 @@ ycsb_load_sf() {
 }
 
 function ycsb_load_src() { 
-  ycsb_load_sf src
+  ycsb_load_sf src $*
 }
 
 function ycsb_load_dst() { 
-  ycsb_load_sf dst
+  ycsb_load_sf dst $*
 }
  
 ycsb_run() {

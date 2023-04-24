@@ -20,5 +20,6 @@ docker run -d \
     mariadb \
     mysqld --default-authentication-plugin=mysql_native_password \
     --log-bin=mysql-log.bin \
-    --binlog-format=ROW    
+    --binlog-format=ROW \
+    --lower_case_table_names=1     
 ```

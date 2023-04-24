@@ -27,15 +27,16 @@ else
   echo "src db ${SRCDB_DB} already setup. skipping db setup"
 fi
 
-if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ]; then
-  echo "src db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
+# run if table needs to be created
+if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ] && [ ! -z "${SRCDB_INIT_USER}" ]; then
+  echo "SRC db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
 
-  for f in ${CFG_DIR}/src.init.user.*sql; do
+  for f in ${CFG_DIR}/src.init.user*sql; do
     cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${SRCDB_SID:-${SRCDB_DB}}"
   done
 
 else
-  echo "src db ${SRCDB_ARC_USER} != ${SRCDB_DB:-${SRCDB_SCHEMA}} skipping user setup"
+  echo "SRC db ${SRCDB_ARC_USER} ${SRCDB_DB:-${SRCDB_SCHEMA}} ${SRCDB_INIT_USER} and skipping user setup"
 fi
 
 # setup workloads

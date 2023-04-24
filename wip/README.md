@@ -178,7 +178,7 @@ docker run --net mynet -it --rm mysql mysql -hmysql -uycsb -ppassword
 CREATE database ycsb;
 USE ycsb;
 CREATE TABLE usertable (
-	ycsb_key VARCHAR(255) PRIMARY KEY,
+	ycsb_key int PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
 	field4 TEXT, field5 TEXT,

@@ -4,6 +4,7 @@ system recognized [workloads](../../scripts/utils/workloads/workloads.csv) has t
 
 for example,
 
-theycbs   = ycsb at sf=1   = 100K rows = .1GB
-theycsb10 = ycsb at sf=10  = 1M rows   = 1GB
-theycsb10 = ycsb at sf=100 = 10M rows  = 10GB
+theycbs     = ycsb at sf=1   = 100K rows = .1GB
+theycsb10   = ycsb at sf=10  = 1M rows   = 1GB
+theycsb100  = ycsb at sf=100 = 10M rows  = 10GB
+theycsb1K   = ycsb at sf=1K  = 100M rows = 100GB

@@ -14,6 +14,9 @@ create database IF NOT EXISTS ${SRCDB_DB};
 set global default_table_type=rowstore;
 SELECT @@GLOBAL.default_table_type;
 
+set global table_name_case_sensitivity=0;
+SELECT @@table_name_case_sensitivity;
+
 -- show binlogs
 show variables like "%log_bin%";
 -- flush
