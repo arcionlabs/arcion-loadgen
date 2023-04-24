@@ -29,7 +29,7 @@
            url="jdbc:postgresql://${server}:${port}/#if($db)${db}#end"
            class="org.postgresql.Driver"
            target="PostgreSQL"
-           analyzer="org.sqsh.analyzers.ANSIAnalyzer"
+           analyzer="org.sqsh.analyzers.PLSQLAnalyzer"
            normalizer="org.sqsh.normalizer.NullNormalizer">
       <Variable name="server"><![CDATA[localhost]]></Variable>
       <Variable name="port"><![CDATA[5432]]></Variable>
