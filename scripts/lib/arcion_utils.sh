@@ -269,6 +269,14 @@ while [ 1 ]; do
     [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=$( map_benchbase_type "${SRCDB_TYPE}" )
     [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=$( map_benchbase_isolation "${SRCDB_TYPE}" )
 
+    # safeguard RAM for the demo
+    case "${SRCDB_TYPE,,}" in
+        singlestore)
+            workload_size_factor_bb=1
+            echo "singlestore: setting workload_size_factor_bb=1"
+            ;;
+    esac
+
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
     echo "Source Type: ${SRCDB_TYPE}"

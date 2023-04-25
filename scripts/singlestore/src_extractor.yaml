@@ -37,3 +37,4 @@ delta-snapshot:
         split-key: [ycsb_key] 
         row-identifier-key: [ycsb_key]
         update-key: [ycsb_key]
+        replicate-deletes: false

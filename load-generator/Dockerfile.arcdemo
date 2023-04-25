@@ -181,12 +181,6 @@ EXPOSE 7681
 COPY --chown=${USERNAME} replicant-cli/ ${ARCION_HOME}
 COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
 
-# jsqsh
-RUN mkdir -p /home/${USERNAME}/.jsqsh
-RUN touch /home/${USERNAME}/.jsqsh/.welcome
-COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
-COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
-
 # jbang
 RUN curl -Ls https://sh.jbang.dev | bash -s - app setup
 
@@ -210,6 +204,13 @@ COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
 RUN cd ${BENCHBASE_DIR} \
     && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
+# jsqsh
+RUN mkdir -p /home/${USERNAME}/.jsqsh
+RUN touch /home/${USERNAME}/.jsqsh/.welcome
+COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
+COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
+
+# scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/
 # python hydra
 RUN pip install -r scripts/requirements.txt

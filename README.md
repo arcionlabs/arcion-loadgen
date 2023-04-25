@@ -80,42 +80,62 @@ if [ -f ~/.bashrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> 
 docker network create arcnet
 ```
 
-## Postgres for Arcion UI and Source / Target
+## Start Arcion UI
 
-Postgres will be used for:
-- Arcion's UI
-- Arcion replication metadata
-- Arcion source and destination
+### Start the metadata for the UI
+
 ```bash
-# postgres with SSL setup
+docker volume create arcion-metadata 
+
 docker run -d \
-    --name postgresql \
+    --name arcion-metadata \
     --network arcnet \
     -e POSTGRES_USER=root \
     -e POSTGRES_PASSWORD=Passw0rd \
+    -v arcion-metadata:/var/lib/postgresql/data \
     -p :5432 \
-    postgres \
-    -c wal_level=logical \
-    -c max_replication_slots=10 \
-    -c max_connections=300 \
-    -c shared_buffers=80MB \
-    -c ssl=on \
-    -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem \
-    -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key    
+    postgres:14-alpine
 
-# wait for db to come up
-while [ -z "$( docker logs postgresql 2>&1 | grep 'database system is ready to accept connections' )" ]; do sleep 10; done;
-
-# install wal2json for cdc
-docker exec -it postgresql sh -c "apt update && apt install -y postgresql-15-wal2json postgresql-contrib"
-
-# setup for Acrion UI and metadata
-docker exec -i postgresql psql -Uroot<<EOF
-CREATE USER arcion PASSWORD 'Passw0rd';
-CREATE DATABASE arcion WITH OWNER arcion;
-CREATE DATABASE io_replicate WITH OWNER arcion;
+docker exec -i arcion-metadata psql -Uroot<<EOF
+    CREATE USER arcion PASSWORD 'Passw0rd';
+    CREATE DATABASE arcion WITH OWNER arcion;
+    CREATE DATABASE io_replicate WITH OWNER arcion;
 EOF
 ```
+
+### Download Oracle JDBC for Oracle source and target
+```bash
+mkdir -p arcion-ui/data
+mkdir -p arcion-ui/config
+mkdir -p arcion-ui/libs
+curl -o arcion-ui/libs/ojdbc8.jar  --location https://download.oracle.com/otn-pub/otn_software/jdbc/1815/ojdbc8.jar
+```
+
+### Start Arcion UI
+```bash
+docker run -d \
+    --name arcion-ui \
+    --network arcnet \
+    -e ARCION_LICENSE="${ARCION_LICENSE}" \
+    -e DB_HOST=arcion-metadata \
+    -e DB_PORT=5432 \
+    -e DB_DATABASE=arcion \
+    -e DB_USERNAME=arcion \
+    -e DB_PASSWORD=Passw0rd \
+    -p 8080:8080 \
+    -v `pwd`/arcion-ui/data:/data \
+    -v `pwd`/arcion-ui/config:/config \
+    -v `pwd`/arcion-ui/libs:/libs \
+    arcionlabs/replicant-on-premises:latest
+```
+
+make sure there are no warnings about license
+```
+docker logs arcion-ui
+```    
+
+open the browser on [http://localhost:8080](http://localhost:8080) with user:`admin` password:`arcion`
+
 ## Arcion Load Generator
 
 ```bash
@@ -127,23 +147,7 @@ docker run -d --name arcion-demo \
     robertslee/arcdemo
 ```    
 
-## Arcion UI
-```bash
-docker run -d --name arcion-ui \
-    --network arcnet \
-    -e ARCION_LICENSE="${ARCION_LICENSE}" \
-    -e DB_HOST=postgresql \
-    -e DB_PORT=5432 \
-    -e DB_DATABASE=arcion \
-    -e DB_USERNAME=arcion \
-    -e DB_PASSWORD=Passw0rd \
-    -p 8080:8080 \
-    -v `pwd`/tmp:/share \
-    arcionlabs/replicant-on-premises:latest
 
-# make sure there are no warnings about license
-docker logs arcion-ui
-```    
 
 # Other Sources and Destinations
 

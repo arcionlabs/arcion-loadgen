@@ -79,6 +79,16 @@ ycsb_load() {
 
   if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
 
+  local ycsb_load_basedon_sf=$( echo "scale=0; (l (${ycsb_size_factor}) ) / 1" | bc -l )
+  if [ -z "${ycsb_load_basedon_sf}" ] || [ "${ycsb_load_basedon_sf}" = "0" ]; then
+    ycsb_load_basedon_sf=1
+  fi
+
+  if (( ycsb_load_basedon_sf > ycsb_threads )); then
+    echo "YCSB: setting load thread count to $ycsb_load_basedon_sf"
+    ycsb_threads=${ycsb_load_basedon_sf}
+  fi 
+
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     mysql)
@@ -152,6 +162,7 @@ ycsb_load_sf() {
   local ycsb_insertend=$((ycsb_size_factor * const_ycsb_recordcount))
   local ycsb_recordcount=$((ycsb_insertend - ycsb_insertstart))
 
+ 
   echo "YCSB: insert from $ycsb_insertstart to $ycsb_insertend ($ycsb_recordcount)"
   if (( ycsb_recordcount > 0 )); then
     ycsb_load ${jdbc_url} ${ycsb_recordcount}

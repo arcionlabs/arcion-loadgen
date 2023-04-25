@@ -7,8 +7,8 @@ ycsb_create_table() {
     fi
 
     case "${db_type,,}" in
-        mysql,mariadb,singlestore,cockroach)
-            cat <<EOF
+        mysql | mariadb | cockroach)
+            cat <<'EOF'
 CREATE TABLE if not exists theusertable (
     ycsb_key int primary key,
     field0 TEXT, field1 TEXT,
@@ -20,8 +20,24 @@ CREATE TABLE if not exists theusertable (
     index (ts)
 );
 EOF
-        ;;    
-        yugabytesql|postgresql)
+        ;; 
+        singlestore)
+            cat <<'EOF'
+CREATE TABLE if not exists theusertable (
+    ycsb_key int,
+    field0 TEXT, field1 TEXT,
+    field2 TEXT, field3 TEXT,
+    field4 TEXT, field5 TEXT,
+    field6 TEXT, field7 TEXT,
+    field8 TEXT, field9 TEXT,
+    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    key (ycsb_key) using hash,
+    sort key (ts),
+    shard key (ycsb_key)
+);
+EOF
+        ;;            
+        yugabytesql | postgresql)
             cat <<'EOF'
 CREATE TABLE if not exists theusertable (
     ycsb_key int primary key,
@@ -48,7 +64,7 @@ go
 EOF
         ;;
         oraee)
-            cat <<EOF
+            cat <<'EOF'
 CREATE TABLE theusertable (
     ycsb_key NUMBER primary key,
     field0 varchar2(255), field1 varchar2(255),
@@ -62,7 +78,7 @@ create index theusertable_ts on theusertable (ts);
 EOF
         ;;
         *)
-            cat <<EOF
+            cat <<'EOF'
 CREATE TABLE if not exists theusertable (
     ycsb_key int primary key,
     field0 TEXT, field1 TEXT,

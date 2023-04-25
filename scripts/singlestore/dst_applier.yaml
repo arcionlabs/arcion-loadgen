@@ -13,11 +13,11 @@ snapshot:
   per-table-config:
   - catalog: ${DSTDB_ARC_USER}
     tables:
-      # other databases are lower
-      theusertable:
-        table-store: COLUMN    
-      # oracle produces upper case
+      # oracle produces uppercase 
       THEUSERTABLE:
+        table-store: COLUMN 
+      # other databases use lowercase
+      theusertable:
         table-store: COLUMN 
 
 realtime:

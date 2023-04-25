@@ -4,7 +4,6 @@ SET GLOBAL general_log = 'ON';
 
 -- arcion user
 CREATE USER '${DSTDB_ARC_USER}' IDENTIFIED BY '${DSTDB_ARC_PW}';
-
 GRANT ALL ON ${DSTDB_ARC_USER}.* to '${DSTDB_ARC_USER}';
 GRANT ALL ON io_replicate.* to '${DSTDB_ARC_USER}';
 

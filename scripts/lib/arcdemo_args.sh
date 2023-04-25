@@ -15,6 +15,10 @@ export default_database_maps="arcsrc:arcdst"
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
 
+# export default_ARCION_ARGS="--merge-existing --overwrite --verbose"
+# the same temp table is created
+# export default_ARCION_ARGS="--append-existing --overwrite --verbose"
+# append-existing causes temp table to be created on destination
 export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
 # export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
 
