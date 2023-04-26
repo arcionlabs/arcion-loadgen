@@ -4,7 +4,7 @@ allow:
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
-    theusertable:
+    #theusertable:
     #locktable:
     #order_line:
     #stock:
