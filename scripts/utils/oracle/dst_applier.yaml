@@ -1,21 +1,14 @@
-# DB capable of snapshot.  Take default options except the CPUs
 snapshot:
-  threads: ${SRCDB_SNAPSHOT_THREADS}
-  fetch-user-roles: false
-  
-# DB capable of real-time.  Take default options except the CPUs
-realtime:
-  threads: ${SRCDB_REALTIME_THREADS}
-  heartbeat:
-    enable: true
-    catalog: ${SRCDB_DB} 
-    schema: ${SRCDB_SCHEMA}
-    # oracle is case sensitive
-    table-name: $(if [ "${SRCDB_GRP}" = "oracle" ]; then echo "REPLICATE_IO_CDC_HEARTBEAT"; else echo "replicate_io_cdc_heartbeat"; fi)
+  threads: ${DSTDB_SNAPSHOT_THREADS}
+  skip-tables-on-failures : true
+  _traceDBTasks: true
+  user-role:
+    init-user-roles: false    
+  bulk-load:
+    enable: false
+    type: FILE   # PIPE, FILE   
 
-delta-snapshot:
-  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-keys: [ts]
-  split-key: [ts]
-  delta-snapshot-interval: 10
-  delta-snapshot-delete-interval: 10  
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
+  skip-tables-on-failures : true
+  _traceDBTasks: true

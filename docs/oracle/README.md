@@ -1,50 +1,27 @@
+Oracle XE and Oracle EE instructions adopted from [Oracle](https://github.com/oracle/docker-images/tree/main/OracleDatabase).  
 
-Download Oracle from OTN
+- Oracle XE does not require OTN download.  There are size (limitations)[https://docs.oracle.com/en/database/oracle/oracle-database/21/xeinl/licensing-restrictions.html]
+- Oracle EE requires OTN download.
 
-## User
-User setup in PDB
-https://oracle-base.com/articles/12c/multitenant-manage-users-and-privileges-for-cdb-and-pdb-12cr1
+# Oracle EE
 
-
-```
--- Create the common user using the CONTAINER clause.
-CREATE USER c##arcsrc IDENTIFIED BY Passw0rd CONTAINER=ALL;
-GRANT CREATE SESSION TO c##arcsrc CONTAINER=ALL;
-
--- list pdbs
-select * from DBA_PDBS order by pdb_id;
-
-```
-
-
-
-
-cd OracleDatabase/SingleInstance/dockerfiles
-./buildContainerImage.sh
-
-
-## Oracle EE
-
-- build the container image
+Download Oracle binary and place in 19.3.0 directory
 
 ```bash
+git clone https://github.com/oracle/docker-images oracle-docker-image
+cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles/19.3.0
+```
+
+Build the docker image
+
+```bash
+cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles 
 ./buildContainerImage.sh -v 19.3.0 -e -o '--build-arg SLIMMING=false'
 ```
 
-- options that can be set but left to default
+create two oracle docker containers. one for the source and the other for destination if oracle to oracle replication is intended.  Otherwise, just one is sufficient.  `oraee1` is will serve as the source.  `oraee2` will serve as destination.
 
-```bash
--e INIT_SGA_SIZE=<your database SGA memory in MB> \
--e INIT_PGA_SIZE=<your database PGA memory in MB> \
--e INIT_CPU_COUNT=<cpu_count init-parameter> \
--e INIT_PROCESSES=<processes init-parameter> \
--e ORACLE_CHARACTERSET=<your character set> \
--e ENABLE_TCPS=true \
-```
-
-- create the container
-
-each takes about 10 min to complete
+each container takes about 10 min to complete
 
 ```bash
 for inst in 1 2; do
@@ -67,48 +44,28 @@ for inst in 1 2; do
 done
 ```
 
-- takes about 10 minutes to complete
-```bash
-while [ -z "$( docker logs oraee${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
-```
+# Oracle XE
 
-### Oracle Express Edition
-
-SID cannot be changed
-
-Default root id/password = Passw0rd
-
-jsqsh --driver oracle --server oracle --port 1521 --user system --password Passw0rd --database XE
+XE does not required download.
 
 ```bash
-git clone https://github.com/oracle/docker-images oracle-docker-images
-cd oracle-docker-images
-cd OracleDatabase/SingleInstance/dockerfiles
-./buildContainerImage.sh -x -i
-
-docker volume create oracle1
-docker run -d \
-    --name oraxe \
-    --network arcnet \
-    -p :1521 \
-    -p :5500 \
-    -e ORACLE_PWD=Passw0rd \
-    -v oracle1:/opt/oracle/oradata \
-    oracle/database:21.3.0-xe
+cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles 
+./buildContainerImage.sh -v 21.3.0 -x -o '--build-arg SLIMMING=false'
 ```
 
-sqlplus sys/<your password>@//localhost:1521/XE as sysdba
-sqlplus system/<your password>@//localhost:1521/XE
-sqlplus pdbadmin/<your password>@//localhost:1521/XEPDB1
+See comments in EE.
 
+```bash
+for inst in 1 2; do
+    docker volume create oraxe${inst}
+    docker run -d \
+        --name oraxe${inst} \
+        --network arcnet \
+        -p :1521 \
+        -p :5500 \
+        -e ORACLE_PWD=Passw0rd \
+        -v oraxe${inst}:/opt/oracle/oradata \
+        oracle/database:21.3.0-xe    
+    while [ -z "$( docker logs oraxe${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
+done
 ```
-CREATE USER c##arcsrc IDENTIFIED BY Passw0rd;
-
-grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcsrc;
-
-CREATE USER arcdst IDENTIFIED BY Passw0rd;
-
-grant CREATE SESSION, ALTER SESSION, CREATE DATABASE LINK, CREATE MATERIALIZED VIEW, CREATE PROCEDURE, CREATE PUBLIC SYNONYM, CREATE ROLE, CREATE SEQUENCE, CREATE SYNONYM, CREATE TABLE, CREATE TRIGGER, CREATE TYPE, CREATE VIEW, UNLIMITED TABLESPACE to arcdst;
-
-```
-

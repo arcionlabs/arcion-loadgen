@@ -1,23 +1,22 @@
-This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://docs.arcion.io/docs/quickstart/index.html) and [GUI](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html).
+This is [Arcion](https://www.arcion.io/) Replicant demos using [CLI](https://docs.arcion.io/docs/quickstart/index.html) and [GUI](https://docs.arcion.io/docs/arcion-cloud-dashboard/quickstart/index.html).  The demo environment is fully dockerized.  The demo environment is meant to provide local environment for learning and functional testing of Arcion product.  The demo is not intended for performance and scalability comparisons.  Please review Arcion [Docs](https://docs.arcion.io/) for each source and destination for reference information.
 
 # Overview
-The diagram below depicts the components of the demo.
-More details is available on the [demo kit](./docs/README.demo.md)
+The diagram below depicts the components of the demo.  Each component runs in a separate docker container.  Setup required to generate data, run the workload load, setup the source and destination databases are a part of the demo kit.
 
 - Load Generator
-- Source host
+- Source database
 - Arcion host with dedicated metadata database
-- Target host
+- Destination database
 
 ```mermaid
 graph LR
-    L[Load Generator<br>sysbench<br>YCSB] --> S
+    L[Load Generator<br>TPC-C<br>YCSB] --> S
     subgraph Arcion Cluster
         A1
         M[(Meta <br>Data)]
     end
     S[(Source <br>Host)] --> A1[Arcion <br> Node 1]
-    A1 --> T[(Target <br>Host)]
+    A1 --> T[(Destination <br>Host)]
 ```
 
 # How to Run a Demo
@@ -25,16 +24,16 @@ graph LR
 The demo can be run with as follows:
 
 ```bash
-./arcdemo.sh {arcion replication} {source} {destination}
+./arcdemo.sh {replication mode} {source hostname} {destination hostname}
 ```
 
-Some simple examples demo runs:
+Some examples Arcion Demo Load Generator CLI commands on [http://localhost:7681](http://localhost:7681):
 
 ```bash
 ./arcdemo.sh snapshot mysql mysql
-./arcdemo.sh real-time mysql mariadb
+./arcdemo.sh real-time oraee postgresql
 ./arcdemo.sh full postgresql broker
-./arcdemo.sh delta-snapshot postgresql mongodb
+./arcdemo.sh delta-snapshot mysql mongodb
 ```
 
 -  Replication Type
@@ -47,20 +46,31 @@ Arcion has the following replication types.
 
 - Source and Destinations
     - mysql, mariadb, singlestore
-    - postgresql, yugabyte
+    - cockroach, postgresql, yugabyte
     - oracle
     - sqlserver
     - sybase
     - mongodb
-    - kafka on-prem, confluent cloud
+    - opensource kafka, confluent platform, confluent cloud
 
-# Demo Install Steps
+# Step 1: Arcion Demo Load Generate and UI Setup
 
 Below instructions assume Linux, Mac and Linux and Windows WSL2.
+- Docker should be setup and running.
+- The Docker should be given at least 4 CPUs, 8 GB of RAM.  
+- Some database may require more CPU and RAM.
+- Assume `bash` proficiency for cut/pasting the commands below.
+
+The following this the user name and password convention:
+- The common password of `Passw0rd` is used.  
+- `arcsrc` is the default base source database user name.
+- `arcdst` is the default base destination database user name.
+
+workload of various size is separated by using the workload scale factor to suffix the user name.  For example, the default workload scale factor 1 uses `arcsrc1` and `arcdst1` as the source and destination user names.  A workload scale factor 10 would use `arcsrc10` and `arcdst10`.  
 
 ## Get Arcion License
 
-Make sure $ARCION_LICENSE is not blank and is valid
+Request a Arcion demo license.  The `replicant.lic` file needs to be converted to `base64` format with the instructions below.  Make sure the resulting `$ARCION_LICENSE` is not blank and is the date has not expired.
 
 ```bash
 export ARCION_LICENSE="$(cat replicant.lic | base64)"
@@ -68,7 +78,7 @@ if [ -z "${ARCION_LICENSE}" ]; then echo "ERROR: ARCION_LICENSE is blank"; fi
 echo "${ARCION_LICENSE}" | base64 -d
 ```
 
-- Save Arcion License for reuse
+Save the License for reuse
 ```bash
 if [ -f ~/.zshrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.zshrc; fi
 if [ -f ~/.bashrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> ~/.bashrc; fi
@@ -76,13 +86,15 @@ if [ -f ~/.bashrc ]; then echo "export ARCION_LICENSE=\"${ARCION_LICENSE}\"" >> 
 
 ## Create Docker network
 
+Create Arcion network.  The containers will be placed this network in order to communicate with each another.
+
 ```bash
 docker network create arcnet
 ```
 
-## Start Arcion UI
+## Start the metadata for Arcion CLI and UI
 
-### Start the metadata for the UI
+This follows the instructions from [here](https://hub.docker.com/r/arcionlabs/replicant-on-premises).
 
 ```bash
 docker volume create arcion-metadata 
@@ -103,15 +115,21 @@ docker exec -i arcion-metadata psql -Uroot<<EOF
 EOF
 ```
 
-### Download Oracle JDBC for Oracle source and target
+### Download Oracle JDBC to use with Oracle source and destination
+
+This follows instructions from [here](https://docs.arcion.io/docs/source-setup/oracle/setup-guide/oracle-traditional-database/#i-obtain-the-jdbc-driver-for-oracle)
+
 ```bash
 mkdir -p arcion-ui/data
 mkdir -p arcion-ui/config
 mkdir -p arcion-ui/libs
-curl -o arcion-ui/libs/ojdbc8.jar  --location https://download.oracle.com/otn-pub/otn_software/jdbc/1815/ojdbc8.jar
+curl -o arcion-ui/libs/ojdbc8.jar --location https://download.oracle.com/otn-pub/otn_software/jdbc/1815/ojdbc8.jar
 ```
 
-### Start Arcion UI
+## Start Arcion UI
+
+This follows the instructions from [here](https://hub.docker.com/r/arcionlabs/replicant-on-premises).
+
 ```bash
 docker run -d \
     --name arcion-ui \
@@ -129,14 +147,19 @@ docker run -d \
     arcionlabs/replicant-on-premises:latest
 ```
 
-make sure there are no warnings about license
+Make sure there are no warnings about license.
+Give about a minute to Arcion UI to initialize the metadata.  
+Noting in the log is success.
+
 ```
 docker logs arcion-ui
 ```    
 
-open the browser on [http://localhost:8080](http://localhost:8080) with user:`admin` password:`arcion`
+open browser on [http://localhost:8080](http://localhost:8080) with user:`admin` password:`arcion`.  
 
-## Arcion Load Generator
+## Arcion Demo Load Generator
+
+Arcion Demo Load Generator CLI is accessibel on [http://localhost:7681](http://localhost:7681). 
 
 ```bash
 docker run -d --name arcion-demo \
@@ -147,36 +170,40 @@ docker run -d --name arcion-demo \
     robertslee/arcdemo
 ```    
 
-
-
-# Other Sources and Destinations
+# Step 2: Set up Sources and Destinations databases
 
 ## Docker Based
 
-- [CockroachDB](./docs/cockroach.md)
+The following databases are more common.
+
+- [MySQL](./docs/mysql/README.md)
+- [Oracle](./docs/oracle/README.md)
+- [SQL Server](./docs/README.sqlserver.md)
 - [Informix](./docs/informix.md)
+- [Postgresql](./docs/README.postgresql.md)
+
+The following are commonly used for destination databases.  Some are distributed databases that will take more CPU and RAM for setup.
+
+- [CockroachDB](./docs/cockroach.md)
 - [Kafka on-prem](./docs/README.kafka.md)
 - [MariaDB](./docs/README.maria.md)
-- [MySQL](./docs/README.mysql.md)
 - [MongoDB](./docs/README.mongodb.md)
 - [SingleStore](./docs/README.singlestore.md)
-- [SQL Server](./docs/README.sqlserver.md)
 - [YugabyteSQL](./docs/README.yugabyte.md)
 
 ## Cloud Based
 
 - [Kafka Confluent Cloud](./docs/README.kafka.md#kafka-cloud-confluent)
 
-# Work In Progress
+## Work In Progress
 
 Below is not in the demo YET but supports by Arcion.
 
 - [Minio](./docs/README.minio.md)
-- [Oracle](./docs/README.oracle.md)
 - [Redis](./docs/README.redis.md)
 
 
-# Getting around the Demo Kit
+# Step 3: Getting around the Arcion Demo Load Generator
 
 ## CLI Demo Instructions
 
@@ -192,7 +219,7 @@ Use mouse to click Tmux windows and panes.
 The demo kit is setup to use 1 CPU and generated 1 TPS by default.
 Use the following to change the CPUs and TPS.
 
-For exmaple:
+For example:
 
 ```
 # uses 1 CPU for snapshot extract, 2 CPU for apply
