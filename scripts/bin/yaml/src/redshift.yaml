@@ -1,0 +1,13 @@
+type: REDSHIFT
+
+host: redshift-cluster-1.cznxm0vzzxqt.us-west-1.redshift.amazonaws.com
+port: 5439
+
+database: 'testdev'
+username: 'Replicant'
+password: 'Replicant#123'
+
+max-connections: 30
+max-retries: 10
+retry-wait-duration-ms: 1000
+socket-timeout-s: 60 #The timeout value used for socket read operations. The timeout is specified in seconds and a value of zero means that it is disabled.

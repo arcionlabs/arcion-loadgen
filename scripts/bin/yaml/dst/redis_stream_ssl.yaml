@@ -1,0 +1,17 @@
+type: REDIS_STREAM
+
+host: localhost
+port: 6379
+
+ssl:
+  enable: true
+  trust-store:
+    path: "/path/to/truststore"
+    password: "<password>"
+    ssl-store-type: '<type e.g PKCS12>'
+  key-store:
+    path: "/path/to/keystore"
+    password: "<password>"
+    ssl-store-type: '<type e.g PKCS12>'
+
+max-connections: 30

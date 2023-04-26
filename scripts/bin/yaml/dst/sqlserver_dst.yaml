@@ -1,0 +1,10 @@
+type: SQLSERVER
+
+host: 192.168.0.167
+port: 1433
+
+username: 'replicate'
+password: 'Replicate#123'
+max-connections: 30
+
+

@@ -15,11 +15,6 @@ map_db() {
     fi
     echo $COLUMN_VALUE
 }
-map_dbtype() {
-    local DB_DIR=${1}
-    DB_TYPE=$( echo $DB_DIR | awk -F'[_-/.]' '{print $1}' )
-    echo "${DB_TYPE}"
-}
 map_dbgrp() {
     map_db "$1" 2
 }
@@ -43,4 +38,33 @@ map_benchbase_type() {
 
 map_benchbase_isolation() {
     map_db "$1" 8
+}
+
+map_sid() {
+    map_db "$1" 9
+}
+
+# this is actually the profile based on hierarchy
+# full host name
+# first word of host name
+map_dbtype() {
+    local DB_HOST=${1}
+    # infer srcdb type from the full name 
+    local DB_TYPE=$( map_db ${DB_HOST} 1 )
+    if [ ! -z "${DB_TYPE}" ]; then
+        echo "$DB_TYPE inferred from full host name $DB_HOST." >&2
+        echo "$DB_TYPE"
+        return 0
+    fi
+    # infer srcdb type from the first word of host name
+    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
+    local DB_TYPE=$( map_db ${DB_HOST_FIRST_WORD} 1 )
+    if [ ! -z "${DB_TYPE}" ]; then
+        echo "$DB_TYPE inferred from group name based on hostname first word." >&2
+        echo "$DB_TYPE"
+        return 0
+    fi
+
+    echo "DB_TYPE could not infer from $DB_HOST." >&2
+    return 1
 }

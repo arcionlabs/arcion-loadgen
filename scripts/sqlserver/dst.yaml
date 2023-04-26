@@ -7,4 +7,6 @@ username: ${DSTDB_ARC_USER}
 password: ${DSTDB_ARC_PW}
 database: ${DSTDB_ARC_USER}
 
-max-connections: 30
+max-connections: 4
+max-retries: 1
+  

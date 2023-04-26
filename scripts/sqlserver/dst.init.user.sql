@@ -1,16 +1,6 @@
-CREATE TABLE sbtest1(
-	id INTEGER,
-	k INTEGER DEFAULT '0' NOT NULL,
-	c CHAR(120) DEFAULT '' NOT NULL,
-	pad CHAR(60) DEFAULT '' NOT NULL,
-	primary key (id),
-	ts datetime2 DEFAULT CURRENT_TIMESTAMP,
-	index ts (ts)
-);
-
 -- ts is used for snapshot delta. 
-CREATE TABLE usertable (
-	ycsb_key VARCHAR(255) PRIMARY KEY,
+CREATE TABLE theusertable (
+	ycsb_key int PRIMARY KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
 	field4 TEXT, field5 TEXT,
@@ -21,4 +11,4 @@ CREATE TABLE usertable (
 );
 
 alter table sbtest1 ADD ts2 datetime2 DEFAULT CURRENT_TIMESTAMP;
-alter table usertable ADD ts2 datetime2 DEFAULT CURRENT_TIMESTAMP;
+alter table theusertable ADD ts2 datetime2 DEFAULT CURRENT_TIMESTAMP;

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash 
 
+. $PROG_DIR/lib/map_csv.sh
+
+heredoc_file() {
+    # heredoc on a file
+    eval "$( echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF' | cat - $1 <(echo -e '\nEOF_EOF_EOF') )"    
+}
+
 copy_hier_as_flat() {
     local SRC=${1:-"./"}
     local PREFIX=$2
@@ -7,7 +14,7 @@ copy_hier_as_flat() {
     [ ! -d "${DST}" ] && mkdir -p ${DST}
     dir=""
     for d in $( echo $SRC |  tr "/" "\n" ); do
-        echo "*${d}"
+        # DEBUG: echo "*${d}"
         dir="${dir}${d}"
         if [ ! -d "${dir}" ]; then continue; fi
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
@@ -17,11 +24,11 @@ copy_hier_as_flat() {
             fi 
             local suffix=$( echo $f | awk -F. '{print $NF}' )
             if [ "$suffix" = "sh" ]; then 
-                echo cp $f $DST/$filename
+                # DEBUG: echo cp $f $DST/$filename
                 cp ${f} $DST/$filename 
             else
-                echo "cat "${f}" | PID=$$ envsubst > $DST/$filename"
-                cat "${f}" | PID=$$ envsubst > $DST/$filename
+                # DEBUG: echo PID=$$ heredoc_file ${f} \> $DST/$filename
+                PID=$$ heredoc_file ${f} > $DST/$filename
             fi    
         done
         dir="${dir}/"
@@ -48,15 +55,17 @@ copy_yaml() {
     pushd ${SCRIPTS_DIR}/utils
     copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
-    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
+    copy_hier_as_flat benchbase/src sample $CFG_DIR/benchbase/src
+    copy_hier_as_flat benchbase/dst sample $CFG_DIR/benchbase/dst
     popd
 
     # override template from the src and dst configs into a flat dir
     pushd ${SCRIPTS_DIR}
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
+    copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
+    copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
-    copy_hier_as_flat benchbase sample $CFG_DIR/benchbase
     popd
 
     # override the destination specific
@@ -76,18 +85,39 @@ infer_dbdir() {
         echo '$1 should be DB_HOST' >&2
         return 1
     fi
-    if [ -z "${DB_DIR}" ]; then 
-        # infer srcdb type from the frist word of ${SRCDB_HOST}
-        DB_DIR=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
-        if [ -d ${SCRIPTS_DIR}/${DB_DIR} ]; then
-            echo "$DB_DIR inferred from hostname." >&2
-            echo "$DB_DIR"
-        else
-            echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2
-            return 1
-        fi
-    else
-        echo ${DB_DIR}
+    if [ ! -z "${DB_DIR}" ]; then 
+        echo "$DB_DIR"
+        return 0
     fi
+    # hostname is exact match or dir name
+    if [ -d ${SCRIPTS_DIR}/${DB_HOST} ]; then
+        echo "$DB_HOST inferred from hostname." >&2
+        echo "$DB_HOST"
+        return 0
+    fi    
+    # infer srcdb type from the first word of ${SRCDB_HOST}
+    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
+    if [ -d ${SCRIPTS_DIR}/${DB_HOST_FIRST_WORD} ]; then
+        echo "$DB_HOST_FIRST_WORD inferred from hostname." >&2
+        echo "$DB_HOST_FIRST_WORD"
+        return 0
+    fi
+    # infer srcdb type from the full name 
+    local DB_GROUP=$( map_dbgrp ${DB_HOST} )
+    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
+        echo "$DB_GROUP inferred from group name." >&2
+        echo "$DB_GROUP"
+        return 0
+    fi
+    # infer srcdb type from the first word of host name
+    local DB_GROUP=$( map_dbgrp ${DB_HOST_FIRST_WORD} )
+    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
+        echo "$DB_GROUP inferred from group name based on hostname first word." >&2
+        echo "$DB_GROUP"
+        return 0
+    fi
+
+    echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2
+    return 1
 }
 

@@ -4,8 +4,10 @@ type: ORACLE
 host: ${DSTDB_HOST}
 port: 1521
 
-service-name: IO
+service-name: ${DSTDB_SID}
 username: ${DSTDB_ARC_USER}
 password: ${DSTDB_ARC_PW}
 
 max-connections: 30
+max-retries: 1
+  

@@ -14,9 +14,9 @@ CREATE TABLE if not exists sbtest1(
 	index(ts)
 );
 
-drop table usertable;
-CREATE TABLE usertable (
-	ycsb_key VARCHAR(255) primary KEY,
+drop table theusertable;
+CREATE TABLE theusertable (
+	ycsb_key int primary KEY,
 	field0 TEXT, field1 TEXT,
 	field2 TEXT, field3 TEXT,
 	field4 TEXT, field5 TEXT,

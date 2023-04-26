@@ -1,12 +1,13 @@
 type: POSTGRESQL
 
 connection:
-  host: postgresql
+  host: arcion-metadata
   port: 5432
   database: io_replicate  # required and need to be same as catalog
   username: arcion
   password: Passw0rd
-  max-connections: 30
+  max-connections: 1
+  max-retries: 1
 
 catalog: io_replicate # required and need to be same as database
 schema: public        # required

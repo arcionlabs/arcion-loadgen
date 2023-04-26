@@ -1,0 +1,21 @@
+type: SYBASE_ASE
+
+host: localhost
+port: 40000
+
+database: 'tpch'
+username: 'replicate'
+password: 'Replicate#123'
+
+max-connections: 20
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+
+#bcp-connection:               # Use this connection config only when extraction-method is set to BCP in extractor config form
+#  host: localhost
+#  port: 40000
+#  username: 'replicate'
+#  password: 'Replicate#123'
+#  sybase-dir: '/opt/sybase'   # Absolute path for sybase directory on replicant machine
+#  ocs-dir-name: 'OCS'         # OCS directory name inside sybase directory

@@ -1,0 +1,21 @@
+type: SNOWFLAKE
+
+host: replicate_partner.snowflakecomputing.com
+port: 3306
+warehouse: "demo_wh"
+
+username: "xxx"
+password: "xxxx"
+
+# Password is not required if private-key-path is provided, private-key-passphrase(optional).
+# https://docs.snowflake.com/en/user-guide/key-pair-auth.html#configuring-key-pair-rotation
+# Use below command to generate public-private keys.
+#    openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -v1 PBE-SHA1-RC4-128 -out rsa_key.p8
+#    openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+# private-key-path: "/generated-key-path/rsa_key.p8"
+# private-key-passphrase: "xxxxxxx"
+
+max-connections: 20
+#case-sensitivity: true
+max-retries: 10
+retry-wait-duration-ms: 1000

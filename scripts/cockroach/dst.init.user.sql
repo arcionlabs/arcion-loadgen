@@ -9,8 +9,8 @@ CREATE TABLE if not exists sbtest1(
 );
 
 -- ts is used for snapshot delta. 
-CREATE TABLE if not exists usertable (
-    ycsb_key VARCHAR(255) PRIMARY KEY,
+CREATE TABLE if not exists theusertable (
+    ycsb_key int PRIMARY KEY,
     field0 TEXT, field1 TEXT,
     field2 TEXT, field3 TEXT,
     field4 TEXT, field5 TEXT,
@@ -20,6 +20,4 @@ CREATE TABLE if not exists usertable (
     index (ts)
 );
 
-alter table sbtest1 ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
-alter table usertable ADD ts2 TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6);
 

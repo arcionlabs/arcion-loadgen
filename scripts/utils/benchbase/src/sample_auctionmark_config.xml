@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${SRCDB_BENCHBASE_TYPE}</type>
+    <driver>${SRCDB_JDBC_DRIVER}</driver>
+    <url>${SRCDB_JDBC_URL_BENCHBASE}</url>
+    <username>${SRCDB_ARC_USER}</username>
+    <password>${SRCDB_ARC_PW}</password>
+    <isolation>${SRCDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer_bb}</time>
+            <rate>${workload_rate_bb}</rate>
+            <weights>0, 0, 20, 2, 1, 4, 10, 5, 3</weights>
+            <!-- <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights> -->
+        </work>
+    </works>
+
+    <!-- AuctionMark Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetUserInfo</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewBid</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewComment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewCommentResponse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewFeedback</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewPurchase</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItem</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

@@ -1,20 +1,23 @@
 type: ORACLE
 
 host: ${SRCDB_HOST}
-port: 1531
+port: ${SRCDB_PORT}
 
-service-name: IO
+# SID and not service name
+service-name: ${SRCDB_SID}
 
 username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
 
-max-connections: 30
+max-connections: 10
 #max-fetch-schema-connections: 30  #default value same max-connections
 
-max-retries: 10
+max-retries: 1
 retry-wait-duration-ms: 1000
-continuous-log-mining: false     # for 12c, 18c, 19c, should set up as false, since not supported 
+# for 12c, 18c, 19c, should set up as false, since not supported 
+continuous-log-mining: false     
 #continuous-log-mining: true
+
 #ssl:
 #   trust-store:
 #       ssl-store-type: 'JKS'

@@ -1,9 +1,10 @@
 # DB capable of snapshot.  Take default options except the CPUs
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
+  fetch-user-roles: false
 
   per-table-config:
-   - catalog: ${SRCDB_ARC_USER}
+   - catalog: ${SRCDB_DB}
      schema: ${SRCDB_SCHEMA}
      tables:
        usertable:
@@ -24,7 +25,7 @@ realtime:
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
     enable: true
-    catalog: ${SRCDB_ARC_USER}
+    catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
 
 delta-snapshot:

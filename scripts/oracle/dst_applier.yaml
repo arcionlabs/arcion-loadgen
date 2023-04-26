@@ -1,9 +1,0 @@
-snapshot:
-  threads: ${DSTDB_SNAPSHOT_THREADS}
-  skip-tables-on-failures : true
-  _traceDBTasks: true
-
-realtime:
-  threads: ${DSTDB_REALTIME_THREADS}
-  skip-tables-on-failures : true
-  _traceDBTasks: true

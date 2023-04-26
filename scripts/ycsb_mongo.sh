@@ -31,8 +31,9 @@ ycsb_create() {
   local port="${4:-${SRCDB_PORT}}"
   local jdbc_url="${5:-${SRCDB_JDBC_URL}}"
   local jdbc_driver="${6:-${SRCDB_JDBC_DRIVER}}"
+  local db="${7:-${SRCDB_DB}}"
 
-  ${JSQSH_DIR}/*/bin/jsqsh --driver="mysql" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${port}" --database="${USER}"
+  jsqsh --driver="mysql" --user="${USER}" --password="${PW}" --server="${HOST}" --port="${port}" --database="${db}"
 }
 
 ycsb_load() { 

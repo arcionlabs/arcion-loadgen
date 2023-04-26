@@ -1,0 +1,28 @@
+type: INFORMIX
+
+host: localhost
+port: 9088  # In case of SSL connection use SSL port
+
+server: 'informix'
+database: 'tpch'
+
+username: 'informix'
+password: 'in4mix'
+
+informix-user-password: 'in4mix'
+
+#credential-store:     # can be used to provide informix-user-password under 'informixuserpassword' key
+#  type: PKCS12
+#  path: "/home/informix/infromix.jks"
+#  key-prefix: "someprefix"
+#  password: "in4mix"
+
+lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
+
+#ssl:
+#  trust-store: 
+#    path: "/home/informix/ssl/truststore.jks" 
+#    password: "in4mix"
+
+max-connections: 15
+

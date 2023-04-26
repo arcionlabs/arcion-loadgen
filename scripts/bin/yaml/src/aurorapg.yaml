@@ -1,0 +1,13 @@
+type: AURORA_POSTGRESQL
+
+host: localhost
+port: 5432
+
+database: 'tpch'
+username: 'replicant'
+password: 'Replicant#123'
+
+max-connections: 30
+max-retries: 10
+retry-wait-duration-ms: 1000
+

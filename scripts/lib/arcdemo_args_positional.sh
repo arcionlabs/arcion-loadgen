@@ -5,34 +5,53 @@ function arcdemo_positional() {
     # set REPL_TYPE from command line
     if [ ! -z "$1" ]; then 
         export REPL_TYPE=$1; 
+        case $REPL_TYPE in
+            snapshot|real-time|delta-snapshot|full) 
+                ;;
+            *) echo "Error: replication type $REPL_TYPE must be snapshot|real-time|delta-snapshot|full" >&2  
+               exit 1
+                ;;
+        esac
     fi
 
     # set from SRC URI command line
     if [ ! -z "$2" ]; then 
-        uri_parser "$2"
-        [ "${uri_schema}" ] && export SRCDB_TYPE=${uri_schema} 
-        [ "${uri_user}" ] && export SRCDB_ARC_USER=${uri_user}
-        [ "${uri_password}" ] && export SRCDB_ARC_PW=${uri_password}
-        [ "${uri_host}" ] && export SRCDB_HOST=${uri_host}
-        [ "${uri_port}" ] && export SRCDB_PORT=${uri_port}
-        [ "${uri_path}" ] && export SRCDB_SUBDIR=${uri_path}
+        unset uri; declare -A uri;  
+        unset uri_path; declare -a uri_path;  
+        unset uri_query; declare -A uri_query;  
+        uri_parser uri uri_path uri_query "$2"
+        if [ "$?" = 0 ]; then
+            [ "${uri[scheme]}" ] && export SRCDB_TYPE= "${uri[scheme]}" 
+            [ "${uri[username]}" ] && export SRCDB_ARC_USER="${uri[username]}"
+            [ "${uri[password]}" ] && export SRCDB_ARC_PW="${uri[password]}"
+            [ "${uri[hostname]}" ] && export SRCDB_HOST="${uri[hostname]}"
+            [ "${uri[port]}" ] && export SRCDB_PORT="${uri[port]}"
+            [ "${uri[path]}" ] && export SRCDB_DIR="${uri_path[0]}"
+            [ "${uri_query[dbs]}" ] && export SRCDB_DB="${uri_query[dbs]}"
+        fi
     fi
 
     # set from DST URL command line
     if [ ! -z "$3" ]; then
-        uri_parser "$3"
-        [ "${uri_schema}" ] && export DSTDB_TYPE=${uri_schema} 
-        [ "${uri_user}" ] && export DSTDB_ARC_USER=${uri_user}
-        [ "${uri_password}" ] && export DSTDB_ARC_PW=${uri_password}
-        [ "${uri_host}" ] && export DSTDB_HOST=${uri_host}
-        [ "${uri_port}" ] && export DSTDB_PORT=${uri_port}
-        [ "${uri_path}" ] && export DSTDB_SUBDIR=${uri_path}
+        unset uri; declare -A uri;  
+        unset uri_path; declare -a uri_path;  
+        unset uri_query; declare -a uri_query;  
+        uri_parser uri uri_path uri_query "$3"
+        if [ "$?" = 0 ]; then
+            [ "${uri[scheme]}" ] && export DSTDB_TYPE= "${uri[scheme]}" 
+            [ "${uri[username]}" ] && export DSTDB_ARC_USER="${uri[username]}"
+            [ "${uri[password]}" ] && export DSTDB_ARC_PW="${uri[password]}"
+            [ "${uri[hostname]}" ] && export DSTDB_HOST="${uri[hostname]}"
+            [ "${uri[port]}" ] && export DSTDB_PORT="${uri[port]}"
+            [ "${uri[path]}" ] && export DSTDB_DIR="${uri_path[0]}"
+            [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
+        fi
     fi
 
-    export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
+    export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc${workload_size_factor}}
     export SRCDB_ARC_PW=${SRCDB_ARC_PW:-Passw0rd}
 
-    export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst}
+    export DSTDB_ARC_USER=${DSTDB_ARC_USER:-arcdst${workload_size_factor}}
     export DSTDB_ARC_PW=${DSTDB_ARC_PW:-Passw0rd}
 
 }

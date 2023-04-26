@@ -1,37 +1,43 @@
 #!/usr/bin/env bash
 
 . $SCRIPTS_DIR/lib/ycsb_jdbc.sh
+. $SCRIPTS_DIR/lib/ping_utils.sh
 
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-# util functions
-ping_db () {
-  local db_host=$1
-  local db_user=$2
-  local db_pw=$3
-  local db_port=${4:-5432}
-  rc=1
-  while [ ${rc} != 0 ]; do
-    echo '\d' | psql postgresql://${db_user}:${db_pw}@${db_host}:${db_port}/  
-    rc=$?
-    if (( ${rc} != 0 )); then
-      echo "waiting 10 sec for ${db_host} as ${db_user} to connect"
-      sleep 10
-    fi
+# wait for dst db to be ready to connect
+declare -A EXISTING_DBS
+ping_db EXISTING_DBS dst
+
+# setup database permissions
+if [ -z "${EXISTING_DBS[${DSTDB_DB:-${DSTDB_SCHEMA}}]}" ]; then
+  echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
+
+  for f in ${CFG_DIR}/dst.init.root*sql; do
+    # the root has no DB except Oracle that has SID
+    if [ "${DSTDB_GRP}" = "oracle" ]; then
+      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${DSTDB_SID:-${DSTDB_DB}}"
+    else
+      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT}
+    fi    
   done
-}
+else
+  echo "dst db ${DSTDB_DB} already setup. skipping db setup"
+fi
 
-# wait for src db to be ready to connect
-ping_db "${DSTDB_HOST}" "${DSTDB_ROOT}" "${DSTDB_PW}" "${DSTDB_PORT}"
+# run if table needs to be created
+if [ "${DSTDB_DB:-${DSTDB_SCHEMA}}" = "${DSTDB_ARC_USER}" ]; then
+  echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
 
-# with root user
-for f in ${CFG_DIR}/dst.init.root.*sql; do
-    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/ 
-done
+  for f in ${CFG_DIR}/dst.init.user*sql; do
+    cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${DSTDB_SID:-${DSTDB_DB}}"
+  done
 
-# with the arcdst user
-for f in ${CFG_DIR}/dst.init.user.*sql; do
-    cat ${f} | envsubst | psql --echo-all postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_ARC_USER} 
-done
+else
+  echo "dst db ${DSTDB_ARC_USER} ${DSTDB_DB:-${DSTDB_SCHEMA}} skipping user setup"
+fi
+
+
+

@@ -1,9 +1,9 @@
 allow:
-- catalog: "${SRCDB_ARC_USER}"
+- catalog: "${SRCDB_DB}"
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
     unicode:
-    # usertable:
+    # theusertable:
     # sbtest1:

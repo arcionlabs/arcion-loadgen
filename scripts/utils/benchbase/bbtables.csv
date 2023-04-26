@@ -1,0 +1,10 @@
+workload,table_name
+resourcestresser,locktable 
+sibench,sitest 
+smallbank,accounts 
+tatp,call_forwarding 
+tpcc,item 
+twitter,tweets 
+voter,votes 
+wikipedia,watchlist 
+ycsb,usertable

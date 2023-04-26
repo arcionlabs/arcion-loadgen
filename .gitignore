@@ -9,6 +9,9 @@ scripts/HammerDB-4.6/*
 *.tsv
 scripts/benchbase/*
 .DS_Store
+# remove hydra stuff
+multirun/*
+outputs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash 
 
+. ${SCRIPTS_DIR}/lib/ping_utils.sh
+
+# $1=yaml file
+is_host_up() {
+    local host=$( yq -r ".host" src.yaml )    
+}
+
 # return command parm given source and target pair
 arcion_param() {
     local src_dir=${1:-.}
@@ -16,8 +23,10 @@ arcion_param() {
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
-    # optional
+    # src to dst map
     map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
+    
+    # optional
     metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
     # construct the list
@@ -47,8 +56,11 @@ logreader_path() {
 
 arcion_delta() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
-    
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
+
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME
@@ -61,7 +73,10 @@ arcion_delta() {
 }
 arcion_real() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
@@ -75,7 +90,10 @@ arcion_real() {
 }
 arcion_full() {    
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
@@ -89,8 +107,11 @@ arcion_full() {
 }
 arcion_snapshot() {
     # do not run if gui will be used to invoke
-    if [ "${gui_run}" = "1" ]; then return 0; fi
-
+    if [ "${gui_run}" = "1" ]; then 
+        echo "GUI running Arcion.  Waiting for the timeout" >> $CFG_DIR/arcion.log
+        return 0; 
+    fi
+    
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME
@@ -217,21 +238,44 @@ while [ 1 ]; do
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
-    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
     if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
-    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_DIR}" )
+    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
+    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_HOST}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
 
-    # HACK: for Informix, schema is same as the user name
-    if [ "${SRCDB_GRP,,}" = "informix" ]; then SRCDB_SCHEMA="${SRCDB_ARC_USER}"; fi
+    case "${SRCDB_GRP,,}" in
+        informix)
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
+            [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
+        ;;
+        oracle)
+            export SRCDB_ARC_USER="C##${SRCDB_ARC_USER^^}"
+            export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
+            export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA}
+            export SRCDB_DB=""
+        ;;
+        *)
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+            [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
+        ;; 
+    esac
 
-    [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
     [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=$( map_benchbase_type "${SRCDB_TYPE}" )
     [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=$( map_benchbase_isolation "${SRCDB_TYPE}" )
+
+    # safeguard RAM for the demo
+    case "${SRCDB_TYPE,,}" in
+        singlestore)
+            workload_size_factor_bb=1
+            echo "singlestore: setting workload_size_factor_bb=1"
+            ;;
+    esac
 
     echo "Source Host: ${SRCDB_HOST}"
     echo "Source Dir: ${SRCDB_DIR}"
@@ -240,6 +284,7 @@ while [ 1 ]; do
     echo "Source Port: ${SRCDB_PORT}"
     echo "Source Root: ${SRCDB_ROOT}"
     echo "Source Schema: ${SRCDB_SCHEMA}"
+    echo "Source DB: ${SRCDB_DB}"
     if (( ask == 0 )); then 
         break
     else
@@ -272,20 +317,43 @@ while [ 1 ]; do
     ask=0
     if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
-    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
     if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
-    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_DIR}" )
+    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_HOST}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
     [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
 
+    case "${DSTDB_GRP,,}" in
+        informix)
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
+        ;;
+        oracle)
+            export DSTDB_ARC_USER="C##${DSTDB_ARC_USER^^}"
+            export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
+            export DSTDB_COMMA_SCHEMA=${DSTDB_SCHEMA}
+            export DSTDB_DB=""
+        ;;
+        *)
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
+        ;; 
+    esac
     # HACK: for Informix, schema is same as the user name
     if [ "${DSTDB_GRP,,}" = "informix" ]; then DSTDB_SCHEMA="${DSTDB_ARC_USER}"; fi
-    
-    [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DB_TYPE}" )
+    # HACK: for Oracle, comma schema is always blank
+    if [ "${DSTDB_GRP,,}" = "oracle" ]; then 
+        export DSTDB_COMMA_SCHEMA=""
+    else    
+        [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+    fi
+    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
     [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
 
     echo "Destination Host: ${DSTDB_HOST}"
@@ -295,6 +363,7 @@ while [ 1 ]; do
     echo "Destination Port: ${DSTDB_PORT}"    
     echo "Destination Root: ${DSTDB_ROOT}"    
     echo "Destination Schema: ${DSTDB_SCHEMA}"    
+    echo "Destination DB: ${DSTDB_DB}"    
     if (( ask == 0 )); then 
         break
     else

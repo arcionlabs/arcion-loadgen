@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${DSTDB_BENCHBASE_TYPE}</type>
+    <driver>${DSTDB_JDBC_DRIVER}</driver>
+    <url>${DSTDB_JDBC_URL_BENCHBASE}</url>
+    <username>${DSTDB_ARC_USER}</username>
+    <password>${DSTDB_ARC_PW}</password>
+    <isolation>${DSTDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer_bb}</time>
+            <rate>${workload_rate_bb}</rate>
+            <weights>45,43,4,4,4</weights>
+            <!-- <weights>45,43,4,4,4</weights> -->
+        </work>
+    </works>
+
+    <!-- TPCC specific -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NewOrder</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Payment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>OrderStatus</name>
+        </transactiontype>
+        <transactiontype>
+            <name>Delivery</name>
+        </transactiontype>
+        <transactiontype>
+            <name>StockLevel</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

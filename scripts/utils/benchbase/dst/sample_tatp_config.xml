@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${DSTDB_BENCHBASE_TYPE}</type>
+    <driver>${DSTDB_JDBC_DRIVER}</driver>
+    <url>${DSTDB_JDBC_URL_BENCHBASE}</url>
+    <username>${DSTDB_ARC_USER}</username>
+    <password>${DSTDB_ARC_PW}</password>
+    <isolation>${DSTDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor increases the number of subscribers -->
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer_bb}</time>
+            <rate>${workload_rate_bb}</rate>
+            <weights>2, 0, 0, 0, 2, 14, 2</weights>
+            <!-- <weights>2, 35, 10, 35, 2, 14, 2</weights> -->
+        </work>
+    </works>
+
+    <!-- Twitter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DeleteCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetAccessData</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetNewDestination</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetSubscriberData</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateLocation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateSubscriberData</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

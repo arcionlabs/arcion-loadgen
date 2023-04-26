@@ -1,8 +1,28 @@
 allow:
-- catalog: "${SRCDB_ARC_USER}"
+- catalog: "${SRCDB_DB}"
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
-    usertable:
-    # sbtest1:
+    theusertable:
+    #locktable:
+    #order_line:
+    #stock:
+    #sbtest1:
+    #checking:
+    #added_tweets:
+    #votes:
+    #theusertable:
+    #sitest:
+    #district:
+    #new_order:
+    #subscriber:
+    #oorder:
+    #customer:
+    #iotablesmallrow:
+    #history:
+    #warehouse:
+    #savings:
+    #useracct:
+    #watchlist:
+    #call_forwarding:

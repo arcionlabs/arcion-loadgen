@@ -1,0 +1,13 @@
+type: KAFKA
+
+username: '<CLUSTER_API_KEY>'
+password: '<CLUSTER_API_SECRET>'
+
+auth-type: SASL 
+brokers:
+   broker1:
+       host: '<Bootstrap server name from cluster setttings>'
+       port: '<Bootstrap server port from cluster settings>'
+
+is-cloud-instance: true
+max-connections: 30

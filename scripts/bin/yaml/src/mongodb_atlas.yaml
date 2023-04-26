@@ -1,0 +1,9 @@
+type: MONGODBATLAS
+
+url: "mongodb+srv://admin:admin@cluster0-n1a1f.mongodb.net/test?retryWrites=true&w=majority"
+
+max-connections: 30
+
+group-id: "5d705881f2a30b915a70fdd8"
+public-key: "pfiqcxwz"
+private-key: "733513a7-cb55-4213-a3a2-294b11d32e91"

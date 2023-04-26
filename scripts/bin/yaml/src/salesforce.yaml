@@ -1,0 +1,22 @@
+type: SALESFORCE
+
+username: 'username'
+password: 'password'
+security-token: 'security token'
+api-version: 'api version'
+
+proxy:
+  enable: false
+  host: 'host'
+  port: 'port'
+  # If proxy doesn't require authentication, comment out username and password
+  username: 'proxy username'
+  password: 'proxy password'
+
+# Use to specify total wait time when querying data from server. Below listed numbers are the default
+#max-retries: 20
+#retry-wait-duration-ms: 10_000
+
+# Use to specify number of retries and time to wait between retries in case of connection timeouts before throwing exception. Below listed numbers are the default
+#max-conn-retries: 20
+#conn-retry-wait-duration-ms: 10_000

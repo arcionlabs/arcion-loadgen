@@ -1,0 +1,24 @@
+type: ORACLE
+
+host: localhost
+port: 1521
+
+service-name: IO
+
+username: 'replicant'
+password: 'Replicant#123'
+
+max-connections: 30
+
+#stage:
+#  type: LOCAL_FS
+#  root-dir: /data/shared_fs
+
+#ssl:
+#  trust-store:
+#    path: "/path/to/clientkeystore"
+#    password: "password123"
+#    ssl-store-type: JKS
+
+max-retries: 10
+retry-wait-duration-ms: 1000

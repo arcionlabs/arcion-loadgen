@@ -1,0 +1,40 @@
+# DB capable of snapshot.  Take default options except the CPUs
+snapshot:
+  threads: ${SRCDB_SNAPSHOT_THREADS}
+  fetch-user-roles: false
+
+  per-table-config:
+  - catalog: "${SRCDB_DB}"
+    schema: ${SRCDB_SCHEMA}   
+    tables:
+      theusertable:
+        split-key: ycsb_key
+
+# DB capable of real-time.  Take default options except the CPUs
+realtime:
+  threads: ${SRCDB_REALTIME_THREADS}
+  # enable DDL replication
+  ddl-replication:
+    enable: true                 
+    ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
+  # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
+  heartbeat:
+    enable: true
+    catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}
+
+delta-snapshot:
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  delta-snapshot-keys: [ts]
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10  
+  replicate-deletes: false
+  per-table-config:
+  - catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}
+    tables:
+      theusertable:
+        split-key: [ycsb_key] 
+        row-identifier-key: [ycsb_key]
+        update-key: [ycsb_key]
+        replicate-deletes: false

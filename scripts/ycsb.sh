@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 
+[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
+
 # source in libs
 . $(dirname "${BASH_SOURCE[0]}")/lib/ycsb_jdbc.sh
 
 # get the setting from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
+if [ "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}}" ]; then
+  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}} skipping
+  exit
+fi
+
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  mysql|postgresql|sqlserver|informix)
+  mysql|postgresql|sqlserver|informix|oracle)
     ycsb_run_src
 ;;
   mongodb)
-    pushd ${YCSB}/*mongodb*/  
+    pushd ${YCSB_MONGODB}  
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \
     -P workloads/workloada \
     -p requestdistribution=uniform \

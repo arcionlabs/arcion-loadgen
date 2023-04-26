@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${DSTDB_BENCHBASE_TYPE}</type>
+    <driver>${DSTDB_JDBC_DRIVER}</driver>
+    <url>${DSTDB_JDBC_URL_BENCHBASE}</url>
+    <username>${DSTDB_ARC_USER}</username>
+    <password>${DSTDB_ARC_PW}</password>
+    <isolation>${DSTDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer_bb}</time>
+            <rate>${workload_rate_bb}</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- NoOp Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NoOp</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

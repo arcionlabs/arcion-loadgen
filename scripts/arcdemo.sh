@@ -6,7 +6,7 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 [ -z "${PROG_DIR}" ] && PROG_DIR=${SCRIPTS_DIR} 
 . $PROG_DIR/lib/arcdemo_args.sh
 . $PROG_DIR/lib/arcion_thread_ratio.sh
-. $PROG_DIR/lib/uri_parse.sh
+. $PROG_DIR/lib/uri_parser.sh
 . $PROG_DIR/lib/job_control.sh
 . $PROG_DIR/lib/ini_jdbc.sh
 . $PROG_DIR/lib/map_csv.sh
@@ -21,8 +21,10 @@ arcdemo_opts $*
 shift $(( OPTIND - 1 ))
 
 if [ ! -z "$CFG_DIR" ]; then
+  echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
 else
+  # this will parse the URI and set src and dst
   arcdemo_positional $*
   # validate the flag arguments
   parse_arcion_thread_ratio
@@ -93,7 +95,7 @@ fi
 # clear the view windows and configure it for this run
 tmux kill-window -t ${TMUX_SESSION}:1   # yaml
 tmux kill-window -t ${TMUX_SESSION}:2   # log
-tmux kill-window -t ${TMUX_SESSION}:3   # sysbench
+tmux kill-window -t ${TMUX_SESSION}:3   # benchbase
 tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
 tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
 tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
@@ -102,35 +104,42 @@ tmux kill-window -t ${TMUX_SESSION}:7   # dstat
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
 tmux new-window -d -n logs -t ${TMUX_SESSION}:2
-tmux new-window -d -n sysbench -t ${TMUX_SESSION}:3
+tmux new-window -d -n benchbase -t ${TMUX_SESSION}:3
 tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
 tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
 tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
 tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
 
-# clear the sysbench and ycsb panes
+# clear the benchbase and ycsb panes
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 
+function tmux_bb_panel() {
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+}
+
+function tmux_ycsb_panel() {
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
+}
 # run the replication
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;
   real-time)
     arcion_real
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "sleep 5; /scripts/sysbench.sh" Enter
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "sleep 5; /scripts/ycsb.sh" Enter
+    tmux_bb_panel
+    tmux_ycsb_panel
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
@@ -145,9 +154,10 @@ tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
+# with benchbase too many tables for this.  offline validate
 # show sysbench and ycsb changes 
-/scripts/verify.sh id sbtest1 3 &
-/scripts/verify.sh ycsb_key usertable 4 & 
+#/scripts/verify.sh id sbtest1 3 &
+#/scripts/verify.sh ycsb_key usertable 4 & 
 
 # show verificator
 tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter

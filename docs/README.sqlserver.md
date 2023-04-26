@@ -4,10 +4,13 @@ NOTE: SQL Server does not run on on Apple Silicon
 
 For amd64
 ```
-docker run -d --name sqlserver  --network arcnet \
+docker run -d \
+    --name sqlserver \
+    --network arcnet \
     -e "ACCEPT_EULA=Y" \
     -e "MSSQL_SA_PASSWORD=Passw0rd" \
-    -p 1433:1433 \
+    -e "CONFIG_EDGE_BUILD=0" \
+    -p :1433 \
     -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
@@ -15,12 +18,12 @@ docker run -d --name sqlserver  --network arcnet \
 For arm64, use Azure SQL Edge
 
 ```
-docker run -d --name sqlserver --network arcnet \
---cap-add SYS_PTRACE \
--e 'ACCEPT_EULA=1' \
--e 'MSSQL_SA_PASSWORD=Passw0rd' \
--p 1433:1433 \
-mcr.microsoft.com/azure-sql-edge
+docker run -d --name sqledge --network arcnet \
+    --cap-add SYS_PTRACE \
+    -e 'ACCEPT_EULA=1' \
+    -e 'MSSQL_SA_PASSWORD=Passw0rd' \
+    -p :1433 \
+    mcr.microsoft.com/azure-sql-edge
 ```
 
 

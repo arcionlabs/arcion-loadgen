@@ -1,0 +1,27 @@
+type: KAFKA
+
+#username: 'replicant'
+#password: 'Replicant#123'
+
+#auth-type: NONE #Allowed values NONE, SASL, SSL
+#ssl:
+#  enable: true
+#  trust-store:
+#      path: "<path>/kafka.server.truststore.jks"
+#      password: "<password>"
+#  key-store:
+#      path: "<path>/kafka.server.keystore.jks"
+#      password: "<password>"
+
+brokers:
+   broker1:
+       host: localhost
+       port: 19092
+   broker2:
+       host: localhost
+       port: 29092
+   broker3:
+       host: localhost
+       port: 39092
+
+max-connections: 30

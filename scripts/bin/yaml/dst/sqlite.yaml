@@ -1,0 +1,12 @@
+type: SQLITE
+
+host:
+port:
+#path: <path_to_replicant_cli>/data/<job_id>/
+database: io_replicate
+username:
+password:
+
+max-connections: 30
+max-retries: 10
+retry-wait-duration-ms: 1000

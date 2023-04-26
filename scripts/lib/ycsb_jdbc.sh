@@ -2,13 +2,16 @@
 
 . ${SCRIPTS_DIR}/lib/job_control.sh
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
+. ${SCRIPTS_DIR}/lib/ycsb_jdbc_create_table.sh
+
+[ -z "${YCSB_JDBC}" ] && YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
 # defaults for the command line
 export default_ycsb_rate=1
 export default_ycsb_threads=1
 export default_ycsb_timer=600
 export default_ycsb_size_factor=1
-export default_ycsb_table="usertable"
+export default_ycsb_table="theusertable"
 
 # command line arguments
 export ycsb_rate=${default_ycsb_rate}
@@ -21,6 +24,7 @@ export const_ycsb_insertstart=0
 export const_ycsb_recordcount=100000
 export const_ycsb_operationcount=1000000000
 export const_ycsb_zeropadding=11
+export const_ycsb_ycsbkeyprefix=0
 
 ycsb_usage() {
   echo "ycsb: override on the command line or set
@@ -64,96 +68,115 @@ ycsb_select_key() {
   local ycsb_key="$2"
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  echo "select ycsb_key from ${ycsb_table} where ycsb_key='$ycsb_key'; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
+  echo "select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
 
-ycsb_load() {    
-  local ycsb_threads=${ycsb_threads:-${default_ycsb_threads}}
+ycsb_load() {
+  local jdbc_url=${1}
+  local recordcount=${2}    
+  local ycsb_threads=${workload_threads:-${default_ycsb_threads}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
+
+  if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
+
+  local ycsb_load_basedon_sf=$( echo "scale=0; (l (${ycsb_size_factor}) ) / 1" | bc -l )
+  if [ -z "${ycsb_load_basedon_sf}" ] || [ "${ycsb_load_basedon_sf}" = "0" ]; then
+    ycsb_load_basedon_sf=1
+  fi
+
+  if (( ycsb_load_basedon_sf > ycsb_threads )); then
+    echo "YCSB: setting load thread count to $ycsb_load_basedon_sf"
+    ycsb_threads=${ycsb_load_basedon_sf}
+  fi 
 
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     mysql)
-      jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
+      local jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
       ;;
     postgresql)
-      jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
+      local jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
+    # needs 0.18
+    # sqlserver)
+    #  jdbc_url="${jdbc_url}:IFX_USEPUT=1;"
+    #  ;;
     # Does not improve perforamnce when autocommit=false
     # sqlserver)
     #  jdbc_url="${jdbc_url};useBulkCopyForBatchInsert=true"
     #  ;;
   esac 
 
-  ycsbdir=$( cd ${YCSB}/*jdbc*${YCSB_VERSION}*/; pwd )
-  ${ycsbdir}/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
+  ${YCSB_JDBC}/bin/ycsb.sh load jdbc -s -threads ${ycsb_threads} \
     -p workload=site.ycsb.workloads.CoreWorkload \
     -p db.driver="${jdbc_driver}" \
     -p db.url="${jdbc_url}" \
-    -p db.user=${db_user} \
-    -p db.passwd=${db_pw} \
+    -p db.user="${db_user}" \
+    -p db.passwd="${db_pw}" \
     -p jdbc.fetchsize=10 \
     -p jdbc.autocommit=false \
-    -p jdbc.batchupdateapi=true \
-    -p db.urlsharddelim='_' \
+    -p jdbc.batchupdateapi=false \
+    -p db.urlsharddelim='___' \
     -p db.batchsize=1024  \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
-    -p recordcount=${const_ycsb_recordcount} \
+    -p recordcount=${recordcount} \
     -p requestdistribution=uniform \
     -p zeropadding=${const_ycsb_zeropadding} \
+    -p jdbc.ycsbkeyprefix=false \
     -p insertorder=ordered
 }
 
+# $1 = src|dst
+# $2 = list of tables in the database
 ycsb_load_sf() {
   local LOC="${1:-SRC}"        # SRC|DST
 
   local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
   local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
   local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  local db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
   local jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
   local jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )  
 
+  # need to create table def?
+  if [ -z ${2} ]; then
+    echo "ycsb_load_sf: retrieving the tables"
+    declare -A "ycsb_load_sf_db_tabs=( $( list_tables ${LOC,,} | tr '[:upper:]' '[:lower:]' | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+  else
+    local -n ycsb_load_sf_db_tabs=${2}
+  fi
+
+  echo ${ycsb_load_sf_db_tabs[*]}
+  if [ -z "${ycsb_load_sf_db_tabs[theusertable]}" ]; then 
+    echo "theusertable not found.  creating"
+    ycsb_create_table | jdbc_cli $LOC
+  fi
+
+  # number of new records to add
   local ycsb_size_factor=${workload_size_factor}
-
   local ycsb_size_factor=${ycsb_size_factor:-${default_ycsb_size_factor}}
-  local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
-  local ycsb_key 
-  local key_found
-  local i
-  local ycsb_key_start=$(( $(ycsb_rows $LOC) / const_ycsb_recordcount ))
+  local ycsb_insertstart=$(ycsb_rows $LOC)
+  local ycsb_insertend=$((ycsb_size_factor * const_ycsb_recordcount))
+  local ycsb_recordcount=$((ycsb_insertend - ycsb_insertstart))
 
-  echo "YCSB: starting from size factor $ycsb_key_start to ${ycsb_size_factor}"
-
-  for i in $( seq ${ycsb_key_start} 1 $(( ycsb_size_factor-1 )) ); do 
-
-    # ycsb key are padded 11 digits
-    ycsb_key=$(printf user%0${const_ycsb_zeropadding}d ${ycsb_insertstart})
-
-    # key already there? 
-    echo -n "YCSB: Checking existance of ycsb_key ${ycsb_key}"
-    key_found=$( ycsb_select_key $LOC $ycsb_key )
-
-    # insert if not found
-    if [ -z "${key_found}" ]; then 
-      echo " not found.  start insert at ${ycsb_insertstart}"
-      ycsb_load ${ycsb_insertstart}
-    else
-      echo " found.  skipping this factor"
-    fi
-
-    ycsb_insertstart=$(( ycsb_insertstart + const_ycsb_recordcount ))
-  done
+ 
+  echo "YCSB: insert from $ycsb_insertstart to $ycsb_insertend ($ycsb_recordcount)"
+  if (( ycsb_recordcount > 0 )); then
+    ycsb_load ${jdbc_url} ${ycsb_recordcount}
+  else
+    echo "YCSB: skipping"
+  fi
 }
 
 function ycsb_load_src() { 
-  ycsb_load_sf src
+  ycsb_load_sf src $*
 }
 
 function ycsb_load_dst() { 
-  ycsb_load_sf dst
+  ycsb_load_sf dst $*
 }
  
 ycsb_run() {
@@ -170,11 +193,11 @@ ycsb_run() {
   local ycsb_timer=${workload_timer:-${default_ycsb_timer}}
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
-  local ycsb_recordcount=$(( $(ycsb_rows_dst) ))
+  local ycsb_recordcount=$(( $(ycsb_rows $LOC) ))
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
-  ${YCSB}/*jdbc*${YCSB_VERSION}*/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
+  ${YCSB_JDBC}/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
   -p updateproportion=1 \
   -p readproportion=0 \
   -p workload=site.ycsb.workloads.CoreWorkload \
@@ -190,10 +213,12 @@ ycsb_run() {
   -p db.batchsize=1024  \
   -p jdbc.fetchsize=10 \
   -p jdbc.autocommit=true \
-  -p db.urlsharddelim='_' \
+  -p db.urlsharddelim='___' \
   -p requestdistribution=uniform \
-  -p zeropadding=11 \
-  -p insertorder=ordered &    
+  -p zeropadding=${const_ycsb_zeropadding} \
+  -p jdbc.ycsbkeyprefix=false \
+  -p insertorder=ordered &
+
   # save the PID  
   export YCSB_RUN_PID="$!"
   # wait for job to finish, expire, or killed by ctl-c

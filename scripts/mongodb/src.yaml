@@ -24,3 +24,5 @@ replica-sets:
 #  realm: "<REALM>" # enter realm all uppercase (EXAMPLE: REPLICANT.IO)
 #  kdc: "<KDC FQDN>" # enter fully qualified domain name of the KDC (EXAMPLE: krb5.replicant.io)
 #  user-principal: "<PRINCIPAL NAME>" # enter principal name (EXAMPLE: name@REPLICANT.IO)
+max-retries: 1
+

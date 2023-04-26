@@ -1,0 +1,41 @@
+type: XA
+dst-type: MEMSQL
+
+connections:
+- host: localhost
+  port: 57585
+
+  username: "root"
+  password: 
+
+  max-connections: 30
+
+  max-retries: 1
+  max-conn-retries: 1
+  retry-wait-duration-ms: 1000
+#   xa-failure-strategy:
+#     snapshot-failure-strategy: STOP
+#     realtime-failure-strategy: CONTINUE
+  id: xa1
+- host: localhost
+  port: 57586
+
+  username: "root"
+  password: 
+
+  max-connections: 30
+
+  max-retries: 1
+  max-conn-retries: 1
+  retry-wait-duration-ms: 1000
+  xa-failure-strategy:
+    snapshot-failure-strategy: STOP
+    realtime-failure-strategy: CONTINUE
+    resume-on-reconnection: false
+  id: xa2
+try-catchup-inactive-sites-interval-ms: 30_000
+
+#global xa failure strategy
+xa-failure-strategy:
+  snapshot-failure-strategy: STOP
+  realtime-failure-strategy: CONTINUE

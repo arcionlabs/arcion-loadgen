@@ -1,19 +1,15 @@
--- create arcsrc for retrivial
-CREATE TABLE replicate_io_cdc_heartbeat(
+-- create with DB:owner.tablename
+CREATE TABLE if not exists replicate_io_cdc_heartbeat(
   timestamp BIGINT NOT NULL,
   PRIMARY KEY(timestamp)
-);
+) LOCK MODE ROW;
 
--- ts is used for snapshot delta. 
-CREATE TABLE usertable (
-	ycsb_key VARCHAR(255) PRIMARY KEY,
-	field0 TEXT, field1 TEXT,
-	field2 TEXT, field3 TEXT,
-	field4 TEXT, field5 TEXT,
-	field6 TEXT, field7 TEXT,
-	field8 TEXT, field9 TEXT
+CREATE TABLE if not exists  theusertable (
+	ycsb_key int PRIMARY KEY,
+	field0 varchar(255), field1 varchar(255),
+	field2 varchar(255), field3 varchar(255),
+	field4 varchar(255), field5 varchar(255),
+	field6 varchar(255), field7 varchar(255),
+	field8 varchar(255), field9 varchar(255)
 );
-
--- will only happen if source and destion was flipped
-ALTER TABLE usertable DROP (ts2);
 

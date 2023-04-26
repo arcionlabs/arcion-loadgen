@@ -3,14 +3,14 @@ type: INFORMIX
 host: ${SRCDB_HOST}
 port: 9088  # In case of SSL connection use SSL port
 
-server: '${SRCDB_HOST}'
-database: '${SRCDB_ARC_USER}'
+server: informix
+database: '${SRCDB_DB}'
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 
 # for CDC
-informix-user-password: '${SRCDB_ROOT_PW}'
+informix-user-password: '${SRCDB_PW}'
 
 lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout set a positive number of seconds
 
@@ -20,6 +20,6 @@ lock-wait-duration: -1  # -1 will wait until lock is released, to use a timeout 
 #    password: "in4mix"
 
 # Warning: The IBM IDS Developer Edition license restriction limits
-# the number of connections to this server to 25.
-max-connections: 10
+# the number of connections to this server to 15.
+max-connections: 5
 max-retries: 1

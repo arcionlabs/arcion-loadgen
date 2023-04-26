@@ -1,0 +1,22 @@
+type: ORACLE
+
+host: localhost
+port: 57546
+
+service-name: IO
+
+username: 'replicant'
+password: 'Replicant#123'
+
+max-connections: 30
+#max-metadata-connections: 10
+#max-fetch-schema-connections: 30  #default value same max-connections
+
+stage:
+  type: SHARED_FS
+  root-dir: /data/shared_fs
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+#charset: AL32UTF8

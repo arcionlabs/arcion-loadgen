@@ -1,0 +1,21 @@
+type: COSMOSDB
+
+cassandra-nodes:
+  node1:
+    host: replicatedemo.cassandra.cosmos.azure.com
+    port: 10350
+
+username: 'replicant'
+password: 'Replicant#123'
+
+#write-consistency-level: LOCAL_QUORUM  #Allowed values: ANY, ONE, TWO, THREE, QUORUM, ALL, LOCAL_QUORUM, EACH_QUORUM, SERIAL, LOCAL_SERIAL, LOCAL_ONE
+
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+ssl:
+   key-store: 
+       path: '/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts'
+       password: 'changeit'

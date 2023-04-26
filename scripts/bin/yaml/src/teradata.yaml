@@ -1,0 +1,39 @@
+type: TERADATA
+
+#url: jdbc:teradata://192.168.0.106/DBS_PORT=1025,ENCRYPTDATA=ON,TYPE=FASTEXPORT,USER=replicant,PASSWORD=Replicant#123
+host: 192.168.44.128
+port: 1025
+
+username: 'replicant'
+password: 'Replicant#123'
+
+#credential-store:
+#  type: PKCS12
+#  path: #Location of key-store
+#  key-prefix: "teradata_"
+#  password: #If password to key-store is not provided then default password will be used
+
+tpt-connection:
+  host: 192.168.0.108
+  username: 'replicant'
+  password: 'Replicant#123'
+  #credential-store:
+  #  type: PKCS12
+  #  path: #Location of key-store
+  #  key-prefix: "teradata_tpt_"
+  #  password: #If password to key-store is not provided then default password will be used
+  #use-ldap: true
+  #max-sessions: 16
+  #min-sessions: 1
+  #tenacity-hrs: 1
+  #tenacity-sleep-mins: 1
+
+
+max-connections: 30
+
+max-retries: 10
+retry-wait-duration-ms: 1000
+
+max-conn-retries: 10
+conn-retry-wait-duration-ms: 5000
+

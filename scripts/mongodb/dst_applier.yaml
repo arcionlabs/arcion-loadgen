@@ -1,5 +1,7 @@
 snapshot:
   threads: ${DSTDB_SNAPSHOT_THREADS}
+  user-role:
+    init-user-roles: false
 
   batch-size-rows: 5000
   txn-size-rows: 5000

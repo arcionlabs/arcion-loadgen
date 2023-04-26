@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>${DSTDB_BENCHBASE_TYPE}</type>
+    <driver>${DSTDB_JDBC_DRIVER}</driver>
+    <url>${DSTDB_JDBC_URL_BENCHBASE}</url>
+    <username>${DSTDB_ARC_USER}</username>
+    <password>${DSTDB_ARC_PW}</password>
+    <isolation>${DSTDB_JDBC_ISOLATION}</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in Epinions scales by *2000 the number of users-->
+    <scalefactor>${workload_size_factor_bb}</scalefactor>
+
+    <!-- The workload -->
+    <terminals>${workload_threads}</terminals>
+    <works>
+        <work>
+            <time>${workload_timer_bb}</time>
+            <rate>${workload_rate_bb}</rate>
+            <weights>0,0,0,0,0,10,10,10,20</weights>
+            <!-- <weights>10,10,10,10,10,10,10,10,20</weights> -->
+        </work>
+    </works>
+
+    <!-- Epinions Procedures Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetReviewItemById</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetReviewsByUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetAverageRatingByTrustedUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemAverageRating</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemReviewsByTrustedUser</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateUserName</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItemTitle</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReviewRating</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateTrustRating</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
