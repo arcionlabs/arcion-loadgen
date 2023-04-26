@@ -44,28 +44,32 @@ cd OracleDatabase/SingleInstance/dockerfiles
 
 - create the container
 
+each takes about 10 min to complete
+
 ```bash
-inst=2
-docker volume create oraee${inst}
-docker run -d \
-    --name oraee${inst} \
-    --network arcnet \
-    -p :1521 \
-    -p :5500 \
-    -p :2484 \
-    -e ORACLE_SID=orcl \
-    -e ORACLE_PDB=orclpdb1 \
-    -e ORACLE_PWD=Passw0rd \
-    -e ORACLE_EDITION=enterprise \
-    -e ENABLE_ARCHIVELOG=true \
-    -e AUTO_MEM_CALCULATION=false \
-    -v oraee${inst}:/opt/oracle/oradata \
-    oracle/database:19.3.0-ee
+for inst in 1 2; do
+    docker volume create oraee${inst}
+    docker run -d \
+        --name oraee${inst} \
+        --network arcnet \
+        -p :1521 \
+        -p :5500 \
+        -p :2484 \
+        -e ORACLE_SID=orcl \
+        -e ORACLE_PDB=orclpdb1 \
+        -e ORACLE_PWD=Passw0rd \
+        -e ORACLE_EDITION=enterprise \
+        -e ENABLE_ARCHIVELOG=true \
+        -e AUTO_MEM_CALCULATION=false \
+        -v oraee${inst}:/opt/oracle/oradata \
+        oracle/database:19.3.0-ee    
+    while [ -z "$( docker logs oraee${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
+done
 ```
 
 - takes about 10 minutes to complete
 ```bash
-while [ -z "$( docker logs oraee${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do sleep 10; done;
+while [ -z "$( docker logs oraee${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
 ```
 
 ### Oracle Express Edition

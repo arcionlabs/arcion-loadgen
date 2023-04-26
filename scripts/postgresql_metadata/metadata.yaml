@@ -1,7 +1,7 @@
 type: POSTGRESQL
 
 connection:
-  host: postgresql
+  host: arcion-metadata
   port: 5432
   database: io_replicate  # required and need to be same as catalog
   username: arcion
