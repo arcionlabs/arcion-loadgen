@@ -1,5 +1,7 @@
 
 # postgres with SSL setup
+
+```bash
 docker run -d \
     --name postgresql \
     --network arcnet \
@@ -15,8 +17,7 @@ docker run -d \
     -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem \
     -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key    
 
-# wait for db to come up
 while [ -z "$( docker logs postgresql 2>&1 | grep 'database system is ready to accept connections' )" ]; do sleep 10; done;
 
-# install wal2json for cdc
 docker exec -it postgresql sh -c "apt update && apt install -y postgresql-15-wal2json postgresql-contrib"
+```
