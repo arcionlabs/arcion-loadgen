@@ -30,9 +30,9 @@ The demo can be run with as follows:
 Some examples Arcion Demo Load Generator CLI commands on [http://localhost:7681](http://localhost:7681):
 
 ```bash
-./arcdemo.sh snapshot mysql mysql
-./arcdemo.sh real-time oraee postgresql
-./arcdemo.sh full postgresql broker
+./arcdemo.sh full mysql sqlserver
+./arcdemo.sh full oraee1 postgresql
+./arcdemo.sh full postgresql sqlserver
 ./arcdemo.sh delta-snapshot mysql mongodb
 ```
 
