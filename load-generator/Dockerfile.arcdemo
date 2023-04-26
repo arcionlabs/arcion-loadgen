@@ -212,6 +212,7 @@ COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.
 
 # scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/
+
 # python hydra
 RUN pip install -r scripts/requirements.txt
 
