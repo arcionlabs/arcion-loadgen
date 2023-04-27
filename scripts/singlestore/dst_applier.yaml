@@ -7,7 +7,7 @@ snapshot:
     init-user-roles: false  
 
   bulk-load:
-    enable: true
+    enable: false
     type: FILE   # PIPE, FILE  
 
   per-table-config:
