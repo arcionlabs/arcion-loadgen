@@ -112,10 +112,18 @@ function arcdemo_opts() {
   [ "${workload_rate_bb}" = "0" ] && workload_rate_bb="unlimited"   # 'unlimited' or 'disabled'
 
   # set TIMER for benchbase adjusting to unlimited
-  workload_timer_bb="${workload_timer}"
+  if [ "${workload_timer}" = "0" ]; then
+    workload_timer_bb=$((24*60*60))
+    echo "bb: limiting run time to ${workload_timer_bb} secods ie:24 hours" >&2
+  fi
 
   # TODO: sizefactor for BB is 1 as the code does not allow growing the dataset
-  workload_size_factor_bb="${workload_size_factor}"
+  if (( workload_size_factor <= 1 )); then
+    workload_size_factor_bb="${workload_size_factor}"
+  else
+    workload_size_factor_bb=1
+    echo "bb: limiting size factor to 1" >&2
+  fi
 
   # basic validataion of values
   [ "$workload_threads" = "0" ] && workload_threads=$default_max_cpus

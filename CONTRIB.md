@@ -35,6 +35,7 @@ chown -R 1000 .;\
 # Swap out volume and scripts
 
 ```
+docker pull arcionlabs/replicant-on-premises:test
 docker run -d \
     --name arcion-ui-test \
     --network arcnet \

@@ -2,6 +2,7 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   fetch-user-roles: false
+  min-job-size-rows: 100000
 
   per-table-config:
   - catalog: "${SRCDB_DB}"
@@ -11,10 +12,11 @@ snapshot:
         split-key: ycsb_key
         split-method: RANGE # must be all caps
         extraction-priority: 1
-        split-hints:
-          row-count-estimate: 1000000
-          split-key-min-value: 0
-          split-key-max-value: 999999
+        # these are optional
+        #split-hints:
+        #  row-count-estimate: 1000000
+        #  split-key-min-value: 0
+        #  split-key-max-value: 999999
 
 # DB capable of real-time.  Take default options except the CPUs
 realtime:

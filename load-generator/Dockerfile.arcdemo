@@ -89,7 +89,8 @@ RUN apt-get install -y \
     less \
     python3-pip \
     python3-venv \
-    jq
+    jq \
+    bc
     
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
