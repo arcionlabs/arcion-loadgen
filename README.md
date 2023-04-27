@@ -108,6 +108,8 @@ docker run -d \
     -p :5432 \
     postgres:14-alpine
 
+while [ -z "$( docker logs postgresql 2>&1 | grep 'database system is ready to accept connections' )" ]; do sleep 10; done;
+
 docker exec -i arcion-metadata psql -Uroot<<EOF
     CREATE USER arcion PASSWORD 'Passw0rd';
     CREATE DATABASE arcion WITH OWNER arcion;
