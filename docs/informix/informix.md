@@ -14,8 +14,11 @@ docker run -d \
   -p :27883 \
   -e LICENSE=accept \
   -e RUN_FILE_POST_INIT=informix.root.sh \
-  -v $ARCDEMO_DIR/docs/informix/informix.root.sh:/opt/ibm/config/informix.root.sh \
+  -v `pwd`/informix.root.sh:/opt/ibm/config/informix.root.sh \
   ibmcom/informix-developer-database:latest
+
+  while [ -z "$( docker logs informix 2>&1 | grep 'database system is ready to accept connections' )" ]; do sleep 10; done;
+
 ```      
 
 ```

@@ -40,7 +40,7 @@ docker run -d \
     --name arcion-ui-test \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
-    -e DB_HOST=arcion-metadata \
+    -e DB_HOST=arcion-metadata-test \
     -e DB_PORT=5432 \
     -e DB_DATABASE=arcion \
     -e DB_USERNAME=arcion \
@@ -57,13 +57,14 @@ git clone https://github.com/robert-s-lee/arcion-demo
 cd arcion-demo/scripts
 mkdir -p ~/arcion-demo/logs
 mkdir -p ~/arcion-demo/configs
+mkdir -p ~/arcion-demo/data
 docker run -d --name arcion-demo \
     --network arcnet \
     -e ARCION_LICENSE="${ARCION_LICENSE}" \
     -e LANG=C.UTF-8 \
     -p 7681:7681 \
     -v `pwd`/scripts:/scripts \
-    -v `pwd`/data/:/arcion/data/ \
+    -v `pwd`/arcion-demo/data/:/arcion/data/ \
     robertslee/arcdemo
 ```
 
