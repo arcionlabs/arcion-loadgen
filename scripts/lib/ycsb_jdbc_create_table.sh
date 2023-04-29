@@ -8,7 +8,7 @@ ycsb_create_table() {
 
     case "${db_type,,}" in
 
-        sqlserver)
+        sqlserver | sqledge)
             cat <<'EOF'
 -- ts is used for snapshot delta. 
 CREATE TABLE theusertable (
@@ -22,7 +22,7 @@ CREATE TABLE theusertable (
 	primary key (ycsb_key),
 	index ts (ts)
 );
-EOF            
+EOF
         ;;
         
         informix)
