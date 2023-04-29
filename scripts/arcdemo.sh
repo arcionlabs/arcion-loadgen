@@ -56,9 +56,9 @@ else
   set_dst
 
   # WARNING: log id length max is 9
-  mkdir -p /yaml
+  mkdir -p /arcion/data
   export LOG_ID=$$
-  export CFG_DIR=/yaml/$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}" | tr '/' '-')-${LOG_ID}
+  export CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
   mkdir -p $CFG_DIR
   echo $CFG_DIR   
 

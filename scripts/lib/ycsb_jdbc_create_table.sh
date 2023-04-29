@@ -44,7 +44,7 @@ CREATE TABLE if not exists theusertable (
     field4 TEXT, field5 TEXT,
     field6 TEXT, field7 TEXT,
     field8 TEXT, field9 TEXT,
-    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     key (ycsb_key) using hash,
     sort key (ts),
     shard key (ycsb_key)

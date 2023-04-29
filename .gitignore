@@ -1,5 +1,5 @@
 logs/*
-#bin/*
+bin/
 replicant-cli/*
 replicate-row-verificator/*
 arcion/*
