@@ -32,6 +32,7 @@ jdbc_cli_dst() {
   jdbc_cli dst "$*"
 }
 
+# results are lower cased
 list_dbs() {
     local LOC=${1:-SRC}
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
@@ -62,10 +63,12 @@ list_dbs() {
     esac
 
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV"
+        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | tr '[:upper:]' '[:lower:]'
         return ${PIPESTATUS[1]}
     fi
 }
+
+# results are lower cased
 list_tables() {
     local LOC=${1:-SRC}
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
@@ -94,7 +97,7 @@ list_tables() {
     esac
 
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
+        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/' | tr '[:upper:]' '[:lower:]'
     fi
 }
 

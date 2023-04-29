@@ -34,14 +34,14 @@ fi
 
 # run if table needs to be created
 if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
-  echo "SRC db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
+  echo "src db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
 
   for f in ${CFG_DIR}/src.init.user*sql; do
     cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
   done
 
 else
-  echo "SRC db ${SRCDB_ARC_USER} ${db_schema_lower} skipping user setup"
+  echo "src db ${SRCDB_ARC_USER} ${db_schema_lower} skipping user setup"
 fi
 
 # setup workloads

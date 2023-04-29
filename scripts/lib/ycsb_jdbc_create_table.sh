@@ -77,7 +77,7 @@ CREATE TRIGGER update_ts_on_theusertable BEFORE UPDATE ON theusertable FOR EACH 
 go
 EOF
         ;;
-        oraee)
+        oraee | oraxe )
             cat <<'EOF'
 CREATE TABLE theusertable (
     ycsb_key NUMBER primary key,
@@ -100,7 +100,7 @@ CREATE TABLE if not exists theusertable (
     field4 TEXT, field5 TEXT,
     field6 TEXT, field7 TEXT,
     field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
 ); 
 create index if not exists on theusertable (ts);"
 EOF

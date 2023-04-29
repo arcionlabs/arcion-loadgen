@@ -144,7 +144,7 @@ ycsb_load_sf() {
   # need to create table def?
   if [ -z ${2} ]; then
     echo "ycsb_load_sf: retrieving the tables"
-    declare -A "ycsb_load_sf_db_tabs=( $( list_tables ${LOC,,} | tr '[:upper:]' '[:lower:]' | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+    declare -A "ycsb_load_sf_db_tabs=( $( list_tables ${LOC,,} | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
   else
     local -n ycsb_load_sf_db_tabs=${2}
   fi
