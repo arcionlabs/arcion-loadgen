@@ -11,14 +11,19 @@
 declare -A EXISTING_DBS
 ping_db EXISTING_DBS src
 
+# lower case it as Oracle will have it as upper case
+sid_db=${SRCDB_SID:-${SRCDB_DB}}
+db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
+db_schema_lower=${db_schema,,}
+
 # setup database permissions
-if [ -z "${EXISTING_DBS[${SRCDB_DB:-${SRCDB_SCHEMA}}]}" ]; then
+if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
   for f in ${CFG_DIR}/src.init.root*sql; do
     # the root has no DB except Oracle that has SID
     if [ "${SRCDB_GRP}" = "oracle" ]; then
-      cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${SRCDB_SID:-${SRCDB_DB}}"
+      cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
     else
       cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT}
     fi  
@@ -28,19 +33,19 @@ else
 fi
 
 # run if table needs to be created
-if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ]; then
-  echo "SRC db ${SRCDB_ARC_USER}: ${SRCDB_DB} setup"
+if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
+  echo "SRC db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
 
   for f in ${CFG_DIR}/src.init.user*sql; do
-    cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${SRCDB_SID:-${SRCDB_DB}}"
+    cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
   done
 
 else
-  echo "SRC db ${SRCDB_ARC_USER} ${SRCDB_DB:-${SRCDB_SCHEMA}} skipping user setup"
+  echo "SRC db ${SRCDB_ARC_USER} ${db_schema_lower} skipping user setup"
 fi
 
 # setup workloads
-if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ]; then
+if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
   echo "src db ${SRCDB_ARC_USER}: benchbase setup"
   # benchbase data population
   ${SCRIPTS_DIR}/bin/benchbase-load.sh
@@ -50,5 +55,5 @@ if [ "${SRCDB_DB:-${SRCDB_SCHEMA}}" = "${SRCDB_ARC_USER}" ]; then
   ycsb_load_src
 
 else
-  echo "src db ${SRCDB_ARC_USER} != ${SRCDB_DB:-${SRCDB_SCHEMA}} skipping workload setup"
+  echo "src db ${SRCDB_ARC_USER} != ${db_schema_lower} skipping workload setup"
 fi

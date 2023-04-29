@@ -28,7 +28,7 @@ else
 fi
 
 # run if table needs to be created
-if [ "${DSTDB_DB:-${DSTDB_SCHEMA}}" = "${DSTDB_ARC_USER}" ]; then
+if [ "${DSTDB_DB,,:-${DSTDB_SCHEMA,,}}" = "${DSTDB_ARC_USER}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
 
   for f in ${CFG_DIR}/dst.init.user*sql; do
@@ -36,7 +36,7 @@ if [ "${DSTDB_DB:-${DSTDB_SCHEMA}}" = "${DSTDB_ARC_USER}" ]; then
   done
 
 else
-  echo "dst db ${DSTDB_ARC_USER} ${DSTDB_DB:-${DSTDB_SCHEMA}} skipping user setup"
+  echo "dst db ${DSTDB_ARC_USER} ${DSTDB_DB,,:-${DSTDB_SCHEMA,,}} skipping user setup"
 fi
 
 

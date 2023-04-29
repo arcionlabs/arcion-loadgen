@@ -26,8 +26,13 @@ workloads_default="resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,yc
 # sqlserver bulk copy does not work with these
 # workloads="smallbank twitter wikipedia"
 
-if [ "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}}" ]; then
-  echo "benchbase-load: "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}} skipping
+# lower case it as Oracle will have it as upper case
+sid_db=${SRCDB_SID:-${SRCDB_DB}}
+db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
+db_schema_lower=${db_schema,,}
+
+if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
+  echo "benchbase-load: "${SRCDB_ARC_USER}" != "${db_schema_lower}} skipping
   exit
 fi
 

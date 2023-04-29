@@ -8,8 +8,12 @@
 # get the setting from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
-if [ "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}}" ]; then
-  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}} skipping
+sid_db=${SRCDB_SID:-${SRCDB_DB}}
+db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
+db_schema_lower=${db_schema,,}
+
+if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
+  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${db_schema_lower} skipping
   exit
 fi
 
