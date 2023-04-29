@@ -4,4 +4,5 @@ allow:
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
-    # theusertable:
+    # tpcc customer table c_data column has CLOB that is not suported
+    theusertable:

@@ -7,6 +7,20 @@ ycsb_create_table() {
     fi
 
     case "${db_type,,}" in
+
+        informix)
+            cat <<'EOF'
+CREATE TABLE if not exists  theusertable (
+	ycsb_key int PRIMARY KEY,
+	field0 varchar(255), field1 varchar(255),
+	field2 varchar(255), field3 varchar(255),
+	field4 varchar(255), field5 varchar(255),
+	field6 varchar(255), field7 varchar(255),
+	field8 varchar(255), field9 varchar(255)
+); 
+EOF
+        ;; 
+
         mysql | mariadb | cockroach)
             cat <<'EOF'
 CREATE TABLE if not exists theusertable (
@@ -30,7 +44,7 @@ CREATE TABLE if not exists theusertable (
     field4 TEXT, field5 TEXT,
     field6 TEXT, field7 TEXT,
     field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     key (ycsb_key) using hash,
     sort key (ts),
     shard key (ycsb_key)

@@ -10,6 +10,6 @@ sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,
 oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe
 informix,informix,9088,informix,in4mix,,INFORMIX,TRANSACTION_READ_COMMITTED,
-kafka,kafka,29092,root,Passw0rd,,,,
-broker,kafka,29092,root,Passw0rd,,,,
+oskafka,kafka,29092,root,Passw0rd,,,,
+osbroker,kafka,29092,root,Passw0rd,,,,
 s3,s3,9000,root,Passw0rd,,,,

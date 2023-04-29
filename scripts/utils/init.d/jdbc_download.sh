@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-if [ ! -f $ARCION_HOME/lib/ojdbc8.jar ]; then
-    pushd $ARCION_HOME/lib
+# download if not there
+if [ ! -f /libs/ojdbc8.jar ]; then
+    pushd /libs
     curl -O --location https://download.oracle.com/otn-pub/otn_software/jdbc/1815/ojdbc8.jar
     popd
 fi

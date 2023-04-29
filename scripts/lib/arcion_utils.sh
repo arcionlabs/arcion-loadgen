@@ -254,9 +254,9 @@ while [ 1 ]; do
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
         ;;
         oracle)
-            export SRCDB_ARC_USER="C##${SRCDB_ARC_USER^^}"
-            export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
-            export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA}
+            export SRCDB_ARC_USER="c##${SRCDB_ARC_USER}"
+            export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
+            export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
         ;;
         *)
@@ -334,9 +334,9 @@ while [ 1 ]; do
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;;
         oracle)
-            export DSTDB_ARC_USER="C##${DSTDB_ARC_USER^^}"
+            export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
             export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
-            export DSTDB_COMMA_SCHEMA=${DSTDB_SCHEMA}
+            export DSTDB_COMMA_SCHEMA=${DSTDB_SCHEMA^^}
             export DSTDB_DB=""
         ;;
         *)

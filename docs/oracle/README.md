@@ -3,12 +3,37 @@ Oracle XE and Oracle EE instructions adopted from [Oracle](https://github.com/or
 - Oracle XE does not require OTN download.  There are size (limitations)[https://docs.oracle.com/en/database/oracle/oracle-database/21/xeinl/licensing-restrictions.html]
 - Oracle EE requires OTN download.
 
+# Oracle XE
+
+build the oracle xe contaimer image
+```bash
+git clone https://github.com/oracle/docker-images oracle-docker-images
+cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles 
+
+./buildContainerImage.sh -v 21.3.0 -x -o '--build-arg SLIMMING=false'
+```
+
+```bash
+for inst in 1 2; do
+    docker volume create oraxe${inst}
+    docker run -d \
+        --name oraxe${inst} \
+        --network arcnet \
+        -p :1521 \
+        -p :5500 \
+        -e ORACLE_PWD=Passw0rd \
+        -v oraxe${inst}:/opt/oracle/oradata \
+        oracle/database:21.3.0-xe    
+    while [ -z "$( docker logs oraxe${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
+done
+```
+
 # Oracle EE
 
 Download Oracle binary and place in 19.3.0 directory
 
 ```bash
-git clone https://github.com/oracle/docker-images oracle-docker-image
+git clone https://github.com/oracle/docker-images oracle-docker-images
 cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles/19.3.0
 ```
 
@@ -44,28 +69,3 @@ for inst in 1 2; do
 done
 ```
 
-# Oracle XE
-
-XE does not required download.
-
-```bash
-cd oracle-docker-images/OracleDatabase/SingleInstance/dockerfiles 
-./buildContainerImage.sh -v 21.3.0 -x -o '--build-arg SLIMMING=false'
-```
-
-See comments in EE.
-
-```bash
-for inst in 1 2; do
-    docker volume create oraxe${inst}
-    docker run -d \
-        --name oraxe${inst} \
-        --network arcnet \
-        -p :1521 \
-        -p :5500 \
-        -e ORACLE_PWD=Passw0rd \
-        -v oraxe${inst}:/opt/oracle/oradata \
-        oracle/database:21.3.0-xe    
-    while [ -z "$( docker logs oraxe${inst} 2>&1 | grep 'DATABASE IS READY TO USE!' )" ]; do echo sleep 10; sleep 10; done;
-done
-```
