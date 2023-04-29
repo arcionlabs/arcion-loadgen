@@ -6,3 +6,14 @@ allow:
     # all of the tables are scoped up automatically
     # theusertable:
     # sbtest1:
+    customer:
+    district:
+    # history -- cannot do realtime without primary key
+    item:
+    new_order:
+    oorder:
+    order_line:
+    replicate_io_cdc_heartbeat:
+    stock:
+    theusertable:
+    warehouse:

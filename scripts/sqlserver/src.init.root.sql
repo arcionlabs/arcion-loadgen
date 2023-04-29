@@ -7,4 +7,3 @@ ALTER ROLE db_ddladmin ADD MEMBER ${SRCDB_ARC_USER};
 alter user ${SRCDB_ARC_USER} with default_schema=dbo;
 ALTER LOGIN ${SRCDB_ARC_USER} WITH DEFAULT_DATABASE=[${SRCDB_DB}];
 
-

@@ -7,6 +7,7 @@ cockroach,postgresql,26257,root,Passw0rd,public,COCKROACHDB,TRANSACTION_READ_COM
 yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,
 mongodb,mongodb,27017,root,Passw0rd,,,TRANSACTION_READ_COMMITTED,
 sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,
+sqledge,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,
 oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe
 informix,informix,9088,informix,in4mix,,INFORMIX,TRANSACTION_READ_COMMITTED,
