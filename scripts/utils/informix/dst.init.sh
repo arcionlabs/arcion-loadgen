@@ -11,14 +11,19 @@
 declare -A EXISTING_DBS
 ping_db EXISTING_DBS dst
 
+# lower case it as Oracle will have it as upper case
+sid_db=${DSTDB_SID:-${DSTDB_DB}}
+db_schema=${DSTDB_DB:-${DSTDB_SCHEMA}}
+db_schema_lower=${db_schema,,}
+
 # setup database permissions
-if [ -z "${EXISTING_DBS[${DSTDB_DB:-${DSTDB_SCHEMA}}]}" ]; then
+if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
 
   for f in ${CFG_DIR}/dst.init.root*sql; do
     # the root has no DB except Oracle that has SID
     if [ "${DSTDB_GRP}" = "oracle" ]; then
-      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${DSTDB_SID:-${DSTDB_DB}}"
+      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
     else
       cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT}
     fi    
@@ -28,15 +33,15 @@ else
 fi
 
 # run if table needs to be created
-if [ "${DSTDB_DB:-${DSTDB_SCHEMA}}" = "${DSTDB_ARC_USER}" ]; then
-  echo "dst db ${DSTDB_ARC_USER}: ${DSTDB_DB} setup"
+if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
+  echo "dst db ${DSTDB_ARC_USER}: ${db_schema_lower} setup"
 
   for f in ${CFG_DIR}/dst.init.user*sql; do
-    cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${DSTDB_SID:-${DSTDB_DB}}"
+    cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
   done
 
 else
-  echo "dst db ${DSTDB_ARC_USER} ${DSTDB_DB:-${DSTDB_SCHEMA}} skipping user setup"
+  echo "dst db ${DSTDB_ARC_USER} ${db_schema_lower} skipping user setup"
 fi
 
 
