@@ -1,0 +1,5 @@
+snapshot:
+  threads: 1
+
+realtime:
+  threads: 1

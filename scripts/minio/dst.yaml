@@ -1,0 +1,16 @@
+type: S3
+
+access-key: "FpwStpZPa09ZuHAv"
+secret-key: "nn1jHwNPlGpZTutIkcKAPpvBGGXk1fCn"
+
+bucket: "arcdst"
+root: "/"
+
+stage:
+  type: SHARED_FS
+  root-dir: /opt/stage #directory where CSV files will be staged before uploading to S3
+
+# file-format: CSV
+max-connections: 2
+max-retries: 1
+  

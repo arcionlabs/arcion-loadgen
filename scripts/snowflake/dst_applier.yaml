@@ -1,0 +1,21 @@
+snapshot:
+  threads: 1 #Specify the maximum number of threads Replicant should use for writing to the target
+
+  force-use-clustered-key: true # default=false
+  batch-size-rows: 100_000
+  txn-size-rows: 1_000_000
+
+  #If bulk-load is used, Replicant will use the native bulk-loading capabilities of the target database
+  bulk-load:
+    enable: true      # true|false #Set to true if you want to enable bulk loading
+    type: FILE        # FILE|PIPE #Specify the type of bulk loading between FILE and PIPE
+    serialize: true   #true|false #Set to true if you want the generated files to be applied in serial/parallel fashion
+
+    #For versions 20.09.14.3 and beyond
+    native-load-configs: #Specify the user-provided LOAD configuration string which will be appended to the s3 specific LOAD SQL command
+
+realtime:
+  threads: 1 #Specify the maximum number of threads Replicant should use for writing to the target
+  max-retries-per-op: 30 #Specify the maximum amount of retries for a failed operation
+  retry-wait-duration-ms: 5000 #Specify the time in milliseconds Replicant should wait before re-trying a failed operation
+  cdc-stage-type: FILE #Enter your cdc-stage-type

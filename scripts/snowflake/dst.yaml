@@ -1,0 +1,12 @@
+type: SNOWFLAKE
+
+host: SNOWFLAKE_HOSTNAME
+port: PORT_NUMBER 
+warehouse: "WAREHOUSE_NAME"
+
+username: "USERNAME"
+password: "PASSWORD"
+
+max-connections: 5 #Specify the maximum number of connections replicant can open in Snowflake
+max-retries: 1
+retry-wait-duration-ms: 1000

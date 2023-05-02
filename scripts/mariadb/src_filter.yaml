@@ -1,0 +1,28 @@
+allow:
+- catalog: "${SRCDB_DB:-arcsrc}"
+  schema: ${SRCDB_SCHEMA}  
+  types: [TABLE]
+  allow:
+    # all of the tables are scoped up automatically
+    #theusertable:
+    #locktable:
+    #order_line:
+    #stock:
+    #sbtest1:
+    #checking:
+    #added_tweets:
+    #votes:
+    #theusertable:
+    #sitest:
+    #district:
+    #new_order:
+    #subscriber:
+    #oorder:
+    #customer:
+    #iotablesmallrow:
+    #history:
+    #warehouse:
+    #savings:
+    #useracct:
+    #watchlist:
+    #call_forwarding:
