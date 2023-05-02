@@ -90,7 +90,9 @@ RUN apt-get install -y \
     python3-pip \
     python3-venv \
     jq \
-    bc
+    bc \
+    unzip \
+    groff
     
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
@@ -159,7 +161,7 @@ RUN cd ${MYSQL_DIR} \
 
 # download jsqsh
 RUN cd ${JSQSH_DIR} \
-    && wget https://github.com/scgray/jsqsh/releases/download/jsqsh-2.3/jsqsh-2.3-bin.tar.gz \
+    && wget https://github.com/arcionlabs/jsqsh/releases/download/arcionlabs/jsqsh-dist-3.0-SNAPSHOT-bin.tar.gz \
     && gzip -dc jsqsh* | tar -xvf - \
     && rm *.tar.gz
 
@@ -170,11 +172,12 @@ RUN cd ${KAFKA_DIR} \
 
 
 # download minio client
+# TODO: not sure how to do this
 # TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
-RUN cd $MINIO_DIR; curl https://dl.min.io/client/mc/release/linux-${TARGETARCH}/mc \
-  --create-dirs \
-  -o mc && \
-  chmod a+x mc
+RUN TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/) \
+    && cd $MINIO_DIR \
+    && curl -O --location https://dl.min.io/client/mc/release/linux-${TARGETARCH}/mc \
+    && chmod a+x mc
 
 EXPOSE 7681
 
@@ -193,7 +196,7 @@ RUN cd /opt \
     && rm rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz
 
 ENV BENERATOR_HOME=/opt/rapiddweller-benerator-ce-3.1.0-jdk-11
-COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties ~/rapiddweller/demo.env.properties
+COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${USERNAME}/rapiddweller/demo.env.properties
 
 # benchbase
 COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
@@ -223,9 +226,12 @@ WORKDIR /scripts
 ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
-# used by YCSB and jsqsh
-ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/postgresql-42.3.5.jar:/libs/ojdbc8.jar
+# stage dir
+RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
 
-ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-2.3/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:$PATH
+# used by YCSB and jsqsh
+ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/postgresql-42.3.5.jar:/libs/ojdbc8.jar:/arcion/lib/snowflake-jdbc-3.12.11.jar:/arcion/lib/GoogleBigQueryJDBC42.jar
+
+ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH
 
 CMD /scripts/utils/init.d/arcdemo-init.sh

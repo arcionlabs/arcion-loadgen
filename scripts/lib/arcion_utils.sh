@@ -13,7 +13,7 @@ arcion_param() {
     local dst_dir=${2:-$src_dir}
     local meta_dir=${3:-$src_dir}
     local arg=""
-
+    
     # source specific
     src=$(find ${src_dir} -maxdepth 1 -name src.yaml -print)
     filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml -print)
@@ -24,8 +24,15 @@ arcion_param() {
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
     # src to dst map
-    map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-    
+    case ${DSTDB_GRP,,} in 
+        nullstorage | s3 )
+            echo "removing mapper for ${DSTDB_GRP,,}" >&2
+            ;;
+        *)
+            map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
+            ;;
+    esac
+
     # optional
     metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 

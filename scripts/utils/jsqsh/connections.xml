@@ -184,4 +184,15 @@
       <password encrypted="true"><![CDATA[RCbuc8QB4TJEZkr3y/a1uA==]]></password>
       <catalog><![CDATA[arcsrc]]></catalog>
    </connection>
+   <connection name="snsrc"
+               driver="snowflake"
+               server="zeb03505.us-east-1.snowflakecomputing.com"
+               port="443"
+   >
+      <username><![CDATA[arcsrc]]></username>
+      <password encrypted="true"><![CDATA[aMGJC1DmlRBG8vJi9ry5og==]]></password>
+      <properties>
+          <property name="warehouse"><![CDATA[COMPUTE_WH]]></property>
+      </properties>
+   </connection>   
 </connections>

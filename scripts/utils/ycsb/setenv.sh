@@ -19,5 +19,5 @@ if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replican
 if [ "${SRCDB_GRP}" = "oracle" ]; then
   CLASSPATH=$(ls /libs/ojdbc8*jar | paste -sd:)
 else
-  CLASSPATH=$(ls ${ARCION_HOME}/lib/maria* ${ARCION_HOME}/lib/post* ${ARCION_HOME}/lib/mongodb* ${ARCION_HOME}/lib/mssql* ${ARCION_HOME}/lib/db2* ${ARCION_HOME}/lib/jconn4*jar ${ARCION_HOME}/lib/jdbc-*jar ${ARCION_HOME}/lib/bson-*jar | paste -sd:)
+  CLASSPATH=$(ls ${ARCION_HOME}/lib/maria* ${ARCION_HOME}/lib/post* ${ARCION_HOME}/lib/mongodb* ${ARCION_HOME}/lib/mssql* ${ARCION_HOME}/lib/db2* ${ARCION_HOME}/lib/jconn4*jar ${ARCION_HOME}/lib/jdbc-*jar ${ARCION_HOME}/lib/bson-*jar $(ls /arcion/lib/snowflake-jdbc*jar) $(ls /arcion/lib/GoogleBigQueryJDBC42.jar)  | paste -sd:)
 fi

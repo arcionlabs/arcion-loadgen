@@ -1,14 +1,14 @@
 type: MYSQL
 
-host: ${SRCDB_HOST}
+host: ${SRCDB_HOST:-mysql}
 port: 3306
 
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
+username: ${SRCDB_ARC_USER:-arcsrc}
+password: ${SRCDB_ARC_PW:-Passw0rd}
 
 max-connections: 30
 
 # real-time and full only
-slave-server-ids: [ "${PID}" ]
+slave-server-ids: [ "${PID:-${$}}" ]
 max-retries: 1
 

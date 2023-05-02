@@ -34,5 +34,13 @@
       <Variable name="server"><![CDATA[localhost]]></Variable>
       <Variable name="port"><![CDATA[5432]]></Variable>
    </Driver>   
+   <Driver name="bigquery"
+           url="jdbc:BQDriver:projectid(${server})?withServiceAccount=false"
+           class="com.simba.googlebigquery.jdbc.Driver"
+           target="Starschema BigQuery"
+           analyzer="org.sqsh.analyzers.ANSIAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+      <Variable name="server"><![CDATA[projecturl]]></Variable>
+   </Driver>   
 </Drivers>
 
