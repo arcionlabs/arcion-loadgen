@@ -1,0 +1,10 @@
+allow:
+- catalog: "${SRCDB_DB}"
+  schema: ${SRCDB_SCHEMA}  
+  types: [TABLE]
+  allow:
+    # all of the tables are scoped up automatically
+    #theusertable:
+    #sbtest1:
+  block:
+    theusertable:  
