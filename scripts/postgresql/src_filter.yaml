@@ -6,5 +6,4 @@ allow:
     # all of the tables are scoped up automatically
     #theusertable:
     #sbtest1:
-  block:
-    theusertable:  
+ 

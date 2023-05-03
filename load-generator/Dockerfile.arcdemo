@@ -216,8 +216,8 @@ COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqs
 COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
 
 # python requirements
-COPY --chown=${USERNAME} requirements.txt $HOME/${USERNAME}/requirements.txt
-RUN pip install -r  $HOME/${USERNAME}requirements.txt
+COPY --chown=${USERNAME} requirements.txt /home/${USERNAME}/requirements.txt
+RUN pip install -r /home/${USERNAME}/requirements.txt
 
 # scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/
@@ -229,6 +229,11 @@ ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # stage dir for null applier 
 RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
+
+# create dirs
+RUN sudo mkdir /libs 
+RUN sudo chown -R $USERNAME /libs
+RUN mkdir /arcion/data
 
 # used by YCSB and jsqsh
 ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/postgresql-42.3.5.jar:/libs/ojdbc8.jar:/arcion/lib/snowflake-jdbc-3.12.11.jar:/arcion/lib/GoogleBigQueryJDBC42.jar
