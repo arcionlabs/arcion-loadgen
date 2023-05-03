@@ -215,19 +215,19 @@ RUN touch /home/${USERNAME}/.jsqsh/.welcome
 COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
 COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
 
+# python requirements
+COPY --chown=${USERNAME} requirements.txt $HOME/${USERNAME}/requirements.txt
+RUN pip install -r  $HOME/${USERNAME}requirements.txt
+
 # scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/
-
-# python hydra
-RUN pip install -r scripts/requirements.txt
-
 WORKDIR /scripts
 
 # YCSB HOMEs
 ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
-# stage dir
+# stage dir for null applier 
 RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
 
 # used by YCSB and jsqsh
