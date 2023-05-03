@@ -4,6 +4,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 # Test image locally
 #   cd arcion-demo
 #   docker build -t robertslee/arcdemo:test -f load-generator/Dockerfile.arcdemo .
+#   docker build -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
 # Publish amd64, arm64  
 #   docker buildx create --name mybuilder
 #   docker buildx use mybuilder

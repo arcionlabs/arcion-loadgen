@@ -2,7 +2,7 @@ type: SNOWFLAKE
 
 host: ${SNOW_ENDPOINT_SERVER}
 port: 443 
-warehouse: ${SNOW_WAREHOUSE}
+warehouse: ${DSTDB_DB}
 
 username: ${SNOW_ACCESS_KEY_ID}
 password: ${SNOW_SECRET_ACCESS_KEY}
