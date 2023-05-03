@@ -1,0 +1,4 @@
+rules:
+  [ $(printf "%s\n" ${DSTDB_DB:-arcdst} ${DSTDB_SCHEMA} | paste -sd,) ]:
+    source:
+    - [ $(printf "%s\n" ${SRCDB_DB:-arcsrc} ${SRCDB_SCHEMA} | paste -sd,) ]
