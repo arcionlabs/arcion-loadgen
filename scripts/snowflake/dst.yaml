@@ -1,12 +1,11 @@
 type: SNOWFLAKE
 
-host: SNOWFLAKE_HOSTNAME
-port: PORT_NUMBER 
-warehouse: "WAREHOUSE_NAME"
+host: ${SNOW_ENDPOINT_SERVER}
+port: 443 
+warehouse: ${SRCDB_DB}
 
-username: "USERNAME"
-password: "PASSWORD"
+username: ${SNOW_ACCESS_KEY_ID}
+password: ${SNOW_SECRET_ACCESS_KEY}
 
-max-connections: 5 #Specify the maximum number of connections replicant can open in Snowflake
+max-connections: 5 
 max-retries: 1
-retry-wait-duration-ms: 1000
