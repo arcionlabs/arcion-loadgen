@@ -15,5 +15,5 @@ allow:
     order_line:
     replicate_io_cdc_heartbeat:
     stock:
-    theusertable:
+    #theusertable:
     warehouse:
