@@ -2,10 +2,17 @@
 
 . $SCRIPTS_DIR/lib/ycsb_jdbc.sh
 . $SCRIPTS_DIR/lib/ping_utils.sh
+. $SCRIPTS_DIR/lib/jdbc_cli.sh
 
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
+
+# delete target if exists
+if [ -z "$workload_preserve_dst" ]; then
+  echo "dropping destination database ${DSTDB_DB}"
+  echo "drop database ${DSTDB_DB};" | jdbc_cli_dst
+fi
 
 # wait for dst db to be ready to connect
 declare -A EXISTING_DBS
@@ -20,7 +27,7 @@ db_schema_lower=${db_schema,,}
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
 
-  for f in ${CFG_DIR}/dst.init.root*sql; do
+  for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.root*sql ); do
     # the root has no DB except Oracle that has SID
     if [ "${DSTDB_GRP}" = "oracle" ]; then
       cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
@@ -36,7 +43,7 @@ fi
 if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${db_schema_lower} setup"
 
-  for f in ${CFG_DIR}/dst.init.user*sql; do
+  for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
     cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
   done
 

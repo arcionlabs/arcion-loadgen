@@ -20,7 +20,7 @@ db_schema_lower=${db_schema,,}
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
-  for f in ${CFG_DIR}/src.init.root*sql; do
+  for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ); do
     # the root has no DB except Oracle that has SID
     if [ "${SRCDB_GRP}" = "oracle" ]; then
       cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
@@ -30,6 +30,18 @@ if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   done
 else
   echo "src db ${SRCDB_DB} already setup. skipping db setup"
+fi
+
+# run if table needs to be created
+if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
+  echo "src db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
+
+  for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
+    cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
+  done
+
+else
+  echo "src db ${SRCDB_ARC_USER} ${db_schema_lower} skipping user setup"
 fi
 
 # setup workloads
@@ -44,16 +56,4 @@ if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
 
 else
   echo "src db ${SRCDB_ARC_USER} != ${db_schema_lower} skipping workload setup"
-fi
-
-# run if table needs to be created
-if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
-  echo "src db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
-
-  for f in ${CFG_DIR}/src.init.user*sql; do
-    cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
-  done
-
-else
-  echo "src db ${SRCDB_ARC_USER} ${db_schema_lower} skipping user setup"
 fi
