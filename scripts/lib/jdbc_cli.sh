@@ -13,6 +13,7 @@ jdbc_cli() {
   local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
   local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
   local db_sid=$( x="${LOC^^}DB_SID"; echo "${!x}" )
+  local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
   shift
 
   db_db=${db_db:-${db_user}}
@@ -21,7 +22,14 @@ jdbc_cli() {
   # if the flag as '-n meaning batch mode'
   # if [[ "${1}" =~ (^|[^[:alnum:]_])-n([^[:alnum:]_]|$) ]]; then
   # 
+  case "${db_grp,,}" in
+    snowflake)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+    ;;
+    *)
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid:-${db_db}}"
+    ;;
+  esac  
 }
 
 jdbc_cli_src() {

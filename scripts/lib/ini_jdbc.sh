@@ -26,6 +26,16 @@ export DSTDB_JDBC_REWRITE
 set_jdbc_vars() {
 
 case "${SRCDB_GRP,,}" in
+  snowflake)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="snowflake"
+    SRCDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
+    SRCDB_JDBC_URL="jdbc:snowflake//${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&warehouse=${SNOW_SRC_WAREHOUSE}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:snowflake//${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&warehouse=${SNOW_SRC_WAREHOUSE}"   
+    SRCDB_JDBC_URL_IDPW=""
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""
+    ;;
   oracle)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="oracle"
@@ -93,6 +103,16 @@ case "${SRCDB_GRP,,}" in
 esac
 
 case "${DSTDB_GRP,,}" in
+  snowflake)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="snowflake"
+    DSTDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
+    DSTDB_JDBC_URL="jdbc:snowflake//${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake//${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL_IDPW=""
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""
+    ;;
   oracle)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="oracle"

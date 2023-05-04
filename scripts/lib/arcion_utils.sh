@@ -255,6 +255,12 @@ while [ 1 ]; do
     [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
 
     case "${SRCDB_GRP,,}" in
+        snowflake)
+            SRCDB_HOST="${SNOW_SRC_ENDPOINT}" 
+            SRCDB_PORT="${SNOW_SRC_PORT:-443}" 
+            SRCDB_ARC_USER="${SNOW_SRC_ID}" 
+            SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
+            ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
             [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
@@ -335,6 +341,12 @@ while [ 1 ]; do
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
 
     case "${DSTDB_GRP,,}" in
+        snowflake)
+            DSTDB_HOST="${SNOW_DST_ENDPOINT}" 
+            DSTDB_PORT="${SNOW_DST_PORT:-443}" 
+            DSTDB_ARC_USER="${SNOW_DST_ID}" 
+            DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
+            ;;
         informix)
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
