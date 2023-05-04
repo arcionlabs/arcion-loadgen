@@ -210,10 +210,10 @@ RUN cd ${BENCHBASE_DIR} \
     && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # jsqsh
+# connection.xml causes exception on some docker host
 RUN mkdir -p /home/${USERNAME}/.jsqsh
 RUN touch /home/${USERNAME}/.jsqsh/.welcome
 COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
-COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/
 
 # python requirements
 COPY --chown=${USERNAME} requirements.txt /home/${USERNAME}/requirements.txt

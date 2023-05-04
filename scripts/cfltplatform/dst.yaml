@@ -1,0 +1,23 @@
+type: KAFKA
+
+# required for confluent cloud
+is-cloud-instance: true
+
+auth-type: SASL #Allowed values NONE, SASL, SSL
+username: '${CFLT_DST_KEY}'
+password: '${CFLT_DST_SECRET}'
+
+# used when auth_type = SSL
+#ssl:
+#  enable: true
+#  trust-store:
+#      path: "<path>/kafka.server.truststore.jks"
+#      password: "<password>"
+
+#Multiple Kafka brokers can be specified using the format below:
+brokers:
+   broker1: #Replace broker1 with your broker name
+       host: ${CFLT_DST_BOOTSTRAP} #Replace localhost with your broker's host
+       port: 9092 #Replace 19092 with your broker's port
+
+_timeout-sec: 30

@@ -4,8 +4,8 @@ type: KAFKA
 is-cloud-instance: true
 
 auth-type: SASL #Allowed values NONE, SASL, SSL
-username: '${CONFLUENT_CLUSTER_API_KEY}'
-password: '${CONFLUENT_CLUSTER_API_SECRET}'
+username: '${CFLT_DST_KEY}'
+password: '${CFLT_DST_SECRET}'
 
 # used when auth_type = SSL
 #ssl:
@@ -17,7 +17,7 @@ password: '${CONFLUENT_CLUSTER_API_SECRET}'
 #Multiple Kafka brokers can be specified using the format below:
 brokers:
    broker1: #Replace broker1 with your broker name
-       host: ${CONFLUENT_BOOTSTRAP_SERVER} #Replace localhost with your broker's host
+       host: ${CFLT_DST_BOOTSTRAP} #Replace localhost with your broker's host
        port: 9092 #Replace 19092 with your broker's port
 
 _timeout-sec: 30

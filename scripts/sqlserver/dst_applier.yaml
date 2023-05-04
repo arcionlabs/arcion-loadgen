@@ -1,12 +1,13 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   skip-tables-on-failures : true
+  _traceDBTasks: true
 
   user-role:
-    init-user-roles: false    
-    
+    init-user-roles: false  
+
   bulk-load:
-    enable: false
+    enable: true
     type: FILE   # PIPE, FILE        
 
 realtime:
