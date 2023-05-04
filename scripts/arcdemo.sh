@@ -51,15 +51,19 @@ else
   # DSTDB_DIR
   # REPL_TYPE
 
+  # create tmp CFG_DIR
+  mkdir -p /arcion/data
+  # WARNING: log id length max is 9
+  export LOG_ID=$$
+  export CFG_DIR=/arcion/data/${LOG_ID}-${LOG_ID}
+  
   # these are from arc_utils.sh
   set_src
   set_dst
 
-  # WARNING: log id length max is 9
-  mkdir -p /arcion/data
-  export LOG_ID=$$
-  export CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
-  mkdir -p $CFG_DIR
+  # change the name of the CFG_DIR
+  CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
+  mv /arcion/data/${LOG_ID}-${LOG_ID} $CFG_DIR
   echo $CFG_DIR   
 
   # set replication type

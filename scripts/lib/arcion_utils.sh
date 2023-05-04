@@ -203,9 +203,9 @@ init_src() {
     local DB_GRP
     local rc=0
 
-    for f in $( ls $CFG_DIR/src.init.*sh ); do
+    banner $SRCDB_HOST
+    for f in $( find $CFG_DIR -maxdepth 1 -name src.init*sh ); do
         echo "Running $f"
-        banner $SRCDB_HOST
         # NOTE: do not remove () below as that will exit this script
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
@@ -220,9 +220,9 @@ init_dst() {
     local DB_GRP
     local rc=0    
 
-    for f in $( ls $CFG_DIR/dst.init.*sh ); do
+    banner $DSTDB_HOST
+    for f in $( find $CFG_DIR -maxdepth 1 -name dst.init*sh ); do
         echo "Running $f"
-        banner $DSTDB_HOST
         # NOTE: do not remove () below as that will exit this script
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
@@ -341,21 +341,37 @@ while [ 1 ]; do
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
 
     case "${DSTDB_GRP,,}" in
+        bigquery)
+            mkdir -p ${CFG_DIR}/gbq/dst
+            echo $GBQ_DST_SECRET | base64 -d | gunzip > ${CFG_DIR}/gbq/dst/secret.json
+            export GBQ_DST_PROJECT_ID=$(jq -r ".project_id" ${CFG_DIR}/gbq/dst/secret.json) 
+            export GBQ_DST_SERVICE_EMAIL=$(jq -r ".client_email" ${CFG_DIR}/gbq/dst/secret.json)
+
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
+            ;;
         snowflake)
             DSTDB_HOST="${SNOW_DST_ENDPOINT}" 
             DSTDB_PORT="${SNOW_DST_PORT:-443}" 
             DSTDB_ARC_USER="${SNOW_DST_ID}" 
             DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
+
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}            
             ;;
         informix)
+            # HACK: for Informix, schema is same as the user name
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;;
         oracle)
+            # HACK: for Oracle, comma schema is always blank
             export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
             export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
-            export DSTDB_COMMA_SCHEMA=${DSTDB_SCHEMA^^}
+            export DSTDB_COMMA_SCHEMA=""
             export DSTDB_DB=""
         ;;
         *)
@@ -364,14 +380,7 @@ while [ 1 ]; do
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;; 
     esac
-    # HACK: for Informix, schema is same as the user name
-    if [ "${DSTDB_GRP,,}" = "informix" ]; then DSTDB_SCHEMA="${DSTDB_ARC_USER}"; fi
-    # HACK: for Oracle, comma schema is always blank
-    if [ "${DSTDB_GRP,,}" = "oracle" ]; then 
-        export DSTDB_COMMA_SCHEMA=""
-    else    
-        [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-    fi
+
     [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
     [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
 

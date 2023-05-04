@@ -1,0 +1,15 @@
+type: BIGQUERY
+
+location: ${GBQ_DST_LOCATION}
+host: ${GBQ_DST_ENDPOINT}
+port: 443 
+auth-type: 0
+project-id: ${GBQ_DST_PROJECT_ID}
+o-auth-service-acc-email: ${GBQ_DST_SERVICE_EMAIL}
+o-auth-pvt-key-path: ${CFG_DIR}/gbq/dst/secret.json
+
+username: notused
+password: notused
+
+max-connections: 5 
+max-retries: 1
