@@ -74,7 +74,7 @@ arcion_delta() {
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
     popd
 }
@@ -91,7 +91,7 @@ arcion_real() {
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
     popd
 }
@@ -108,7 +108,7 @@ arcion_full() {
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
     popd
 }
@@ -126,7 +126,7 @@ arcion_snapshot() {
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
     popd
 }

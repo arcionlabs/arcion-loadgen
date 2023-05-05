@@ -1,11 +1,13 @@
 # DB capable of snapshot.  Take default options except the CPUs
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
+  _traceDBTasks: true
   fetch-user-roles: false
   
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}
+  _traceDBTasks: true
   heartbeat:
     enable: true
     catalog: ${SRCDB_DB} 
@@ -15,6 +17,7 @@ realtime:
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  _traceDBTasks: true
   delta-snapshot-keys: [ts]
   split-key: [ts]
   delta-snapshot-interval: 10

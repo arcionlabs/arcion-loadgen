@@ -11,7 +11,7 @@ if [ -z "${exists}" ]; then
     tmux rename-window -t $WIN.0 console
     tmux new-window -n yaml -t $WIN:1
     tmux new-window -n logs -t $WIN:2
-    tmux new-window -n benchbase -t $WIN:3
+    tmux new-window -n sql -t $WIN:3
     tmux new-window -n ycsb -t $WIN:4
     tmux new-window -n verificator -t $WIN:5
     tmux new-window -n veri_log -t $WIN:6

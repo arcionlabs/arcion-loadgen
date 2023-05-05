@@ -20,7 +20,7 @@ db_schema_lower=${db_schema,,}
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
-  for f in $( file ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ) ; do
+  for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ) ; do
     # the root has no DB except Oracle that has SID
     if [ "${SRCDB_GRP}" = "oracle" ]; then
       cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ROOT}" --password="${SRCDB_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
@@ -36,7 +36,7 @@ fi
 if [ "${db_schema_lower}" = "${SRCDB_ARC_USER}" ]; then
   echo "src db ${SRCDB_ARC_USER}: ${db_schema_lower} setup"
 
-  for f in  $( file ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
+  for f in  $( find ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
     cat ${f} | jsqsh --driver="${SRCDB_JSQSH_DRIVER}" --user="${SRCDB_ARC_USER}" --password="${SRCDB_ARC_PW}" --server="${SRCDB_HOST}" --port=${SRCDB_PORT} --database="${sid_db}"
   done
 

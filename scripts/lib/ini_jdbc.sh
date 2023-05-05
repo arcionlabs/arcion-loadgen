@@ -103,6 +103,16 @@ case "${SRCDB_GRP,,}" in
 esac
 
 case "${DSTDB_GRP,,}" in
+  bigquery)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="bigquery"
+    DSTDB_JDBC_DRIVER="com.simba.googlebigquery.jdbc.Driver"
+    DSTDB_JDBC_URL=""   
+    DSTDB_JDBC_URL_BENCHBASE=""   
+    DSTDB_JDBC_URL_IDPW=""
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""
+    ;;
   snowflake)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="snowflake"

@@ -55,15 +55,17 @@ else
   mkdir -p /arcion/data
   # WARNING: log id length max is 9
   export LOG_ID=$$
-  export CFG_DIR=/arcion/data/${LOG_ID}-${LOG_ID}
-  
+  export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
+  rm -rf $CFG_DIR 2>/dev/null
+
   # these are from arc_utils.sh
   set_src
   set_dst
 
   # change the name of the CFG_DIR
   CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
-  mv /arcion/data/${LOG_ID}-${LOG_ID} $CFG_DIR
+  rm -rf $CFG_DIR 2>/dev/null
+  mv /tmp/${LOG_ID}-${LOG_ID} $CFG_DIR
   echo $CFG_DIR   
 
   # set replication type
@@ -100,7 +102,7 @@ fi
 # clear the view windows and configure it for this run
 tmux kill-window -t ${TMUX_SESSION}:1   # yaml
 tmux kill-window -t ${TMUX_SESSION}:2   # log
-tmux kill-window -t ${TMUX_SESSION}:3   # benchbase
+tmux kill-window -t ${TMUX_SESSION}:3   # sql
 tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
 tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
 tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
@@ -109,7 +111,7 @@ tmux kill-window -t ${TMUX_SESSION}:7   # dstat
 # create new windows but don't switch into it
 tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
 tmux new-window -d -n logs -t ${TMUX_SESSION}:2
-tmux new-window -d -n benchbase -t ${TMUX_SESSION}:3
+tmux new-window -d -n sql -t ${TMUX_SESSION}:3
 tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
 tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
 tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
@@ -119,6 +121,11 @@ tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
 tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
 tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 
+function tail_arcion_cli() {
+  if [ -f $CFG_DIR/arcion.log ]; then
+    tail -f $CFG_DIR/arcion.log &
+  fi
+}
 function tmux_bb_panel() {
     tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
@@ -159,9 +166,9 @@ tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
 tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 
-# with benchbase too many tables for this.  offline validate
-# show sysbench and ycsb changes 
-#/scripts/verify.sh id sbtest1 3 &
+# open src and dst SQL CLI
+sql_cli_src_dst.sh 3 &
+# open YCSB check screen
 #/scripts/verify.sh ycsb_key usertable 4 & 
 
 # show verificator
@@ -190,9 +197,9 @@ control_c() {
 
 # allow ctl-c to terminate background jobs
 trap control_c SIGINT
-if [ -f $CFG_DIR/arcion.log ]; then
-  tail -f $CFG_DIR/arcion.log &
-fi
+
+# display arcion progress screen
+tail_arcion_cli
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
