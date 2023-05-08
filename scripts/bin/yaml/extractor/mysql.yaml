@@ -1,11 +1,23 @@
 # DB capable of snapshot.  Take default options except the CPUs
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
+  _traceDBTasks: true
   fetch-user-roles: false
+    
+  min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo
+  per-table-config:
+  - catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}   
+    tables:
+      THEUSERTABLE:
+        split-key: YCSB_KEY
+        split-method: RANGE
+        extraction-priority: -1 
   
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}
+  _traceDBTasks: true
   # enable DDL replication
   ddl-replication:
     enable: true                 
@@ -19,7 +31,10 @@ realtime:
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-keys: [TS]
-  split-key: [TS]
+  _traceDBTasks: true
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10  
+  # setup to work for YCSB THEUSERTABLE demo table
+  delta-snapshot-keys: [TS]
+  split-key: YCSB_KEY
+  min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo

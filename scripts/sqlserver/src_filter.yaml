@@ -3,16 +3,6 @@ allow:
   schema: "${SRCDB_SCHEMA}"
   types: [TABLE]
   allow:
-    # all of the tables are scoped up automatically
-    # THEUSERTABLE:
-    # sbtest1:
-    customer:
-    district:
-    # history -- cannot do realtime without primary key
-    item:
-    new_order:
-    oorder:
-    order_line:
-    REPLICATE_IO_CDC_HEARTBEAT:
-    stock:
-    warehouse:
+    # delta-snaphot demo for YCSB THEUSERTABLE only
+    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "THEUSERTABLE:"; fi )
+    # Otherwise, all tables are replicated

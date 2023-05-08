@@ -1,5 +1,6 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
+  _traceDBTasks: true
   fetch-size-rows: 5000
   fetch-user-roles: false
 
