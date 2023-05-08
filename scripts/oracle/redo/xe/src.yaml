@@ -1,0 +1,35 @@
+type: ORACLE
+
+host: ${SRCDB_HOST}
+port: ${SRCDB_PORT}
+
+# SID and not service name
+service-name: ${SRCDB_SID}
+
+username: ${SRCDB_ARC_USER}
+password: ${SRCDB_ARC_PW}
+
+max-connections: 10
+#max-fetch-schema-connections: 30  #default value same max-connections
+
+max-retries: 1
+retry-wait-duration-ms: 1000
+# native log reader
+log-reader: REDOLOG   # {REDOLOG|REDOLOG_ARCHIVE_ONLY}
+transaction-store-location: /opt/stage    # PATH_TO_TRANSACTION_STORAGE
+
+alt-log-path: /opt/stage/oraxe/XE 
+alt-archive-log-path: /opt/stage/oraxe/XE  
+
+log-path: /opt/oracle/oradata/XE  
+archive-log-path: /opt/oracle/oradata/XE 
+
+# for 12c, 18c, 19c, should set up as false, since not supported 
+continuous-log-mining: false     
+#continuous-log-mining: true
+
+#ssl:
+#   trust-store:
+#       ssl-store-type: 'JKS'
+#       path: '/path/to/truststore-file.jks'
+#       password: 'changeit'
