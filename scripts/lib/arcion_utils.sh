@@ -70,13 +70,13 @@ arcion_delta() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_real() {
     # do not run if gui will be used to invoke
@@ -87,13 +87,13 @@ arcion_real() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_full() {    
     # do not run if gui will be used to invoke
@@ -104,13 +104,13 @@ arcion_full() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_snapshot() {
     # do not run if gui will be used to invoke
@@ -121,14 +121,14 @@ arcion_snapshot() {
     
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     echo "$( arcion_param ${CFG_DIR} )"
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 # find source DB dir that has src.yaml, filter.yaml and extractor.yarm
 find_srcdb() {

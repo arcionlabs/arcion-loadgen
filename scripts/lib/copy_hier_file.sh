@@ -11,6 +11,7 @@ copy_hier_as_flat() {
     local SRC=${1:-"./"}
     local PREFIX=$2
     local DST=${3:-/tmp/$(basename $(realpath $SRC))}
+    #DEBUG echo "SRC=$SRC DST=$DST PREFIX=$PREFIX"
     [ ! -d "${DST}" ] && mkdir -p ${DST}
     dir=""
     for d in $( echo $SRC |  tr "/" "\n" ); do
@@ -52,27 +53,27 @@ copy_yaml() {
     [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
     # copy from template
-    pushd ${SCRIPTS_DIR}/utils
+    pushd ${SCRIPTS_DIR}/utils >/dev/null
     copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
     copy_hier_as_flat benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat benchbase/dst sample $CFG_DIR/benchbase/dst
-    popd
+    popd >/dev/null
 
     # override template from the src and dst configs into a flat dir
-    pushd ${SCRIPTS_DIR}
+    pushd ${SCRIPTS_DIR} >/dev/null
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
     copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
-    popd
+    popd >/dev/null
 
     # override the destination specific
     if [ -d $SRCDB_DIR/src_dst_map ]; then
-        pushd $SRCDB_DIR/src_dst_map
+        pushd $SRCDB_DIR/src_dst_map >/dev/null
         copy_hier_as_flat $DSTDB_GRP/$DSTDB_TYPE/ src $CFG_DIR
-        popd
+        popd >/dev/null
     fi
 
     echo "Config at $CFG_DIR"

@@ -62,8 +62,11 @@ function uri_parser() {
     #echo "path=$path" >&2
     #echo "query=$query" >&2
 
+    # return without the leading /
+    PATHPARSE[0]="${BASH_REMATCH[12]}"
+
     # path parsing
-    local count=0
+    local count=1
     local pattern='[\/\?;&#]+([^\/\?;&#]*)'
     while [[ $path =~ $pattern ]]; do
         PATHPARSE[$count]="${BASH_REMATCH[1]}"

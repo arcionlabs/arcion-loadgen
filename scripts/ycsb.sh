@@ -23,7 +23,7 @@ case "${SRCDB_GRP,,}" in
     ycsb_run_src
 ;;
   mongodb)
-    pushd ${YCSB_MONGODB}  
+    pushd ${YCSB_MONGODB} >/dev/null 
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \
     -P workloads/workloada \
     -p requestdistribution=uniform \
@@ -31,7 +31,7 @@ case "${SRCDB_GRP,,}" in
     -p recordcount=10000 \
     -p operationcount=$((1000000*$args_ycsb_threads)) \
     -p mongodb.url="${SRCDB_JDBC_URL}"
-    popd  
+    popd >/dev/null 
     ;; 
   *)
     echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support"
