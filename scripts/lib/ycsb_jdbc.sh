@@ -11,7 +11,7 @@ export default_ycsb_rate=1
 export default_ycsb_threads=1
 export default_ycsb_timer=600
 export default_ycsb_size_factor=1
-export default_ycsb_table="theusertable"
+export default_ycsb_table="THEUSERTABLE"
 
 # command line arguments
 export ycsb_rate=${default_ycsb_rate}

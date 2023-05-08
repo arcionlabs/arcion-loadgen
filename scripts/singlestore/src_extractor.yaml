@@ -7,7 +7,7 @@ snapshot:
   - catalog: "${SRCDB_DB}"
     schema: ${SRCDB_SCHEMA}   
     tables:
-      theusertable:
+      THEUSERTABLE:
         split-key: ycsb_key
 
 # DB capable of real-time.  Take default options except the CPUs
@@ -22,10 +22,11 @@ realtime:
     enable: true
     catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-keys: [ts]
+  delta-snapshot-keys: [TS]
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10  
   replicate-deletes: false
@@ -33,8 +34,8 @@ delta-snapshot:
   - catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
     tables:
-      theusertable:
-        split-key: [ycsb_key] 
-        row-identifier-key: [ycsb_key]
-        update-key: [ycsb_key]
+      THEUSERTABLE:
+        split-key: [YCSB_KEY] 
+        row-identifier-key: [YCSB_KEY]
+        update-key: [YCSB_KEY]
         replicate-deletes: false

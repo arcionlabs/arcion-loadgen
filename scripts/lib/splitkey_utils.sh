@@ -4,8 +4,8 @@
   - catalog: "${SRCDB_DB}"
     schema: ${SRCDB_SCHEMA}   
     tables:
-      theusertable:
-        split-key: ycsb_key
+      THEUSERTABLE:
+        split-key: YCSB_KEY
         split-method: RANGE # must be all caps
         extraction-priority: 1
         split-hints:

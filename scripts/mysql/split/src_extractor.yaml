@@ -8,8 +8,8 @@ snapshot:
      schema: ${SRCDB_SCHEMA}
      tables:
        usertable:
-        # row-identifier-key: [ycsb_key]
-        split-key: ts
+        # row-identifier-key: [YCSB_KEY]
+        split-key: TS
         # split-hints:
           # row-count-estimate: 15000
           # split-key-min-value: 1
@@ -27,7 +27,9 @@ realtime:
     enable: true
     catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
+
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-key: ts
+  delta-snapshot-key: TS

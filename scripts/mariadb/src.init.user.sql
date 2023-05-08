@@ -1,7 +1,7 @@
--- create arcsrc for retrivial
-CREATE TABLE if not exists replicate_io_cdc_heartbeat(
-  timestamp BIGINT NOT NULL,
-  PRIMARY KEY(timestamp)
+-- CREATE ARCSRC FOR RETRIVIAL
+CREATE TABLE IF NOT EXISTS REPLICATE_IO_CDC_HEARTBEAT(
+  TIMESTAMP BIGINT NOT NULL,
+  PRIMARY KEY(TIMESTAMP)
 );
 
 

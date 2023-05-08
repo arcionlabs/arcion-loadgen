@@ -15,10 +15,11 @@ realtime:
     enable: true
     catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-  delta-snapshot-keys: [ts]
-  split-key: [ts]
+  delta-snapshot-keys: [TS]
+  split-key: [TS]
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10  

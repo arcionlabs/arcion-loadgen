@@ -12,13 +12,15 @@ realtime:
     enable: true
     catalog: ${SRCDB_DB} 
     schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
+
     # oracle is case sensitive
-    table-name: $(if [ "${SRCDB_GRP}" = "oracle" ]; then echo "REPLICATE_IO_CDC_HEARTBEAT"; else echo "replicate_io_cdc_heartbeat"; fi)
+    #table-name: $(if [ "${SRCDB_GRP}" = "oracle" ]; then echo "REPLICATE_IO_CDC_HEARTBEAT"; else echo "replicate_io_cdc_heartbeat"; fi)
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
   _traceDBTasks: true
-  delta-snapshot-keys: [ts]
-  split-key: [ts]
+  delta-snapshot-keys: [TS]
+  split-key: [TS]
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10  

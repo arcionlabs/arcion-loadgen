@@ -11,7 +11,7 @@ allow:
     #checking:
     #added_tweets:
     #votes:
-    #theusertable:
+    #THEUSERTABLE:
     #sitest:
     #district:
     #new_order:

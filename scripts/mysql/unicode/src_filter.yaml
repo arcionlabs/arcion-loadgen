@@ -5,5 +5,5 @@ allow:
   allow:
     # all of the tables are scoped up automatically
     unicode:
-    # theusertable:
+    # THEUSERTABLE:
     # sbtest1:

@@ -4,7 +4,7 @@ allow:
   types: [TABLE]
   allow:
     # all of the tables are scoped up automatically
-    # theusertable:
+    # THEUSERTABLE:
     # sbtest1:
     customer:
     district:
@@ -13,7 +13,6 @@ allow:
     new_order:
     oorder:
     order_line:
-    replicate_io_cdc_heartbeat:
+    REPLICATE_IO_CDC_HEARTBEAT:
     stock:
-    #theusertable:
     warehouse:

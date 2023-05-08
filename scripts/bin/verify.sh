@@ -30,16 +30,16 @@ top10_query() {
 
     case ${DB_GRP,,} in
         mysql)
-            DB_SELECT="select $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc limit 10\;"
+            DB_SELECT="select $KEY,TS ${TS2_SEL} from $TABLE order by TS desc ${TS2_ORD}, $KEY asc limit 10\;"
             DB_CLI="mysql -t -u${DB_ARC_USER} -h${DB_HOST} -p${DB_ARC_PW} -D${DB_DB} -P${DB_PORT}"
         ;;
         postgresql)
-            DB_SELECT="select $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc limit 10\;"
+            DB_SELECT="select $KEY,TS ${TS2_SEL} from $TABLE order by TS desc ${TS2_ORD}, $KEY asc limit 10\;"
             DB_CLI="psql postgresql://${DB_ARC_USER}:${DB_ARC_PW}@${DB_HOST}:${DB_PORT}/${DB_DB}"
         ;;
         sqlserver)
-            if [ ! -z "${TS2_SEL}" ]; then TS2_SEL=',datediff(millisecond, ts2, ts2) as "ts2-ts1"'; fi
-            DB_SELECT="select top 10 $KEY,ts ${TS2_SEL} from $TABLE order by ts desc ${TS2_ORD}, $KEY asc\;"
+            if [ ! -z "${TS2_SEL}" ]; then TS2_SEL=',datediff(millisecond, TS2, TS2) as "TS2-TS1"'; fi
+            DB_SELECT="select top 10 $KEY,TS ${TS2_SEL} from $TABLE order by TS desc ${TS2_ORD}, $KEY asc\;"
             DB_CLI="${JSQSH_DIR}/*/bin/jsqsh --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_DB}"
         ;;    
         *)
@@ -55,10 +55,10 @@ if [ "$?" != "0" ]; then echo "could not split window"; exit 1; fi
 # .0 is source .1 is destination
 if [ "$?" != "0" ]; then echo "pane .0 does not exist"; exit 1; fi
 
-ts2_exists=$( echo "\show columns -p ts2 $TABLE" | jdbc_cli_dst "-n -v headers=false -v footers=false" | awk -F'|' 'NF>1 {print $5}' )
+ts2_exists=$( echo "\show columns -p TS2 $TABLE" | jdbc_cli_dst "-n -v headers=false -v footers=false" | awk -F'|' 'NF>1 {print $5}' )
 if [ ! -z "${ts2_exists}" ]; then
-    TS2_ORD=',ts2 desc'
-    TS2_SEL=',ts2-ts as "ts2-ts"'
+    TS2_ORD=',TS2 desc'
+    TS2_SEL=',TS2-TS as "TS2-TS"'
 fi
 
 # show lastest 10 the source

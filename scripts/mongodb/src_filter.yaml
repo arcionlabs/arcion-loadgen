@@ -3,6 +3,5 @@ allow:
   types: [TABLE]
   allow:
     # without any tables, all of the tables are scoped up
-    theusertable:
-    sbtest1:
+    THEUSERTABLE:
     # with full, replication table is automatically removed
