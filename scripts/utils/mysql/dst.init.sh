@@ -9,9 +9,11 @@
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
 # delete target if exists
-if [ -z "$workload_preserve_dst" ]; then
+if [ "${gui_run}" = "0" ] && [ -z "$workload_preserve_dst" ]; then
   echo "dropping destination database ${DSTDB_DB}"
   echo "drop database ${DSTDB_DB};" | jdbc_cli_dst
+else
+  echo "NOT dropping destination database ${DSTDB_DB}. gui_run='${gui_run}' workload_preserve_dst='${workload_preserve_dst}'"
 fi
 
 # wait for dst db to be ready to connect
