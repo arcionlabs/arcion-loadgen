@@ -1,9 +1,12 @@
 type: S3
 
-access-key: "FpwStpZPa09ZuHAv"
-secret-key: "nn1jHwNPlGpZTutIkcKAPpvBGGXk1fCn"
+access-key: ${DSTDB_ARC_USER}
+secret-key: ${DSTDB_ARC_PW}
 
-bucket: "arcdst"
+endpoint:
+  service-endpoint: http://${DSTDB_HOST}:9000 
+
+bucket: ${DSTDB_DB}
 root: "/"
 
 stage:
