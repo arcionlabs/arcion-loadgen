@@ -3,7 +3,47 @@
 export JSQSH_CSV="-n -v headers=false -v footers=false"
 
 # informix hints from https://code.activestate.com/recipes/576621/
- 
+
+jdbc_root_cli() { 
+  local LOC="${1:-src}" # SRC|DST
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_user=$( x="${LOC^^}DB_ROOT"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_PW"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
+  local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
+  local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
+  local db_sid=$( x="${LOC^^}DB_SID"; echo "${!x}" )
+  local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  shift
+
+  db_db=${db_db:-${db_user}}
+
+  # Not used but maybe helpful later
+  # if the flag as '-n meaning batch mode'
+  # if [[ "${1}" =~ (^|[^[:alnum:]_])-n([^[:alnum:]_]|$) ]]; then
+  # 
+  case "${db_grp,,}" in
+    snowflake)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+    ;;
+    oracle)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
+    ;;    
+    *)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
+    ;;
+  esac  
+}
+
+jdbc_root_cli_src() {
+  jdbc_root_cli src "$*"
+}
+
+jdbc_root_cli_dst() {
+  jdbc_root_cli dst "$*"
+}
+
+
 jdbc_cli() { 
   local LOC="${1:-src}" # SRC|DST
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
@@ -26,8 +66,11 @@ jdbc_cli() {
     snowflake)
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
+    oracle)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
+    ;;    
     *)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid:-${db_db}}"
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
     ;;
   esac  
 }
@@ -65,11 +108,16 @@ list_dbs() {
     # SELECT COUNT(*) FROM USER_TABLES;
     local DB_SQL="select owner, count(table_name) from all_tables where owner='${DB_ARC_USER^^}' group by owner;"
         ;;    
+        db2)
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT trim(table_schema), count(*) from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE' group by table_schema;"
+        ;;          
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
     esac
 
+    echo ${DB_SQL} >&2
     if [ ! -z "$DB_SQL" ]; then
         echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | tr '[:upper:]' '[:lower:]'
         return ${PIPESTATUS[1]}
@@ -99,11 +147,16 @@ list_tables() {
     local DB_OWNER=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="SELECT 'TABLE', table_name from user_tables;"
         ;;    
+        db2)
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT 'TABLE', table_name from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE';"
+        ;;    
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
     esac
 
+    echo ${DB_SQL} >&2
     if [ ! -z "$DB_SQL" ]; then
         echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/' | tr '[:upper:]' '[:lower:]'
     fi

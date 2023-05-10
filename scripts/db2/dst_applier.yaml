@@ -8,7 +8,7 @@ snapshot:
   
   # informix bulk load not supported
   bulk-load:
-    enable: false
+    enable: true
     type: FILE   # PIPE, FILE    
 
 realtime:

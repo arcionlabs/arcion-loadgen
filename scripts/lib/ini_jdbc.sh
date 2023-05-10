@@ -26,6 +26,16 @@ export DSTDB_JDBC_REWRITE
 set_jdbc_vars() {
 
 case "${SRCDB_GRP,,}" in
+  db2)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="db2"
+    SRCDB_JDBC_DRIVER="com.ibm.db2.jcc.DB2Driver"
+    SRCDB_JDBC_URL="jdbc:db2://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:db2://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"   
+    SRCDB_JDBC_URL_IDPW="jdbc:db2://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""
+    ;;
   snowflake)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="snowflake"
@@ -103,6 +113,16 @@ case "${SRCDB_GRP,,}" in
 esac
 
 case "${DSTDB_GRP,,}" in
+  db2)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="db2"
+    DSTDB_JDBC_DRIVER="com.ibm.db2.jcc.DB2Driver"
+    DSTDB_JDBC_URL="jdbc:db2://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:db2://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"   
+    DSTDB_JDBC_URL_IDPW="jdbc:db2://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""
+    ;;
   bigquery)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="bigquery"

@@ -8,6 +8,23 @@ ycsb_create_table() {
 
     case "${db_type,,}" in
 
+        db2 )
+            cat <<'EOF'
+-- TS is used for snapshot delta. 
+CREATE TABLE THEUSERTABLE (
+	YCSB_KEY INTEGER NOT NULL PRIMARY KEY,
+	FIELD0 VARCHAR(255), FIELD1 VARCHAR(255),
+	FIELD2 VARCHAR(255), FIELD3 VARCHAR(255),
+	FIELD4 VARCHAR(255), FIELD5 VARCHAR(255),
+	FIELD6 VARCHAR(255), FIELD7 VARCHAR(255),
+	FIELD8 VARCHAR(255), FIELD9 VARCHAR(255),
+	TS TIMESTAMP GENERATED ALWAYS FOR EACH ROW
+        ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL
+);
+create index THEUSERTABLE_TS on THEUSERTABLE (TS);
+EOF
+        ;;
+
         sqlserver | sqledge)
             cat <<'EOF'
 -- TS is used for snapshot delta. 
