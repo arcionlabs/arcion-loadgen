@@ -1,0 +1,15 @@
+snapshot:
+  threads: ${DSTDB_SNAPSHOT_THREADS:-1} 
+  skip-tables-on-failures : true
+  _traceDBTasks: true
+
+  user-role:
+    init-user-roles: false  
+
+  bulk-load:
+    enable: true
+    save-file-on-error: true
+    serialize: true
+    type: FILE
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS:-1}

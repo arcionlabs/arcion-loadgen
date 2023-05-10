@@ -8,8 +8,12 @@
 # get the setting from the menu
 if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
 
-if [ "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}}" ]; then
-  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${SRCDB_DB:-${SRCDB_SCHEMA}} skipping
+sid_db=${SRCDB_SID:-${SRCDB_DB}}
+db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
+db_schema_lower=${db_schema,,}
+
+if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
+  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${db_schema_lower} skipping
   exit
 fi
 
@@ -19,7 +23,7 @@ case "${SRCDB_GRP,,}" in
     ycsb_run_src
 ;;
   mongodb)
-    pushd ${YCSB_MONGODB}  
+    pushd ${YCSB_MONGODB} >/dev/null 
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \
     -P workloads/workloada \
     -p requestdistribution=uniform \
@@ -27,7 +31,7 @@ case "${SRCDB_GRP,,}" in
     -p recordcount=10000 \
     -p operationcount=$((1000000*$args_ycsb_threads)) \
     -p mongodb.url="${SRCDB_JDBC_URL}"
-    popd  
+    popd >/dev/null 
     ;; 
   *)
     echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support"

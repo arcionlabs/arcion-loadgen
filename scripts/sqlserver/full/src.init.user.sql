@@ -1,6 +1,5 @@
 ALTER DATABASE ${SRCDB_DB} SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 2 DAYS, AUTO_CLEANUP = ON);
-ALTER TABLE sbtest1 ENABLE CHANGE_TRACKING;
-ALTER TABLE theusertable ENABLE CHANGE_TRACKING;
+ALTER TABLE THEUSERTABLE ENABLE CHANGE_TRACKING;
 
 alter table  access_info                         enable change_tracking;
 alter table  accounts                            enable change_tracking;
@@ -32,7 +31,7 @@ alter table  recentchanges                       enable change_tracking;
 alter table  replicate_io_audit_ddl              enable change_tracking;
 alter table  replicate_io_audit_tbl_cons         enable change_tracking;
 alter table  replicate_io_audit_tbl_schema       enable change_tracking;
-alter table  replicate_io_cdc_heartbeat          enable change_tracking;
+alter table  REPLICATE_IO_CDC_HEARTBEAT          enable change_tracking;
 alter table  revision                            enable change_tracking;
 alter table  savings                             enable change_tracking;
 alter table  sbtest1                             enable change_tracking;
@@ -41,7 +40,7 @@ alter table  special_facility                    enable change_tracking;
 alter table  stock                               enable change_tracking;
 alter table  subscriber                          enable change_tracking;
 alter table  text                                enable change_tracking;
-alter table  theusertable                        enable change_tracking;
+alter table  THEUSERTABLE                        enable change_tracking;
 alter table  tweets                              enable change_tracking;
 alter table  user_groups                         enable change_tracking;
 alter table  user_profiles                       enable change_tracking;
@@ -83,38 +82,9 @@ INSERT INTO
 END;
 
 -- create arcsrc for retrivial
-CREATE TABLE replicate_io_cdc_heartbeat(
-  timestamp BIGINT NOT NULL,
-  PRIMARY KEY(timestamp)
+CREATE TABLE REPLICATE_IO_CDC_HEARTBEAT(
+  TIMESTAMP BIGINT NOT NULL,
+  PRIMARY KEY(TIMESTAMP)
 );
 
--- ts is used for snapshot delta. 
--- mysql ignores primary_key and uses primary
--- pg and sqlserver honor the provided name
-CREATE TABLE sbtest1(
-	id INTEGER,
-	k INTEGER DEFAULT '0' NOT NULL,
-	c CHAR(120) DEFAULT '' NOT NULL,
-	pad CHAR(60) DEFAULT '' NOT NULL,
-	ts datetime DEFAULT CURRENT_TIMESTAMP,
-	constraint sbtest1_pkey primary key (id),
-	index ts (ts)
-);
 
--- ts is used for snapshot delta. 
--- mysql ignores primary_key and uses primary
--- pg and sqlserver honor the provided name
-CREATE TABLE theusertable (
-	ycsb_key int primary key,
-	field0 TEXT, field1 TEXT,
-	field2 TEXT, field3 TEXT,
-	field4 TEXT, field5 TEXT,
-	field6 TEXT, field7 TEXT,
-	field8 TEXT, field9 TEXT,
-	ts datetime DEFAULT CURRENT_TIMESTAMP,
-	index ts (ts)
-);
-
--- will only happen if source and destion was flipped
-ALTER TABLE theusertable DROP COLUMN ts2;
-ALTER TABLE sbtest1 DROP COLUMN ts2;

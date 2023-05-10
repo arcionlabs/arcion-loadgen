@@ -1,0 +1,31 @@
+replication-format: JSON
+
+snapshot:
+ threads: ${DSTDB_SNAPSHOT_THREADS}
+ skip-tables-on-failures : true
+
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
+  txn-size-rows: 1000
+  skip-tables-on-failures : true
+  before-image-format: ALL  # Allowed values : KEY, ALL
+  after-image-format: ALL   # Allowed values : UPDATED, ALL
+  # kafka-compression-type: lz4
+  # shard-key: id
+  # num-shards: 1
+  # shard-function: MOD # Allowed values: MOD, NONE. NONE means storage will use its default sharding
+  # skip-tables-on-failures : false
+  # producer-max-block-ms: 60_000
+  # create-topic-timeout-ms: 100_000
+
+  # per-table-config:
+  # - tables:
+  #     io_blitzz_nation:
+  #       shard-key: id
+  #       num-shards: 16 #default: 1
+  #       shard-function: NONE
+  #     io_blitzz_region:
+  #       shard-key: id
+  #     io_blitzz_customer:
+  #       shard-key: custkey
+  #       num-shards: 16

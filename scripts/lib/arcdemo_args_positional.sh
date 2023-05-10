@@ -58,5 +58,4 @@ function arcdemo_positional() {
 
     export SRCDB_ARC_PW=${SRCDB_ARC_PW:-Passw0rd}
     export DSTDB_ARC_PW=${DSTDB_ARC_PW:-Passw0rd}
-
 }

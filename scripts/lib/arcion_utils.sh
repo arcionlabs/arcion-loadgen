@@ -13,7 +13,7 @@ arcion_param() {
     local dst_dir=${2:-$src_dir}
     local meta_dir=${3:-$src_dir}
     local arg=""
-
+    
     # source specific
     src=$(find ${src_dir} -maxdepth 1 -name src.yaml -print)
     filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml -print)
@@ -24,8 +24,15 @@ arcion_param() {
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
     # src to dst map
-    map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-    
+    case ${DSTDB_GRP,,} in 
+        nullstorage | s3 )
+            echo "removing mapper for ${DSTDB_GRP,,}" >&2
+            ;;
+        *)
+            map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
+            ;;
+    esac
+
     # optional
     metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
 
@@ -63,13 +70,13 @@ arcion_delta() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_real() {
     # do not run if gui will be used to invoke
@@ -80,13 +87,13 @@ arcion_real() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_full() {    
     # do not run if gui will be used to invoke
@@ -97,13 +104,13 @@ arcion_full() {
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 arcion_snapshot() {
     # do not run if gui will be used to invoke
@@ -114,14 +121,14 @@ arcion_snapshot() {
     
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
-    pushd $ARCION_HOME
+    pushd $ARCION_HOME >/dev/null
     echo "$( arcion_param ${CFG_DIR} )"
     JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
-    --id $LOG_ID >> $CFG_DIR/arcion.log &
+    --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
     export ARCION_PID=$!
-    popd
+    popd >/dev/null
 }
 # find source DB dir that has src.yaml, filter.yaml and extractor.yarm
 find_srcdb() {
@@ -196,9 +203,9 @@ init_src() {
     local DB_GRP
     local rc=0
 
-    for f in $( ls $CFG_DIR/src.init.*sh ); do
+    banner $SRCDB_HOST
+    for f in $( find $CFG_DIR -maxdepth 1 -name src.init*sh ); do
         echo "Running $f"
-        banner $SRCDB_HOST
         # NOTE: do not remove () below as that will exit this script
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
@@ -213,9 +220,9 @@ init_dst() {
     local DB_GRP
     local rc=0    
 
-    for f in $( ls $CFG_DIR/dst.init.*sh ); do
+    banner $DSTDB_HOST
+    for f in $( find $CFG_DIR -maxdepth 1 -name dst.init*sh ); do
         echo "Running $f"
-        banner $DSTDB_HOST
         # NOTE: do not remove () below as that will exit this script
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
@@ -248,15 +255,26 @@ while [ 1 ]; do
     [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
 
     case "${SRCDB_GRP,,}" in
+        snowflake)
+            SRCDB_HOST="${SNOW_SRC_ENDPOINT}" 
+            SRCDB_PORT="${SNOW_SRC_PORT:-443}" 
+            SRCDB_ARC_USER="${SNOW_SRC_ID}" 
+            SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
+            ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
             [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
         ;;
+        db2)
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
+            [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA^^}"
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
+        ;;
         oracle)
-            export SRCDB_ARC_USER="C##${SRCDB_ARC_USER^^}"
-            export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
-            export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA}
+            export SRCDB_ARC_USER="c##${SRCDB_ARC_USER}"
+            export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
+            export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
         ;;
         *)
@@ -328,15 +346,43 @@ while [ 1 ]; do
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
 
     case "${DSTDB_GRP,,}" in
+        bigquery)
+            mkdir -p ${CFG_DIR}/gbq/dst
+            echo $GBQ_DST_SECRET | base64 -d | gunzip > ${CFG_DIR}/gbq/dst/secret.json
+            export GBQ_DST_PROJECT_ID=$(jq -r ".project_id" ${CFG_DIR}/gbq/dst/secret.json) 
+            export GBQ_DST_SERVICE_EMAIL=$(jq -r ".client_email" ${CFG_DIR}/gbq/dst/secret.json)
+
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
+            ;;
+        snowflake)
+            DSTDB_HOST="${SNOW_DST_ENDPOINT}" 
+            DSTDB_PORT="${SNOW_DST_PORT:-443}" 
+            DSTDB_ARC_USER="${SNOW_DST_ID}" 
+            DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
+
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}            
+            ;;
         informix)
+            # HACK: for Informix, schema is same as the user name
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;;
+        db2)
+            # HACK: for Informix, schema is same as the user name
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
+            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA^^}"
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER^^}
+        ;;
         oracle)
-            export DSTDB_ARC_USER="C##${DSTDB_ARC_USER^^}"
+            # HACK: for Oracle, comma schema is always blank
+            export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
             export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
-            export DSTDB_COMMA_SCHEMA=${DSTDB_SCHEMA}
+            export DSTDB_COMMA_SCHEMA=""
             export DSTDB_DB=""
         ;;
         *)
@@ -345,14 +391,7 @@ while [ 1 ]; do
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;; 
     esac
-    # HACK: for Informix, schema is same as the user name
-    if [ "${DSTDB_GRP,,}" = "informix" ]; then DSTDB_SCHEMA="${DSTDB_ARC_USER}"; fi
-    # HACK: for Oracle, comma schema is always blank
-    if [ "${DSTDB_GRP,,}" = "oracle" ]; then 
-        export DSTDB_COMMA_SCHEMA=""
-    else    
-        [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-    fi
+
     [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
     [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
 

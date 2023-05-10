@@ -7,88 +7,136 @@ ycsb_create_table() {
     fi
 
     case "${db_type,,}" in
+
+        db2 )
+            cat <<'EOF'
+-- TS is used for snapshot delta. 
+CREATE TABLE THEUSERTABLE (
+	YCSB_KEY INTEGER NOT NULL PRIMARY KEY,
+	FIELD0 VARCHAR(255), FIELD1 VARCHAR(255),
+	FIELD2 VARCHAR(255), FIELD3 VARCHAR(255),
+	FIELD4 VARCHAR(255), FIELD5 VARCHAR(255),
+	FIELD6 VARCHAR(255), FIELD7 VARCHAR(255),
+	FIELD8 VARCHAR(255), FIELD9 VARCHAR(255),
+	TS TIMESTAMP GENERATED ALWAYS FOR EACH ROW
+        ON UPDATE AS ROW CHANGE TIMESTAMP NOT NULL
+);
+create index THEUSERTABLE_TS on THEUSERTABLE (TS);
+EOF
+        ;;
+
+        sqlserver | sqledge)
+            cat <<'EOF'
+-- TS is used for snapshot delta. 
+CREATE TABLE THEUSERTABLE (
+	YCSB_KEY INT,
+	FIELD0 TEXT, FIELD1 TEXT,
+	FIELD2 TEXT, FIELD3 TEXT,
+	FIELD4 TEXT, FIELD5 TEXT,
+	FIELD6 TEXT, FIELD7 TEXT,
+	FIELD8 TEXT, FIELD9 TEXT,
+	TS DATETIME DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (YCSB_KEY),
+	INDEX TS (TS)
+);
+EOF
+        ;;
+        
+        informix)
+            cat <<'EOF'
+CREATE TABLE IF NOT EXISTS  THEUSERTABLE (
+	YCSB_KEY INT PRIMARY KEY,
+	FIELD0 VARCHAR(255), FIELD1 VARCHAR(255),
+	FIELD2 VARCHAR(255), FIELD3 VARCHAR(255),
+	FIELD4 VARCHAR(255), FIELD5 VARCHAR(255),
+	FIELD6 VARCHAR(255), FIELD7 VARCHAR(255),
+	FIELD8 VARCHAR(255), FIELD9 VARCHAR(255)
+); 
+EOF
+        ;; 
+
         mysql | mariadb | cockroach)
             cat <<'EOF'
-CREATE TABLE if not exists theusertable (
-    ycsb_key int primary key,
-    field0 TEXT, field1 TEXT,
-    field2 TEXT, field3 TEXT,
-    field4 TEXT, field5 TEXT,
-    field6 TEXT, field7 TEXT,
-    field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-    index (ts)
+CREATE TABLE IF NOT EXISTS THEUSERTABLE (
+    YCSB_KEY INT PRIMARY KEY,
+    FIELD0 TEXT, FIELD1 TEXT,
+    FIELD2 TEXT, FIELD3 TEXT,
+    FIELD4 TEXT, FIELD5 TEXT,
+    FIELD6 TEXT, FIELD7 TEXT,
+    FIELD8 TEXT, FIELD9 TEXT,
+    TS TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    INDEX (TS)
 );
 EOF
         ;; 
         singlestore)
             cat <<'EOF'
-CREATE TABLE if not exists theusertable (
-    ycsb_key int,
-    field0 TEXT, field1 TEXT,
-    field2 TEXT, field3 TEXT,
-    field4 TEXT, field5 TEXT,
-    field6 TEXT, field7 TEXT,
-    field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-    key (ycsb_key) using hash,
-    sort key (ts),
-    shard key (ycsb_key)
+CREATE TABLE IF NOT EXISTS THEUSERTABLE (
+    YCSB_KEY INT,
+    FIELD0 TEXT, FIELD1 TEXT,
+    FIELD2 TEXT, FIELD3 TEXT,
+    FIELD4 TEXT, FIELD5 TEXT,
+    FIELD6 TEXT, FIELD7 TEXT,
+    FIELD8 TEXT, FIELD9 TEXT,
+    TS TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    KEY (YCSB_KEY) USING HASH,
+    SORT KEY (TS),
+    SHARD KEY (YCSB_KEY)
 );
 EOF
         ;;            
         yugabytesql | postgresql)
             cat <<'EOF'
-CREATE TABLE if not exists theusertable (
-    ycsb_key int primary key,
-    field0 TEXT, field1 TEXT,
-    field2 TEXT, field3 TEXT,
-    field4 TEXT, field5 TEXT,
-    field6 TEXT, field7 TEXT,
-    field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+CREATE TABLE IF NOT EXISTS THEUSERTABLE (
+    YCSB_KEY INT PRIMARY KEY,
+    FIELD0 TEXT, FIELD1 TEXT,
+    FIELD2 TEXT, FIELD3 TEXT,
+    FIELD4 TEXT, FIELD5 TEXT,
+    FIELD6 TEXT, FIELD7 TEXT,
+    FIELD8 TEXT, FIELD9 TEXT,
+    TS TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
 ); 
-CREATE INDEX IF NOT EXISTS theusertable_ts ON theusertable(ts);
+CREATE INDEX IF NOT EXISTS THEUSERTABLE_TS ON THEUSERTABLE(TS);
 
--- source trigger
+-- SOURCE TRIGGER
 
-CREATE OR REPLACE FUNCTION update_ts()
+CREATE OR REPLACE FUNCTION UPDATE_TS()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.ts = CURRENT_TIMESTAMP(6);
+    NEW.TS = CURRENT_TIMESTAMP(6);
     RETURN NEW;
-END; $$ language 'plpgsql';
+END; $$ LANGUAGE 'PLPGSQL';
 
-CREATE TRIGGER update_ts_on_theusertable BEFORE UPDATE ON theusertable FOR EACH ROW EXECUTE PROCEDURE update_ts();
+CREATE TRIGGER UPDATE_TS_ON_THEUSERTABLE BEFORE UPDATE ON THEUSERTABLE FOR EACH ROW EXECUTE PROCEDURE UPDATE_TS();
 go
 EOF
         ;;
-        oraee)
+        oraee | oraxe )
             cat <<'EOF'
-CREATE TABLE theusertable (
-    ycsb_key NUMBER primary key,
-    field0 varchar2(255), field1 varchar2(255),
-    field2 varchar2(255), field3 varchar2(255),
-    field4 varchar2(255), field5 varchar2(255),
-    field6 varchar2(255), field7 varchar2(255),
-    field8 varchar2(255), field9 varchar2(255),
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
+CREATE TABLE THEUSERTABLE (
+    YCSB_KEY NUMBER PRIMARY KEY,
+    FIELD0 VARCHAR2(255), FIELD1 VARCHAR2(255),
+    FIELD2 VARCHAR2(255), FIELD3 VARCHAR2(255),
+    FIELD4 VARCHAR2(255), FIELD5 VARCHAR2(255),
+    FIELD6 VARCHAR2(255), FIELD7 VARCHAR2(255),
+    FIELD8 VARCHAR2(255), FIELD9 VARCHAR2(255),
+    TS TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
 ); 
-create index theusertable_ts on theusertable (ts);
+CREATE INDEX THEUSERTABLE_TS ON THEUSERTABLE (TS);
 EOF
         ;;
         *)
             cat <<'EOF'
-CREATE TABLE if not exists theusertable (
-    ycsb_key int primary key,
-    field0 TEXT, field1 TEXT,
-    field2 TEXT, field3 TEXT,
-    field4 TEXT, field5 TEXT,
-    field6 TEXT, field7 TEXT,
-    field8 TEXT, field9 TEXT,
-    ts TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+CREATE TABLE IF NOT EXISTS THEUSERTABLE (
+    YCSB_KEY INT PRIMARY KEY,
+    FIELD0 TEXT, FIELD1 TEXT,
+    FIELD2 TEXT, FIELD3 TEXT,
+    FIELD4 TEXT, FIELD5 TEXT,
+    FIELD6 TEXT, FIELD7 TEXT,
+    FIELD8 TEXT, FIELD9 TEXT,
+    TS TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6)
 ); 
-create index if not exists on theusertable (ts);"
+CREATE INDEX IF NOT EXISTS ON THEUSERTABLE (TS);"
 EOF
     ;;   
     esac

@@ -157,7 +157,7 @@ GRANT REPLICATION CLIENT ON *.* TO 'sbt'@'%';
 GRANT REPLICATION SLAVE ON *.* TO 'sbt'@'%';
 
 // setup heartbeat
-CREATE TABLE sbt.replicate_io_cdc_heartbeat(
+CREATE TABLE sbt.REPLICATE_IO_CDC_HEARTBEAT(
   timestamp BIGINT NOT NULL,
   PRIMARY KEY(timestamp)
 );

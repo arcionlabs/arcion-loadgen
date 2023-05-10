@@ -1,0 +1,3 @@
+type: NULLSTORAGE
+
+storage-location: /opt/stage # Must be a real location as schema and YAML files are written here

@@ -5,7 +5,7 @@ host: ${DSTDB_HOST}
 port: 3306
 
 username: ${DSTDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
+password: ${DSTDB_ARC_PW}
 
 max-connections: 30
 max-retries: 1

@@ -1,5 +1,6 @@
 snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
+  _traceDBTasks: true
   fetch-size-rows: 5000
   fetch-user-roles: false
 
@@ -31,6 +32,7 @@ realtime:
      enable: false
      schema: io_replicate
      interval-ms: 10_000
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
 
   replicate-ddl: true      #use for replicaSet only, not for sharded cluster
 

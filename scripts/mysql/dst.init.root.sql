@@ -22,3 +22,5 @@ create database IF NOT EXISTS io_replicate;
 -- if source has catalog.scham support
 GRANT ALL ON ${DSTDB_DB}_public.* to '${DSTDB_ARC_USER}'@'%';
 GRANT ALL ON ${DSTDB_DB}_public.* to '${DSTDB_ARC_USER}'@'127.0.0.1';
+GRANT ALL ON ${DSTDB_DB}_dbo.*    to '${DSTDB_ARC_USER}'@'%';
+GRANT ALL ON ${DSTDB_DB}_dbo.*    to '${DSTDB_ARC_USER}'@'127.0.0.1';

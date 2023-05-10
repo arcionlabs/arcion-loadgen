@@ -43,6 +43,6 @@ D
 ```
 
 ./jsqsh -v headers=false -v footers=false -n -o out.txt climys2-srcdb-1 <<EOF
-select * from arcion.replicate_io_cdc_heartbeat
+select * from arcion.REPLICATE_IO_CDC_HEARTBEAT
 \go -m csv
 EOF

@@ -1,11 +1,11 @@
 type: POSTGRESQL
 
 connection:
-  host: arcion-metadata
-  port: 5432
+  host: ${METADATA_DB_HOST:-arcion-metadata}
+  port: ${METADATA_DB_PORT:-5432}
   database: io_replicate  # required and need to be same as catalog
-  username: arcion
-  password: Passw0rd
+  username: ${METADATA_DB_USERNAME:-arcion}
+  password: ${METADATA_DB_PASSWORD:-Passw0rd}
   max-connections: 10
   max-retries: 1
 
