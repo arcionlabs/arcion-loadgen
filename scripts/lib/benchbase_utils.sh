@@ -48,6 +48,7 @@ bb_create_tables() {
     readarray -td, workloads < <(printf '%s' "$workloads")
 
     bb_chdir $LOC
+    if [ "$?" != "0" ]; then return; fi
 
     # DEBUG
     echo "benchbase worload: ${workloads}"
@@ -109,6 +110,7 @@ bb_run_tables() {
     local workloads="${2:-tpcc}"
 
     bb_chdir $LOC
+    if [ "$?" != "0" ]; then return; fi
 
     readarray -td, workloads < <(printf '%s' "$workloads")
 
