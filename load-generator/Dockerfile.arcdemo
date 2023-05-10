@@ -127,7 +127,7 @@ USER $USERNAME
 
 # download ycsb
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
-COPY --chown=${USERNAME} bin/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz ${YCSB}/
+COPY --chown=${USERNAME} tmp/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz ${YCSB}/
 
 RUN cd $YCSB; for b in ${YCSB_BINDING}; do \
         curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; \
@@ -136,12 +136,12 @@ RUN cd ${YCSB}; for f in $( ls *gz ); do tar -xvf $f; rm $f; done;
 RUN cd ${YCSB}; for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done;
 
 # benchbase
-COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-informix.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
 RUN cd ${BENCHBASE_DIR} \
     && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
@@ -199,16 +199,6 @@ RUN cd /opt \
 
 ENV BENERATOR_HOME=/opt/rapiddweller-benerator-ce-3.1.0-jdk-11
 COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${USERNAME}/rapiddweller/demo.env.properties
-
-# benchbase
-COPY --chown=${USERNAME} bin/benchbase-informix.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} bin/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
-RUN cd ${BENCHBASE_DIR} \
-    && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # jsqsh
 # connection.xml causes exception on some docker host

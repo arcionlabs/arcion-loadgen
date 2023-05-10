@@ -91,8 +91,8 @@ parse_params "$@"
 setup_colors
 
 src_real_time="${src:-mysql mariadb postgresql informix}"
-src_snapshot="${src:-cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
-dst="${dst:-broker cockroach mysql mariadb postgresql yugabytesql sqlserver informix}"
+src_snapshot="${src:-cockroach db2  informix mariadb mysql oraxe postgresql singlestore sqlserver yugabytesql}"
+dst="${dst:-cockroach db2 informix mariadb mysql oraxe oskbroker postgresql singlestore sqlserver yugabytesql}"
 repl="${repl:-snapshot}"
 
 repl=${args_repl:-"${repl}"}
