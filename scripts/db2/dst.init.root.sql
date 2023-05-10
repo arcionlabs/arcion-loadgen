@@ -1,6 +1,9 @@
 grant dataaccess on database to user ${DSTDB_ARC_USER};
 grant load on database to user ${DSTDB_ARC_USER};
 
+-- required to get past schema creation
+grant dbadm on database to user ${DSTDB_ARC_USER};
+
 -- The user should have read access to following system tables and views:
 
 GRANT SELECT ON TABLE SYSIBM.SYSTABLES to ${DSTDB_ARC_USER};
