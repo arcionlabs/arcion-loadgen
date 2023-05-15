@@ -3,24 +3,26 @@
 mkdir -p /opt/stage/oraxe   # oracle xe redo logs
 mkdir -p /opt/stage/oraee   # oracle ee redo logs
 mkdir -p /opt/stage/libs    # data exchange with host docker of loadgen YAML 
+mkdir -p /arcion/data       # data exchange with host docker of loadgen YAML 
 
 # change external_uid to internal uid that can be used
 map_uid() {
     local external_mnt=$1
     local internal_mnt=$2
+    local opts="$3"
     local external_uid=$( stat -c '%u' ${external_mnt} )
 
-    echo $external_mnt uid=$external_uid map to $internal_mnt uid=arcion
+    echo $external_mnt uid=$external_uid map to $internal_mnt uid=arcion $opts
 
     if [ -d "$external_mnt" ]; then 
         sudo bindfs --force-user=arcion --force-group=arcion \
         --create-for-user=${external_uid} --create-for-group=${external_uid} \
-        --chown-ignore --chgrp-ignore \
+        --chown-ignore --chgrp-ignore --chmod-ignore ${opts} \
         $external_mnt $internal_mnt
     fi
 }
 
 map_uid /opt/mnt/oraxe2130/oradata  /opt/stage/oraxe
 map_uid /opt/mnt/oraee1930/oradata  /opt/stage/oraee
-map_uid /opt/mnt/libs               /libs
-map_uid /opt/mnt/loadgen            /arcion/data
+map_uid /opt/mnt/libs               /libs               '-o nonempty'
+map_uid /opt/mnt/loadgen            /arcion/data        '-o nonempty'

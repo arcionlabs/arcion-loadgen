@@ -94,7 +94,8 @@ RUN apt-get install -y \
     bc \
     unzip \
     groff \
-    bindfs
+    bindfs \
+    tcpdump
     
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd

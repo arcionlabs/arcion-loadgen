@@ -17,7 +17,7 @@ db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
 db_schema_lower=${db_schema,,}
 
 # setup database permissions
-if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
+if [ 1 ] || [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ) ; do

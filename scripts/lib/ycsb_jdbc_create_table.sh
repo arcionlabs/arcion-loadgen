@@ -111,7 +111,7 @@ CREATE TRIGGER UPDATE_TS_ON_THEUSERTABLE BEFORE UPDATE ON THEUSERTABLE FOR EACH 
 go
 EOF
         ;;
-        oraee | oraxe )
+        oraee | oraxe | oraeeminer | oraeeredo )
             cat <<'EOF'
 CREATE TABLE THEUSERTABLE (
     YCSB_KEY NUMBER PRIMARY KEY,
