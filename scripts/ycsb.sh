@@ -19,7 +19,7 @@ fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  mysql|postgresql|sqlserver|informix|oracle)
+  db2|mysql|postgresql|sqlserver|informix|oracle)
     ycsb_run_src
 ;;
   mongodb)
