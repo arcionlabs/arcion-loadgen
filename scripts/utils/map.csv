@@ -12,6 +12,7 @@ oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraeeminer,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraeeredo,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe
+oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe
 informix,informix,9088,informix,in4mix,,INFORMIX,TRANSACTION_READ_COMMITTED,
 db2,db2,50000,db2inst1,Passw0rd,,DB2,TRANSACTION_READ_COMMITTED,
 broker,kafka,29092,root,Passw0rd,,,,

@@ -91,6 +91,9 @@ ycsb_load() {
 
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
+    oracle)
+      export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
+      ;;
     mysql)
       local jdbc_url="${jdbc_url}&rewriteBatchedStatements=true"
       ;;
@@ -196,6 +199,13 @@ ycsb_run() {
   local ycsb_recordcount=$(( $(ycsb_rows $LOC) ))
 
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
+
+  case "${db_grp,,}" in
+    oracle)
+      # oracle 11gr2
+      export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
+      ;;
+  esac 
 
   ${YCSB_JDBC}/bin/ycsb.sh run jdbc -s -threads ${ycsb_threads} -target ${ycsb_rate} \
   -p updateproportion=1 \
