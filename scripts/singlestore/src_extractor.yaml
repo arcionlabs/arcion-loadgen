@@ -38,3 +38,9 @@ delta-snapshot:
   delta-snapshot-keys: [TS]
   split-key: YCSB_KEY
   min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo
+  per-table-config:
+  - catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}
+    tables: 
+      THEUSERTABLE:  
+         row-identifier-key: [YCSB_KEY]
