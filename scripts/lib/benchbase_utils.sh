@@ -23,6 +23,7 @@ bb_chdir() {
             pushd /opt/benchbase/benchbase-mariadb >/dev/null 
             ;;
         oracle)
+            export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
             pushd /opt/benchbase/benchbase-oracle >/dev/null
             ;;
         postgresql)
@@ -93,7 +94,8 @@ bb_create_tables() {
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
             JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
-            $JAVA_HOME/bin/java -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
+            $JAVA_HOME/bin/java $JAVA_OPTS \
+            -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
             --interval-monitor 10000 \
             --create=true --load=true --execute=false
         else
@@ -116,7 +118,7 @@ bb_run_tables() {
 
     for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
-        $JAVA_HOME/bin/java \
+        $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
         --interval-monitor 10000 \
         --create=false --load=false --execute=true &
