@@ -40,7 +40,7 @@ top10_query() {
         sqlserver)
             if [ ! -z "${TS2_SEL}" ]; then TS2_SEL=',datediff(millisecond, TS2, TS2) as "TS2-TS1"'; fi
             DB_SELECT="select top 10 $KEY,TS ${TS2_SEL} from $TABLE order by TS desc ${TS2_ORD}, $KEY asc\;"
-            DB_CLI="${JSQSH_DIR}/*/bin/jsqsh --driver=${DB_JSQSH_DRIVER} --user=${DB_ARC_USER} --password=${DB_ARC_PW} --server=${DB_HOST} --port=${DB_PORT} --database=${DB_DB}"
+            DB_CLI="jdbc_cli $X"
         ;;    
         *)
             echo "verify.sh: Info: ${DB_GRP} needs to be supported" >&2

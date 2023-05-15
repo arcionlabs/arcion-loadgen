@@ -21,12 +21,7 @@ if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name dst.init.root*sql ); do
-    # the root has no DB except Oracle that has SID
-    if [ "${DSTDB_GRP}" = "oracle" ]; then
-      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
-    else
-      cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ROOT}" --password="${DSTDB_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT}
-    fi    
+    cat ${f} | jdbc_root_cli_dst
   done
 else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
@@ -37,7 +32,7 @@ if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${db_schema_lower} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
-    cat ${f} | jsqsh --driver="${DSTDB_JSQSH_DRIVER}" --user="${DSTDB_ARC_USER}" --password="${DSTDB_ARC_PW}" --server="${DSTDB_HOST}" --port=${DSTDB_PORT} --database="${sid_db}"
+    cat ${f} | jdbc_cli_dst
   done
 
 else
