@@ -93,3 +93,11 @@ GRANT SELECT ON v_\$logfile TO ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};
 GRANT SELECT ON v_\$archived_log to ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};
 GRANT SELECT ON dba_objects TO ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};
 GRANT SELECT ON v_\$transportable_platform TO ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};
+
+-- missing in the docs
+-- native log reader
+GRANT SELECT ON V_$DATABSSE TO ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};
+
+-- missing in the docs
+-- GIANT HACK as there are others missing as well
+ grant dba to  ${SRCDB_USER_PREFIX}${SRCDB_ARC_USER};

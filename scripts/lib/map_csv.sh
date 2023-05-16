@@ -15,6 +15,92 @@ map_db() {
     fi
     echo $COLUMN_VALUE
 }
+
+# return map.csv as an array
+# to test:
+#   declare -a array; read_csv array
+#   echo ${array[@]} will print out the CSV content
+read_csv() {
+    local -n read_csv_ret=${1}
+    local csv_file=${2:-${SCRIPTS_DIR}/utils/map.csv}
+    mapfile -t read_csv_ret < $csv_file
+}
+
+# find a match in csv
+find_in_csv() {
+    local -n match_csv_array=${1}
+    local match_val=${2}
+    local match_index=${3:-0}
+
+    # local variables
+    declare row
+    declare header
+
+    # skip the header and check all of the rows one by one until match
+    for line in "${match_csv_array[@]:1}" ; do
+        IFS=',' read -r -a row <<< ${line}
+        if [ "${row[${match_index}]}" = "${match_val}" ]; then
+            echo "${line}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+
+# return matching line as associative array
+# $1 = name of dict that will have return value
+# $2 = name of var that has csv saved as array 
+# $3 = match on hte first column
+# To run a test
+#    declare -a array read_csv
+#    declare -A ret=(); match_csv ret array oraxe
+#    declare -p ret
+match_csv() {
+    local -n match_csv_dict=${1}
+    local -n match_csv_array=${2}
+    local match_val=${3}
+    local match_index=${4:-0}
+
+    # local variables
+    declare row
+    declare header
+
+    # skip the header and check all of the rows one by one until match
+    for line in "${match_csv_array[@]:1}" ; do
+        IFS=',' read -r -a row <<< ${line}
+        if [ "${row[${match_index}]}" = "${match_val}" ]; then
+            # header as array
+            IFS=',' read -r -a header <<< ${match_csv_array[0]}
+
+            # combine header with the row 
+            declare i=0
+            for e in "${header[@]}"; do
+                match_csv_dict["$e"]="${row[i]}";
+                ((i++))
+            done
+            return
+        fi
+    done
+}
+
+# return header and CSV as dict
+# declare -A test=(); csv_as_dict test "${array[0]}" "$(find_csv array xxx)"
+
+csv_as_dict() {
+    local -n csv_as_dict_ret=${1}
+    local csv_as_dict_header="$2"
+    local csv_as_dict_row="$3"
+
+    IFS=',' read -r -a header <<< ${csv_as_dict_header}
+    IFS=',' read -r -a row <<< ${csv_as_dict_row}
+    declare i=0
+    for e in "${header[@]}"; do 
+        csv_as_dict_ret["$e"]="${row[i]}" 
+        ((i++)) 
+    done
+}
+
 map_dbgrp() {
     map_db "$1" 2
 }

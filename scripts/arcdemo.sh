@@ -16,6 +16,10 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/export_env.sh
 . $PROG_DIR/lib/arcdemo_args_positional.sh
 
+# read profile (map.csv file) 
+declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
+export PROFILE_HEADER=${PROFILE_CSV[0]}
+
 # process args advance the args to positional
 arcdemo_opts $*
 shift $(( OPTIND - 1 ))

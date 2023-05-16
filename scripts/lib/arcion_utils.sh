@@ -247,6 +247,10 @@ while [ 1 ]; do
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
     if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
+
+    export SRCDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${SRCDB_HOST})
+    declare -A SRCDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
+
     [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_HOST}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
@@ -276,6 +280,11 @@ while [ 1 ]; do
             export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
             export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
+
+            export ORA_LOG_PATH=${SRCDB_PROFILE[log_path]}
+            export ORA_ARCH_LOG_PATH=${SRCDB_PROFILE[archive_log_path]}
+            export ORA_ALT_LOG_PATH=${SRCDB_PROFILE[alt_log_path]}
+            export ORA_ALT_ARCH_LOG_PATH=${SRCDB_PROFILE[alt_archive_log_path]}   
         ;;
         *)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
@@ -337,6 +346,10 @@ while [ 1 ]; do
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
     if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+
+    export DSTDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${DSTDB_HOST})
+    declare -A DSTDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${DSTDB_PROFILE_CSV}"
+
     [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_HOST}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
