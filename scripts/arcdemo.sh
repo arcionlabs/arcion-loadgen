@@ -114,6 +114,7 @@ else
   tmux_run_init_dst &
 
   # wait for source and dst setup to finish
+  show_yaml.sh
   wait
   tmux_show_src_sql_cli
   tmux_show_dst_sql_cli

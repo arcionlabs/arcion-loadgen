@@ -23,7 +23,8 @@ declare -p EXISTING_DBS
 # delete target if exists
 if [ "${gui_run}" != "1" ] && [ -z "$workload_preserve_dst" ] && [ ! -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dropping destination database ${DSTDB_DB}"
-  echo "drop database ${DSTDB_DB};" | jdbc_cli_dst
+  echo "drop database ${DSTDB_DB};" | jdbc_root_cli_dst
+  unset EXISTING_DBS[${db_schema_lower}]
 else
   echo "NOT dropping destination database ${DSTDB_DB}. gui_run='${gui_run}' workload_preserve_dst='${workload_preserve_dst}' existing_db='${EXISTING_DBS[${db_schema_lower}]}'"
 fi
@@ -45,6 +46,7 @@ if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
   echo "dst db ${DSTDB_ARC_USER}: ${db_schema_lower} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
+    echo ${f}
     cat ${f} | jdbc_cli_dst
   done
 

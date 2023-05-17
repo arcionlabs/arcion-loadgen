@@ -30,8 +30,11 @@ jdbc_root_cli() {
   export JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
     ;;    
+    postgresql)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}"
+    ;;
     *)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}"
     ;;
   esac  
 }
