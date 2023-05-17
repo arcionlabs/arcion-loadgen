@@ -28,6 +28,15 @@ shift $(( OPTIND - 1 ))
 if [ ! -z "$CFG_DIR" ]; then
   echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
+  # clear the view windows and configure it for this run
+  tmux_kill_windows
+  # create new windows but don't switch into it
+  tmux_create_windows
+  # show workload specific content
+  tmux_show_workload
+  # show src and dst sql cli
+  tmux_show_src_sql_cli
+  tmux_show_dst_sql_cli
 else
   # this will parse the URI and set src and dst
   arcdemo_positional $*
@@ -93,29 +102,25 @@ else
   # save the choices in /tmp/init_menu.sh and $CFG_DIR/ini_menu.sh
   export_env /tmp/ini_menu.sh $CFG_DIR
 
+  # clear the view windows and configure it for this run
+  tmux_kill_windows
+  # create new windows but don't switch into it
+  tmux_create_windows
+  # show workload specific content
+  tmux_show_workload
+
   # run init scripts
+  # parallelize below
   init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
   rc=$?
   echo init_src rc=$rc
+  tmux_show_src_sql_cli
 
   init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
   rc=$?
   echo init_dst rc=$rc
-
+  tmux_show_dst_sql_cli
 fi  
-
-# clear the view windows and configure it for this run
-tmux_kill_windows
-
-# create new windows but don't switch into it
-tmux_create_windows
-
-
-function tail_arcion_cli() {
-  if [ -f $CFG_DIR/arcion.log ]; then
-    tail -f $CFG_DIR/arcion.log &
-  fi
-}
 
 
 # run the replication
@@ -143,27 +148,7 @@ case ${REPL_TYPE,,} in
     ;;
 esac
 
-# setup the views to look at log and cfg
-tmux send-keys -t ${TMUX_SESSION}:1.0 "view ${CFG_DIR}" Enter
-tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter 
-
-# the log dir does not get create right away.  wait for it.
-tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
-tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
-
-# open src and dst SQL CLI
-sql_cli_src_dst.sh 3 &
-# open YCSB check screen
-sql_root_cli_src_dst.sh 4 &
-
-# show verificator
-tmux_show_verification
-
-# dstat
-tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
-
-# back to the conole
-tmux select-window -t ${TMUX_SESSION}:0.0
+tmux_show_trace
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
@@ -181,7 +166,7 @@ control_c() {
 trap control_c SIGINT
 
 # display arcion progress screen
-tail_arcion_cli
+tmux_show_arcion_cli_tail
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )

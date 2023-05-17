@@ -30,13 +30,19 @@ tmux_create_windows() {
     # windows 0 to run commands
     tmux split-window -v -t $WIN:0  # source / tpcc
     tmux split-window -v -t $WIN:0  # target / ycsb
+
+    # windows 3 user sql split
+    tmux split-window -d -v -t  ${TMUX_SESSION}:3
+
+    # windows 4 root sql split
+    tmux split-window -d -v -t  ${TMUX_SESSION}:4
 }
 
-function tmux_show_tpcc() {
+tmux_show_tpcc() {
     tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
 
-function tmux_show_ycsb() {
+tmux_show_ycsb() {
     tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
 }
 
@@ -59,9 +65,53 @@ tmux_show_yaml()  {
 }
 
 # the log dir does not get create right away.  wait for it.
-tmux_show_log()  {
+tmux_show_trace()  {
     local TMUX_SESSION=${1}
 
     tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
     tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
+}
+
+
+tmux_show_workload()  {
+    local TMUX_SESSION=${1}
+
+    # setup the views to look at log and cfg
+    tmux_show_yaml
+
+    # dstat
+    tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
+
+    # verification
+    tmux_show_verification
+
+    # back to the conole
+    tmux select-window -t ${TMUX_SESSION}:0.0
+}
+
+tmux_show_src_sql_cli() {
+    tmux send-keys -t :3.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_src" enter
+    tmux send-keys -t :4.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_src" enter
+}
+
+tmux_show_dst_sql_cli() {
+    # the dst somtimes cannot get ready to accept connection righ away
+    tmux send-keys -t :3.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_dst" enter
+    tmux send-keys -t :4.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_dst" enter
+}
+
+
+tmux_show_arcion_cli_tail() {
+  local TMUX_SESSION=${1}
+
+  echo $CFG_DIR
+  echo tracing the log
+  # back to the conole
+  tmux select-window -t ${TMUX_SESSION}:0.0
+  while [ ! -f $CFG_DIR/arcion.log ]; do
+    sleep 1
+    echo "waiting for arcion to start"
+  done
+  tail -f $CFG_DIR/arcion.log &
+
 }
