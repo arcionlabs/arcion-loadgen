@@ -15,6 +15,7 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/arcion_utils.sh
 . $PROG_DIR/lib/export_env.sh
 . $PROG_DIR/lib/arcdemo_args_positional.sh
+. $PROG_DIR/lib/tmux_utils.sh
 
 # read profile (map.csv file) 
 declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
@@ -104,58 +105,38 @@ else
 fi  
 
 # clear the view windows and configure it for this run
-tmux kill-window -t ${TMUX_SESSION}:1   # yaml
-tmux kill-window -t ${TMUX_SESSION}:2   # log
-tmux kill-window -t ${TMUX_SESSION}:3   # sql
-tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
-tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
-tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
-tmux kill-window -t ${TMUX_SESSION}:7   # dstat
+tmux_kill_windows
 
 # create new windows but don't switch into it
-tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
-tmux new-window -d -n logs -t ${TMUX_SESSION}:2
-tmux new-window -d -n sql -t ${TMUX_SESSION}:3
-tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
-tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
-tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
-tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
+tmux_create_windows
 
-# clear the benchbase and ycsb panes
-tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
-tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
 
 function tail_arcion_cli() {
   if [ -f $CFG_DIR/arcion.log ]; then
     tail -f $CFG_DIR/arcion.log &
   fi
 }
-function tmux_bb_panel() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
-}
 
-function tmux_ycsb_panel() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
-}
+
 # run the replication
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;
   real-time)
     arcion_real
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
@@ -173,13 +154,10 @@ tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter
 # open src and dst SQL CLI
 sql_cli_src_dst.sh 3 &
 # open YCSB check screen
-#/scripts/verify.sh ycsb_key usertable 4 & 
+sql_root_cli_src_dst.sh 4 &
 
 # show verificator
-tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter
-tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
-tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
-tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
+tmux_show_verification
 
 # dstat
 tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
