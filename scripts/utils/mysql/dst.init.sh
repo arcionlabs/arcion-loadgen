@@ -17,12 +17,15 @@ db_schema_lower=${db_schema,,}
 declare -A EXISTING_DBS
 ping_db EXISTING_DBS dst
 
+echo "Existing Database Table count looking for ${db_schema_lower}"
+declare -p EXISTING_DBS
+
 # delete target if exists
-if [ "${gui_run}" = "0" ] && [ -z "$workload_preserve_dst" ] && [ ! -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
+if [ "${gui_run}" != "1" ] && [ -z "$workload_preserve_dst" ] && [ ! -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dropping destination database ${DSTDB_DB}"
   echo "drop database ${DSTDB_DB};" | jdbc_cli_dst
 else
-  echo "NOT dropping destination database ${DSTDB_DB}. gui_run='${gui_run}' workload_preserve_dst='${workload_preserve_dst}'"
+  echo "NOT dropping destination database ${DSTDB_DB}. gui_run='${gui_run}' workload_preserve_dst='${workload_preserve_dst}' existing_db='${EXISTING_DBS[${db_schema_lower}]}'"
 fi
 
 # setup database permissions

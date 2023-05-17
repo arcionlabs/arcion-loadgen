@@ -110,18 +110,14 @@ else
   tmux_show_workload
 
   # run init scripts
-  # parallelize below
-  init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
-  rc=$?
-  echo init_src rc=$rc
-  tmux_show_src_sql_cli
+  tmux_run_init_src &
+  tmux_run_init_dst &
 
-  init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
-  rc=$?
-  echo init_dst rc=$rc
+  # wait for source and dst setup to finish
+  wait
+  tmux_show_src_sql_cli
   tmux_show_dst_sql_cli
 fi  
-
 
 # run the replication
 case ${REPL_TYPE,,} in

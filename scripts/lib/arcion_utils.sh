@@ -210,7 +210,8 @@ init_src() {
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
     done
-
+    mkdir -p $CFG_DIR/exit_status
+    echo "$rc" > $CFG_DIR/exit_status/init_src.log
     return $rc
 }
 init_dst() {
@@ -227,7 +228,8 @@ init_dst() {
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
     done
-
+    mkdir -p $CFG_DIR/exit_status
+    echo "$rc" > $CFG_DIR/exit_status/init_dst.log
     return $rc
 }
 

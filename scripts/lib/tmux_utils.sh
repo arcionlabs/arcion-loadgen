@@ -39,11 +39,11 @@ tmux_create_windows() {
 }
 
 tmux_show_tpcc() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
 
 tmux_show_ycsb() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
 }
 
 tmux_show_verification() {
@@ -114,4 +114,20 @@ tmux_show_arcion_cli_tail() {
   done
   tail -f $CFG_DIR/arcion.log &
 
+}
+
+# init source
+tmux_run_init_src() {
+  tmux send-keys -t :0.1  ". /tmp/ini_menu.sh; . /scripts/lib/arcion_utils.sh; init_src ${SRCDB_TYPE} ${SRCDB_GRP}" enter
+  while [ ! -f  $CFG_DIR/exit_status/init_src.log ]; do
+    sleep 1
+  done
+}
+
+# init destiantion
+tmux_run_init_dst() {
+  tmux send-keys -t :0.2  ". /tmp/ini_menu.sh; . /scripts/lib/arcion_utils.sh; init_dst ${DSTDB_TYPE} ${DSTDB_GRP}" enter
+  while [ ! -f  $CFG_DIR/exit_status/init_dst.log ]; do
+    sleep 1
+  done
 }
