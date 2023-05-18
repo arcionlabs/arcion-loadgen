@@ -172,8 +172,8 @@ RUN cd ${JSQSH_DIR} \
 
 # download kafka
 # https://docs.confluent.io/confluent-cli/current/overview.html#confluent-cli-overview
-RUN cd ${KAFKA_DIR} \
-    && curl -sL --http1.1 https://cnfl.io/cli | sh -s -- latest
+#RUN cd ${KAFKA_DIR} \
+#    && curl -sL --http1.1 https://cnfl.io/cli | sh -s -- latest
 
 
 # download minio client

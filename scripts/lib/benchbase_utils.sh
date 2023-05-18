@@ -6,6 +6,7 @@ bb_chdir() {
 
     db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
     db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
+    db_benchbase_type=$( x="${LOC^^}DB_BENCHBASE_TYPE"; echo "${!x}" )
     db_jdbc_no_rewrite=$( x="${LOC^^}DB_JDBC_NO_REWRITE"; echo "${!x}" )
 
     #db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
@@ -15,18 +16,21 @@ bb_chdir() {
     #db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
     #db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" ) 
 
-    case ${db_grp,,} in
+    case ${db_benchbase_type,,} in
+        cockroachdb)
+            pushd /opt/benchbase/benchbase-cockroachdb >/dev/null
+            ;;
         informix)
             pushd /opt/benchbase/benchbase-informix >/dev/null
             ;;
-        mysql)
+        mariadb | mysql | singlestore )
             pushd /opt/benchbase/benchbase-mariadb >/dev/null 
             ;;
         oracle)
             export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
             pushd /opt/benchbase/benchbase-oracle >/dev/null
             ;;
-        postgresql)
+        postgres)
             pushd /opt/benchbase/benchbase-postgres >/dev/null
             ;;
         sqlserver)
