@@ -32,6 +32,9 @@ bb_chdir() {
         sqlserver)
             pushd /opt/benchbase/benchbase-sqlserver >/dev/null
             ;;
+        db2)
+            pushd /opt/benchbase/benchbase-db2 >/dev/null
+            ;;
         *)
             echo "benchbase-load.sh: ${db_grp} unsupported" >&2
             return 1

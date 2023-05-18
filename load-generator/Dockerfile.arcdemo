@@ -143,8 +143,9 @@ COPY --chown=${USERNAME} tmp/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} tmp/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} tmp/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
 COPY --chown=${USERNAME} tmp/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
+COPY --chown=${USERNAME} tmp/benchbase-db2.tgz       ${BENCHBASE_DIR}/
 RUN cd ${BENCHBASE_DIR} \
-    && for w in informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
+    && for w in db2 informix mariadb mysql postgres sqlserver oracle; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
 
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work

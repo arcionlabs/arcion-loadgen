@@ -2,7 +2,6 @@
 
 . $SCRIPTS_DIR/lib/ycsb_jdbc.sh
 . $SCRIPTS_DIR/lib/ping_utils.sh
-. $SCRIPTS_DIR/lib/jdbc_cli.sh
 
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
@@ -18,11 +17,10 @@ db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
 db_schema_lower=${db_schema,,}
 
 # setup database permissions
-if [ 1 ] || [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
+if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
 
-  for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ); do
-    # the root has no DB except Oracle that has SID
+  for f in  $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ); do
     cat ${f} | jdbc_root_cli_src
   done
 else
