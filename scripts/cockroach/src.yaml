@@ -9,7 +9,7 @@ database: '${SRCDB_ARC_USER}'
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 
-max-connections: 2 #Maximum number of connections replicant can open in postgresql
+max-connections: 10 #Maximum number of connections replicant can open in postgresql
 socket-timeout-s: 60 #The timeout value for socket read operations. The timeout is in seconds and a value of zero means that it is disabled.
 max-retries: 1 #Number of times any operation on the source system will be re-attempted on failures.
 retry-wait-duration-ms: 1000 #Duration in milliseconds Replicant should wait before performing then next retry of a failed operation.

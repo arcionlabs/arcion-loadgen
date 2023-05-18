@@ -7,6 +7,6 @@ port: 3306
 username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
 
-max-connections: 30
+max-connections: 5
 max-retries: 1
 retry-wait-duration-ms: 1000

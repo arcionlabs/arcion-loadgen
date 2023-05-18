@@ -6,7 +6,7 @@ port: 3306
 username: ${SRCDB_ARC_USER:-arcsrc}
 password: ${SRCDB_ARC_PW:-Passw0rd}
 
-max-connections: 30
+max-connections: 5
 
 # real-time and full only
 slave-server-ids: [ "${PID:-${$}}" ]

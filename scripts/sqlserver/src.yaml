@@ -7,7 +7,7 @@ username: ${SRCDB_ARC_USER}
 password: ${SRCDB_ARC_PW}
 database: ${SRCDB_ARC_USER}
 
-max-connections: 4
+max-connections: 5
 
 max-retries: 1
 

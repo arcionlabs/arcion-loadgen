@@ -8,6 +8,6 @@ service-name: ${DSTDB_SID}
 username: ${DSTDB_ARC_USER}
 password: ${DSTDB_ARC_PW}
 
-max-connections: 30
+max-connections: 5
 max-retries: 1
   
