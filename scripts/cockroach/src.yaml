@@ -1,7 +1,7 @@
 type: POSTGRESQL
 
 # will be set by envsubst from menu.sh 
-host: ${SRCDB_HOST}
+host: '${SRCDB_HOST}'
 port: 26257
 
 # should be same name as the source database to prevent cross database

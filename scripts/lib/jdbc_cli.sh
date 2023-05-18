@@ -14,6 +14,7 @@ jdbc_root_cli() {
   local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
   local db_sid=$( x="${LOC^^}DB_SID"; echo "${!x}" )
   local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  local db_root_db=$( x="${LOC^^}DB_ROOT_DB"; echo "${!x}" )
   shift
 
   db_db=${db_db:-${db_user}}
@@ -30,8 +31,8 @@ jdbc_root_cli() {
   export JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
     ;;    
-    postgresql)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}"
+    postgresql | db2)
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database=${db_root_db}
     ;;
     *)
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}"

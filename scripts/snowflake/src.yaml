@@ -1,11 +1,11 @@
 type: SNOWFLAKE
 
-host: ${SNOW_SRC_ENDPOINT}
+host: '${SNOW_SRC_ENDPOINT}'
 port: 443 
-warehouse: ${SNOW_SRC_WAREHOUSE}
+warehouse: '${SNOW_SRC_WAREHOUSE}'
 
-username: ${SNOW_SRC_ID}
-password: ${SNOW_SRC_SECRET}
+username: '${SNOW_SRC_ID}'
+password: '${SNOW_SRC_SECRET}'
 
 max-connections: 5 
 max-retries: 1

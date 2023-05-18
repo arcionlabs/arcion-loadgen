@@ -1,10 +1,10 @@
 type: REDIS_STREAM
 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 6379
 
-username: ${DSTDB_ARC_USER}
-password: ${DSTDB_ARC_PW}
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1

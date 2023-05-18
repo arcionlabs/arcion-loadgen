@@ -1,12 +1,12 @@
 type: ORACLE
 
 # will be set by envsubst from menu.sh 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 1521
 
-service-name: ${DSTDB_SID}
-username: ${DSTDB_ARC_USER}
-password: ${DSTDB_ARC_PW}
+service-name: '${DSTDB_SID}'
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1

@@ -1,9 +1,9 @@
 type: INFORMIX
 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 9088  # In case of SSL connection use SSL port
 
-server: informix
+server: 'informix'
 database: '${DSTDB_DB}'
 
 username: '${DSTDB_ARC_USER}'

@@ -17,7 +17,7 @@ password: '${CFLT_DST_SECRET}'
 #Multiple Kafka brokers can be specified using the format below:
 brokers:
    broker1: #Replace broker1 with your broker name
-       host: ${CFLT_DST_BOOTSTRAP} #Replace localhost with your broker's host
+       host: '${CFLT_DST_BOOTSTRAP}' #Replace localhost with your broker's host
        port: 9092 #Replace 19092 with your broker's port
 
 _timeout-sec: 30

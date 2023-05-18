@@ -1,13 +1,13 @@
 type: S3
 
-access-key: ${DSTDB_ARC_USER}
-secret-key: ${DSTDB_ARC_PW}
+access-key: '${DSTDB_ARC_USER}'
+secret-key: '${DSTDB_ARC_PW}'
 
 endpoint:
-  service-endpoint: http://${DSTDB_HOST}:9000 
+  service-endpoint: 'http://${DSTDB_HOST}:9000' 
 
-bucket: ${DSTDB_DB}
-root: "/"
+bucket: '${DSTDB_DB}'
+root: '/'
 
 stage:
   type: SHARED_FS

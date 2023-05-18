@@ -1,11 +1,11 @@
 type: SINGLESTORE
 
 # will be set by envsubst from menu.sh 
-host: ${SRCDB_HOST}
+host: '${SRCDB_HOST}'
 port: 3306
 
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1

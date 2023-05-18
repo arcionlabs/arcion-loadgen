@@ -1,12 +1,12 @@
 type: DB2
 
-host: ${SRCDB_HOST}
+host: '${SRCDB_HOST}'
 port: 50000
 
-node: db2inst1
-database: ${SRCDB_DB}
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
+node: 'db2inst1'
+database: '${SRCDB_DB}'
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1

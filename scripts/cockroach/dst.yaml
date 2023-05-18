@@ -1,7 +1,7 @@
 type: POSTGRESQL
 
 # will be set by envsubst from menu.sh 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 26257
 
 # should be same name as the source database to prevent cross database

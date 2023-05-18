@@ -24,12 +24,14 @@ export DSTDB_SID="${DSTDB_SID}"
 # replication
 export REPL_TYPE="${REPL_TYPE}"
 export ARCION_ARGS="${ARCION_ARGS}"
-# root id/password
+# root id/password/db
 export SRCDB_ROOT="${SRCDB_ROOT}"
 export SRCDB_PW="${SRCDB_PW}"
+export SRCDB_ROOT_DB="${SRCDB_ROOT_DB}"
 export DSTDB_ROOT="${DSTDB_ROOT}"
 export DSTDB_PW="${DSTDB_PW}"
-# user id/password
+export DSTDB_ROOT_DB="${DSTDB_ROOT_DB}"
+# user id/password/db
 export SRCDB_ARC_USER="${SRCDB_ARC_USER}"
 export SRCDB_ARC_PW="${SRCDB_ARC_PW}"
 export DSTDB_ARC_USER="${DSTDB_ARC_USER}"

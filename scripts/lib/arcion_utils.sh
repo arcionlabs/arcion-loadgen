@@ -259,6 +259,7 @@ while [ 1 ]; do
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
     [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=$( ${SRCDB_PROFILE[root_db]} )
 
     case "${SRCDB_GRP,,}" in
         snowflake)
@@ -359,6 +360,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=$( ${DSTDB_PROFILE[root_db]} )
 
     case "${DSTDB_GRP,,}" in
         bigquery)

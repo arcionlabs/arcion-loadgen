@@ -1,12 +1,12 @@
 type: DB2
 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 50000
 
-node: db2inst1
-database: ${DSTDB_DB}
-username: ${DSTDB_ARC_USER}
-password: ${DSTDB_ARC_PW}
+node: 'db2inst1'
+database: '${DSTDB_DB}'
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1

@@ -1,11 +1,11 @@
 type: MYSQL
 
 # will be set by envsubst from menu.sh 
-host: ${DSTDB_HOST:-mysql}
+host: '${DSTDB_HOST}'
 port: 3306
 
-username: ${DSTDB_ARC_USER:-arcdst}
-password: ${DSTDB_ARC_PW:-Password}
+username: '${DSTDB_ARC_USER}'
+password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1
