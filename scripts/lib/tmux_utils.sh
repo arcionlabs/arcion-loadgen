@@ -72,6 +72,11 @@ tmux_show_trace()  {
     tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 }
 
+tmux_show_console()  {
+    local TMUX_SESSION=${1}
+    # back to the conole
+    tmux select-window -t ${TMUX_SESSION}:0.0
+}
 
 tmux_show_workload()  {
     local TMUX_SESSION=${1}
