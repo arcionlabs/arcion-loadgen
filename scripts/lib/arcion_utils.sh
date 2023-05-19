@@ -49,19 +49,25 @@ arcion_param() {
     echo "$arg" 
 }
 logreader_path() {
-    local SRCDB_TYPE=${1}
-    case "${SRCDB_TYPE,,}" in
+    case "${SRCDB_GRP,,}" in
         db2)
-            echo "/home/arcion/sqllib/bin:$PATH"
+            PATH="/home/arcion/sqllib/bin:$PATH"
+            . ~/sqllib/db2profile
+            JAVA_OPTS="-Djava.library.path=lib"        
             ;;
+        oracle)
+            ORACLE_HOME=/opt/oracle
+            LD_LIBRARY_PATH="$ORACLE_HOME/lib":$LD_LIBRARY_PATH
+            PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin:$PATH"    
+            ;;
+    esac
+
+    case "${SRCDB_TYPE,,}" in
         mysql)
-            echo "/opt/mysql/usr/bin:$PATH"
+            PATH="/opt/mysql/usr/bin:$PATH"
             ;;
         mariadb)
-            echo "/opt/mariadb/usr/bin:$PATH"
-            ;;
-        *)
-            echo $PATH
+            PATH="/opt/mariadb/usr/bin:$PATH"
             ;;
     esac
 }
@@ -73,11 +79,14 @@ arcion_delta() {
         return 0; 
     fi
 
+    pushd $ARCION_HOME >/dev/null
+
     # required for Arcion
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
 
-    pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -91,14 +100,14 @@ arcion_real() {
         return 0; 
     fi
 
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-    if [ "${SRCDB_GRP}" = "db2" ]; then
-        . ~/sqllib/db2profile
-        JAVA_OPTS="-Djava.library.path=lib"        
-    fi
-
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME JAVA_OPTS="$JAVA_OPTS" PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -112,14 +121,14 @@ arcion_full() {
         return 0; 
     fi
 
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-    if [ "${SRCDB_GRP}" = "db2" ]; then
-        . ~/sqllib/db2profile
-        JAVA_OPTS="-Djava.library.path=lib"        
-    fi
-
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME JAVA_OPTS="$JAVA_OPTS" PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -133,11 +142,14 @@ arcion_snapshot() {
         return 0; 
     fi
     
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-
     pushd $ARCION_HOME >/dev/null
-    echo "$( arcion_param ${CFG_DIR} )"
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
