@@ -34,7 +34,9 @@ arcion_param() {
     esac
 
     # optional
-    metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
+    if [ ! -z "${meta_dir}" ]; then
+        metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
+    fi
 
     # construct the list
     arg="${src} ${dst}"
@@ -49,6 +51,9 @@ arcion_param() {
 logreader_path() {
     local SRCDB_TYPE=${1}
     case "${SRCDB_TYPE,,}" in
+        db2)
+            echo "/home/arcion/sqllib/bin:$PATH"
+            ;;
         mysql)
             echo "/opt/mysql/usr/bin:$PATH"
             ;;
@@ -68,6 +73,7 @@ arcion_delta() {
         return 0; 
     fi
 
+    # required for Arcion
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 
     pushd $ARCION_HOME >/dev/null
@@ -86,9 +92,13 @@ arcion_real() {
     fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    if [ "${SRCDB_GRP}" = "db2" ]; then
+        . ~/sqllib/db2profile
+        JAVA_OPTS="-Djava.library.path=lib"        
+    fi
 
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
+    JAVA_HOME=$JAVA_HOME JAVA_OPTS="$JAVA_OPTS" PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -103,9 +113,13 @@ arcion_full() {
     fi
 
     JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    if [ "${SRCDB_GRP}" = "db2" ]; then
+        . ~/sqllib/db2profile
+        JAVA_OPTS="-Djava.library.path=lib"        
+    fi
 
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
+    JAVA_HOME=$JAVA_HOME JAVA_OPTS="$JAVA_OPTS" PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &

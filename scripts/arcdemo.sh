@@ -46,8 +46,14 @@ else
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
-      METADATA_DIR=postgresql_metadata
-      echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
+      METADATA_DIR=metadata_postgresql
+      # METADATA_DIR=metadata_sqlite
+      if [ -d "${SCRIPTS_DIR}/${METADATA_DIR}" ]; then
+        echo "Info: using default ${SCRIPTS_DIR}/${METADATA_DIR}" 
+      else
+        echo "Error: ${SCRIPTS_DIR}/${METADATA_DIR} is not a dir"
+        exit
+      fi
   fi
 
   # defaults

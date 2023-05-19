@@ -3,7 +3,6 @@ type: DB2
 host: '${SRCDB_HOST}'
 port: 50000
 
-node: 'db2inst1'
 database: '${SRCDB_DB}'
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
@@ -11,5 +10,15 @@ password: '${SRCDB_ARC_PW}'
 max-connections: 5
 max-retries: 1
 
+# --- CDC ---
+platform: LUW  # LUW
+
+# need to match alias used in db2 catalog tcpip node <NODE_NAME> 
+# by default using the server name as the node name
+node: '${SRCDB_HOST}'
+
+# native db2ReadLog as the CDC log reader
 cdc-log-config:
     cdc-log-storage: READ_LOG
+
+transaction-store-location: ${CFG_DIR}  # /opt/stage/txn_store/db2luw    

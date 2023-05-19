@@ -66,7 +66,7 @@ copy_yaml() {
     copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
-    copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
+    copy_hier_as_flat $0 meta $CFG_DIR
     popd >/dev/null
 
     # override the destination specific

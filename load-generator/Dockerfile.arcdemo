@@ -61,7 +61,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 # ********************************************************
 
 # fix sysbench 
-RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/debian.bullseye-backports.main.list
+# RUN echo "deb [trusted=yes] http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list.d/debian.bullseye-backports.main.list
 
 # Java 8 for Arcion
 # Java 17 for other tools 
@@ -76,7 +76,7 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \
     redis-tools
 
 # add sysbench 
-RUN apt-get install -y sysbench
+# RUN apt-get install -y sysbench
 
 # add ttyd for running terminal commands
 RUN apt-get install -y \
@@ -150,7 +150,7 @@ RUN cd ${BENCHBASE_DIR} \
 
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work
-COPY  scripts/utils/sysbench/oltp_common.lua /usr/share/sysbench/. 
+# COPY  scripts/utils/sysbench/oltp_common.lua /usr/share/sysbench/. 
 
 # download mariadb for the binlog reader 
 RUN cd ${MARIADB_DIR} \

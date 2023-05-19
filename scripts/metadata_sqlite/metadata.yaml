@@ -1,0 +1,9 @@
+type: SQLITE
+
+connection:
+    host:
+    port:
+    path: "/opt/stage/metadata"
+    username:
+    password:
+    max-connections: 30
