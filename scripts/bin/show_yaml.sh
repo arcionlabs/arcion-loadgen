@@ -14,21 +14,24 @@ files=(src.yaml \
     src_filter.yaml \
     dst_mapper.yaml \
     dst_applier.yaml \
-    src.init.root.sql \
-    src.init.user.sql \
-    dst.init.root.sql \
-    dst.init.user.sql \
+    src.init.root.* \
+    src.init.user.* \
+    dst.init.root.* \
+    dst.init.user.* \
     )
 
-echo $CFG_DIR
+echo $CFG_DIR looking for ${files[*]}
+pushd $CFG_DIR >/dev/null
 
-for f in "${files[@]}"; do
-    yaml=$CFG_DIR/$f
-    if [ -f "$yaml" ]; then
+for pattern in "${files[@]}"; do
+    # case insensitive name
+    # exclude anyting that ends with .log
+    for f in $( find -iname "$pattern" \( ! -iname "*.log" \) -type f); do
         clear
         echo ---- $f -----
-        pygmentize $yaml
+        pygmentize $f
         echo ---- $f -----
         read -t 10 -s -p "Waiting for 30 seconds or press key to continue."
-    fi
+    done
 done
+popd >/dev/null
