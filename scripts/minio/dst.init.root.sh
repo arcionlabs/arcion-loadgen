@@ -20,5 +20,5 @@ if [ ! -z "$IP" ]; then
     fi
 else
     echo "$DSTDB_HOST IP not found"
-    exit    
+    exit
 fi
