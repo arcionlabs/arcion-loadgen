@@ -21,4 +21,4 @@ node: '${SRCDB_HOST}'
 cdc-log-config:
     cdc-log-storage: READ_LOG
 
-transaction-store-location: ${CFG_DIR}  # /opt/stage/txn_store/db2luw    
+transaction-store-location: ${CFG_DIR}/stage  # /opt/stage/txn_store/db2luw    

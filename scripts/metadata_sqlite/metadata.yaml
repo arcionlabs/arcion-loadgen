@@ -3,7 +3,7 @@ type: SQLITE
 connection:
     host:
     port:
-    path: "/opt/stage/metadata"
+    path: "${CFG_DIR}/metadata"
     username:
     password:
     max-connections: 30

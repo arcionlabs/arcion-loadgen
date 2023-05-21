@@ -47,7 +47,7 @@ else
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
       METADATA_DIR=metadata_postgresql
-      # METADATA_DIR=metadata_sqlite
+      #METADATA_DIR=metadata_sqlite
       if [ -d "${SCRIPTS_DIR}/${METADATA_DIR}" ]; then
         echo "Info: using default ${SCRIPTS_DIR}/${METADATA_DIR}" 
       else
@@ -81,7 +81,9 @@ else
   # src host and target host are not known at this point
   set_src
   set_dst
+  # temp dirs
   mkdir -p $CFG_DIR/stage
+  mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
   CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
