@@ -3,15 +3,19 @@ type: S3
 access-key: '${DSTDB_ARC_USER}'
 secret-key: '${DSTDB_ARC_PW}'
 
+# bucket name + service-endppoint = new URL
+bucket: '${DSTDB_ARC_USER}'
 endpoint:
   service-endpoint: 'http://${DSTDB_HOST}:9000' 
+  #signingRegion: us-east-1
 
-bucket: '${DSTDB_DB}'
-root: '/'
+# this must match mc create bucket/name
+# this is dir, so cannot trailing / in the name
+root: '${DSTDB_ARC_USER}/${DSTDB_DB}'
 
 stage:
   type: SHARED_FS
-  root-dir: /opt/stage #directory where CSV files will be staged before uploading to S3
+  root-dir: '${CFG_DIR}/stage' #directory where CSV files will be staged before uploading to S3
 
 # file-format: CSV
 max-connections: 5

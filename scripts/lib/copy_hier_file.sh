@@ -5,6 +5,7 @@
 heredoc_file() {
     # heredoc on a file
     eval "$( echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF' | cat - $1 <(echo -e '\nEOF_EOF_EOF') )"    
+    # TODO: a way to capture error code from here
 }
 
 copy_hier_as_flat() {

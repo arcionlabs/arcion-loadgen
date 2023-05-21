@@ -7,7 +7,7 @@ cat $CFGDIR/src.yaml | grep -v "^slave" > $CFGDIR/src.verificator.yaml
 $CFGDIR/src.verificator.yaml \
 $CFGDIR/dst.yaml \
 --filter $CFGDIR/src_filter.yaml \
---map $CFGDIR/src_map.yaml \
+--map $CFGDIR/dst_map.yaml \
 --id $$
 
 --filter filter/sqlserver_filter.yaml --map mapper/sqlserver_to_memsql.yaml --id ver1

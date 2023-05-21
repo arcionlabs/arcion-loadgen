@@ -43,7 +43,7 @@ pushd $VERIFICATOR_HOME
 $CFGDIR/src.verificator.yaml \
 $CFGDIR/dst.verificator.yaml \
 --filter $CFGDIR/src_filter.yaml \
---map $CFGDIR/src_map.yaml \
+--map $CFGDIR/dst_map.yaml \
 --id $LOG_ID
 popd >/dev/null
 

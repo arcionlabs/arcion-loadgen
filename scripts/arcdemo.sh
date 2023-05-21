@@ -77,14 +77,17 @@ else
   export LOG_ID=$$
   export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
   rm -rf $CFG_DIR 2>/dev/null
-
   # these are from arc_utils.sh
+  # src host and target host are not known at this point
   set_src
   set_dst
+  mkdir -p $CFG_DIR/stage
 
   # change the name of the CFG_DIR
   CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
+  # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
+  # move to new name
   mv /tmp/${LOG_ID}-${LOG_ID} $CFG_DIR
   echo $CFG_DIR   
 

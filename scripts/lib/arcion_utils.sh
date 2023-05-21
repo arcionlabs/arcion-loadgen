@@ -24,14 +24,14 @@ arcion_param() {
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
     # src to dst map
-    case ${DSTDB_GRP,,} in 
-        nullstorage | s3 )
-            echo "removing mapper for ${DSTDB_GRP,,}" >&2
-            ;;
-        *)
-            map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-            ;;
-    esac
+    #case ${DSTDB_GRP,,} in 
+    #    nullstorage | s3 )
+    #        echo "ingoring mapper.yaml for ${DSTDB_GRP,,}" >&2
+    #        ;;
+    #    *)
+            map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
+    #        ;;
+    #esac
 
     # optional
     if [ ! -z "${meta_dir}" ]; then

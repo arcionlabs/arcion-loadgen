@@ -12,7 +12,7 @@ files=(src.yaml \
     dst.yaml \
     src_extract.yaml \
     src_filter.yaml \
-    src_mapper.yaml \
+    dst_mapper.yaml \
     dst_applier.yaml \
     src.init.root.sql \
     src.init.user.sql \
