@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+PAUSE_SECONDS=5
 CFGDIR=$1
 
 if [ -z "${CFGDIR}" ]; then
@@ -31,7 +32,7 @@ for pattern in "${files[@]}"; do
         echo ---- $f -----
         pygmentize $f
         echo ---- $f -----
-        read -t 10 -s -p "Waiting for 30 seconds or press key to continue."
+        read -t $PAUSE_SECONDS -s -p "Waiting for $PAUSE_SECONDS seconds or press key to continue."
     done
 done
 popd >/dev/null
