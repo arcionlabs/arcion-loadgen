@@ -20,15 +20,15 @@ rsconf = {
     members: [
       {
        _id: 0,
-       host: "mongodb:27017"
+       host: "mongodb-v605-1:27017"
       },
       {
        _id: 1,
-       host: "mongodb2:27017"
+       host: "mongodb-v605-2:27017"
       },
       {
        _id: 2,
-       host: "mongodb3:27017"
+       host: "mongodb-v605-3:27017"
       }
      ]
   }

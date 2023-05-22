@@ -32,7 +32,7 @@ docker run -d \
     -e MONGO_INITDB_ROOT_USERNAME=root \
     -e MONGO_INITDB_ROOT_PASSWORD=Passw0rd \
     -p :27017 \
-    -v `pwd`/keyfile:/data/configdb/keyfile \
+    -v `pwd`/keyfile:c \
     mongo mongod --keyFile /data/configdb/keyfile/mongodb.keyfile --replSet rs0
 
 docker run -d \

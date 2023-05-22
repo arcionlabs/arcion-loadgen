@@ -1,6 +1,6 @@
 #!/usr/bin/env bash 
 
-. $PROG_DIR/lib/map_csv.sh
+. $SCRIPTS_DIR/lib/map_csv.sh
 
 heredoc_file() {
     # heredoc on a file

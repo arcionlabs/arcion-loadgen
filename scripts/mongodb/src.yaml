@@ -3,7 +3,6 @@ type: MONGODB
 url: 'mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:27017/${SRCDB_ARC_USER}?w=majority'
 ## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
 ##  url: mongodb://<user_principal_name>%40<REALM>@<mongos_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
-max-connections: 5
 
 replica-sets:
   mongors1:
@@ -11,6 +10,7 @@ replica-sets:
     ## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
     ##  url: mongodb://<user_principal_name>%40<REALM>@<shard1_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
 
+max-connections: 5
 
 #ssl:
 #  key-store:
