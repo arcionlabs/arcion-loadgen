@@ -7,8 +7,10 @@ export JSQSH_CSV="-n -v headers=false -v footers=false"
 jdbc_root_cli() { 
   local LOC="${1:-src}" # SRC|DST
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
-  local db_user=$( x="${LOC^^}DB_ROOT"; echo "${!x}" )
-  local db_pw=$( x="${LOC^^}DB_PW"; echo "${!x}" )
+  local db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  local db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  local db_root_user=$( x="${LOC^^}DB_ROOT"; echo "${!x}" )
+  local db_root_pw=$( x="${LOC^^}DB_PW"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
   local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
   local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
@@ -25,17 +27,16 @@ jdbc_root_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user:-${db_user}}" --password="${db_root_pw:-${db_pw}}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
     oracle)
-  export JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
+  JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user}" --password="${db_root_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
     ;;    
     postgresql | db2)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database=${db_root_db}
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user}" --password="${db_root_pw}" --server="${db_host}" --port="${db_port}" --database=${db_root_db}
     ;;
     *)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}"
+  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user}" --password="${db_root_pw}" --server="${db_host}" --port="${db_port}"
     ;;
   esac  
 }
@@ -69,11 +70,10 @@ jdbc_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
     oracle)
-  export JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
-  jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
+  JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
     ;;    
     *)
   jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
