@@ -60,6 +60,7 @@ jdbc_cli() {
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
   local jsqsh_driver=$( x="${LOC^^}DB_JSQSH_DRIVER"; echo "${!x}" )
   local db_db=$( x="${LOC^^}DB_DB"; echo "${!x}" )
+  local db_schema=$( x="${LOC^^}DB_SCHEMA"; echo "${!x}" )
   local db_sid=$( x="${LOC^^}DB_SID"; echo "${!x}" )
   local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
   shift
@@ -72,7 +73,7 @@ jdbc_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database ${db_db} -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
     oracle)
   JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
@@ -120,6 +121,11 @@ list_dbs() {
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_SQL="SELECT trim(table_schema), count(*) from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE' group by table_schema;"
         ;;          
+        snowflake)
+    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT table_catalog, count(*) FROM ${DB_CATALOG}.information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2;"
+        ;;
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
@@ -158,8 +164,13 @@ list_tables() {
         db2)
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
     local DB_SQL="SELECT 'TABLE', table_name from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE';"
-        ;;    
-    *)
+        ;;           
+        snowflake)
+    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
+    local DB_SQL="SELECT table_type, table_name FROM ${DB_CATALOG}.information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
+        ;;
+        *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
     esac

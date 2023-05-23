@@ -118,9 +118,9 @@ ycsb_load() {
     -p db.passwd="${db_pw}" \
     -p jdbc.fetchsize=10 \
     -p jdbc.autocommit=false \
-    -p jdbc.batchupdateapi=false \
+    -p jdbc.batchupdateapi=true \
     -p db.urlsharddelim='___' \
-    -p db.batchsize=1024  \
+    -p db.batchsize=2048  \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
     -p recordcount=${recordcount} \
