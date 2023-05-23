@@ -20,6 +20,8 @@ jdbc_root_cli() {
   shift
 
   db_db=${db_db:-${db_user}}
+  db_root_user=${db_root_user:-${db_user}}
+  db_root_pw=${db_root_pw:-${db_pw}}
 
   # Not used but maybe helpful later
   # if the flag as '-n meaning batch mode'
@@ -27,7 +29,7 @@ jdbc_root_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user:-${db_user}}" --password="${db_root_pw:-${db_pw}}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user}" --password="${db_root_pw}" --server="${db_host}" --port="${db_port}" -V "db=${db_db}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
     oracle)
   JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_root_user}" --password="${db_root_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
