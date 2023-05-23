@@ -40,7 +40,7 @@ else
 fi
 
 # setup workloads
-if [ "${db_schema_lower}" = "arcsrc" ]; then
+if [ "${db_schema_lower}" =  ${SRCDB_ARC_USER} ]; then
   echo "src db ${SRCDB_ARC_USER}: benchbase setup"
   # benchbase data population
   ${SCRIPTS_DIR}/bin/benchbase-load.sh
@@ -50,5 +50,5 @@ if [ "${db_schema_lower}" = "arcsrc" ]; then
   ycsb_load_src
 
 else
-  echo "src db ${db_schema_lower} != arcsrc skipping workload setup"
+  echo "src db ${db_schema_lower} !=  ${SRCDB_ARC_USER} skipping workload setup"
 fi

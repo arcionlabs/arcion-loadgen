@@ -289,12 +289,12 @@ while [ 1 ]; do
 
     case "${SRCDB_GRP,,}" in
         snowflake)
-            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
-            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
             SRCDB_HOST="${SNOW_SRC_ENDPOINT}" 
             SRCDB_PORT="${SNOW_SRC_PORT:-443}" 
             SRCDB_ARC_USER="${SNOW_SRC_ID}" 
             SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
             ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
@@ -402,16 +402,14 @@ while [ 1 ]; do
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
         snowflake)
-            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER^^}
-            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+
             DSTDB_HOST="${SNOW_DST_ENDPOINT}" 
             DSTDB_PORT="${SNOW_DST_PORT:-443}" 
             DSTDB_ARC_USER="${SNOW_DST_ID}" 
             DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
 
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
-            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}            
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
         informix)
             # HACK: for Informix, schema is same as the user name
