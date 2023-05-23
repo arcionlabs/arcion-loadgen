@@ -293,6 +293,7 @@ while [ 1 ]; do
             SRCDB_PORT="${SNOW_SRC_PORT:-443}" 
             SRCDB_ARC_USER="${SNOW_SRC_ID}" 
             SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
             ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
