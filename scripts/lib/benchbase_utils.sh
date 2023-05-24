@@ -23,7 +23,7 @@ bb_chdir() {
         informix)
             pushd /opt/benchbase/benchbase-informix >/dev/null
             ;;
-        mariadb | mysql | singlestore )
+        mariadb|mysql|singlestore)
             pushd /opt/benchbase/benchbase-mariadb >/dev/null 
             ;;
         oracle)
@@ -31,8 +31,11 @@ bb_chdir() {
             pushd /opt/benchbase/benchbase-oracle >/dev/null
             ;;
         postgres)
-            pushd /opt/benchbase/benchbase-postgres >/dev/null
+                pushd /opt/benchbase/benchbase-postgres >/dev/null
             ;;
+#        snowflake)
+#                pushd /opt/benchbase/benchbase-snowflake >/dev/null
+#            ;;
         sqlserver)
             pushd /opt/benchbase/benchbase-sqlserver >/dev/null
             ;;
