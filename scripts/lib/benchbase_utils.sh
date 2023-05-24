@@ -6,6 +6,7 @@ bb_chdir() {
 
     db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
     db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
+    db_benchbase_type=$( x="${LOC^^}DB_BENCHBASE_TYPE"; echo "${!x}" )
     db_jdbc_no_rewrite=$( x="${LOC^^}DB_JDBC_NO_REWRITE"; echo "${!x}" )
 
     #db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
@@ -15,21 +16,31 @@ bb_chdir() {
     #db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
     #db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" ) 
 
-    case ${db_grp,,} in
+    case ${db_benchbase_type,,} in
+        cockroachdb)
+            pushd /opt/benchbase/benchbase-cockroachdb >/dev/null
+            ;;
         informix)
             pushd /opt/benchbase/benchbase-informix >/dev/null
             ;;
-        mysql)
+        mariadb|mysql|singlestore)
             pushd /opt/benchbase/benchbase-mariadb >/dev/null 
             ;;
         oracle)
+            export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
             pushd /opt/benchbase/benchbase-oracle >/dev/null
             ;;
-        postgresql)
-            pushd /opt/benchbase/benchbase-postgres >/dev/null
+        postgres)
+                pushd /opt/benchbase/benchbase-postgres >/dev/null
             ;;
+#        snowflake)
+#                pushd /opt/benchbase/benchbase-snowflake >/dev/null
+#            ;;
         sqlserver)
             pushd /opt/benchbase/benchbase-sqlserver >/dev/null
+            ;;
+        db2)
+            pushd /opt/benchbase/benchbase-db2 >/dev/null
             ;;
         *)
             echo "benchbase-load.sh: ${db_grp} unsupported" >&2
@@ -93,7 +104,8 @@ bb_create_tables() {
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
             JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
-            $JAVA_HOME/bin/java -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
+            $JAVA_HOME/bin/java $JAVA_OPTS \
+            -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
             --interval-monitor 10000 \
             --create=true --load=true --execute=false
         else
@@ -116,7 +128,7 @@ bb_run_tables() {
 
     for w in "${workloads[@]}"; do
         JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
-        $JAVA_HOME/bin/java \
+        $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
         --interval-monitor 10000 \
         --create=false --load=false --execute=true &

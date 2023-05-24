@@ -24,17 +24,19 @@ arcion_param() {
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
 
     # src to dst map
-    case ${DSTDB_GRP,,} in 
-        nullstorage | s3 )
-            echo "removing mapper for ${DSTDB_GRP,,}" >&2
-            ;;
-        *)
-            map=$(find ${dst_dir} -maxdepth 1 -name src_map.yaml -print)
-            ;;
-    esac
+    #case ${DSTDB_GRP,,} in 
+    #    nullstorage | s3 )
+    #        echo "ingoring mapper.yaml for ${DSTDB_GRP,,}" >&2
+    #        ;;
+    #    *)
+            map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
+    #        ;;
+    #esac
 
     # optional
-    metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print)
+    if [ ! -z "${meta_dir}" ]; then
+        metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
+    fi
 
     # construct the list
     arg="${src} ${dst}"
@@ -47,16 +49,25 @@ arcion_param() {
     echo "$arg" 
 }
 logreader_path() {
-    local SRCDB_TYPE=${1}
+    case "${SRCDB_GRP,,}" in
+        db2)
+            PATH="/home/arcion/sqllib/bin:$PATH"
+            . ~/sqllib/db2profile
+            JAVA_OPTS="-Djava.library.path=lib"        
+            ;;
+        oracle)
+            ORACLE_HOME=/opt/oracle
+            LD_LIBRARY_PATH="$ORACLE_HOME/lib":$LD_LIBRARY_PATH
+            PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin:$PATH"    
+            ;;
+    esac
+
     case "${SRCDB_TYPE,,}" in
         mysql)
-            echo "/opt/mysql/usr/bin:$PATH"
+            PATH="/opt/mysql/usr/bin:$PATH"
             ;;
         mariadb)
-            echo "/opt/mariadb/usr/bin:$PATH"
-            ;;
-        *)
-            echo $PATH
+            PATH="/opt/mariadb/usr/bin:$PATH"
             ;;
     esac
 }
@@ -68,10 +79,14 @@ arcion_delta() {
         return 0; 
     fi
 
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant delta-snapshot \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -85,10 +100,14 @@ arcion_real() {
         return 0; 
     fi
 
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant real-time \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -102,10 +121,14 @@ arcion_full() {
         return 0; 
     fi
 
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-
     pushd $ARCION_HOME >/dev/null
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant full \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -119,11 +142,14 @@ arcion_snapshot() {
         return 0; 
     fi
     
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
-
     pushd $ARCION_HOME >/dev/null
-    echo "$( arcion_param ${CFG_DIR} )"
-    JAVA_HOME=$JAVA_HOME PATH=$( logreader_path "${SRCDB_TYPE}" ) ./bin/replicant snapshot \
+
+    # required for Arcion
+    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
+    logreader_path
+    
+    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+     ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -210,7 +236,8 @@ init_src() {
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
     done
-
+    mkdir -p $CFG_DIR/exit_status
+    echo "$rc" > $CFG_DIR/exit_status/init_src.log
     return $rc
 }
 init_dst() {
@@ -227,7 +254,8 @@ init_dst() {
         ( exec ${f} 2>&1 | tee -a $f.log ) 
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
     done
-
+    mkdir -p $CFG_DIR/exit_status
+    echo "$rc" > $CFG_DIR/exit_status/init_dst.log
     return $rc
 }
 
@@ -247,12 +275,17 @@ while [ 1 ]; do
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
     if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
+
+    export SRCDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${SRCDB_HOST})
+    declare -A SRCDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
+
     [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_HOST}" )
     [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
     [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
     [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
     [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=$( ${SRCDB_PROFILE[root_db]} )
 
     case "${SRCDB_GRP,,}" in
         snowflake)
@@ -260,6 +293,8 @@ while [ 1 ]; do
             SRCDB_PORT="${SNOW_SRC_PORT:-443}" 
             SRCDB_ARC_USER="${SNOW_SRC_ID}" 
             SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
+            [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
             ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
@@ -276,6 +311,11 @@ while [ 1 ]; do
             export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
             export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
+
+            export ORA_LOG_PATH=${SRCDB_PROFILE[log_path]}
+            export ORA_ARCH_LOG_PATH=${SRCDB_PROFILE[archive_log_path]}
+            export ORA_ALT_LOG_PATH=${SRCDB_PROFILE[alt_log_path]}
+            export ORA_ALT_ARCH_LOG_PATH=${SRCDB_PROFILE[alt_archive_log_path]}   
         ;;
         *)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
@@ -337,6 +377,10 @@ while [ 1 ]; do
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
     if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+
+    export DSTDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${DSTDB_HOST})
+    declare -A DSTDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${DSTDB_PROFILE_CSV}"
+
     [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_HOST}" )
     [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
     [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
@@ -344,6 +388,7 @@ while [ 1 ]; do
     [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=$( ${DSTDB_PROFILE[root_db]} )
 
     case "${DSTDB_GRP,,}" in
         bigquery)
@@ -357,14 +402,14 @@ while [ 1 ]; do
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
         snowflake)
+
             DSTDB_HOST="${SNOW_DST_ENDPOINT}" 
             DSTDB_PORT="${SNOW_DST_PORT:-443}" 
             DSTDB_ARC_USER="${SNOW_DST_ID}" 
             DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
 
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
-            [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
-            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}            
+            [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
         informix)
             # HACK: for Informix, schema is same as the user name

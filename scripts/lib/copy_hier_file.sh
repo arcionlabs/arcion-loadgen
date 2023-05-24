@@ -1,10 +1,11 @@
 #!/usr/bin/env bash 
 
-. $PROG_DIR/lib/map_csv.sh
+. $SCRIPTS_DIR/lib/map_csv.sh
 
 heredoc_file() {
     # heredoc on a file
     eval "$( echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF' | cat - $1 <(echo -e '\nEOF_EOF_EOF') )"    
+    # TODO: a way to capture error code from here
 }
 
 copy_hier_as_flat() {
@@ -21,7 +22,7 @@ copy_hier_as_flat() {
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
             filename=$(basename $f)
             if [ -f $DST/$filename ]; then
-                echo override $f $DST/$filename
+                echo override $f $DST/$filename 
             fi 
             local suffix=$( echo $f | awk -F. '{print $NF}' )
             if [ "$suffix" = "sh" ]; then 
@@ -66,6 +67,7 @@ copy_yaml() {
     copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
+    # what is $0 here?
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
     popd >/dev/null
 

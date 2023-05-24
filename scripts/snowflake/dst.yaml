@@ -1,11 +1,11 @@
 type: SNOWFLAKE
 
-host: ${SNOW_DST_ENDPOINT}
+host: '${SNOW_DST_ENDPOINT}'
 port: 443 
-warehouse: ${SNOW_DST_WAREHOUSE}
+warehouse: '${SNOW_DST_WAREHOUSE}'
 
-username: ${SNOW_DST_ID}
-password: ${SNOW_DST_SECRET}
+username: '${SNOW_DST_ID}'
+password: '${SNOW_DST_SECRET}'
 
 max-connections: 5 
 max-retries: 1

@@ -1,0 +1,9 @@
+type: SQLITE
+
+connection:
+    host:
+    port:
+    path: "${CFG_DIR}/metadata"
+    username:
+    password:
+    max-connections: 30

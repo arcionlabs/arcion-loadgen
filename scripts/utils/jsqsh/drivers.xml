@@ -42,5 +42,14 @@
            normalizer="org.sqsh.normalizer.NullNormalizer">
       <Variable name="server"><![CDATA[projecturl]]></Variable>
    </Driver>   
+   <Driver name="snowflake"
+           url="jdbc:snowflake://${server}#if($port):${port}#end/?user=$user#if($ssl)&amp;ssl=$ssl#end#if($account)&amp;account=$account#end#if($warehouse)&amp;warehouse=$warehouse#end#if($database)&amp;db=$database#end#if($schema)&amp;schema=$schema#end#if($role)&amp;role=$role#end"
+           class="net.snowflake.client.jdbc.SnowflakeDriver"
+           target="Snowflake"
+           analyzer="org.sqsh.analyzers.SnowflakeAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+      <Classpath><![CDATA[/arcion/lib/snowflake-jdbc-3.13.30.jar]]></Classpath>
+      <SessionVariable name="expand"><![CDATA[false]]></SessionVariable>
+   </Driver>   
 </Drivers>
 

@@ -12,6 +12,8 @@ map_uid() {
     local opts="$3"
     local external_uid=$( stat -c '%u' ${external_mnt} )
 
+    mkdir -p $internal_mnt
+
     echo $external_mnt uid=$external_uid map to $internal_mnt uid=arcion $opts
 
     if [ -d "$external_mnt" ]; then 
@@ -22,7 +24,13 @@ map_uid() {
     fi
 }
 
-map_uid /opt/mnt/oraxe2130/oradata  /opt/stage/oraxe
-map_uid /opt/mnt/oraee1930/oradata  /opt/stage/oraee
+# libs
 map_uid /opt/mnt/libs               /libs               '-o nonempty'
 map_uid /opt/mnt/loadgen            /arcion/data        '-o nonempty'
+
+# oracle dirs
+for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do 
+    oradir=$(basename ${d})
+    echo map_uid ${d}/oradata  /opt/stage/${oradir}
+    map_uid ${d}/oradata  /opt/stage/${oradir}
+done

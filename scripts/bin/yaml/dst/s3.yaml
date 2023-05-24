@@ -8,7 +8,7 @@ root: "root_dir"
 
 stage:
   type: SHARED_FS
-  root-dir: /home/user/stage #directory where CSV files will be staged before uploading to S3
+  root-dir: ${CFG_DIR}/stage #directory where CSV files will be staged before uploading to S3
 
 # file-format: CSV
 max-connections: 50

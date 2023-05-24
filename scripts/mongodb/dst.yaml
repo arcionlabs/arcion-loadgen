@@ -1,10 +1,10 @@
 type: MONGODB
 
-url: "mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:27017/${DSTDB_ARC_USER}?w=majority"
+url: 'mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:27017/${DSTDB_ARC_USER}?w=majority'
 ## For connecting to mongo cluster with Kerberos (GSSAPI) with url, use url in following format:
 ##  url: mongodb://<user_principal_name>%40<REALM>@<mongos_FQDN>:27017/?authSource=$external&authMechanism=GSSAPI"
 
-max-connections: 30
+max-connections: 5
 
 #ssl:
 #  key-store:

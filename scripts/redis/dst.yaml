@@ -1,10 +1,11 @@
 type: REDIS_STREAM
 
-host: ${DSTDB_HOST}
+host: '${DSTDB_HOST}'
 port: 6379
 
-username: ${DSTDB_ARC_USER}
-password: ${DSTDB_ARC_PW}
+# TODO: figure out id/password
+username: '${DSTDB_ROOT}'
+password: '${DSTDB_PW}'
 
 max-connections: 5
 max-retries: 1

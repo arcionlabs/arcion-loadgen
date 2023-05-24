@@ -19,7 +19,7 @@ fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  db2|mysql|postgresql|sqlserver|informix|oracle)
+  db2|mysql|postgresql|sqlserver|informix|oracle|snowflake)
     ycsb_run_src
 ;;
   mongodb)
@@ -34,6 +34,6 @@ case "${SRCDB_GRP,,}" in
     popd >/dev/null 
     ;; 
   *)
-    echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to code support"
+    echo "$0: SRCDB_GRP: ${SRCDB_GRP} need to be supported"
     ;;
 esac 

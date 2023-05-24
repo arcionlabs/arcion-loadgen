@@ -15,6 +15,11 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/arcion_utils.sh
 . $PROG_DIR/lib/export_env.sh
 . $PROG_DIR/lib/arcdemo_args_positional.sh
+. $PROG_DIR/lib/tmux_utils.sh
+
+# read profile (map.csv file) 
+declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
+export PROFILE_HEADER=${PROFILE_CSV[0]}
 
 # process args advance the args to positional
 arcdemo_opts $*
@@ -23,6 +28,15 @@ shift $(( OPTIND - 1 ))
 if [ ! -z "$CFG_DIR" ]; then
   echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
+  # clear the view windows and configure it for this run
+  tmux_kill_windows
+  # create new windows but don't switch into it
+  tmux_create_windows
+  # show workload specific content
+  tmux_show_workload
+  # show src and dst sql cli
+  tmux_show_src_sql_cli
+  tmux_show_dst_sql_cli
 else
   # this will parse the URI and set src and dst
   arcdemo_positional $*
@@ -32,8 +46,14 @@ else
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
-      METADATA_DIR=postgresql_metadata
-      echo "Info: using default ${SCRIPTS_DIR}/postgresql_metadata" 
+      METADATA_DIR=metadata_postgresql
+      #METADATA_DIR=metadata_sqlite
+      if [ -d "${SCRIPTS_DIR}/${METADATA_DIR}" ]; then
+        echo "Info: using default ${SCRIPTS_DIR}/${METADATA_DIR}" 
+      else
+        echo "Error: ${SCRIPTS_DIR}/${METADATA_DIR} is not a dir"
+        exit
+      fi
   fi
 
   # defaults
@@ -57,14 +77,19 @@ else
   export LOG_ID=$$
   export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
   rm -rf $CFG_DIR 2>/dev/null
-
   # these are from arc_utils.sh
+  # src host and target host are not known at this point
   set_src
   set_dst
+  # temp dirs
+  mkdir -p $CFG_DIR/stage
+  mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
   CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
+  # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
+  # move to new name
   mv /tmp/${LOG_ID}-${LOG_ID} $CFG_DIR
   echo $CFG_DIR   
 
@@ -88,100 +113,53 @@ else
   # save the choices in /tmp/init_menu.sh and $CFG_DIR/ini_menu.sh
   export_env /tmp/ini_menu.sh $CFG_DIR
 
+  # clear the view windows and configure it for this run
+  tmux_kill_windows
+  # create new windows but don't switch into it
+  tmux_create_windows
+  # show workload specific content
+  tmux_show_workload
+
   # run init scripts
-  init_src "${SRCDB_TYPE}" "${SRCDB_GRP}"
-  rc=$?
-  echo init_src rc=$rc
+  tmux_run_init_src &
+  tmux_run_init_dst &
 
-  init_dst "${DSTDB_TYPE}" "${DSTDB_GRP}"
-  rc=$?
-  echo init_dst rc=$rc
-
+  # wait for source and dst setup to finish
+  tmux_show_console
+  show_yaml.sh
+  # wait 
+  wait
+  # bring up src and dst SQL CLI tmux windows
+  tmux_show_src_sql_cli
+  tmux_show_dst_sql_cli
 fi  
 
-# clear the view windows and configure it for this run
-tmux kill-window -t ${TMUX_SESSION}:1   # yaml
-tmux kill-window -t ${TMUX_SESSION}:2   # log
-tmux kill-window -t ${TMUX_SESSION}:3   # sql
-tmux kill-window -t ${TMUX_SESSION}:4   # ycsb
-tmux kill-window -t ${TMUX_SESSION}:5   # arcveri
-tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
-tmux kill-window -t ${TMUX_SESSION}:7   # dstat
-
-# create new windows but don't switch into it
-tmux new-window -d -n yaml -t ${TMUX_SESSION}:1
-tmux new-window -d -n logs -t ${TMUX_SESSION}:2
-tmux new-window -d -n sql -t ${TMUX_SESSION}:3
-tmux new-window -d -n ycsb -t ${TMUX_SESSION}:4
-tmux new-window -d -n verificator -t ${TMUX_SESSION}:5
-tmux new-window -d -n veri_log -t ${TMUX_SESSION}:6
-tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
-
-# clear the benchbase and ycsb panes
-tmux send-keys -t ${TMUX_SESSION}:0.1 "clear" Enter
-tmux send-keys -t ${TMUX_SESSION}:0.2 "clear" Enter
-
-function tail_arcion_cli() {
-  if [ -f $CFG_DIR/arcion.log ]; then
-    tail -f $CFG_DIR/arcion.log &
-  fi
-}
-function tmux_bb_panel() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
-}
-
-function tmux_ycsb_panel() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
-}
 # run the replication
 case ${REPL_TYPE,,} in
   full)
     arcion_full
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;
   snapshot)
     arcion_snapshot
     ;;
   delta-snapshot)
     arcion_delta
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;
   real-time)
     arcion_real
-    tmux_bb_panel
-    tmux_ycsb_panel
+    tmux_show_tpcc
+    tmux_show_ycsb
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
     ;;
 esac
 
-# setup the views to look at log and cfg
-tmux send-keys -t ${TMUX_SESSION}:1.0 "view ${CFG_DIR}" Enter
-tmux send-keys -t ${TMUX_SESSION}:1.0 ":E" Enter 
-
-# the log dir does not get create right away.  wait for it.
-tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
-tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
-
-# open src and dst SQL CLI
-sql_cli_src_dst.sh 3 &
-# open YCSB check screen
-#/scripts/verify.sh ycsb_key usertable 4 & 
-
-# show verificator
-tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter
-tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
-tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
-tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
-
-# dstat
-tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
-
-# back to the conole
-tmux select-window -t ${TMUX_SESSION}:0.0
+tmux_show_trace
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
@@ -199,7 +177,7 @@ control_c() {
 trap control_c SIGINT
 
 # display arcion progress screen
-tail_arcion_cli
+tmux_show_arcion_cli_tail
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )

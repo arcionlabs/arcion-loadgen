@@ -1,13 +1,13 @@
 type: SQLSERVER
 
-host: ${SRCDB_HOST}
+host: '${SRCDB_HOST}'
 port: 1433
 
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
-database: ${SRCDB_ARC_USER}
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
+database: '${SRCDB_ARC_USER}'
 
-max-connections: 4
+max-connections: 5
 
 max-retries: 1
 

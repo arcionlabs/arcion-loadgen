@@ -23,7 +23,27 @@ export SRCDB_JDBC_REWRITE
 export DSTDB_JDBC_NO_REWRITE
 export DSTDB_JDBC_REWRITE
 
+export CLASSPATH
+
 set_jdbc_vars() {
+
+if [ "${SRCDB_GRP}" = "oracle" ]; then
+  CLASSPATH=$(ls /libs/ojdbc8*jar | paste -sd:)
+else
+  CLASSPATH=$(ls \
+    ${ARCION_HOME}/lib/maria*jar \
+    ${ARCION_HOME}/lib/post*jar \
+    ${ARCION_HOME}/lib/mongodb*jar \
+    ${ARCION_HOME}/lib/mssql*jar \
+    ${ARCION_HOME}/lib/db2*jar \
+    ${ARCION_HOME}/lib/jconn4*jar \
+    ${ARCION_HOME}/lib/jdbc-*jar \
+    ${ARCION_HOME}/lib/bson-*jar \
+    $(ls /arcion/lib/snowflake-jdbc*jar) \
+    $(ls /arcion/lib/GoogleBigQueryJDBC42*jar)  \
+    /arcion/lib/db2jcc-db2jcc4*jar \
+    | paste -sd:)
+fi
 
 case "${SRCDB_GRP,,}" in
   db2)
@@ -40,8 +60,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="snowflake"
     SRCDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
-    SRCDB_JDBC_URL="jdbc:snowflake//${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&warehouse=${SNOW_SRC_WAREHOUSE}"   
-    SRCDB_JDBC_URL_BENCHBASE="jdbc:snowflake//${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&warehouse=${SNOW_SRC_WAREHOUSE}"   
+    SRCDB_JDBC_URL="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&schema=${SRCDB_SCHEMA}&warehouse=${SNOW_SRC_WAREHOUSE}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?db=${SRCDB_DB}&amp;schema=${SRCDB_SCHEMA}&amp;warehouse=${SNOW_SRC_WAREHOUSE}"   
     SRCDB_JDBC_URL_IDPW=""
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
@@ -137,8 +157,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="snowflake"
     DSTDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
-    DSTDB_JDBC_URL="jdbc:snowflake//${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&warehouse=${SNOW_DST_WAREHOUSE}"   
-    DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake//${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_DB}&amp;schema=${DSTDB_SCHEMA}&amp;warehouse=${SNOW_DST_WAREHOUSE}"   
     DSTDB_JDBC_URL_IDPW=""
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""

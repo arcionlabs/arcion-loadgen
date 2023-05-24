@@ -1,15 +1,15 @@
 type: ORACLE
 
-host: ${SRCDB_HOST}
-port: ${SRCDB_PORT}
+host: '${SRCDB_HOST}'
+port: '${SRCDB_PORT}'
 
 # SID and not service name
-service-name: ${SRCDB_SID}
+service-name: '${SRCDB_SID}'
 
-username: ${SRCDB_ARC_USER}
-password: ${SRCDB_ARC_PW}
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
 
-max-connections: 10
+max-connections: 5
 #max-fetch-schema-connections: 30  #default value same max-connections
 
 max-retries: 1

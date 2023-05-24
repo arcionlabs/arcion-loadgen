@@ -1,5 +1,6 @@
 allow:
-- schema: "${SRCDB_ARC_USER}"
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
     # delta-snaphot demo for YCSB THEUSERTABLE only
