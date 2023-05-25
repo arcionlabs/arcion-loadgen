@@ -15,6 +15,11 @@ LABEL MAINTAINER sangkyulee@gmail.com
 # To push to docker hub
 #     docker tag 597de83199f4 robertslee/arcdemo
 #     docker push robertslee/arcdemo
+#
+# For ghcr (Github container registery)
+#    docker images | grep arcdemo
+#    docker tag a1985aa6af86 ghcr.io/arcionlabs/arcdemo
+#    docker push ghcr.io/arcionlabs/arcdemo:latest
 
 # required to make tools handle UTF-8 characters by default
 ENV LANG=C.UTF-8

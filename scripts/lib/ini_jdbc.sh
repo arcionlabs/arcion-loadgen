@@ -23,27 +23,7 @@ export SRCDB_JDBC_REWRITE
 export DSTDB_JDBC_NO_REWRITE
 export DSTDB_JDBC_REWRITE
 
-export CLASSPATH
-
 set_jdbc_vars() {
-
-if [ "${SRCDB_GRP}" = "oracle" ]; then
-  CLASSPATH=$(ls /libs/ojdbc8*jar | paste -sd:)
-else
-  CLASSPATH=$(ls \
-    ${ARCION_HOME}/lib/maria*jar \
-    ${ARCION_HOME}/lib/post*jar \
-    ${ARCION_HOME}/lib/mongodb*jar \
-    ${ARCION_HOME}/lib/mssql*jar \
-    ${ARCION_HOME}/lib/db2*jar \
-    ${ARCION_HOME}/lib/jconn4*jar \
-    ${ARCION_HOME}/lib/jdbc-*jar \
-    ${ARCION_HOME}/lib/bson-*jar \
-    $(ls /arcion/lib/snowflake-jdbc*jar) \
-    $(ls /arcion/lib/GoogleBigQueryJDBC42*jar)  \
-    /arcion/lib/db2jcc-db2jcc4*jar \
-    | paste -sd:)
-fi
 
 case "${SRCDB_GRP,,}" in
   db2)
