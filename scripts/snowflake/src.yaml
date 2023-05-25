@@ -7,5 +7,5 @@ warehouse: '${SNOW_SRC_WAREHOUSE}'
 username: '${SNOW_SRC_ID}'
 password: '${SNOW_SRC_SECRET}'
 
-max-connections: 10 
+max-connections: 30 # 10 is too low.
 max-retries: 1
