@@ -21,7 +21,7 @@ jdbc_root_cli() {
 
   # set path specific to this DB
   . $SCRIPTS_DIR/lib/classpath.sh
-  CLASSPATH=$(arcion_jdbc_jars)
+  CLASSPATH=$(arcion_jdbc_jars $LOC)
 
   db_db=${db_db:-${db_user}}
   db_root_user=${db_root_user:-${db_user}}
@@ -71,7 +71,7 @@ jdbc_cli() {
 
   # set path specific to this DB
   . $SCRIPTS_DIR/lib/classpath.sh
-  CLASSPATH=$(arcion_jdbc_jars)
+  CLASSPATH=$(arcion_jdbc_jars $LOC)
 
   db_db=${db_db:-${db_user}}
 

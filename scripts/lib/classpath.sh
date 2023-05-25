@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
 arcion_jdbc_jars() {
+local LOC="${1:-src}" # SRC|DST
+local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+
 if [ -z "$ARCION_HOME" ]; then ARCION_HOME="/arcion"; fi
 
 if [ ! -d "$ARCION_HOME/lib" ]; then echo "Error: $ARCION_HOME/lib is not a directory" >&2 ; return 1; fi
 
-if [ "${SRCDB_GRP}" = "oracle" ]; then
+if [ "${db_grp}" = "oracle" ]; then
   echo $(ls ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd:)
 else
   echo $(ls \
