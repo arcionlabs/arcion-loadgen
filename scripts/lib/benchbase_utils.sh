@@ -103,7 +103,7 @@ bb_create_tables() {
         # exist already?
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
-            JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
+            JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
             --interval-monitor 10000 \
@@ -127,7 +127,7 @@ bb_run_tables() {
     readarray -td, workloads < <(printf '%s' "$workloads")
 
     for w in "${workloads[@]}"; do
-        JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"    
+        JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
         --interval-monitor 10000 \

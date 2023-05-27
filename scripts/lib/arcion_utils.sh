@@ -49,6 +49,8 @@ arcion_param() {
     echo "$arg" 
 }
 logreader_path() {
+    JAVA_HOME=$( find /usr/lib/jvm/java-8-openjdk-*/jre -maxdepth 0)
+
     case "${SRCDB_GRP,,}" in
         db2)
             PATH="/home/arcion/sqllib/bin:$PATH"
@@ -82,7 +84,6 @@ arcion_delta() {
     pushd $ARCION_HOME >/dev/null
 
     # required for Arcion
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
     logreader_path
 
     JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
@@ -103,7 +104,6 @@ arcion_real() {
     pushd $ARCION_HOME >/dev/null
 
     # required for Arcion
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
     logreader_path
     
     JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
@@ -124,7 +124,6 @@ arcion_full() {
     pushd $ARCION_HOME >/dev/null
 
     # required for Arcion
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
     logreader_path
     
     JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
@@ -145,7 +144,6 @@ arcion_snapshot() {
     pushd $ARCION_HOME >/dev/null
 
     # required for Arcion
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
     logreader_path
     
     JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
