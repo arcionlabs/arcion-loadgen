@@ -4,8 +4,15 @@
 /scripts/utils/init.d/volremap.sh
 
 # optional for x64 machines
-/scripts/utils/install_db2_tools.sh
-/scripts/utils/install_oracle_tools.sh
+TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
+if [ "${TARGETARCH}" = "amd64" ]; then 
+    /scripts/utils/init.d/install_db2_tools.sh
+    /scripts/utils/init.d/install_oracle_tools.sh
+else
+    echo "${TARGETARCH} does not support db2 and oracle tools"
+fi
+
+# the rest
 /scripts/utils/init.d/arclic.sh
 /scripts/utils/init.d/jdbc_download.sh 
 /scripts/utils/init.d/tmux.sh 
