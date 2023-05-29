@@ -49,6 +49,7 @@ arcion_param() {
     echo "$arg" 
 }
 logreader_path() {
+    # amd64 or arm64 
     JAVA_HOME=$( find /usr/lib/jvm/java-8-openjdk-*/jre -maxdepth 0)
 
     case "${SRCDB_GRP,,}" in

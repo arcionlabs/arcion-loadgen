@@ -2,11 +2,6 @@
 
 # this file should be in $YCSB/bin dir
 
-SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
-ARCION_HOME=${ARCION_HOME:-/arcion}
+CLASSPATH=${jdbc_classpath}
 
-. $SCRIPTS_DIR/lib/classpath.sh
-
-CLASSPATH=$(arcion_jdbc_jars)
-
-echo "YCSB CLASSPATH=$CLASSPATH" >&2
+echo "setenv.sh: YCSB CLASSPATH=$CLASSPATH" >&2
