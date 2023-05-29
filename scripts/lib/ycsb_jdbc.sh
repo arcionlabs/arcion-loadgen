@@ -32,10 +32,11 @@ export const_ycsb_ycsbkeyprefix=0
 
 ycsb_usage() {
   echo "ycsb: override on the command line or set
+    -B ycsb_batchsize=${default_ycsb_batchsize}
     -r ycsb_rate=${default_ycsb_rate}
+    -s ycsb_size_factor=${default_ycsb_size_factor}
     -t ycsb_threads=${default_ycsb_threads}
     -w ycsb_timer=${default_ycsb_timer}
-    -s ycsb_size_factor=${default_ycsb_size_factor}
   "
 }
 
@@ -87,10 +88,11 @@ function ycsb_opts() {
   (( DEBUG >= 2 )) && {
     cat >&2 <<EOF 
       ycsb_opts: 
+      args_ycsb_batchsize="$args_ycsb_batchsize"
       args_ycsb_rate="$args_ycsb_rate"
-      args_ycsb_threads="$args_ycsb_threads" 
-      args_ycsb_timer="$args_ycsb_timer" 
       args_ycsb_size_factor="$args_ycsb_size_factor"
+      args_ycsb_timer="$args_ycsb_timer" 
+      args_ycsb_threads="$args_ycsb_threads" 
       echo $*
 EOF
   }
@@ -155,7 +157,7 @@ ycsb_load() {
   fi
 
   if (( ycsb_load_basedon_sf > ycsb_threads )); then
-    echo "YCSB: setting load thread count to $ycsb_load_basedon_sf"
+    echo "YCSB: auto setting load thread count to $ycsb_load_basedon_sf"
     ycsb_threads=${ycsb_load_basedon_sf}
   fi 
 
