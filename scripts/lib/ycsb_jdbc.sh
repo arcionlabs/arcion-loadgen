@@ -14,12 +14,14 @@ export default_ycsb_size_factor=1
 export default_ycsb_table="THEUSERTABLE"  # YCSB default=usertable
 export default_ycsb_fieldcount=10         # YCSB default
 export default_ycsb_fieldlength=100       # YCSB default
+export default_ycsb_batchsize=1024        
 
 # set defaults
 [ -z "${ycsb_rate}" ]        && export ycsb_rate=${default_ycsb_rate}
 [ -z "${ycsb_threads}" ]     && export ycsb_threads=${default_ycsb_threads}
 [ -z "${ycsb_timer}" ]       && export ycsb_timer=${default_ycsb_timer}
 [ -z "${ycsb_size_factor}" ] && export ycsb_size_factor=${default_ycsb_size_factor}
+[ -z "${ycsb_batchsize}" ]   && export ycsb_batchsize=${default_ycsb_batchsize}
 
 # constants
 export const_ycsb_insertstart=0
@@ -57,18 +59,20 @@ function ycsb_opts() {
       -h) 
         ycsb_usage 
         ;;
+      -B|--batchsize) 
+        args_ycsb_batchsize="$1"; shift; ((params_processed++))
+        ;;
       -r) 
         args_ycsb_rate="$1"; shift; ((params_processed++))
-
+        ;;
+      -s) 
+        args_ycsb_size_factor="$1"; shift; ((params_processed++))
         ;;
       -t) 
         args_ycsb_threads="$1"; shift; ((params_processed++))
         ;;
       -w) 
         args_ycsb_timer="$1"; shift; ((params_processed++))
-        ;;
-      -s) 
-        args_ycsb_size_factor="$1"; shift; ((params_processed++))
         ;;
       *) 
         echo "ignoring $param" 
@@ -119,9 +123,16 @@ ycsb_src_dst_param() {
   db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
   db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
   db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
   jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
   jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
   jdbc_classpath=$( x="${LOC^^}DB_CLASSPATH"; echo "${!x}" )
+
+  ycsb_rate=${args_ycsb_rate:-${workload_rate:-${default_ycsb_rate}}}
+  ycsb_threads=${args_ycsb_threads:-${workload_threads:-${default_ycsb_threads}}}
+  ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
+  ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
+  ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
 }
 
 # calling sequences:
@@ -132,11 +143,6 @@ ycsb_src_dst_param() {
 ycsb_load() {
   local jdbc_url=${1}
   local recordcount=${2}    
-  # if not set, take defaults
-  local ycsb_rate=${args_ycsb_rate:-${workload_rate:-${default_ycsb_rate}}}
-  local ycsb_threads=${args_ycsb_threads:-${workload_threads:-${default_ycsb_threads}}}
-  local ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
-  local ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
 
   # not override from command line args
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
@@ -188,7 +194,7 @@ ycsb_load() {
     -p jdbc.autocommit=false \
     -p jdbc.batchupdateapi=true \
     -p db.urlsharddelim='___' \
-    -p db.batchsize=1024  \
+    -p db.batchsize=${ycsb_batchsize} \
     -p table=${ycsb_table} \
     -p insertstart=${ycsb_insertstart} \
     -p recordcount=${recordcount} \
@@ -266,11 +272,6 @@ ycsb_run() {
   [ -z "${jdbc_driver}" ] && { echo "jdbc_driver not set" >&2; return 1; }
   [ -z "${jdbc_classpath}" ] && { echo "jdbc_classpath not set" >&2; return 1; }
 
-  # if not set, take defaults
-  local ycsb_rate=${args_ycsb_rate:-${workload_rate:-${default_ycsb_rate}}}
-  local ycsb_threads=${args_ycsb_threads:-${workload_threads:-${default_ycsb_threads}}}
-  local ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
-
   # not override from command line args
   local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
@@ -308,7 +309,7 @@ ycsb_run() {
   -p jdbc.fetchsize=10 \
   -p jdbc.autocommit=true \
   -p jdbc.batchupdateapi=true \
-  -p db.batchsize=1024  \
+  -p db.batchsize=${ycsb_batchsize} \
   -p jdbc.autocommit=true \
   -p db.urlsharddelim='___' \
   -p requestdistribution=uniform \

@@ -67,7 +67,7 @@ EOF
 }
 
 ycsb_create_mysql() {
-echo "ycsb create mysql" >&2    
+echo "ycsb ${db_type} ${db_grp} create mysql syntax" >&2    
 cat <<'EOF'
 CREATE TABLE IF NOT EXISTS THEUSERTABLE (
     YCSB_KEY INT PRIMARY KEY,

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# source in libs
-. ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
-. ${SCRIPTS_DIR}/lib/ycsb_mongo.sh
+
 
 # get the setting from the menu
 if [ ! -z "${CFG_DIR}" ] && [ -f "${CFG_DIR}/ini_menu.sh" ]; then
@@ -33,8 +31,10 @@ fi
 # start the YCSB
 case "${SRCDB_GRP,,}" in
   db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
+  # source in libs
+    . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_load_src "$@"
-;;
+    ;;
   mongodb)
     pushd ${YCSB_MONGODB} >/dev/null 
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \
