@@ -122,19 +122,19 @@ ycsb_select_key() {
 # set env vars used from src/dst
 ycsb_src_dst_param() {
   local LOC="${1:-SRC}"
-  db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
-  db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
-  db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
-  db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
-  jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
-  jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
-  jdbc_classpath=$( x="${LOC^^}DB_CLASSPATH"; echo "${!x}" )
+  export db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
+  export db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
+  export db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+  export db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
+  export jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
+  export jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
+  export jdbc_classpath=$( x="${LOC^^}DB_CLASSPATH"; echo "${!x}" )
 
-  ycsb_rate=${args_ycsb_rate:-${workload_rate:-${default_ycsb_rate}}}
-  ycsb_threads=${args_ycsb_threads:-${workload_threads:-${default_ycsb_threads}}}
-  ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
-  ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
-  ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
+  export ycsb_rate=${args_ycsb_rate:-${workload_rate:-${default_ycsb_rate}}}
+  export ycsb_threads=${args_ycsb_threads:-${workload_threads:-${default_ycsb_threads}}}
+  export ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
+  export ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
+  export ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
 }
 
 # calling sequences:
@@ -253,14 +253,14 @@ ycsb_load_sf() {
 }
 
 function ycsb_load_src() { 
-  ycsb_src_dst_param "src"
   ycsb_opts "$@"
+  ycsb_src_dst_param "src"
   ycsb_load_sf src
 }
 
 function ycsb_load_dst() { 
-  ycsb_src_dst_param "dst"
   ycsb_opts "$@"
+  ycsb_src_dst_param "dst"
   ycsb_load_sf dst
 }
 
@@ -330,13 +330,13 @@ ycsb_run() {
 }
 
 function ycsb_run_src() {
-  ycsb_src_dst_param "src"
   ycsb_opts "$@"
+  ycsb_src_dst_param "src"
   ycsb_run "src" 
 }
 
 function ycsb_run_dst() {
-  ycsb_src_dst_param "dst"
   ycsb_opts "$@"
+  ycsb_src_dst_param "dst"
   ycsb_run "dst"
 }
