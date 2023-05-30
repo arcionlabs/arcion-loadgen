@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # get the setting from the menu
 if [ ! -z "${CFG_DIR}" ] && [ -f "${CFG_DIR}/ini_menu.sh" ]; then
     echo "sourcing . ${CFG_DIR}/ini_menu.sh"

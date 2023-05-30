@@ -1,19 +1,22 @@
 #!/usr/bin/env bash 
-LOC=${1:-SRC}
-WORKLOADS=${2}
-CFG_DIR=${3:-/tmp}
 
-# load the init file
-if [ -f "${CFG_DIR}/ini_menu.sh" ]; then
+# get the setting from the menu
+if [ -n "${CFG_DIR}" ] && [ -f "${CFG_DIR}/ini_menu.sh" ]; then
+    echo "sourcing . ${CFG_DIR}/ini_menu.sh"
     . ${CFG_DIR}/ini_menu.sh
+elif [ -f /tmp/ini_menu.sh ]; then
+    echo "sourcing . /tmp/ini_menu.sh"
+    . /tmp/ini_menu.sh
 else
-    echo "CFG_DIR=${CFG_DIR} did not have ini_menu.sh" >&2
+    echo "CFG_DIR=${CFG_DIR} or /tmp/ini_menu.sh did not have ini_menu.sh" >&2
     exit 1
-fi     
+fi   
 
 # rest of libs
 . ${SCRIPTS_DIR}/lib/jdbc_cli.sh
 . ${SCRIPTS_DIR}/lib/job_control.sh
+. ${SCRIPTS_DIR}/lib/benchbase_globals.sh
+. ${SCRIPTS_DIR}/lib/benchbase_args.sh
 . ${SCRIPTS_DIR}/lib/benchbase_utils.sh
 
 # removed: noop 
@@ -36,9 +39,5 @@ if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
 fi
 
 trap kill_jobs SIGINT
-if [ -z "$WORKLOADS" ]; then 
-    bb_run_tables $LOC "$workload_modules_bb"
-else
-    bb_run_tables $LOC "$WORKLOADS"
-fi
+bb_run_src "$@"
 wait_jobs

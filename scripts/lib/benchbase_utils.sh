@@ -1,20 +1,10 @@
 #!/usr/bin/env bash 
 
+. ${SCRIPTS_DIR}/lib/benchbase_globals.sh
+. ${SCRIPTS_DIR}/lib/benchbase_args.sh
+
 # switch into right dir
 bb_chdir() {
-    local LOC=${1:-SRC}
-
-    db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
-    db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
-    db_benchbase_type=$( x="${LOC^^}DB_BENCHBASE_TYPE"; echo "${!x}" )
-    db_jdbc_no_rewrite=$( x="${LOC^^}DB_JDBC_NO_REWRITE"; echo "${!x}" )
-
-    #db_user=$( x="${LOC^^}DB_ARC_USER"; echo "${!x}" )
-    #db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
-    #jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
-    #jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
-    #db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
-    #db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" ) 
 
     case ${db_benchbase_type,,} in
         cockroachdb)
@@ -51,15 +41,14 @@ bb_chdir() {
 
 # list tables for each workloads
 bb_create_tables() {
-    local LOC=${1:-SRC}
-    local workloads="${2:-tpcc}"
+    local LOC="${bb_loc}"
+    local workloads="${bb_modules_csv}"
 
     # NOTE: <<<$workloads add newline on the last element. 
     # use < <(printf '%s' "$workloads") to fix that 
-    readarray -td, workloads < <(printf '%s' "$workloads")
+    readarray -td, workloads_array < <(printf '%s' "$workloads")
 
-    bb_chdir $LOC
-    if [ "$?" != "0" ]; then return; fi
+    if ! bb_chdir; then return; fi
 
     # DEBUG
     echo "benchbase worload: ${workloads}"
@@ -79,7 +68,7 @@ bb_create_tables() {
     #echo ${EXISITNG_TAB_HASH[@]}
     #echo ${WORKLOAD_TABLE_HASH[@]}
 
-    for w in "${workloads[@]}"; do
+    for w in "${workloads_array[@]}"; do
         echo "Checking table create required for $w"
 
         # remove batch rewrite
@@ -90,7 +79,7 @@ bb_create_tables() {
                 echo "no write available"
             else
                 sed -i.bak -e "$db_jdbc_no_rewrite" $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
-                diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml 
+                diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
             fi 
         fi
 
@@ -114,26 +103,54 @@ bb_create_tables() {
         fi
     done    
 
-    popd >/dev/null
+    popd >/dev/null || { echo "Error:bb_create_tables: popd filed $(pwd)"; }
 }
 
+# $1=SRC|DST
+# $2=comma separated list of workload names
 bb_run_tables() {
-    local LOC=${1:-SRC}
-    local workloads="${2:-tpcc}"
+    local LOC="${bb_loc}"
+    local workloads="${bb_modules_csv}"
+    
+    # chdir to where the binary is
+    if ! bb_chdir; then return; fi
 
-    bb_chdir $LOC
-    if [ "$?" != "0" ]; then return; fi
+    # convert csv to array
+    readarray -td, workloads_array < <(printf '%s' "$workloads")
 
-    readarray -td, workloads < <(printf '%s' "$workloads")
+    JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
+    for w in "${workloads_array[@]}"; do
 
-    for w in "${workloads[@]}"; do
-        JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
+        # change config match args
+        if (( bb_param_changed > 0 )); then
+            sed -i.bak \
+                -e "s|\(<rate>\).*\(</\)|\1${bb_rate}\2|" \
+                -e "s|\(<time>\).*\(</\)|\1${bb_timer}\2|" \
+                -e "s|\(<scalefactor>\).*\(</\)|\1${bb_size_factor}\2|" \
+                -e "s|\(<terminals>\).*\(</\)|\1${bb_threads}\2|" \
+                -e "s|\(<batchsize>\).*\(</\)|\1${bb_batchsize}\2|" \
+                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
+            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
+        fi
+
+        # run
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
         --interval-monitor 10000 \
         --create=false --load=false --execute=true &
     done    
 
-    popd >/dev/null
+    popd >/dev/null || { echo "Error:bb_run_tables: popd filed $(pwd)"; }
+}
 
+bb_run_src() {
+  bb_opts "$@"
+  bb_src_dst_param "src"    
+  bb_run_tables "src"
+}
+
+bb_run_dst() {
+  bb_opts "$@"
+  bb_src_dst_param "dst"    
+  bb_run_tables "dst"
 }
