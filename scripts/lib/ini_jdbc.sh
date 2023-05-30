@@ -23,27 +23,9 @@ export SRCDB_JDBC_REWRITE
 export DSTDB_JDBC_NO_REWRITE
 export DSTDB_JDBC_REWRITE
 
-export CLASSPATH
-
 set_jdbc_vars() {
 
-if [ "${SRCDB_GRP}" = "oracle" ]; then
-  CLASSPATH=$(ls /libs/ojdbc8*jar | paste -sd:)
-else
-  CLASSPATH=$(ls \
-    ${ARCION_HOME}/lib/maria*jar \
-    ${ARCION_HOME}/lib/post*jar \
-    ${ARCION_HOME}/lib/mongodb*jar \
-    ${ARCION_HOME}/lib/mssql*jar \
-    ${ARCION_HOME}/lib/db2*jar \
-    ${ARCION_HOME}/lib/jconn4*jar \
-    ${ARCION_HOME}/lib/jdbc-*jar \
-    ${ARCION_HOME}/lib/bson-*jar \
-    $(ls /arcion/lib/snowflake-jdbc*jar) \
-    $(ls /arcion/lib/GoogleBigQueryJDBC42*jar)  \
-    /arcion/lib/db2jcc-db2jcc4*jar \
-    | paste -sd:)
-fi
+local ARCION_HOME=${ARCION_HOME:-/arcion}
 
 case "${SRCDB_GRP,,}" in
   db2)
@@ -55,6 +37,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="jdbc:db2://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/db2jcc-db2jcc4*jar | paste -sd :)"
     ;;
   snowflake)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -65,6 +48,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW=""
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/snowflake-jdbc*jar | paste -sd :)"
     ;;
   oracle)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -75,6 +59,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_SID}"
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd :)"
     ;;
   informix)
     # JDBC settings 
@@ -87,6 +72,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}"
     SRCDB_JDBC_NO_REWRITE="s/IFX_USEPUT=1/IFX_USEPUT=0/g"
     SRCDB_JDBC_REWRITE="s/IFX_USEPUT=0/IFX_USEPUT=1/g"
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jdbc*jar ${ARCION_HOME}/lib/bson*jar | paste -sd :)"
     ;;
   mysql)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -97,6 +83,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="jdbc:mysql://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     SRCDB_JDBC_NO_REWRITE="s/rewriteBatchedStatements=true/rewriteBatchedStatements=false/g"
     SRCDB_JDBC_REWRITE="s/rewriteBatchedStatements=false/rewriteBatchedStatements=true/g"    
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/maria*jar | paste -sd :)"
     ;;
   postgresql)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -107,6 +94,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="postgresql://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}?autoReconnect=true&sslmode=disable&ssl=false"
     SRCDB_JDBC_NO_REWRITE="s/reWriteBatchedInserts=true/reWriteBatchedInserts=false/g"
     SRCDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g"   
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/post*jar | paste -sd :)"
     ;;
   mongodb)
     SRCDB_YCSB_DRIVER="mongodb"
@@ -114,6 +102,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_ROOT_URL="mongodb://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/"   
     SRCDB_JDBC_URL="mongodb://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}?w=0"
     SRCDB_JDBC_URL_IDPW="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}?w=0"
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mongodb*jar | paste -sd :)"
     ;;
   sqlserver)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -126,6 +115,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="sqlserver://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}"
     SRCDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     SRCDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"      
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mssql*jar | paste -sd :)"
     ;;         
   *)
     echo "ini_jdbc.sh: SRCDB_GRP: ${SRCDB_GRP} need to code support" >&2
@@ -142,6 +132,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="jdbc:db2://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/db2jcc-db2jcc4*jar | paste -sd :)"
     ;;
   bigquery)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -152,6 +143,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW=""
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/GoogleBigQueryJDBC42*jar | paste -sd :)"
     ;;
   snowflake)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -162,6 +154,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW=""
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/snowflake-jdbc*jar | paste -sd :)"
     ;;
   oracle)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -172,6 +165,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="jdbc:oracle:thin:@//${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_SID}"
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd :)"
     ;;
   informix)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -182,6 +176,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="jdbc:informix-sqli:://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}"
     DSTDB_JDBC_NO_REWRITE="s/IFX_USEPUT=1/IFX_USEPUT=0/g"
     DSTDB_JDBC_REWRITE="s/IFX_USEPUT=0/IFX_USEPUT=1/g"
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jdbc*jar ${ARCION_HOME}/lib/bson*jar | paste -sd :)"
     ;;
   mysql)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -192,6 +187,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="jdbc:mysql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}?permitMysqlScheme&restrictedAuth=mysql_native_password"
     DSTDB_JDBC_NO_REWRITE="s/rewriteBatchedStatements=true/rewriteBatchedStatements=false/g"
     DSTDB_JDBC_REWRITE="s/rewriteBatchedStatements=false/rewriteBatchedStatements=true/g" 
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/maria*jar | paste -sd :)"
     ;;
   postgresql)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -202,6 +198,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="postgresql://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}?autoReconnect=true&sslmode=disable&ssl=false"
     DSTDB_JDBC_NO_REWRITE="s/reWriteBatchedInserts=true/reWriteBatchedInserts=false/g"
     DSTDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g" 
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/post*jar | paste -sd :)"
     ;; 
   mongodb)
     DSTDB_YCSB_DRIVER="mongodb"
@@ -209,6 +206,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_ROOT_URL="mongodb://${DSTDB_ROOT}:${DSTDB_PW}@${DSTDB_HOST}:${DSTDB_PORT}/"
     DSTDB_JDBC_URL="mongodb://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}?w=0"
     DSTDB_JDBC_URL_IDPW="mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_DB}?w=0"
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mongodb*jar | paste -sd :)"
     ;;     
   sqlserver)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -221,6 +219,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_IDPW="sqlserver://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTDB_PORT}"
     DSTDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     DSTDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"  
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mssql*jar | paste -sd :)"
     ;;     
   *)
     echo "ini_jdbc.sh: DSTDB_GRP: ${DSTDB_GRP} need to code support" >&2

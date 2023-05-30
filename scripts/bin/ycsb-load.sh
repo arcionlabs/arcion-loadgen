@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 
-[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
-# source in libs
-. $(dirname "${BASH_SOURCE[0]}")/lib/ycsb_jdbc.sh
 
 # get the setting from the menu
-if [ -f /tmp/ini_menu.sh ]; then . /tmp/ini_menu.sh; fi
+if [ ! -z "${CFG_DIR}" ] && [ -f "${CFG_DIR}/ini_menu.sh" ]; then
+    echo "sourcing . ${CFG_DIR}/ini_menu.sh"
+    . ${CFG_DIR}/ini_menu.sh
+elif [ -f /tmp/ini_menu.sh ]; then
+    echo "sourcing . /tmp/ini_menu.sh"
+    . /tmp/ini_menu.sh
+else
+    echo "CFG_DIR=${CFG_DIR} or /tmp/ini_menu.sh did not have ini_menu.sh" >&2
+    exit 1
+fi 
+
+# process command line args that may override ini_menu.sh
+
+# set the version of YCBS to use
+[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
 sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
@@ -19,9 +30,11 @@ fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  db2|mysql|postgresql|sqlserver|informix|oracle|snowflake)
-    ycsb_run_src
-;;
+  db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
+  # source in libs
+    . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
+    ycsb_load_src "$@"
+    ;;
   mongodb)
     pushd ${YCSB_MONGODB} >/dev/null 
     bin/ycsb.sh load mongodb -s -threads ${args_ycsb_threads} -target ${args_ycsb_rate} \

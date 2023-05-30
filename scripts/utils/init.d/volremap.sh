@@ -24,8 +24,8 @@ map_uid() {
     fi
 }
 
-# libs
-map_uid /opt/mnt/libs               /libs               '-o nonempty'
+# map source target
+map_uid /opt/mnt/libs               /opt/stage/libs     '-o nonempty'
 map_uid /opt/mnt/loadgen            /arcion/data        '-o nonempty'
 
 # oracle dirs

@@ -15,6 +15,11 @@ LABEL MAINTAINER sangkyulee@gmail.com
 # To push to docker hub
 #     docker tag 597de83199f4 robertslee/arcdemo
 #     docker push robertslee/arcdemo
+#
+# For ghcr (Github container registery)
+#    docker images | grep arcdemo
+#    docker tag a1985aa6af86 ghcr.io/arcionlabs/arcdemo
+#    docker push ghcr.io/arcionlabs/arcdemo:latest
 
 # required to make tools handle UTF-8 characters by default
 ENV LANG=C.UTF-8
@@ -230,9 +235,6 @@ RUN sudo mkdir /libs
 RUN sudo chown -R $USERNAME /libs
 RUN mkdir /arcion/data
 RUN mkdir /opt/mnt
-
-# used by YCSB and jsqsh
-ENV CLASSPATH=/arcion/lib/bson-3.10.2.jar:/arcion/lib/db2jcc-db2jcc4.jar:/arcion/lib/jconn4-1.6.0_03.jar:/arcion/lib/jdbc-4.50.3.jar:/arcion/lib/mariadb-java-client-2.7.3.jar:/arcion/lib/mongodb-driver-core-3.10.2.jar:/arcion/lib/mongodb-driver-sync-3.10.2.jar:/arcion/lib/mssql-jdbc-8.2.0.jre8.jar:/arcion/lib/postgresql-42.3.5.jar:/libs/ojdbc8.jar:/arcion/lib/snowflake-jdbc-3.12.11.jar:/arcion/lib/GoogleBigQueryJDBC42.jar
 
 ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH
 

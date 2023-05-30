@@ -23,7 +23,7 @@ if [ -z "${exists}" ]; then
     # suggested commands
     tmux send-keys -t $WIN:0.0 "# ./arcdemo.sh full mysql postgresql" Enter 
     tmux send-keys -t $WIN:0.1 "# /scripts/bin/benchbase-run.sh" Enter
-    tmux send-keys -t $WIN:0.2 "# /scripts/ycsb.sh" Enter
+    tmux send-keys -t $WIN:0.2 "# /scripts/bin/ycsb-run.sh" Enter
     # windows 1 to view config files
     tmux send-keys -t $WIN:1.0 "cd /tmp; view" Enter 
     tmux send-keys -t $WIN:1.0 ":E" Enter 
@@ -38,5 +38,9 @@ if [ -z "${exists}" ]; then
     # activate $WIN:0
     tmux select-window -t $WIN:0.0
     tmux select-pane -t $WIN:0.0
+    #
+    echo "tmux session ready. new session created"
+else
+    echo "tmux session ready. session already exists"
 fi
 tmux attach-session -t $WIN

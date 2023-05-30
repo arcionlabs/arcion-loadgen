@@ -43,7 +43,7 @@ tmux_show_tpcc() {
 }
 
 tmux_show_ycsb() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/ycsb.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
 }
 
 tmux_show_verification() {

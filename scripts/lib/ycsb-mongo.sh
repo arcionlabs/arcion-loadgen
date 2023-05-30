@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-. lib/job_control.sh
-
+. ${SCRIPTS_DIR}/lib/job_control.sh
 
 ycsb_shell() {
   # https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload
