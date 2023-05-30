@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# make sure this is the first for UI
-/scripts/utils/init.d/jdbc_download.sh 
-
 # need to remap dir first
 /scripts/utils/init.d/volremap.sh
+# then download
+/scripts/utils/init.d/jdbc_download.sh 
 
 # optional for x64 machines
 TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
