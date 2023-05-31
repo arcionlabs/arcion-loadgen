@@ -1,6 +1,7 @@
 #!/usr/bin/env bash 
 
-. $SCRIPTS_DIR/lib/map_csv.sh
+. ${SCRIPTS_DIR}/lib/map_csv.sh
+. ${SCRIPTS_DIR}/lib/nine_char_id.sh
 
 heredoc_file() {
     # heredoc on a file
@@ -30,7 +31,7 @@ copy_hier_as_flat() {
                 cp ${f} $DST/$filename 
             else
                 # DEBUG: echo PID=$$ heredoc_file ${f} \> $DST/$filename
-                PID=$$ heredoc_file ${f} > $DST/$filename
+                PID="$(nine_char_id)" heredoc_file ${f} > $DST/$filename
             fi    
         done
         dir="${dir}/"

@@ -22,29 +22,22 @@ arcion_param() {
     # dest specific
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
-
-    # src to dst map
-    #case ${DSTDB_GRP,,} in 
-    #    nullstorage | s3 )
-    #        echo "ingoring mapper.yaml for ${DSTDB_GRP,,}" >&2
-    #        ;;
-    #    *)
-            map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
-    #        ;;
-    #esac
+    map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
+    general=$(find ${dst_dir} -maxdepth 1 -name dst_general.yaml -print)
 
     # optional
-    if [ ! -z "${meta_dir}" ]; then
+    if [ -n "${meta_dir}" ]; then
         metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
     fi
 
     # construct the list
     arg="${src} ${dst}"
-    [ ! -z "${filter}" ] && arg="${arg} --filter ${filter}"
-    [ ! -z "${extractor}" ] && arg="${arg} --extractor ${extractor}"
-    [ ! -z "${applier}" ] && arg="${arg} --applier ${applier}"
-    [ ! -z "${map}" ] && arg="${arg} --map ${map}"
-    [ ! -z "${metadata}" ] && arg="${arg} --metadata ${metadata}"
+    [ -n "${filter}" ] && arg="${arg} --filter ${filter}"
+    [ -n "${extractor}" ] && arg="${arg} --extractor ${extractor}"
+    [ -n "${applier}" ] && arg="${arg} --applier ${applier}"
+    [ -n "${map}" ] && arg="${arg} --map ${map}"
+    [ -n "${metadata}" ] && arg="${arg} --metadata ${metadata}"
+    [ -n "${general}" ] && arg="${arg} --general ${general}"
 
     echo "$arg" 
 }
@@ -92,6 +85,8 @@ arcion_delta() {
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
+
+    # $! process ID of the job most recently placed into the background
     export ARCION_PID=$!
     popd >/dev/null
 }
@@ -112,6 +107,8 @@ arcion_real() {
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
+
+    # $! process ID of the job most recently placed into the background
     export ARCION_PID=$!
     popd >/dev/null
 }
@@ -132,6 +129,8 @@ arcion_full() {
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
+
+    # $! process ID of the job most recently placed into the background
     export ARCION_PID=$!
     popd >/dev/null
 }
@@ -152,6 +151,8 @@ arcion_snapshot() {
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
+
+    # $! process ID of the job most recently placed into the background
     export ARCION_PID=$!
     popd >/dev/null
 }

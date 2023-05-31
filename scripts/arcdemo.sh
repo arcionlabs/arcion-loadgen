@@ -16,6 +16,8 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/export_env.sh
 . $PROG_DIR/lib/arcdemo_args_positional.sh
 . $PROG_DIR/lib/tmux_utils.sh
+. $PROG_DIR/lib/nine_char_id
+
 
 # read profile (map.csv file) 
 declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
@@ -74,7 +76,7 @@ else
   # create tmp CFG_DIR
   mkdir -p /arcion/data
   # WARNING: log id length max is 9
-  export LOG_ID=$$
+  export LOG_ID="$(nine_char_id)"
   export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
   rm -rf $CFG_DIR 2>/dev/null
   # these are from arc_utils.sh

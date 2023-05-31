@@ -33,7 +33,7 @@ bb_chdir() {
             pushd /opt/benchbase/benchbase-db2 >/dev/null
             ;;
         *)
-            echo "benchbase-load.sh: ${db_grp} unsupported" >&2
+            echo "benchbase-load.sh: db_benchbase_type='${db_benchbase_type}' unsupported" >&2
             return 1
             ;;
     esac        
@@ -153,4 +153,16 @@ bb_run_dst() {
   bb_opts "$@"
   bb_src_dst_param "dst"    
   bb_run_tables "dst"
+}
+
+bb_load_src() {
+  bb_opts "$@"
+  bb_src_dst_param "src"    
+  bb_create_tables "src"
+}
+
+bb_load_dst() {
+  bb_opts "$@"
+  bb_src_dst_param "dst"    
+  bb_create_tables "dst"
 }

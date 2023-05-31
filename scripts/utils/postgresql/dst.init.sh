@@ -21,7 +21,7 @@ echo "Existing Database Table count looking for ${db_schema_lower}"
 declare -p EXISTING_DBS
 
 # delete target if exists
-if [ "${gui_run}" != "1" ] && [ -z "$workload_preserve_dst" ] && [ ! -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
+if [ "${gui_run}" != "1" ] && [ -z "$workload_preserve_dst" ] && [ -n "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dropping destination database ${DSTDB_DB}"
   echo "drop database ${DSTDB_DB};" | jdbc_root_cli_dst
   unset EXISTING_DBS[${db_schema_lower}]
