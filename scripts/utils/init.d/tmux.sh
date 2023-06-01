@@ -28,7 +28,7 @@ if [ -z "${exists}" ]; then
     tmux send-keys -t $WIN:1.0 "cd /tmp; view" Enter 
     tmux send-keys -t $WIN:1.0 ":E" Enter 
     # windows 2 to view logs
-    tmux send-keys -t $WIN:2.0 "cd /arcion/data; view" Enter
+    tmux send-keys -t $WIN:2.0 "cd /opt/stage/data; view" Enter
     tmux send-keys -t $WIN:2.0 ":E" Enter
     # windows 3 
     # windows 4 

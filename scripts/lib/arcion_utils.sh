@@ -23,7 +23,9 @@ arcion_param() {
     dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
     applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
     map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
-    general=$(find ${dst_dir} -maxdepth 1 -name dst_general.yaml -print)
+
+    # global
+    general=$(find ${dst_dir} -maxdepth 1 -name general.yaml -print)
 
     # optional
     if [ -n "${meta_dir}" ]; then

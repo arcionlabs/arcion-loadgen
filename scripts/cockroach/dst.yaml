@@ -1,16 +1,13 @@
-type: COCKROACH
+type: POSTGRESQL
 
 # will be set by envsubst from menu.sh 
 host: '${DSTDB_HOST}'
 port: 26257
 
-# database must be empty for cockroach
+# should be same name as the source database to prevent cross database
+database: '${DSTDB_ARC_USER}'
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
-
-stage:
-  type: NATIVE
-  conn-url: postgresql://${DSTDB_ARC_USER}@${DSTDB_HOST}:${DSTDB_PORT}
 
 max-connections: 5
 max-retries: 1

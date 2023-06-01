@@ -9,6 +9,6 @@ password: '${SRCDB_ARC_PW}'
 max-connections: 5
 
 # real-time and full only
-slave-server-ids: [ "${PID:-${$}}" ]
+slave-server-ids: [ "${$}" ]
 max-retries: 1
 

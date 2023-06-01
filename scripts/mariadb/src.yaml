@@ -1,15 +1,14 @@
 type: MARIADB
 
-# will be set by envsubst from menu.sh 
 host: '${SRCDB_HOST}'
 port: 3306
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 
-# will be set by envsubst from menu.sh 
-slave-server-ids: [ ${PID} ]
 max-connections: 5
 
+# real-time and full only
+slave-server-ids: [ "${$}" ]
 max-retries: 1
-#retry-wait-duration-ms: 1000
+

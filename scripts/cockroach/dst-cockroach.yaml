@@ -1,0 +1,19 @@
+# WIP: error on authenication
+
+type: COCKROACH
+
+# will be set by envsubst from menu.sh 
+host: '${DSTDB_HOST}'
+port: 26257
+
+# database must be empty for cockroach
+username: '${DSTDB_ARC_USER}'
+password: ''
+
+stage:
+  type: NATIVE
+  conn-url: postgresql://${DSTDB_ARC_USER}@${DSTDB_HOST}:${DSTDB_PORT}
+
+max-connections: 5
+max-retries: 1
+
