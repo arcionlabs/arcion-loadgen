@@ -213,6 +213,7 @@ COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${U
 # connection.xml causes exception on some docker host
 RUN mkdir -p /home/${USERNAME}/.jsqsh
 RUN touch /home/${USERNAME}/.jsqsh/.welcome
+COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/.
 COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
 
 # python requirements

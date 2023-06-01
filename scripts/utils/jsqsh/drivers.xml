@@ -15,8 +15,8 @@
            target="Sybase ASE"
            analyzer="org.sqsh.analyzers.TSQLAnalyzer"
            normalizer="org.sqsh.normalizer.NullNormalizer">
-      <Variable name="server"><![CDATA[localhost]]></Variable>
-      <Variable name="port"><![CDATA[4100]]></Variable>
+      <Variable name="server"><![CDATA[sybasease]]></Variable>
+      <Variable name="port"><![CDATA[5000]]></Variable>
    </Driver>
    <Driver name="informix"
            url="jdbc:informix-sqli://${server}:${port}#if($db)/${db}#end"
