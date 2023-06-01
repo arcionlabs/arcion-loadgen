@@ -15,6 +15,7 @@ files=(src.yaml \
     src_filter.yaml \
     dst_mapper.yaml \
     dst_applier.yaml \
+    dst_genearl.yaml \
     src.init.root.* \
     src.init.user.* \
     dst.init.root.* \
@@ -29,8 +30,9 @@ for pattern in "${files[@]}"; do
     # exclude anyting that ends with .log
     for f in $( find -iname "$pattern" \( ! -iname "*.log" \) -type f); do
         clear
+        file_extension="${f##*.}"
         echo ---- $f -----
-        pygmentize $f
+        cat $f |  sed -e 's/\(username\:\).*$/\1 ********/i' -e 's/\(password\:\).*$/\1 ********/i' -e 's/\(secret-key\:\).*$/\1 ********/i'  -e 's/\(key-id\:\).*$/\1 ********/i' | pygmentize -l ${file_extension}
         echo ---- $f -----
         read -t $PAUSE_SECONDS -s -p "Waiting for $PAUSE_SECONDS seconds or press key to continue."
     done

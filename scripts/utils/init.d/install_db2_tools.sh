@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-echo "checking for existance of /libs/v11.5.4_linuxx64_client.tar.gz"
+echo "checking for existance of /opt/stage/libs/v11.5.4_linuxx64_client.tar.gz"
 
-if [ -f "/libs/v11.5.4_linuxx64_client.tar.gz" ]; then
+if [ -f "/opt/stage/libs/v11.5.4_linuxx64_client.tar.gz" ]; then
     echo "found"
 else
     echo "not found.  skipping db2 setup"
@@ -33,7 +33,9 @@ sudo apt-get install -y libxtst-dev
 # setup db2 client at ~sqllib
 mkdir /tmp/db2.$$
 cd /tmp/db2.$$
-gzip -dc /libs/v11.5.4_linuxx64_client.tar.gz | tar -xvf -
+gzip -dc /opt/stage/libs/v11.5.4_linuxx64_client.tar.gz | tar -xvf -
 cd client
 ./db2setup -r $SCRIPTS_DIR/utils/init.d/db2client_nr.rsp
+
+# remove temp files
 rm -rf /tmp/db2.$$

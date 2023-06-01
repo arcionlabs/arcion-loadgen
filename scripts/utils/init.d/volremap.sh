@@ -3,7 +3,7 @@
 mkdir -p /opt/stage/oraxe   # oracle xe redo logs
 mkdir -p /opt/stage/oraee   # oracle ee redo logs
 mkdir -p /opt/stage/libs    # data exchange with host docker of loadgen YAML 
-mkdir -p /arcion/data       # data exchange with host docker of loadgen YAML 
+mkdir -p /opt/stage/data    # data exchange with host docker of loadgen YAML 
 
 # change external_uid to internal uid that can be used
 map_uid() {
@@ -25,8 +25,8 @@ map_uid() {
 }
 
 # map source target
-map_uid /opt/mnt/libs               /opt/stage/libs     '-o nonempty'
-map_uid /opt/mnt/loadgen            /arcion/data        '-o nonempty'
+map_uid /opt/mnt/libs       /opt/stage/libs '-o nonempty'
+map_uid /opt/mnt/loadgen    /opt/stage/data '-o nonempty'
 
 # oracle dirs
 for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do 

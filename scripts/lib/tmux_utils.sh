@@ -68,7 +68,7 @@ tmux_show_yaml()  {
 tmux_show_trace()  {
     local TMUX_SESSION=${1}
 
-    tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_HOME}/data/${LOG_ID}" Enter
+    tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_LOG}/${LOG_ID}" Enter
     tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 }
 

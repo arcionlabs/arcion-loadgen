@@ -1,14 +1,16 @@
-type: MARIADB
+type: SQLSERVER
 
 host: '${SRCDB_HOST}'
-port: 3306
+port: 1433
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
+database: '${SRCDB_ARC_USER}'
 
 max-connections: 5
 
-# real-time and full only
-slave-server-ids: [ "${$}" ]
 max-retries: 1
+
+# real-time and full only
+extractor: CHANGE # {CHANGE|LOG}
 

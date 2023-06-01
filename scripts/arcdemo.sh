@@ -16,6 +16,43 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/export_env.sh
 . $PROG_DIR/lib/arcdemo_args_positional.sh
 . $PROG_DIR/lib/tmux_utils.sh
+. $PROG_DIR/lib/nine_char_id.sh
+
+# arcion data (log dir)
+if [ -z "$ARCION_LOG" ]; then
+  export ARCION_LOG=/opt/stage/data
+fi
+
+# typically log dir should already exist
+if [ -d "${ARCION_LOG}" ]; then
+  echo "Testing ${ARCION_LOG} for create dir priv" 
+  test_dir=$(mktemp -d ${ARCION_LOG}/XXXXXXXXX)
+  if [ -z "${test_dir}" ]; then
+    echo "test create dir $test_dir failed." >&2
+    exit 1
+  else
+    echo "test create dir succeeded. deleting temp dir $test_dir"
+    rmdir "${test_dir}"
+  fi
+else
+  echo "ARCION_LOG=$ARCION_LOG dir does not exist" >&2
+  exit 1
+fi
+
+# arcion and script versions
+if [ ! -f "$ARCION_HOME/bin/replicant" ]; then
+  echo "$ARCION_HOME/bin/replicant not a file." >&2
+  exit 1
+fi
+
+if [ ! -f "$ARCION_HOME/replicant.lic" ]; then
+  echo "$ARCION_HOME/replicantlic not found." >&2
+  exit 1
+fi
+
+export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
+echo "Running Arcion $ARCION_HOME $ARCION_VER"
+echo "Running Script $SCRIPTS_DIR"
 
 # read profile (map.csv file) 
 declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
@@ -60,7 +97,7 @@ else
   SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
   ARCION_HOME=${ARCION_HOME:-/arcion}
   if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
-  export CONFLUENT_KEY_SECRET="`echo -n \"$CONFLUENT_CLUSTER_API_KEY:$CONFLUENT_CLUSTER_API_SECRET\" | base64 -w 0`"
+  export CONFLUENT_KEY_SECRET="$(echo -n \"$CONFLUENT_CLUSTER_API_KEY:$CONFLUENT_CLUSTER_API_SECRET\" | base64 -w 0)"
 
   # env vars that can be set to skip questions
   # unset DSTDB_DIR DSTDB_HOST
@@ -74,7 +111,7 @@ else
   # create tmp CFG_DIR
   mkdir -p /arcion/data
   # WARNING: log id length max is 9
-  export LOG_ID=$$
+  export LOG_ID="$(nine_char_id)"
   export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
   rm -rf $CFG_DIR 2>/dev/null
   # these are from arc_utils.sh
@@ -86,7 +123,7 @@ else
   mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
-  CFG_DIR=/arcion/data/${LOG_ID}-$(echo "${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
+  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER}-${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
   # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
   # move to new name

@@ -7,9 +7,9 @@ snapshot:
   user-role:
     init-user-roles: false  
 
-  # cockroach does not support postgers default COPY statement
+  # cockroach 23.1 and beyond postgres default COPY statement
   bulk-load:
-    enable: false
+    enable: true
     type: FILE   # PIPE, FILE  
 
 realtime:

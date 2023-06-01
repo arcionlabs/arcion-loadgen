@@ -213,6 +213,7 @@ COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${U
 # connection.xml causes exception on some docker host
 RUN mkdir -p /home/${USERNAME}/.jsqsh
 RUN touch /home/${USERNAME}/.jsqsh/.welcome
+COPY --chown=${USERNAME} scripts/utils/jsqsh/connections.xml /home/${USERNAME}/.jsqsh/.
 COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqsh/.
 
 # python requirements
@@ -231,9 +232,9 @@ ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
 
 # create dirs and reamp external uid to internal
-RUN sudo mkdir /libs 
-RUN sudo chown -R $USERNAME /libs
-RUN mkdir /arcion/data
+#RUN sudo mkdir /libs 
+#RUN sudo chown -R $USERNAME /libs
+RUN mkdir /opt/stage
 RUN mkdir /opt/mnt
 
 ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH

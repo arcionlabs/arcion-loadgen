@@ -1,6 +1,7 @@
 #!/usr/bin/env bash 
 
-. $SCRIPTS_DIR/lib/map_csv.sh
+. ${SCRIPTS_DIR}/lib/map_csv.sh
+. ${SCRIPTS_DIR}/lib/nine_char_id.sh
 
 heredoc_file() {
     # heredoc on a file
@@ -21,16 +22,20 @@ copy_hier_as_flat() {
         if [ ! -d "${dir}" ]; then continue; fi
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
             filename=$(basename $f)
+            # print info if over writing
             if [ -f $DST/$filename ]; then
                 echo override $f $DST/$filename 
             fi 
+            # perform the actual copy
             local suffix=$( echo $f | awk -F. '{print $NF}' )
             if [ "$suffix" = "sh" ]; then 
                 # DEBUG: echo cp $f $DST/$filename
                 cp ${f} $DST/$filename 
+            elif [ "$suffix" = "yaml" ]; then 
+                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
             else
                 # DEBUG: echo PID=$$ heredoc_file ${f} \> $DST/$filename
-                PID=$$ heredoc_file ${f} > $DST/$filename
+                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
             fi    
         done
         dir="${dir}/"
@@ -57,6 +62,7 @@ copy_yaml() {
     pushd ${SCRIPTS_DIR}/utils >/dev/null
     copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
+    copy_hier_as_flat arcion       ""  $CFG_DIR
     copy_hier_as_flat benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat benchbase/dst sample $CFG_DIR/benchbase/dst
     popd >/dev/null
