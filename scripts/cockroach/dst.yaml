@@ -10,5 +10,6 @@ username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
-max-retries: 1
+# cockraoch txn retries
+max-retries: 10
 
