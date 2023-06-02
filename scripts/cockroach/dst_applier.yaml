@@ -3,11 +3,18 @@ snapshot:
   skip-tables-on-failures : true
   _traceDBTasks: true
 
+  # used by bulk-load 
+  # default 1M rows is too large for one txn
+  batch-size-rows: 6_000
+
+  # used by JDBC applier
+  txn-size-rows: 7_000
+
   # cockroach does not support postgtres default priv model
   user-role:
     init-user-roles: false  
 
-  # cockroach 23.1 and beyond postgres default COPY statement
+  # cockroach 23.1 and beyond supports postgres default COPY statement
   bulk-load:
     enable: true
     type: FILE   # PIPE, FILE  
