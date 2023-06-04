@@ -1,17 +1,43 @@
 #!/usr/bin/env bash
 
+echo "checking existence of ~/sqllib"
+if [ -d ~/sqllib ]; then
+    echo "found."
+else
+    if mkdir ~/sqllib; then
+        echo "~/sqllib created."
+    else
+        echo "Error: mkdir ~/sqllib exited with $?." 
+        exit 1
+    fi
+fi
+
+echo "checking prior setup of ~/sqllib/bin/db2"
+if [ -x ~/sqllib/bin/db2 ]; then
+    echo "~/sqllib/bin/db2 found.  skipping db2 setup"
+    exit 0
+else
+    echo "~/sqllib/bin/db2 not found. will attempt setup"
+fi
+
+echo "checking write for ~/sqllib"
+if [ -w ~/sqllib ]; then
+    echo "writable."
+else
+    if sudo chown -R arcion:arcion ~/sqllib; then
+        echo "sudo chown -R arcion:arcion ~/sqllib."
+    else
+        echo "Error: sudo chown -R arcion:arcion ~/sqllib exited with $?." 
+        exit 1
+    fi
+fi
+
 echo "checking for existance of /opt/stage/libs/v11.5.4_linuxx64_client.tar.gz"
 
 if [ -f "/opt/stage/libs/v11.5.4_linuxx64_client.tar.gz" ]; then
     echo "found"
 else
     echo "not found.  skipping db2 setup"
-    exit 0
-fi
-
-echo "checking prior setup of ~/sqllib"
-if [ -d ~/sqllib ]; then
-    echo "found.  skipping db2 setup"
     exit 0
 fi
 

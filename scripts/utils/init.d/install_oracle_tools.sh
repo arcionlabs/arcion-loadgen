@@ -1,5 +1,29 @@
 #!/usr/bin/env bash
 
+echo "checking existence of /opt/oracle"
+if [ -d /opt/oracle ]; then
+    echo "found."
+else
+    if mkdir /opt/oracle; then
+        echo "/opt/oracle created."
+    else
+        echo "Error: mkdir /opt/oracle exited with $?." 
+        exit 1
+    fi
+fi
+
+echo "checking write for /opt/oracle"
+if [ -w /opt/oracle ]; then
+    echo "writable."
+else
+    if sudo chown -R arcion:arcion /opt/oracle; then
+        echo "sudo chown -R arcion:arcion /opt/oracle."
+    else
+        echo "Error: sudo chown -R arcion:arcion /opt/oracle exited with $?." 
+        exit 1
+    fi
+fi
+
 # https://docs.arcion.io/docs/source-setup/oracle/native-export/
 
 echo "checking for existance of /opt/oracle/bin" 

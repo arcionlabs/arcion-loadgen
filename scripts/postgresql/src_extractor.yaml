@@ -15,22 +15,15 @@ snapshot:
   max-jobs-per-chunk: 80
 
   min-job-size-rows: 10_000 # default 1_000_000 is too large for purposes demo
- # per-table-config:
- # - catalog: ${SRCDB_DB}
- #   schema: ${SRCDB_SCHEMA}   
- #   tables:
- #     THEUSERTABLE:
- #       split-key: YCSB_KEY
- #       split-method: RANGE
- #       extraction-priority: -1 
- #     test_table_large:
- #       split-key: id
- #       split-method: RANGE
- #       extraction-priority: -1 
- #     test_table_large_int4:
- #       split-key: id
- #       split-method: RANGE
- #       extraction-priority: -1 
+  per-table-config:
+  - catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}   
+    tables:
+      # pg forces lowercase, need to follow destination casing convention
+      # pg uses ctid so split key is not required
+      theusertable:
+        extraction-priority: -1 
+
 
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
