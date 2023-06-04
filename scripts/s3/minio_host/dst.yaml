@@ -1,15 +1,14 @@
 type: S3
 
-access-key: '${DSTDB_ACCESS_KEY:-${DSTDB_ARC_USER}}'
-secret-key: '${DSTDB_SECRET:-${DSTDB_ARC_PW}}'
+access-key: '${DSTDB_ARC_USER}'
+secret-key: '${DSTDB_ARC_PW}'
 
 # bucket name.service-endppoint = new URL
 # for exmaple http://arcdst.minio:9000 will be used from the below
 # if IP is used, then bucket name will not be used
 bucket: '${DSTDB_ARC_USER}'
 endpoint:
-  service-endpoint: '${DSTDB_URL:-http://${DSTDB_IP:-${DSTDB_HOST}}:${DSTDB_PORT}}' 
-  #signingRegion: us-east-1
+  service-endpoint: 'http://${DSTDB_HOST}:${DSTDB_PORT}' 
 
 # this must match mc create bucket/name from dst.init.roo.sh script
 # cannot trailing / in the name
