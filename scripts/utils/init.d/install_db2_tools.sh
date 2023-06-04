@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+# required libs for db2 for ubuntu
+db2_ubuntu_pkg_install() {
+
+    # https://docs.arcion.io/docs/source-setup/db2/db2_native_luw/
+    sudo dpkg --add-architecture i386
+    sudo apt-get update
+    sudo apt-get install -y file
+    sudo apt-get install -y libaio1 libstdc++6:i386 libpam0g:i386
+    sudo apt-get install -y binutils
+
+    # install on the machine where thet setup is run
+    # not required if using response file
+    sudo apt-get install -y libxrender1
+    # https://www.ibm.com/support/pages/unsatisfiedlinkerror-cannot-open-shared-object-file-libxtstso6
+    sudo apt-get install -y libxtst-dev
+}
+
+# if the container was remove and recreated, then package would be missing
+# however, sqllib would still be there. check and install just in case
+echo "checking db2 ubuntu packages"
+db2_ubuntu_pkg_install
+
 echo "checking existence of ~/sqllib"
 if [ -d ~/sqllib ]; then
     echo "found."
@@ -40,21 +62,6 @@ else
     echo "not found.  skipping db2 setup"
     exit 0
 fi
-
-# required libs for db2 for ubuntu
-
-# https://docs.arcion.io/docs/source-setup/db2/db2_native_luw/
-sudo dpkg --add-architecture i386
-sudo apt-get update
-sudo apt-get install -y file
-sudo apt-get install -y libaio1 libstdc++6:i386 libpam0g:i386
-sudo apt-get install -y binutils
-
-# install on the machine where thet setup is run
-# not required if using response file
-sudo apt-get install -y libxrender1
-# https://www.ibm.com/support/pages/unsatisfiedlinkerror-cannot-open-shared-object-file-libxtstso6
-sudo apt-get install -y libxtst-dev
 
 # setup db2 client at ~sqllib
 mkdir /tmp/db2.$$
