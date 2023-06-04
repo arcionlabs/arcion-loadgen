@@ -1,4 +1,4 @@
-license-path: "/opt/stage/libs/replicant.lic"
-data-dir: "/opt/stage/data"
+license-path: /opt/stage/libs/replicant.lic
+data-dir: /opt/stage/data
 permission-validation: 
-  enable: "false"
+  enable: false

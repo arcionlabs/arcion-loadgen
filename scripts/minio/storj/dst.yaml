@@ -1,0 +1,21 @@
+type: S3
+
+access-key: '${STORJ_DST_ID}'
+secret-key: '${STORJ_DST_SECRET}'
+
+bucket: '${STORJ_DB:-arcdst}'
+# cannot trailing / in the name
+root: '${STORJ_DB:-arcdst}/${DSTDB_DB}'
+
+endpoint:
+  service-endpoint: '${STORJ_DST_ENDPOINT}' 
+
+#directory where CSV files will be staged before uploading to S3
+stage:
+  type: SHARED_FS
+  root-dir: '${CFG_DIR}/stage' 
+file-format: CSV  # CSV | JSON
+
+max-connections: 5
+max-retries: 1
+  
