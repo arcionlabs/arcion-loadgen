@@ -3,18 +3,14 @@ type: S3
 access-key: '${WASABI_DST_ID}'
 secret-key: '${WASABI_DST_SECRET}'
 
-# bucket name.service-endppoint = new URL
-# for exmaple http://arcdst.minio:9000 will be used from the below
-# if IP is used, then bucket name will not be used
-# https://docs.wasabi.com/docs/what-are-the-service-urls-for-wasabis-different-storage-regions
-bucket: '${DSTDB_ARC_USER}'
+bucket: '${WASABI_DST_BUCKET:-arcdst}'
+# cannot trailing / in the name
+root: '${WASABI_DST_BUCKET:-arcdst}/${DSTDB_DB}'
+region: '$(echo ${WASABI_DST_REGION^^} | tr "-" "_")'
+force-path-style: true
 endpoint:
   service-endpoint: '${WASABI_DST_ENDPOINT}' 
-  signingRegion: us-east-1
-region: us_east_1
-# this must match mc create bucket/name from dst.init.roo.sh script
-# cannot trailing / in the name
-root: '${DSTDB_ARC_USER}/${DSTDB_DB}'
+  signing-region: '${WASABI_DST_REGION}'
 
 #directory where CSV files will be staged before uploading to S3
 stage:

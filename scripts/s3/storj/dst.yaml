@@ -3,9 +3,9 @@ type: S3
 access-key: '${STORJ_DST_ID}'
 secret-key: '${STORJ_DST_SECRET}'
 
-bucket: '${STORJ_DB:-arcdst}'
+bucket: '${STORJ_DST_DB:-arcdst}'
 # cannot trailing / in the name
-root: '${STORJ_DB:-arcdst}/${DSTDB_DB}'
+root: '${STORJ_DST_DB:-arcdst}/${DSTDB_DB}'
 
 endpoint:
   service-endpoint: '${STORJ_DST_ENDPOINT}' 
