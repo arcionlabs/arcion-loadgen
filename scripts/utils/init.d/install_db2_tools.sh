@@ -17,6 +17,15 @@ db2_ubuntu_pkg_install() {
     sudo apt-get install -y libxtst-dev
 }
 
+echo "checking for existance of /opt/stage/libs/v11.5.4_linuxx64_client.tar.gz"
+
+if [ -f "/opt/stage/libs/v11.5.4_linuxx64_client.tar.gz" ]; then
+    echo "found"
+else
+    echo "not found.  skipping db2 setup"
+    exit 0
+fi
+
 # if the container was remove and recreated, then package would be missing
 # however, sqllib would still be there. check and install just in case
 echo "checking db2 ubuntu packages"
@@ -52,15 +61,6 @@ else
         echo "Error: sudo chown -R arcion:arcion ~/sqllib exited with $?." 
         exit 1
     fi
-fi
-
-echo "checking for existance of /opt/stage/libs/v11.5.4_linuxx64_client.tar.gz"
-
-if [ -f "/opt/stage/libs/v11.5.4_linuxx64_client.tar.gz" ]; then
-    echo "found"
-else
-    echo "not found.  skipping db2 setup"
-    exit 0
 fi
 
 # setup db2 client at ~sqllib
