@@ -1,0 +1,1 @@
+./arcdemo.sh snapshot mysql minio/s3/gcs_path

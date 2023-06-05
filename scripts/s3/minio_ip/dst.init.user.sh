@@ -10,7 +10,7 @@ if [ -n "$PROG_DIR" ]; then
 else
     echo "Error: the script should be in a directory to infer alias name"
 fi
-alias_name=minio_host
+alias_name=minio_ip
 
 set -x
 
