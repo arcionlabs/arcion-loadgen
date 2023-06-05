@@ -1,12 +1,27 @@
 #!/usr/bin/env bash
 
-# https://blog.min.io/command-line-access-to-google-cloud-storage/#:~:text=To%20use%20mc%20with%20google%20cloud%20storage%2C%20you,access%20key%20and%20secret%20key.%20Note%20them%20down.
+# alias name is the dir name of this script
+PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
+if [ "${PROG_DIR}" = "." ]; then
+    PROG_DIR=$(basename $(pwd))
+fi
+if [ -n "$PROG_DIR" ]; then
+    alias_name=$PROG_DIR
+else
+    echo "Error: the script should be in a directory to infer alias name"
+fi
+alias_name=gcs
 
+# create bucket if does not exists
+set -x
 # create arcdst user alias
-mc alias set --api S3v2 gcs ${GCS_DST_ENDPOINT} ${GCS_DST_ID} ${GCS_DST_SECRET}
-# create arcdst bucket
-#mc mb  --with-lock ${DSTDB_ARC_USER}/${DSTDB_DB}
+mc alias set $alias_name ${GCS_DST_ENDPOINT} ${GCS_DST_ID} ${GCS_DST_SECRET}
+# see if bucket exists (must be lower case)
+dst_bucket=$(mc ls $alias_name/${GCS_DST_DB,,} | awk '{print $NF}')
+# create bucket if does not exist
+if [ -z "${dst_bucket}" ]; then
+    mc mb  --with-lock $alias_name/${GCS_DST_DB}
+fi
 # list buckets 
-mc ls -r gcs/${DSTDB_DB}
-# Creating an object whose name ends with a "/" will create a folder. It is an empty object that simulates a directory. link
-
+mc ls -r $alias_name/${GCS_DST_DB}
+set +x
