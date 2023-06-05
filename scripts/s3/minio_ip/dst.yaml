@@ -3,14 +3,15 @@ type: S3
 access-key: '${DSTDB_ARC_USER}'
 secret-key: '${DSTDB_ARC_PW}'
 
+
+# if IP is used, then bucket name will not be used
 bucket: '${DSTDB_ARC_USER}'
 endpoint:
-  service-endpoint: 'http://${DSTDB_HOST}:${DSTDB_PORT}' 
+  service-endpoint: 'http://$(getent hosts ${DSTDB_HOST} | head -n 1 | awk '{print $1}'):${DSTDB_PORT}' 
 
 # this must match mc create bucket/name from dst.init.roo.sh script
 # cannot trailing / in the name
 root: '${DSTDB_ARC_USER}/${DSTDB_DB}'
-force-path-style: true
 
 #directory where CSV files will be staged before uploading to S3
 stage:
