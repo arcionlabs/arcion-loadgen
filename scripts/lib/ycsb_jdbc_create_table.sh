@@ -157,7 +157,7 @@ ycsb_create_table() {
     fi
 
     if [ "${db_grp,,}" = "db2" ]; then ycsb_create_db2
-    elif [ "${db_grp,,}" = "sqlserver" ]; then ycsb_create_sqlserver
+    elif [ "${db_grp,,}" = "sqlserver" ] ||  [ "${db_grp,,}" = "sybasease" ]; then ycsb_create_sqlserver
     elif [ "${db_grp,,}" = "informix" ]; then ycsb_create_informix
     elif [ "${db_grp,,}" = "oracle" ]; then ycsb_create_oracle
     else 
