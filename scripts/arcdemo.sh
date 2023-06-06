@@ -136,7 +136,8 @@ else
   mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
-  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER}-$(echo ${SRCDB_HOST} | tr '-' '_' )-$(echo ${DSTDB_HOST} | tr '-' '_')-$(echo ${REPL_TYPE}|tr '-' '_')-${workload_size_factor}" | tr '/' '_')
+  # chage /- to _ and change ' 'to - to make the name
+  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_HOST} ${DSTDB_HOST} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
   # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
   # move to new name
