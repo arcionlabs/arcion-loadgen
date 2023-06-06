@@ -45,9 +45,22 @@ if [ ! -f "$ARCION_HOME/bin/replicant" ]; then
   exit 1
 fi
 
-if [ ! -f "$ARCION_HOME/replicant.lic" ]; then
-  echo "$ARCION_HOME/replicantlic not found." >&2
+if [ -f "$ARCION_HOME/replicant.lic" ]; then
+  echo "$ARCION_HOME/replicant.lic not found." >&2
   exit 1
+elif [ -f "$SCRIPTS_DIR/utils/arcion/general.yaml" ]; then
+  echo "checking $SCRIPTS_DIR/utils/arcion/general.yaml"
+  license_path=$( cat $SCRIPTS_DIR/utils/arcion/general.yaml | \
+    yq -r '."license-path"')
+  echo "license_path=${license_path}"
+  if [ -n "${license_path}" ] && [ -f "${license_path}" ]; then 
+    echo "license ${license_path} exists"
+  else
+    echo "Error: license ${license_path} does not exists"
+    exit 1
+  fi
+else
+  echo "Error: $ARCION_HOME/replicant.lic nor $SCRIPTS_DIR/utils/arcion/general.yaml exists"
 fi
 
 export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
@@ -123,7 +136,8 @@ else
   mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
-  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER}-${SRCDB_HOST}-${DSTDB_HOST}-${REPL_TYPE}-${workload_size_factor}" | tr '/' '-')
+  # chage /- to _ and change ' 'to - to make the name
+  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_HOST} ${DSTDB_HOST} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
   # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
   # move to new name

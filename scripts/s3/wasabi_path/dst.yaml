@@ -1,0 +1,23 @@
+type: S3
+
+access-key: '${WASABI_DST_ID}'
+secret-key: '${WASABI_DST_SECRET}'
+
+bucket: '${WASABI_DST_BUCKET:-arcdst}'
+# cannot trailing / in the name
+root: '${WASABI_DST_BUCKET:-arcdst}/${DSTDB_DB}'
+region: '$(echo ${WASABI_DST_REGION^^} | tr "-" "_")'
+force-path-style: true
+endpoint:
+  service-endpoint: '${WASABI_DST_ENDPOINT}' 
+  signing-region: '${WASABI_DST_REGION}'
+
+#directory where CSV files will be staged before uploading to S3
+stage:
+  type: SHARED_FS
+  root-dir: '${CFG_DIR}/stage' 
+file-format: CSV  # CSV | JSON
+
+max-connections: 5
+max-retries: 1
+  

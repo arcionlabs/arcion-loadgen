@@ -234,8 +234,8 @@ RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
 # create dirs and reamp external uid to internal
 #RUN sudo mkdir /libs 
 #RUN sudo chown -R $USERNAME /libs
-RUN mkdir /opt/stage
-RUN mkdir /opt/mnt
+RUN mkdir /opt/mnt 
+RUN mkdir /home/arcion/sqllib
 
 ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH
 

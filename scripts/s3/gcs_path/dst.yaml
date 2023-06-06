@@ -1,0 +1,22 @@
+type: S3
+
+access-key: '${GCS_DST_ID}'
+secret-key: '${GCS_DST_SECRET}'
+
+bucket: '${GCS_DST_BUCKET}'
+# cannot trailing / in the name
+root: '${GCS_DST_BUCKET}/${DSTDB_DB}'
+force-path-style: true
+
+endpoint:
+  service-endpoint: '${GCS_DST_ENDPOINT}' 
+
+#directory where CSV files will be staged before uploading to S3
+stage:
+  type: SHARED_FS
+  root-dir: '${CFG_DIR}/stage' 
+file-format: CSV  # CSV | JSON
+
+max-connections: 5
+max-retries: 1
+  

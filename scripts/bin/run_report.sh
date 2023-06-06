@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-for f in $(find /opt/stage/data -name arcion.log); do
- exit_msg=$(tail -n 1 $f)
+. ${SCRIPTS_DIR}/lib/report_name.sh
 
- if [ ! -z "${exit_msg}" ]; then
-    echo "$f ${exit_msg}"
- fi
+# file without the dir prefix
+ROOT_DIR=/opt/stage/data
+for f in $(cd $ROOT_DIR; find . -name arcion.log -printf '%h\n'); do
+   # skip ./ in the name
+   report_name ${f:2} ${ROOT_DIR}
 done

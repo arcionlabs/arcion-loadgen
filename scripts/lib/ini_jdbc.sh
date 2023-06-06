@@ -104,6 +104,16 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_URL_IDPW="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_DB}?w=0"
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mongodb*jar | paste -sd :)"
     ;;
+  sybasease)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="sybase"
+    SRCDB_JDBC_DRIVER="com.sybase.jdbc4.jdbc.SybDriver"
+    SRCDB_JDBC_URL="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}"   
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""      
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jconn4*jar | paste -sd :)"
+    ;;       
   sqlserver)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="mssql2k5"

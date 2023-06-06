@@ -8,4 +8,5 @@
 . ${SCRIPTS_DIR}/lib/ping_utils.sh
 
 # wait for host and port to be up
-ping_host_port $DSTDB_HOST $DSTDB_PORT
+# TODO: grab the endpoint out of the YAML file
+# ping_host_port $DSTDB_HOST $DSTDB_PORT
