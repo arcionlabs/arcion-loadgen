@@ -131,28 +131,26 @@ USER $USERNAME
 
 # setup load generators
 
-# download ycsb
+# download ycsb and add setenv.sh that sets CLASSPATH
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
-COPY --chown=${USERNAME} tmp/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz ${YCSB}/
-
-RUN cd $YCSB; for b in ${YCSB_BINDING}; do \
-        curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${b}-${YCSB_VERSION}.tar.gz; \
-    done
-RUN cd ${YCSB}; for f in $( ls *gz ); do tar -xvf $f; rm $f; done;
-RUN cd ${YCSB}; for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done;
+RUN cd ${YCSB}; \
+    curl -O --location https://github.com/arcionlabs/YCSB/releases/download/arcion-snapshot/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz; \
+    curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-mongodb-binding-0.17.0.tar.gz; \
+    for f in $( ls *gz ); do tar -xvf $f; rm $f; done; \
+    for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done
 
 # benchbase
-COPY --chown=${USERNAME} tmp/benchbase-informix.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-mariadb.tgz   ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-mysql.tgz     ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-oracle.tgz    ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-postgres.tgz  ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-sqlserver.tgz ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-db2.tgz       ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-cockroachdb.tgz ${BENCHBASE_DIR}/
-COPY --chown=${USERNAME} tmp/benchbase-snowflake.tgz ${BENCHBASE_DIR}/
-RUN cd ${BENCHBASE_DIR} \
-    && for w in cockroachdb db2 informix mariadb mysql postgres sqlserver oracle snowflake; do tar -xvf benchbase-$w.tgz; rm benchbase-$w.tgz; done
+RUN cd ${BENCHBASE_DIR}; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-cockroachdb.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-db2.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-informix.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-mariadb.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-mysql.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-oracle.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-postgres.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-snowflake.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-sqlserver.tgz; \
+    for f in $( ls *gz ); do tar -xvf $f; rm $f; done
 
 # /usr/share/sysbench/oltp_common.lua
 # schema with ts column so that delta snap can work
