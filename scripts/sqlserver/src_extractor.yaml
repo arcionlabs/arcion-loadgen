@@ -3,6 +3,7 @@ snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   _traceDBTasks: true
   fetch-user-roles: false
+  _fetch-exact-row-count: false    
     
   min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo
   per-table-config:

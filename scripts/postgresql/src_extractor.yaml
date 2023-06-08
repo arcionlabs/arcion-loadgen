@@ -3,6 +3,7 @@ snapshot:
   threads: ${SRCDB_SNAPSHOT_THREADS}
   _traceDBTasks: true
   fetch-user-roles: false
+  _fetch-exact-row-count: false    
 
   #enable-extraction-governor: true 
 
@@ -22,6 +23,7 @@ snapshot:
       # pg forces lowercase, need to follow destination casing convention
       # pg uses ctid so split key is not required
       theusertable:
+        split-key: ycsb_key
         extraction-priority: -1 
 
 
@@ -31,7 +33,7 @@ realtime:
   _traceDBTasks: true
   # enable DDL replication
   ddl-replication:
-    enable: true                 
+    enable: false
     ddl-replication-mode: REINIT # Default is REINIT mode. [REINIT|INLINE]
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:

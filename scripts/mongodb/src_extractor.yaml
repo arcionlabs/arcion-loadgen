@@ -3,6 +3,7 @@ snapshot:
   _traceDBTasks: true
   fetch-size-rows: 5000
   fetch-user-roles: false
+  _fetch-exact-row-count: false    
 
   min-job-size-rows: 1_000
   max-jobs-per-chunk: 32
