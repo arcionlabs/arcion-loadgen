@@ -14,9 +14,8 @@ max-connections: 5
 
 max-retries: 1
 retry-wait-duration-ms: 1000
-# for 12c, 18c, 19c, should set up as false, since not supported 
+# for 19c and up should set up as false, since not supported 
 continuous-log-mining: false     
-#continuous-log-mining: true
 
 #ssl:
 #   trust-store:
