@@ -91,6 +91,7 @@ RUN apt-get install -y \
     pcp \
     gettext \
     net-tools \
+    host \
     nmap \
     less \
     python3-pip \
