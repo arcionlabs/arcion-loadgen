@@ -178,7 +178,7 @@ find_dstdb() {
 find_hosts() {
     mkdir -p /tmp/arcion/nmap
     if [ ! -f "/tmp/arcion/nmap/names.$$.txt" ]; then
-        ip=$( hostname -i | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
+        ip=$( hostname -I | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
         nmap -sn -oG /tmp/arcion/nmap/names.$$.txt $ip >/dev/null
     fi
     cat /tmp/arcion/nmap/names.$$.txt | grep "arcnet" | awk -F"[ \(\)]" '{print $4}'
