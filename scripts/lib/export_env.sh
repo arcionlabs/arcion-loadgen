@@ -10,6 +10,7 @@ export ARCION_HOME=${ARCION_HOME}
 export ARCION_VER=${ARCION_VER}
 export SCRIPT_DIR=${SCRIPT_DIR}
 # source
+export SRCDB_SHORTNAME="${SRCDB_SHORTNAME}"
 export SRCDB_DIR="${SRCDB_DIR}"
 export SRCDB_TYPE="${SRCDB_TYPE}"
 export SRCDB_HOST="${SRCDB_HOST}"
@@ -18,6 +19,7 @@ export SRCDB_PORT="${SRCDB_PORT}"
 export SRCDB_DB="${SRCDB_DB}"
 export SRCDB_SID="${SRCDB_SID}"
 # destination
+export DSTDB_SHORTNAME="${DSTDB_SHORTNAME}"
 export DSTDB_DIR="${DSTDB_DIR}"
 export DSTDB_TYPE="${DSTDB_TYPE}"
 export DSTDB_HOST="${DSTDB_HOST}"

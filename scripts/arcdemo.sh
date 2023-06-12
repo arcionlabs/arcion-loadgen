@@ -137,7 +137,7 @@ else
 
   # change the name of the CFG_DIR
   # chage /- to _ and change ' 'to - to make the name
-  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_HOST} ${DSTDB_HOST} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
+  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_SHORTNAME} ${DSTDB_SHORTNAME} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
   # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
   # move to new name

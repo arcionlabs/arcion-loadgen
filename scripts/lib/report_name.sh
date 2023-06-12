@@ -1,79 +1,102 @@
 #!/usr/bin/env bash
 
-# run the report from cfg dir
-# return name time id 
-# 
-# 
-report_name() {
-    f=${1:-$(basename $(pwd))} 
-    ROOT_DIR=${2:-$(dirname $(pwd))}
+# read yaml file, look for host, split it into name version role triplet
+split_host_to_triplet() {
+   local FILENAME=$1
+   local ROLE=$2
+   local HOST
+   
+   HOST=$( yq -r '.host' $FILENAME )
 
-    if [ ! -f $ROOT_DIR/$f/arcion.log ]; then
-        echo "${f}: $ROOT_DIR/$f/arcion.log not found. skipping" >&2
-        retrn 0
+   readarray -d '-' -t HOST_ARRAY <<< ${HOST}
+   if [ -z "${HOST_ARRAY[1]}" ]; then
+      HOST_ARRAY[1]="latest"
+      HOST_ARRAY[2]="src"
+   fi   
+
+   if [ -z "${HOST_ARRAY[2]}" ]; then
+      HOST_ARRAY[2]=${ROLE}
+   fi   
+
+   echo ${HOST_ARRAY[*]}
+}
+
+get_replication_mode() {
+   local LOG_DIR=${1:-$(pwd)}
+   local REPL_MODE
+
+   REPL_MODE=$(head -n 10 ${LOG_DIR}/trace.log | grep 'Command :' | sed s'/^.*Command : \(.*\)$/\1/' | awk '{print $2}')
+
+   if [ -z "${REPL_MODE}" ]; then
+      REPL_MODE=$(head -n 10 ${LOG_DIR}/error_trace.log | grep 'Command :' | sed s'/^.*Command : \(.*\)$/\1/' | awk '{print $2}')
+   fi
+
+   if [ -z "${REPL_MODE}" ]; then
+      REPL_MODE="unknown"
+   fi
+
+   echo $REPL_MODE
+}
+
+# run the report from cfg dir
+# dirname convention 
+# 3ed3da197-23.04.30.16-postgresql_v1503_1-mysql_v8033_2-full-1
+# 0 runid   1 arcion version               |             |    |
+#                       |                  |             |    |
+#                       2 source db        3 dest db     4 repl mode
+#                                                             5 size factor
+report_name() {
+   local f=${1:-$(basename $(pwd))} 
+   local ROOT_DIR=${2:-$(dirname $(pwd))}
+   local CFG_DIR=${ROOT_DIR}/${f}
+
+   readarray -d '-' -t run_id_array <<< "${f}"
+   local run_id=${run_id_array[0]}
+   local LOG_DIR=${ROOT_DIR}/${run_id}
+
+    if [ ! -f ${CFG_DIR}/arcion.log ]; then
+        echo "${f}: ${CFG_DIR}/arcion.log not found. skipping" >&2
+        return 0
     fi
 
     # for a long log, stop on first exit
-    error_code=$( grep -m 1 -e 'error code: [1-9]$' $ROOT_DIR/$f/arcion.log )
+    error_code=$( grep -m 1 -e 'error code: [1-9]$' ${CFG_DIR}/arcion.log )
     if [ -n "${error_code}" ]; then 
         echo "${f}: error code: $error_code. skipping" >&2
         return 0
     fi
 
    # Elapsed time from the end of the file
-   elapsed_time=$(tac $ROOT_DIR/$f/arcion.log | awk -F'[: ]' '/Elapsed time/ {print $4 ":" $5 ":" $6 ; exit}')
+   elapsed_time=$(tac ${CFG_DIR}/arcion.log | awk -F'[: ]' '/Elapsed time/ {print $4 ":" $5 ":" $6 ; exit}')
    if [ -z "$elapsed_time" ]; then
         echo "${f}: no elapsed time skipping" >&2
         return 0
    fi
 
-   # 3ed3da197-23.04.30.16-postgresql_v1503_1-mysql_v8033_2-full-1
-   # 0 runid   1 arcion version               |             |    |
-   #                       |                  |             |    |
-   #                       2 source db        3 dest db     4 repl mode
-   #                                                             5 size factor
+   run_repl_mode=$( get_replication_mode )
 
-   # version from the tracelog
-   readarray -d '-' -t run_id_array <<< "${f}"
-
-   # parse invidiual element
-   run_id=${run_id_array[0]}
-   run_repl_mode=${run_id_array[4]}
-
-   readarray -d '_' -t run_src <<< ${run_id_array[2]}
-   readarray -d '_' -t run_dst <<< ${run_id_array[3]}
-   if [ -z "${run_src[1]}" ]; then
-      run_src[1]="latest"
-      run_src[2]="src"
-   fi
-
-   if [ -z "${run_dst[1]}" ]; then
-      run_dst[1]="latest"
-      run_dst[2]="dst"
-   fi
-
-   run_id_array[2]=$(echo ${run_src[*]})
-   run_id_array[3]=$(echo ${run_dst[*]})
+   run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src)
+   run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst)
 
    # script error where trace.log was not saved correctly
-   if [ -f "$ROOT_DIR/${run_id}/trace.log" ]; then
-      arcion_version=$(awk 'NR == 5 {print $NF; exit}' $ROOT_DIR/${run_id}/trace.log)
+   if [ -f "${LOG_DIR}/trace.log" ]; then
+      arcion_version=$(awk 'NR == 5 {print $NF; exit}' ${LOG_DIR}/trace.log)
    else
         echo "${f}: no trace.log skipping" >&2
         return 0
    fi
 
    # number of lines from error_trace.log
-   if [ -f "$ROOT_DIR/${run_id}/error_trace.log" ]; then
-      error_trace_log_cnt=$(grep 'ERROR' $ROOT_DIR/${run_id}/error_trace.log | wc -l)
+   if [ -f "${LOG_DIR}/error_trace.log" ]; then
+      error_trace_log_cnt=$(grep 'ERROR' ${LOG_DIR}/error_trace.log | wc -l)
    else
       error_trace_log_cnt=0
    fi   
 
    # snapshot summary that has the following
    # table_cnt " " total_row_cnt
-   if [ -f "$ROOT_DIR/${run_id}/snapshot_summary.txt" ]; then
-      snapshot_total_rows=$(cat $ROOT_DIR/${run_id}/snapshot_summary.txt | \
+   if [ -f "${LOG_DIR}/snapshot_summary.txt" ]; then
+      snapshot_total_rows=$(cat ${LOG_DIR}/snapshot_summary.txt | \
          awk '
             BEGIN {namespace=0; table_cnt=0; row_cnt=0}
             $1=="Namespace" {namespace=1;next}
@@ -87,7 +110,7 @@ report_name() {
 
    # real-time summary 
    if [ "${run_repl_mode}" != "snapshot" ]; then
-      tac $ROOT_DIR/$f/arcion.log | \
+      tac ${CFG_DIR}/arcion.log | \
          awk '
             {print $0}
             $1=="Table" && $2=="name" {exit}

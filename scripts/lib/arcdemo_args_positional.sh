@@ -65,7 +65,7 @@ function arcdemo_positional() {
             [ "${uri[scheme]}" ] && export SRCDB_TYPE= "${uri[scheme]}" 
             [ "${uri[username]}" ] && export SRCDB_ARC_USER="${uri[username]}"
             [ "${uri[password]}" ] && export SRCDB_ARC_PW="${uri[password]}"
-            [ "${uri[hostname]}" ] && export SRCDB_HOST="${uri[hostname]}"
+            [ "${uri[hostname]}" ] && export SRCDB_SHORTNAME="${uri[hostname]}"
             [ "${uri[port]}" ] && export SRCDB_PORT="${uri[port]}"
             [ "${uri[path]}" ] && export SRCDB_DIR="${uri_path[0]}"
             [ "${uri_query[dbs]}" ] && export SRCDB_DB="${uri_query[dbs]}"
@@ -82,7 +82,7 @@ function arcdemo_positional() {
             [ "${uri[scheme]}" ] && export DSTDB_TYPE= "${uri[scheme]}" 
             [ "${uri[username]}" ] && export DSTDB_ARC_USER="${uri[username]}"
             [ "${uri[password]}" ] && export DSTDB_ARC_PW="${uri[password]}"
-            [ "${uri[hostname]}" ] && export DSTDB_HOST="${uri[hostname]}"
+            [ "${uri[hostname]}" ] && export DSTDB_SHORTNAME="${uri[hostname]}"
             [ "${uri[port]}" ] && export DSTDB_PORT="${uri[port]}"
             [ "${uri[path]}" ] && export DSTDB_DIR="${uri_path[0]}"
             [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
@@ -90,8 +90,8 @@ function arcdemo_positional() {
     fi
 
     # incase of multiple names, take the latest
-    SRCDB_HOST=$(latest_hostname ${SRCDB_HOST} src)
-    DSTDB_HOST=$(latest_hostname ${DSTDB_HOST} dst)
+    SRCDB_HOST=$(latest_hostname ${SRCDB_SHORTNAME} src)
+    DSTDB_HOST=$(latest_hostname ${DSTDB_SHORTNAME} dst)
 
     if [ "$workload_size_factor" = "1" ]; then
         export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}
