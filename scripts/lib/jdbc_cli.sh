@@ -81,13 +81,13 @@ jdbc_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database ${db_db} -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database ${db_user} -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
     ;;
     oracle)
   CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
     ;;    
     *)
-  CLASSPATH=${CLASSPATH} jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_db}"
+  CLASSPATH=${CLASSPATH} jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_user}"
     ;;
   esac  
 }

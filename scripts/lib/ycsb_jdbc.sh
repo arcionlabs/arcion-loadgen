@@ -51,6 +51,7 @@ ycsb_load() {
     ycsb_threads=${ycsb_load_basedon_sf}
   fi 
 
+
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     oracle)
@@ -72,6 +73,8 @@ ycsb_load() {
     #  ;;
   esac 
 
+  jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
+
   jdbc_classpath="${jdbc_classpath}" \
   JAVA_OPTS="${JAVA_OPTS}" \
   ${YCSB_JDBC}/bin/ycsb.sh load jdbc \
@@ -80,7 +83,7 @@ ycsb_load() {
     -p workload=site.ycsb.workloads.CoreWorkload \
     -p db.driver="${jdbc_driver}" \
     -p db.url="${jdbc_url}" \
-    -p db.user="${db_user}" \
+    -p db.user="${db_user}_ycsb" \
     -p db.passwd="${db_pw}" \
     -p jdbc.fetchsize=10 \
     -p jdbc.autocommit=false \
@@ -143,12 +146,18 @@ ycsb_load_sf() {
 }
 
 function ycsb_load_src() { 
+  # override by adding ycsb 
+  local SRCDB_ARC_USER=${SRCDB_ARC_USER}_ycsb
+
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
   ycsb_load_sf src
 }
 
 function ycsb_load_dst() { 
+  # override by adding ycsb 
+  local DSTDB_ARC_USER=${DSTDB_ARC_USER}_ycsb  
+  
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
   ycsb_load_sf dst
@@ -179,6 +188,8 @@ ycsb_run() {
       JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
       ;;
   esac 
+
+  jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
 
   jdbc_classpath="${jdbc_classpath}" \
   JAVA_OPTS="${JAVA_OPTS}" \
@@ -220,12 +231,18 @@ ycsb_run() {
 }
 
 function ycsb_run_src() {
+  # override by adding ycsb 
+  local SRCDB_ARC_USER=${SRCDB_ARC_USER}_ycsb
+
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
   ycsb_run "src" 
 }
 
 function ycsb_run_dst() {
+  # override by adding ycsb 
+  local DSTDB_ARC_USER=${DSTDB_ARC_USER}_ycsb
+
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
   ycsb_run "dst"

@@ -92,6 +92,14 @@ bb_create_tables() {
         # exist already?
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
+
+            # change config match args
+            sed -i.bak \
+                -e "s|\(<username>\).*\(</\)|\1${db_user}_${w}\2|" \
+                -e "s|#_CHANGEME_#|${db_user}_${w}|" \
+                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
+            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
+
             JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
@@ -122,16 +130,16 @@ bb_run_tables() {
     for w in "${workloads_array[@]}"; do
 
         # change config match args
-        if (( bb_param_changed > 0 )); then
-            sed -i.bak \
-                -e "s|\(<rate>\).*\(</\)|\1${bb_rate}\2|" \
-                -e "s|\(<time>\).*\(</\)|\1${bb_timer}\2|" \
-                -e "s|\(<scalefactor>\).*\(</\)|\1${bb_size_factor}\2|" \
-                -e "s|\(<terminals>\).*\(</\)|\1${bb_threads}\2|" \
-                -e "s|\(<batchsize>\).*\(</\)|\1${bb_batchsize}\2|" \
-                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
-            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
-        fi
+        sed -i.bak \
+            -e "s|\(<username>\).*\(</\)|\1${db_user}_${w}\2|" \
+            -e "s|#_CHANGEME_#|${db_user}_${w}|" \
+            -e "s|\(<rate>\).*\(</\)|\1${bb_rate}\2|" \
+            -e "s|\(<time>\).*\(</\)|\1${bb_timer}\2|" \
+            -e "s|\(<scalefactor>\).*\(</\)|\1${bb_size_factor}\2|" \
+            -e "s|\(<terminals>\).*\(</\)|\1${bb_threads}\2|" \
+            -e "s|\(<batchsize>\).*\(</\)|\1${bb_batchsize}\2|" \
+            $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
+        diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
 
         # run
         $JAVA_HOME/bin/java  $JAVA_OPTS \
