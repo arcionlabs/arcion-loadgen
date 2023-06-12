@@ -90,29 +90,16 @@ args_repl=""
 parse_params "$@"
 setup_colors
 
-src_real_time="${src:-mysql mariadb postgresql informix}"
-src_snapshot="${src:-cockroach db2  informix mariadb mysql oraxe postgresql singlestore sqlserver yugabytesql}"
-dst="${dst:-cockroach db2 informix mariadb mysql oraxe oskbroker postgresql singlestore sqlserver yugabytesql}"
-repl="${repl:-snapshot}"
+src="${args_src:-mysql postgresql oraxe}"
+dst="${args_dst:-mysql postgresql oraxe}"
+repl="${args_repl:-snapshot real-time full}"
 
-repl=${args_repl:-"${repl}"}
-dst=${args_dst:-"${dst}"}
 
 for r in ${repl}; do
-  # the src changes for defaults
-  if [[ -z "${args_src}" ]]; then
-    if [[ "${repl}" = "real-time" || "${repl}" = "full" ]]; then
-      src=${src_real_time}
-    else
-      src=${src_snapshot}
-    fi
-  else
-    src=${args_src}        
-  fi
   for s in $src; do
     for d in $dst; do
-        echo "./arcdemo.sh -w 60 $r $s $d"
-        ./arcdemo.sh -w 60 $r $s $d
+        echo "./arcdemo.sh $r $s $d"
+        ./arcdemo.sh $r $s $d
     done
   done
 done

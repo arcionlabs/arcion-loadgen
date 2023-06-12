@@ -27,9 +27,34 @@ report_name() {
         return 0
    fi
 
+   # 3ed3da197-23.04.30.16-postgresql_v1503_1-mysql_v8033_2-full-1
+   # 0 runid   1 arcion version               |             |    |
+   #                       |                  |             |    |
+   #                       2 source db        3 dest db     4 repl mode
+   #                                                             5 size factor
+
    # version from the tracelog
    readarray -d '-' -t run_id_array <<< "${f}"
+
+   # parse invidiual element
    run_id=${run_id_array[0]}
+   run_repl_mode=${run_id_array[4]}
+
+   readarray -d '_' -t run_src <<< ${run_id_array[2]}
+   readarray -d '_' -t run_dst <<< ${run_id_array[3]}
+   if [ -z "${run_src[1]}" ]; then
+      run_src[1]="latest"
+      run_src[2]="src"
+   fi
+
+   if [ -z "${run_dst[1]}" ]; then
+      run_dst[1]="latest"
+      run_dst[2]="dst"
+   fi
+
+   run_id_array[2]=$(echo ${run_src[*]})
+   run_id_array[3]=$(echo ${run_dst[*]})
+
    # script error where trace.log was not saved correctly
    if [ -f "$ROOT_DIR/${run_id}/trace.log" ]; then
       arcion_version=$(awk 'NR == 5 {print $NF; exit}' $ROOT_DIR/${run_id}/trace.log)
@@ -61,11 +86,15 @@ report_name() {
    fi   
 
    # real-time summary 
-   tac $ROOT_DIR/$f/arcion.log | \
-      awk '
-         {print $0}
-         $1=="Table" && $2=="name" {exit}
-      ' > /tmp/real_time.log.$$
+   if [ "${run_repl_mode}" != "snapshot" ]; then
+      tac $ROOT_DIR/$f/arcion.log | \
+         awk '
+            {print $0}
+            $1=="Table" && $2=="name" {exit}
+         ' > /tmp/real_time.log.$$
+   else
+      touch /tmp/real_time.log.$$
+   fi
    # table_cnt " " inserted " " deleted " " updated " " replaced
    realtime_total_rows=$( tac /tmp/real_time.log.$$ | \
       awk '
