@@ -18,6 +18,8 @@ split_host_to_triplet() {
       HOST_ARRAY[2]=${ROLE}
    fi   
 
+   HOST_ARRAY[0]=$( echo ${HOST_ARRAY[0]} | awk -F'.' '{print $1}' )
+
    echo ${HOST_ARRAY[*]}
 }
 
@@ -73,7 +75,7 @@ report_name() {
         return 0
    fi
 
-   run_repl_mode=$( get_replication_mode )
+   run_repl_mode=$( get_replication_mode ${LOG_DIR})
 
    run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src)
    run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst)
