@@ -56,19 +56,27 @@ bb_create_tables() {
     echo "benchbase db type: $db_type"
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
-    # save the list of existing tables as bash associative array (the -A)
-    # NOTE: the quote is required to create the hash correctly
-    # hash of [tablename]=tablename
-    declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
-    # hash of [worklaod]=tablename
-    declare -A "WORKLOAD_TABLE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
-    # hash of [worklaod]=database that do not work with batchrewrite
-    declare -A "WORKLOAD_DATABASE_NOREWRITE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bb_no_batchrewrite.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
-
-    #echo ${EXISITNG_TAB_HASH[@]}
-    #echo ${WORKLOAD_TABLE_HASH[@]}
-
     for w in "${workloads_array[@]}"; do
+
+        # save the list of existing tables as bash associative array (the -A)
+        # NOTE: the quote is required to create the hash correctly
+        # hash of [tablename]=tablename
+        if [[ "${LOC,,}" = "src" ]]; then 
+            local SRCDB_ARC_USER=${SRCDB_ARC_USER}_${w}; 
+            local SRCDB_DB=${SRCDB_ARC_USER}; 
+        else 
+            local DSTDB_ARC_USER=${DSTDB_ARC_USER}_${w}; 
+            local DSTDB_DB=${DSTDB_ARC_USER}; 
+        fi
+        declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+        # hash of [worklaod]=tablename
+        declare -A "WORKLOAD_TABLE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
+        # hash of [worklaod]=database that do not work with batchrewrite
+        declare -A "WORKLOAD_DATABASE_NOREWRITE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bb_no_batchrewrite.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
+
+        #echo ${EXISITNG_TAB_HASH[@]}
+        #echo ${WORKLOAD_TABLE_HASH[@]}
+
         echo "Checking table create required for $w"
 
         # remove batch rewrite

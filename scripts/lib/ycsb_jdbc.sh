@@ -146,18 +146,12 @@ ycsb_load_sf() {
 }
 
 function ycsb_load_src() { 
-  # override by adding ycsb 
-  local SRCDB_ARC_USER=${SRCDB_ARC_USER}_ycsb
-
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
   ycsb_load_sf src
 }
 
-function ycsb_load_dst() { 
-  # override by adding ycsb 
-  local DSTDB_ARC_USER=${DSTDB_ARC_USER}_ycsb  
-  
+function ycsb_load_dst() {   
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
   ycsb_load_sf dst
@@ -231,18 +225,12 @@ ycsb_run() {
 }
 
 function ycsb_run_src() {
-  # override by adding ycsb 
-  local SRCDB_ARC_USER=${SRCDB_ARC_USER}_ycsb
-
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
   ycsb_run "src" 
 }
 
 function ycsb_run_dst() {
-  # override by adding ycsb 
-  local DSTDB_ARC_USER=${DSTDB_ARC_USER}_ycsb
-
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
   ycsb_run "dst"

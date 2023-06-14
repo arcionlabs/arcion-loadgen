@@ -20,9 +20,9 @@ else
     ${ARCION_HOME}/lib/jconn4*jar \
     ${ARCION_HOME}/lib/jdbc-*jar \
     ${ARCION_HOME}/lib/bson-*jar \
-    $(ls /arcion/lib/snowflake-jdbc*jar) \
-    $(ls /arcion/lib/GoogleBigQueryJDBC42*jar)  \
-    /arcion/lib/db2jcc-db2jcc4*jar \
+    $(find ${ARCION_HOME} -name "snowflake-jdbc*jar") \
+    $(find ${ARCION_HOME} -name "GoogleBigQueryJDBC42*jar")  \
+    ${ARCION_HOME}/db2jcc-db2jcc4*jar \
     | paste -sd:)
 fi
 }

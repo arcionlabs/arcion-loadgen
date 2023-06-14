@@ -144,7 +144,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_BENCHBASE=""   
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
-    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/GoogleBigQueryJDBC42*jar | paste -sd :)"
+    DSTDB_CLASSPATH="$( find ${ARCION_HOME}/lib -name "GoogleBigQueryJDBC42*jar" | paste -sd :)"
     ;;
   snowflake)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -154,7 +154,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_USER_CHANGE}&amp;schema=${DSTDB_SCHEMA}&amp;warehouse=${SNOW_DST_WAREHOUSE}"   
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
-    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/snowflake-jdbc*jar | paste -sd :)"
+    DSTDB_CLASSPATH="$( find ${ARCION_HOME}/lib -name "snowflake-jdbc*jar" | paste -sd :)"
     ;;
   oracle)
     DSTDB_YCSB_DRIVER="jdbc"

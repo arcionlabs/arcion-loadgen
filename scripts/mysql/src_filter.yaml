@@ -3,6 +3,10 @@ allow:
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
-    # delta-snaphot demo for YCSB THEUSERTABLE only
-    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "THEUSERTABLE:"; fi )
-    # Otherwise, all tables are replicated
+$( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
+  echo "- catalog: ${SRCDB_DB}_${w}"
+  echo "  schema: ${SRCDB_SCHEMA}"
+  echo "  types: [TABLE]"
+  echo "  allow:"
+done
+)
