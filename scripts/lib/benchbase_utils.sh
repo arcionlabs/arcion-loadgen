@@ -1,5 +1,6 @@
 #!/usr/bin/env bash 
 
+. ${SCRIPTS_DIR}/lib/map_csv.sh
 . ${SCRIPTS_DIR}/lib/benchbase_globals.sh
 . ${SCRIPTS_DIR}/lib/benchbase_args.sh
 
@@ -56,43 +57,52 @@ bb_create_tables() {
     echo "benchbase db type: $db_type"
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
+    declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
+        awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+    # hash of [worklaod]=workload,table_name,dbname_suffix,no_rewrite_support
+    declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
+        awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
+    local workload_prof_header_csv=${WORKLOAD_TABLE_HASH["workload"]}
+
     for w in "${workloads_array[@]}"; do
+        declare -A workload_prof_dict=()
+        csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
+        # DEBUG
+        declare -p workload_prof_dict
+        local dbname_suffix=${workload_prof_dict[dbname_suffix]}
+
 
         # save the list of existing tables as bash associative array (the -A)
         # NOTE: the quote is required to create the hash correctly
         # hash of [tablename]=tablename
         if [[ "${LOC,,}" = "src" ]]; then 
-            local SRCDB_ARC_USER=${SRCDB_ARC_USER}_${w}; 
-            local SRCDB_DB=${SRCDB_ARC_USER}; 
+            local SRCDB_ARC_USER=${SRCDB_ARC_USER}${dbname_suffix}; 
+            local SRCDB_DB=${SRCDB_ARC_USER}${dbname_suffix}; 
         else 
-            local DSTDB_ARC_USER=${DSTDB_ARC_USER}_${w}; 
-            local DSTDB_DB=${DSTDB_ARC_USER}; 
+            local DSTDB_ARC_USER=${DSTDB_ARC_USER}${dbname_suffix}; 
+            local DSTDB_DB=${DSTDB_ARC_USER}${dbname_suffix}; 
         fi
-        declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
-        # hash of [worklaod]=tablename
-        declare -A "WORKLOAD_TABLE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
-        # hash of [worklaod]=database that do not work with batchrewrite
-        declare -A "WORKLOAD_DATABASE_NOREWRITE_HASH=( $( tail -n +2 ${SCRIPTS_DIR}/utils/benchbase/bb_no_batchrewrite.csv | sed 's/^\(.*\),\(.*\)$/[\1]=\2/g' ) )"
 
         #echo ${EXISITNG_TAB_HASH[@]}
         #echo ${WORKLOAD_TABLE_HASH[@]}
 
         echo "Checking table create required for $w"
 
+        cat $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml > $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
         # remove batch rewrite
-        remove_batchrwrite=${WORKLOAD_DATABASE_NOREWRITE_HASH[$w]}
+        remove_batchrwrite=${workload_prof_dict["dont_rewrite_batch"]}
         if [ "$db_grp" = "$remove_batchrwrite" ]; then
             echo "Remove batch rewrite per ${SCRIPTS_DIR}/utils/benchbase/bb_no_batchrewrite.csv"
             if [ -z "$db_jdbc_no_rewrite" ]; then
                 echo "no write available"
             else
-                sed -i.bak -e "$db_jdbc_no_rewrite" $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
-                diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
+                sed -i.bak -e "$db_jdbc_no_rewrite" $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ 
+                diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
             fi 
         fi
 
         # a table for this workload
-        workload_table=${WORKLOAD_TABLE_HASH[$w]}
+        workload_table=${workload_prof_dict["table_name"]}
         if [ -z "${workload_table}" ]; then
             echo "Skipping: ${w} does not have entry in ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv"
             continue
@@ -100,17 +110,16 @@ bb_create_tables() {
         # exist already?
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
-
             # change config match args
             sed -i.bak \
-                -e "s|\(<username>\).*\(</\)|\1${db_user}_${w}\2|" \
-                -e "s|#_CHANGEME_#|${db_user}_${w}|" \
-                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
-            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
+                -e "s|\(<username>\).*\(</\)|\1${db_user}${dbname_suffix}\2|" \
+                -e "s|#_CHANGEME_#|${db_user}${dbname_suffix}|" \
+                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
+            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
             JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
-            -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
+            -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
             --interval-monitor 10000 \
             --create=true --load=true --execute=false
         else
@@ -131,27 +140,40 @@ bb_run_tables() {
     # chdir to where the binary is
     if ! bb_chdir; then return; fi
 
+    # read profile
+    declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
+        awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
+    local workload_prof_header_csv=${WORKLOAD_TABLE_HASH["workload"]}
+    # DEBUG declare -p WORKLOAD_TABLE_HASH return
+
     # convert csv to array
     readarray -td, workloads_array < <(printf '%s' "$workloads")
 
     JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
     for w in "${workloads_array[@]}"; do
 
+        declare -A workload_prof_dict=()
+        csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
+        # DEBUG
+        declare -p workload_prof_dict
+        local dbname_suffix=${workload_prof_dict[dbname_suffix]}
+        
+        cat $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml > $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
         # change config match args
         sed -i.bak \
-            -e "s|\(<username>\).*\(</\)|\1${db_user}_${w}\2|" \
-            -e "s|#_CHANGEME_#|${db_user}_${w}|" \
+            -e "s|\(<username>\).*\(</\)|\1${db_user}${dbname_suffix}\2|" \
+            -e "s|#_CHANGEME_#|${db_user}${dbname_suffix}|" \
             -e "s|\(<rate>\).*\(</\)|\1${bb_rate}\2|" \
             -e "s|\(<time>\).*\(</\)|\1${bb_timer}\2|" \
             -e "s|\(<scalefactor>\).*\(</\)|\1${bb_size_factor}\2|" \
             -e "s|\(<terminals>\).*\(</\)|\1${bb_threads}\2|" \
             -e "s|\(<batchsize>\).*\(</\)|\1${bb_batchsize}\2|" \
-            $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml
-        diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.bak >&2
+            $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
+        diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
         # run
         $JAVA_HOME/bin/java  $JAVA_OPTS \
-        -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml \
+        -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
         --interval-monitor 10000 \
         --create=false --load=false --execute=true &
     done    

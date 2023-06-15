@@ -23,7 +23,7 @@ fi
 # conflicts with ycsb: ycsb
 # conflict with tpcc: auctionmark epinions seats 
 # queries only: chbenchmark hyadapt otmetrics tpcds tpch
-# error when run from program but ok run manuall: wikipedia
+# error when run from program but ok run manually: wikipedia
 workloads_default="resourcestresser sibench smallbank tatp tpcc twitter voter ycsb"
 
 # sqlserver bulk copy does not work with these
