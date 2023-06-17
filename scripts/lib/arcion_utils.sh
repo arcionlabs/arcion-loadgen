@@ -175,13 +175,31 @@ find_dstdb() {
     done
 }
 
-find_hosts() {
+save_nmap() {
     mkdir -p /tmp/arcion/nmap
-    if [ ! -f "/tmp/arcion/nmap/names.$$.txt" ]; then
-        ip=$( hostname -I | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
-        nmap -sn -oG /tmp/arcion/nmap/names.$$.txt $ip >/dev/null
+
+    local subnet=$( hostname -I | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
+    # don't spend more than 2 sec
+    nmap -sn -oG /tmp/arcion/nmap/nmap.raw.txt $subnet >/dev/null
+    
+    # save in hostname (without trailing .arcnet) ip
+    cat /tmp/arcion/nmap/nmap.raw.txt | \
+        awk -F"[ ()]" '/arcnet/ {print $4 "," $2}' | \
+        sed 's/\.arcnet//' | \
+        tee /tmp/arcion/nmap/name.ip.csv
+}
+
+find_hosts() {
+    if [ ! -f "/tmp/arcion/nmap/name.ip.csv" ]; then
+        save_nmap
     fi
-    cat /tmp/arcion/nmap/names.$$.txt | grep "arcnet" | awk -F"[ \(\)]" '{print $4}'
+    local host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+    if [[ -z "${host_ip}" ]]; then
+        echo "refreshing nmap" >&2
+        save_nmap
+        host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+    fi
+    echo ${host_ip}
 }
 
 ask_src_host() {
