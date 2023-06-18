@@ -100,7 +100,7 @@ infer_dbdir() {
     fi
     # hostname is exact match or dir name
     if [ -d ${SCRIPTS_DIR}/${DB_HOST} ]; then
-        echo "$DB_HOST inferred from hostname." >&2
+        echo "$DB_HOST inferred from the exact hostname." >&2
         echo "$DB_HOST"
         return 0
     fi    

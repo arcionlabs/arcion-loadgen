@@ -11,7 +11,7 @@ map_db() {
         COLUMN_VALUE=$(echo ${ROW} | cut -d',' -f${COLUMN_INDEX})
     fi
     if [ -z "${ROW}" ]; then 
-        echo "Error: $1 not defined in map.csv." >&2
+        echo "Warning: $1 not defined in map.csv." >&2
     fi
     echo $COLUMN_VALUE
 }

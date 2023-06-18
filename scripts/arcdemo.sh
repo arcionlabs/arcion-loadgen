@@ -18,6 +18,8 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/tmux_utils.sh
 . $PROG_DIR/lib/nine_char_id.sh
 
+cd ${SCRIPTS_DIR}
+
 # arcion data (log dir)
 if [ -z "$ARCION_LOG" ]; then
   export ARCION_LOG=/opt/stage/data
@@ -36,12 +38,6 @@ if [ -d "${ARCION_LOG}" ]; then
   fi
 else
   echo "ARCION_LOG=$ARCION_LOG dir does not exist" >&2
-  exit 1
-fi
-
-# arcion and script versions
-if [ ! -f "$ARCION_HOME/bin/replicant" ]; then
-  echo "$ARCION_HOME/bin/replicant not a file." >&2
   exit 1
 fi
 

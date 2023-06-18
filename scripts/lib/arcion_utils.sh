@@ -293,9 +293,9 @@ while [ 1 ]; do
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
-    if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
+    if [ -z "${SRCDB_DIR}" ] || [ ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
-
+    
     export SRCDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${SRCDB_HOST})
     declare -A SRCDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
 
