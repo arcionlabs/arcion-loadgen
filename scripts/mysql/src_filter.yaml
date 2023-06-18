@@ -3,10 +3,16 @@ allow:
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
+  block: [ REPLICATE_IO_CDC_HEARTBEAT ]
+
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
-  echo "- catalog: ${SRCDB_DB}_${w}"
-  echo "  schema: ${SRCDB_SCHEMA}"
-  echo "  types: [TABLE]"
-  echo "  allow:"
+    case $w in
+      auctionmarks|epinions|seats) 
+      echo "- catalog: ${SRCDB_DB}_${w}"
+      echo "  schema: ${SRCDB_SCHEMA}"
+      echo "  types: [TABLE]"
+      echo "  allow:"
+      ;;
+    esac
 done
 )
