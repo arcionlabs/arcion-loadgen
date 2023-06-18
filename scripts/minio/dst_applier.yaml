@@ -1,0 +1,5 @@
+snapshot:
+  threads: ${DSTDB_SNAPSHOT_THREADS}
+
+realtime:
+  threads: ${DSTDB_REALTIME_THREADS}
