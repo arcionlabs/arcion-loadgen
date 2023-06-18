@@ -48,6 +48,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/snowflake-jdbc*jar | paste -sd :)"
+    if [[ -z $SRCDB_CLASSPATH ]]; then echo "${ARCION_HOME}/lib/snowflake-jdbc*jar not found" >&2; exit 1; fi 
     ;;
   oracle)
     SRCDB_YCSB_DRIVER="jdbc"
@@ -58,6 +59,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd :)"
+    if [[ -z $SRCDB_CLASSPATH ]]; then echo "${ARCION_HOME}/lib/ojdbc8*jar not found" >&2; exit 1; fi 
     ;;
   informix)
     # JDBC settings 
@@ -145,6 +147,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
     DSTDB_CLASSPATH="$( find ${ARCION_HOME}/lib -name "GoogleBigQueryJDBC42*jar" | paste -sd :)"
+    if [[ -z $SRCDB_CLASSPATH ]]; then echo "${ARCION_HOME}/lib/GoogleBigQueryJDBC42 not found" >&2; exit 1; fi 
     ;;
   snowflake)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -155,6 +158,7 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
     DSTDB_CLASSPATH="$( find ${ARCION_HOME}/lib -name "snowflake-jdbc*jar" | paste -sd :)"
+    if [[ -z $SRCDB_CLASSPATH ]]; then echo "${ARCION_HOME}/lib/snowflake-jdbc*jar not found" >&2; exit 1; fi 
     ;;
   oracle)
     DSTDB_YCSB_DRIVER="jdbc"
@@ -165,6 +169,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
     DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd :)"
+    if [[ -z $SRCDB_CLASSPATH ]]; then echo "${ARCION_HOME}/lib/ojdbc8*jar not found" >&2; exit 1; fi 
+
     ;;
   informix)
     DSTDB_YCSB_DRIVER="jdbc"

@@ -17,47 +17,16 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/arcdemo_args_positional.sh
 . $PROG_DIR/lib/tmux_utils.sh
 . $PROG_DIR/lib/nine_char_id.sh
+. $PROG_DIR/lib/prep_arcion_log.sh
+. $PROG_DIR/lib/prep_arcion_lic.sh
 
 cd ${SCRIPTS_DIR}
 
-# arcion data (log dir)
-if [ -z "$ARCION_LOG" ]; then
-  export ARCION_LOG=/opt/stage/data
-fi
+# prep arcion_log
+prep_arcion_log # prep_arcion_log.sh
 
-# typically log dir should already exist
-if [ -d "${ARCION_LOG}" ]; then
-  echo "Testing ${ARCION_LOG} for create dir priv" 
-  test_dir=$(mktemp -d ${ARCION_LOG}/XXXXXXXXX)
-  if [ -z "${test_dir}" ]; then
-    echo "test create dir $test_dir failed." >&2
-    exit 1
-  else
-    echo "test create dir succeeded. deleting temp dir $test_dir"
-    rmdir "${test_dir}"
-  fi
-else
-  echo "ARCION_LOG=$ARCION_LOG dir does not exist" >&2
-  exit 1
-fi
-
-if [ -f "$ARCION_HOME/replicant.lic" ]; then
-  echo "$ARCION_HOME/replicant.lic not found." >&2
-  exit 1
-elif [ -f "$SCRIPTS_DIR/utils/arcion/general.yaml" ]; then
-  echo "checking $SCRIPTS_DIR/utils/arcion/general.yaml"
-  license_path=$( cat $SCRIPTS_DIR/utils/arcion/general.yaml | \
-    yq -r '."license-path"')
-  echo "license_path=${license_path}"
-  if [ -n "${license_path}" ] && [ -f "${license_path}" ]; then 
-    echo "license ${license_path} exists"
-  else
-    echo "Error: license ${license_path} does not exists"
-    exit 1
-  fi
-else
-  echo "Error: $ARCION_HOME/replicant.lic nor $SCRIPTS_DIR/utils/arcion/general.yaml exists"
-fi
+# prep arcion licese
+prep_arcion_lic # prep_arcion_lic.sh
 
 export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"

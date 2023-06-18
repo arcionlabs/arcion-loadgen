@@ -32,6 +32,10 @@ arcion_param() {
         metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
     fi
 
+    # check
+    if [[ -z ${src} ]]; then echo "Error: src.yaml was not found" >&2; exit 1; fi
+    if [[ -z ${dst} ]]; then echo "Error: dst.yaml was not found" >&2; exit 1; fi
+
     # construct the list
     arg="${src} ${dst}"
     [ -n "${filter}" ] && arg="${arg} --filter ${filter}"
@@ -82,7 +86,11 @@ arcion_delta() {
     # required for Arcion
     logreader_path
 
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
     ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
@@ -104,8 +112,12 @@ arcion_real() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant real-time \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -126,8 +138,12 @@ arcion_full() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant full \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -148,8 +164,12 @@ arcion_snapshot() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant snapshot \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
