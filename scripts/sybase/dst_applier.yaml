@@ -1,5 +1,5 @@
 snapshot:
-  threads: ${SRCDB_SNAPSHOT_THREADS}
+  threads: ${DSTDB_SNAPSHOT_THREADS}
   skip-tables-on-failures : true
   _traceDBTasks: true
 
@@ -11,5 +11,5 @@ snapshot:
     type: FILE   # PIPE, FILE        
 
 realtime:
-  threads: ${SRCDB_REALTIME_THREADS}
+  threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true

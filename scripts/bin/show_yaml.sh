@@ -11,7 +11,7 @@ fi
 
 files=(src.yaml \
     dst.yaml \
-    src_extract.yaml \
+    src_extractor.yaml \
     src_filter.yaml \
     dst_mapper.yaml \
     dst_applier.yaml \
