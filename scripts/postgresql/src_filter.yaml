@@ -1,10 +1,18 @@
 allow:
 - catalog: ${SRCDB_DB}
-  schema: ${SRCDB_SCHEMA}  
+  schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
-    # pg will lowercase by default.
-    theusertable:
-    # tpcc schema not supported yet for full and real time
-  block: [theusertable100, theusertable10, densetable, densetable10]
-  unlisted: ALLOW
+  block: [ REPLICATE_IO_CDC_HEARTBEAT ]
+
+$( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
+    case $w in
+      auctionmarks|epinions|seats) 
+      echo "- catalog: ${SRCDB_DB}_${w}"
+      echo "  schema: ${SRCDB_SCHEMA}"
+      echo "  types: [TABLE]"
+      echo "  allow:"
+      ;;
+    esac
+done
+)

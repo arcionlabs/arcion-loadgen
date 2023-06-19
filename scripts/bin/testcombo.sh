@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
-trap cleanup SIGINT SIGTERM ERR EXIT
-
-script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-s|--src host ] [-d|--dst host ] [-r|--repltype type] -- [options to pass to arcdemo.sh]
@@ -25,14 +20,6 @@ EOF
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   # script cleanup here
-}
-
-setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
-  else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
-  fi
 }
 
 msg() {
@@ -74,8 +61,6 @@ parse_params() {
     shift
   done
 
-  args=("$@")
-
   # check required params and arguments
   # [[ -z "${param-}" ]] && die "Missing required parameter: param"
   # [[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
@@ -88,18 +73,22 @@ args_dst=""
 args_repl=""
 
 parse_params "$@"
-setup_colors
-
-src="${args_src:-mysql postgresql oraxe}"
-dst="${args_dst:-mysql postgresql oraxe}"
-repl="${args_repl:-snapshot real-time full}"
 
 
-for r in ${repl}; do
-  for s in $src; do
-    for d in $dst; do
-        echo "./arcdemo.sh $r $s $d"
-        ./arcdemo.sh $r $s $d
+threads=("-b 4:4 -w 600" "-b 1:1 -w 600")
+src="${args_src:-pg}"
+dst="${args_dst:-mysql pg null}"
+repl="${args_repl:-snapshot}"
+
+echo "${threads[@]} ${repl} ${src} ${dst}"
+
+for t in "${threads[@]}"; do 
+  for r in ${repl}; do
+    for s in ${src}; do
+      for d in ${dst}; do
+          echo "./arcdemo.sh $t $r $s $d"
+          ./arcdemo.sh $t $r $s $d
+      done
     done
   done
 done
