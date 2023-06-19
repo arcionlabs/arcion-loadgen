@@ -75,9 +75,9 @@ args_repl=""
 parse_params "$@"
 
 
-threads=("-b 4:4 -w 600" "-b 1:1 -w 600")
+threads=("-b 4:4 -w 3600" "-b 1:1 -w 3600")
 src="${args_src:-pg}"
-dst="${args_dst:-mysql pg null}"
+dst="${args_dst:-"mysql-dst pg-dst minio null"}"
 repl="${args_repl:-snapshot}"
 
 echo "${threads[@]} ${repl} ${src} ${dst}"
