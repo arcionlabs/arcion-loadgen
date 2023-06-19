@@ -18,6 +18,13 @@ split_host_to_triplet() {
       HOST_ARRAY[2]=${ROLE}
    fi   
 
+   # swithc from host-src-version to host-version-src
+   if [[ "${HOST_ARRAY[1],,}" = "src" ]] || [[ "${HOST_ARRAY[1],,}" = "dst" ]]; then 
+      local x=${HOST_ARRAY[2]}
+      HOST_ARRAY[2]=${HOST_ARRAY[1]}
+      HOST_ARRAY[1]=${x}
+   fi
+
    HOST_ARRAY[0]=$( echo ${HOST_ARRAY[0]} | awk -F'.' '{print $1}' )
 
    echo ${HOST_ARRAY[@]:0:3} # print first 3 elements
