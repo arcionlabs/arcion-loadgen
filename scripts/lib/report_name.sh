@@ -11,7 +11,7 @@ split_host_to_triplet() {
    readarray -d '-' -t HOST_ARRAY <<< ${HOST}
    if [ -z "${HOST_ARRAY[1]}" ]; then
       HOST_ARRAY[1]="latest"
-      HOST_ARRAY[2]="src"
+      HOST_ARRAY[2]=${ROLE}
    fi   
 
    if [ -z "${HOST_ARRAY[2]}" ]; then
@@ -20,7 +20,7 @@ split_host_to_triplet() {
 
    HOST_ARRAY[0]=$( echo ${HOST_ARRAY[0]} | awk -F'.' '{print $1}' )
 
-   echo ${HOST_ARRAY[*]}
+   echo ${HOST_ARRAY[@]:0:3} # print first 3 elements
 }
 
 # read threads from extractor and applier yaml 
