@@ -1,5 +1,35 @@
 #!/usr/bin/env bash
 
+. ${SCRIPTS_DIR}/lib/tracelog_yaml_extract.sh
+
+# convert trace.log to yaml
+trace_to_yaml( ) {
+
+ext_snap
+fetch-size-rows:
+max-jobs-per-chunk:
+min-job-size-rows:
+threads:
+
+
+ext_reatime:
+threads:
+fetch-size-rows:
+
+app_snap:
+threads:
+batch-size-rows:
+txn-size-rows:
+bulk-load:
+    type: FILE
+    
+app_realtime:
+threads:
+batch-size-rows:
+txn-size-rows:
+
+}
+
 # read yaml file, look for host, split it into name version role triplet
 split_host_to_triplet() {
    local FILENAME=$1
