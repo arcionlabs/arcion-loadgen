@@ -23,6 +23,34 @@ split_host_to_triplet() {
    echo ${HOST_ARRAY[*]}
 }
 
+# read threads from extractor and applier yaml 
+get_extractor_applier_threads() {
+   local CFG_DIR=${1:-$(pwd)}
+   local EXTRACTOR_SNAPSHOT_THREADS=0
+   local EXTRACTOR_REALTIME_THREADS=0
+   local EXTRACTOR_DELTA_THREADS=0
+   local APPLIER_SNAPSHOT_THREADS=0
+   local APPLIER_REALTIME_THREADS=0
+   local APPLIER_DELTA_THREADS=0
+
+   x=$( yq -r '.snapshot.threads' $CFG_DIR/src_extractor.yaml 2>/dev/null )
+   [[ $x ]] && EXTRACTOR_SNAPSHOT_THREADS=${x}
+   x=$( yq -r '.realtime.threads' $CFG_DIR/src_extractor.yaml 2>/dev/null)
+   [[ $x ]] && EXTRACTOR_REALTIME_THREADS=${x}
+   x=$( yq -r '."delta-snapshot".threads' $CFG_DIR/src_extractor.yaml 2>/dev/null)
+   [[ $x ]] && EXTRACTOR_DELTA_THREADS=${x}
+
+   x=$( yq -r '.snapshot.threads' $CFG_DIR/dst_applier.yaml 2>/dev/null)
+   [[ $x ]] && APPLIER_SNAPSHOT_THREADS=${x}
+   x=$( yq -r '.realtime.threads' $CFG_DIR/dst_applier.yaml 2>/dev/null)
+   [[ $x ]] && APPLIER_REALTIME_THREADS=${x}
+   x=$( yq -r '."delta-snapshot".threads' $CFG_DIR/dst_applier.yaml 2>/dev/null)
+   [[ $x ]] && APPLIER_DELTA_THREADS=${x}
+
+   echo ${EXTRACTOR_SNAPSHOT_THREADS} ${EXTRACTOR_REALTIME_THREADS} ${EXTRACTOR_DELTA_THREADS} \
+      ${APPLIER_SNAPSHOT_THREADS} ${APPLIER_REALTIME_THREADS} ${APPLIER_DELTA_THREADS} 
+}
+
 get_replication_mode() {
    local LOG_DIR=${1:-$(pwd)}
    local REPL_MODE
@@ -52,7 +80,7 @@ report_name() {
    local ROOT_DIR=${2:-$(dirname $(pwd))}
    local CFG_DIR=${ROOT_DIR}/${f}
 
-   readarray -d '-' -t run_id_array <<< "${f}"
+   readarray -d '-' -t run_id_array < <(printf '%s' "$f") # does not have new line at the end
    local run_id=${run_id_array[0]}
    local LOG_DIR=${ROOT_DIR}/${run_id}
 
@@ -144,10 +172,10 @@ report_name() {
       return 0
    fi
 
-   # normalize to run_id arcion_version source target replication_mode size_factor
+   # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
    if [[ ${#run_id_array[@]} == 5 ]]; then
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1}" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    else
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[@]}" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[@]} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    fi
 }
