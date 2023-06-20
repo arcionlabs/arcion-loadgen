@@ -83,7 +83,7 @@ ycsb_load() {
     -p workload=site.ycsb.workloads.CoreWorkload \
     -p db.driver="${jdbc_driver}" \
     -p db.url="${jdbc_url}" \
-    -p db.user="${db_user}_ycsb" \
+    -p db.user="${db_user}" \
     -p db.passwd="${db_pw}" \
     -p jdbc.fetchsize=10 \
     -p jdbc.autocommit=false \

@@ -44,7 +44,7 @@ realtime:
     enable: true
     catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
-    table-name : HEARTBEAT_${LOG_ID^^}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
 
 delta-snapshot:
   threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}

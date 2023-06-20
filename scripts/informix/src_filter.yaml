@@ -3,6 +3,20 @@ allow:
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
   allow:
+    customer:
+    district:
+    history:
+    item:
+    new_order:
+    oorder:
+    order_line:
+    stock:
+    theusertable:
+    warehouse:
+    
+    #theusertable:
     # delta-snaphot demo for YCSB THEUSERTABLE only
-    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "THEUSERTABLE:"; fi )
+    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "theusertable:"; fi )
     # Otherwise, all tables are replicated
+  #block: [.*heartbeat.*]
+  #unlisted: block  
