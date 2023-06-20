@@ -4,39 +4,63 @@
 
 # convert trace.log to yaml
 trace_to_yaml( ) {
+   #set -x
+   export SRC_HOST=$(cat  ${LOG_DIR}/yaml/src.yaml | yq -r '.host')
+   [[ "$SRC_HOST" = "null" ]] && SRC_HOST=$(cat ${LOG_DIR}/yaml/dst.yaml | yq -r '.endpoint."service-endpoint"' | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|\:.*$||' )
 
-ext_snap
-fetch-size-rows:
-max-jobs-per-chunk:
-min-job-size-rows:
-threads:
+   export DST_HOST=$(cat  ${LOG_DIR}/yaml/dst.yaml | yq -r '.host')
+   [[ "$DST_HOST" = "null" ]] && DST_HOST=$(cat ${LOG_DIR}/yaml/dst.yaml | yq -r '.endpoint."service-endpoint"' | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|\:.*$||' )
 
+   export EXT_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."threads"')
+   EXT_SNAP_THREADS=${EXT_SNAP_THREADS:-0}
+   export EXT_SNAP_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."fetch-size-rows"')
+   EXT_SNAP_FETCH_SIZE_ROWS=${EXT_SNAP_FETCH_SIZE_ROWS:-0}
+   export EXT_SNAP_MAX_JOBS_PER_CHUNK=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."max-jobs-per-chunk"')
+   EXT_SNAP_MAX_JOBS_PER_CHUNK=${EXT_SNAP_MAX_JOBS_PER_CHUNK:-0}
+   export EXT_SNAP_MIN_JOB_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."min-job-size-rows"')
+   EXT_SNAP_MIN_JOB_SIZE_ROWS=${EXT_SNAP_MIN_JOB_SIZE_ROWS:-0}
 
-ext_reatime:
-threads:
-fetch-size-rows:
+   export EXT_REAL_THREADS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."threads"')
+   EXT_REAL_THREADS=${EXT_REAL_THREADS:-0}
+   export EXT_REAL_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."fetch-size-rows"')
+   EXT_REAL_FETCH_SIZE_ROWS=${EXT_REAL_FETCH_SIZE_ROWS:-0}
 
-app_snap:
-threads:
-batch-size-rows:
-txn-size-rows:
-bulk-load:
-    type: FILE
-    
-app_realtime:
-threads:
-batch-size-rows:
-txn-size-rows:
+   export EXT_REAL_THREADS=0
 
+   export APP_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."threads"')
+   APP_SNAP_THREADS=${APP_SNAP_THREADS:-0}
+   export APP_SNAP_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."batch-size-rows"')
+   APP_SNAP_BATCH_SIZE_ROWS=${APP_SNAP_BATCH_SIZE_ROWS:-0}
+   export APP_SNAP_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."txn-size-rows"')
+   APP_SNAP_TXN_SIZE_ROWS=${APP_SNAP_TXN_SIZE_ROWS:-0}
+   export APP_SNAP_BULK_LOAD_TYPE=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."bulk-load".type')
+   APP_SNAP_BULK_LOAD_TYPE=${APP_SNAP_BULK_LOAD_TYPE:-0}
+
+   export APP_REAL_THREADS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."threads"')
+   APP_REAL_THREADS=${APP_REAL_THREADS:-0}
+   export APP_REAL_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."batch-size-rows"')
+   APP_REAL_BATCH_SIZE_ROWS=${APP_REAL_BATCH_SIZE_ROWS:-0}
+   export APP_REAL_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."txn-size-rows"')
+   APP_REAL_TXN_SIZE_ROWS=${APP_REAL_TXN_SIZE_ROWS:-0}
+
+   export APP_REAL_THREADS=0
+   #set +x
+}
+
+get_extractor_applier_threads() {
+   echo ${EXT_SNAP_THREADS} ${EXT_REAL_THREADS} ${EXT_REAL_THREADS} \
+      ${APP_SNAP_THREADS} ${APP_REAL_THREADS} ${APP_REAL_THREADS} \
+      $EXT_SNAP_FETCH_SIZE_ROWS $EXT_SNAP_MAX_JOBS_PER_CHUNK $EXT_SNAP_MIN_JOB_SIZE_ROWS $EXT_REAL_FETCH_SIZE_ROWS \
+      $APP_SNAP_BATCH_SIZE_ROWS $APP_SNAP_TXN_SIZE_ROWS $APP_SNAP_BULK_LOAD_TYPE $APP_REAL_BATCH_SIZE_ROWS $APP_REAL_TXN_SIZE_ROWS
 }
 
 # read yaml file, look for host, split it into name version role triplet
 split_host_to_triplet() {
    local FILENAME=$1
    local ROLE=$2
-   local HOST
+   local HOST=$3
    
-   HOST=$( yq -r '.host' $FILENAME )
+   [[ -z "$HOST" ]] && HOST=$( yq -r '.host' $FILENAME )
 
    readarray -d '-' -t HOST_ARRAY <<< ${HOST}
    if [ -z "${HOST_ARRAY[1]}" ]; then
@@ -61,7 +85,7 @@ split_host_to_triplet() {
 }
 
 # read threads from extractor and applier yaml 
-get_extractor_applier_threads() {
+get_extractor_applier_threads_from_input() {
    local CFG_DIR=${1:-$(pwd)}
    local EXTRACTOR_SNAPSHOT_THREADS=0
    local EXTRACTOR_REALTIME_THREADS=0
@@ -87,6 +111,7 @@ get_extractor_applier_threads() {
    echo ${EXTRACTOR_SNAPSHOT_THREADS} ${EXTRACTOR_REALTIME_THREADS} ${EXTRACTOR_DELTA_THREADS} \
       ${APPLIER_SNAPSHOT_THREADS} ${APPLIER_REALTIME_THREADS} ${APPLIER_DELTA_THREADS} 
 }
+
 
 get_replication_mode() {
    local LOG_DIR=${1:-$(pwd)}
@@ -140,10 +165,17 @@ report_name() {
         return 0
    fi
 
+    if [ ! -f ${LOG_DIR}/trace.log ]; then
+        echo "${f}: ${LOG_DIR}/trace.log not found. skipping" >&2
+        return 0
+    fi
+   tracelog_save_as_yaml ${LOG_DIR}
+   trace_to_yaml
+
    run_repl_mode=$( get_replication_mode ${LOG_DIR})
 
-   run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src)
-   run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst)
+   run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src "${SRC_HOST}")
+   run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst "${DST_HOST}")
 
    # script error where trace.log was not saved correctly
    if [ -f "${LOG_DIR}/trace.log" ]; then

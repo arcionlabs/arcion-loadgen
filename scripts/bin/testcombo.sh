@@ -75,19 +75,22 @@ args_repl=""
 parse_params "$@"
 
 
-threads=("-b 4:4 -w 3600" "-b 1:1 -w 3600")
-src="${args_src:-pg}"
-dst="${args_dst:-"mysql-dst pg-dst minio null"}"
+sfs=("-s 1 -w 300" "-s 10 -w 3000" "-s 100 -w 30000" "-s 1000 -w 300000")
+threads=("-b 4:4" "-b 1:1")
+src="${args_src:-mysql}"
+dst="${args_dst:-"pg-dst minio null"}"
 repl="${args_repl:-snapshot}"
 
-echo "${threads[@]} ${repl} ${src} ${dst}"
+echo "${sf[@]} ${threads[@]} ${repl} ${src} ${dst}"
 
-for t in "${threads[@]}"; do 
-  for r in ${repl}; do
-    for s in ${src}; do
-      for d in ${dst}; do
-          echo "./arcdemo.sh $t $r $s $d"
-          ./arcdemo.sh $t $r $s $d
+for sf in "${sfs[@]}"; do 
+  for t in "${threads[@]}"; do 
+    for r in ${repl}; do
+      for s in ${src}; do
+        for d in ${dst}; do
+            echo "./arcdemo.sh $sf $t $r $s $d"
+            ./arcdemo.sh $sf $t $r $s $d
+        done
       done
     done
   done
