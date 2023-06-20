@@ -2,21 +2,42 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
-  allow:
-    customer:
-    district:
-    history:
-    item:
-    new_order:
-    oorder:
-    order_line:
-    stock:
-    theusertable:
-    warehouse:
-    
-    #theusertable:
-    # delta-snaphot demo for YCSB THEUSERTABLE only
-    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "theusertable:"; fi )
-    # Otherwise, all tables are replicated
-  #block: [.*heartbeat.*]
-  #unlisted: block  
+# TPCC has data types that works on snapshot, but does not.
+# only allow YCSB when realtime is involved
+# the BLOCK must be all caps for informix
+$( case "$REPL_TYPE" in
+    delta-snapshot|full|real-time)
+      echo '  allow:'
+      echo '    theusertable:'
+      echo '  unlisted: BLOCK'
+      ;;
+   esac
+)  
+  block: [ replicate_io_cdc_heartbeat ]
+$( case $workload_size_factor in
+     1) 
+      echo '  block-pattern: .*10$|.*100$|.*1000$'
+      ;;   
+     10)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*100$|.*1000$'
+      ;;
+     100)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*1000$'
+      ;;
+    1000)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*100$'
+      ;;   
+    esac
+)
+
+$( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
+    case $w in
+      auctionmarks|epinions|seats) 
+      echo "- catalog: ${SRCDB_DB}_${w}"
+      echo "  schema: ${SRCDB_SCHEMA}"
+      echo "  types: [TABLE]"
+      echo "  allow:"
+      ;;
+    esac
+done
+)
