@@ -2,7 +2,6 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
-  allow:
 $( case $workload_size_factor in
      1) 
       echo '  block-pattern: .*10$|.*100$|.*1000$'
@@ -18,6 +17,7 @@ $( case $workload_size_factor in
       ;;   
     esac
 )
+  block: [ REPLICATE_IO_CDC_HEARTBEAT ]
 
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
     case $w in
