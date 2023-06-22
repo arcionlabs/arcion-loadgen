@@ -5,6 +5,10 @@ on: workflow_dispatch
   # push:
   #   branches: ['main']
 
+env:
+  REPLICANT_CLI_URL: https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip
+  ROW_VERIFICATOR: https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip
+
 jobs:
   push_to_registries:
     name: Push-docker-image
@@ -46,9 +50,9 @@ jobs:
       - name: Download and unzip replicant-cli and replicate-row-verificator
         run: |
           sudo apt install unzip
-          curl -o replicant-cli.zip https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip
+          curl -o replicant-cli.zip $REPLICANT_CLI_URL
           unzip replicant-cli.zip -d .
-          curl -o replicate-row-verificator.zip https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip
+          curl -o replicate-row-verificator.zip $ROW_VERIFICATOR_URL
           unzip replicate-row-verificator.zip -d .
           rm replicant-cli.zip
           rm replicate-row-verificator.zip
