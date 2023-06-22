@@ -1,13 +1,23 @@
 name: Publish Docker image
 
 # Change this to be on push action when it's working?
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    branch:
+    inputs:
+      REPLICANT_CLI_URL: 
+        description: 'Replicant binary url'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip'
+        type: string
+      ROW_VERIFICATOR_URL: 
+        description: 'Replicate row verificator binary url'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip'
+        type: string
+
   # push:
   #   branches: ['main']
-
-env:
-  REPLICANT_CLI_URL: https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip
-  ROW_VERIFICATOR: https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip
 
 jobs:
   push_to_registries:
@@ -32,27 +42,27 @@ jobs:
         # Github recommends pinning this to a specific SHA rather than @v2
 
       
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2 
-        # Github recommends pinning this to a specific SHA rather than @v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v2 
+      #   # Github recommends pinning this to a specific SHA rather than @v2
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2 
-        # Github recommends pinning this to a specific SHA rather than @v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to the Container registry
+      #   uses: docker/login-action@v2 
+      #   # Github recommends pinning this to a specific SHA rather than @v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download and unzip replicant-cli and replicate-row-verificator
         run: |
           sudo apt install unzip
-          curl -o replicant-cli.zip $REPLICANT_CLI_URL
+          curl -o replicant-cli.zip ${{ inputs.REPLICANT_CLI_URL }}
           unzip replicant-cli.zip -d .
-          curl -o replicate-row-verificator.zip $ROW_VERIFICATOR_URL
+          curl -o replicate-row-verificator.zip ${{ inputs.ROW_VERIFICATOR_URL }}
           unzip replicate-row-verificator.zip -d .
           rm replicant-cli.zip
           rm replicate-row-verificator.zip
