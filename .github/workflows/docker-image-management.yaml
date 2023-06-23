@@ -15,9 +15,16 @@ on:
         required: true
         default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip'
         type: string
-
-  # push:
-  #   branches: ['main']
+      IMAGE_TAG:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
+        type: string
+      CHECKOUT_CHOICE:
+        description: 'The branch, tag, or SHA to checkout'
+        required: true
+        default: 'main'
+        type: string
 
 jobs:
   push_to_registries:
@@ -30,6 +37,12 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3 
         # Github recommends pinning this to a specific SHA rather than @v3
+        with:
+          # The branch, tag or SHA to checkout. When checking out the repository that
+          # triggered a workflow, this defaults to the reference or SHA for that event.
+          # Otherwise, uses the default branch.
+          ref: ${{ inputs.CHECKOUT_CHOICE }}
+          fetch-depth: 0
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -77,6 +90,6 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: | # Use ${{ secrets.DOCKER_USERNAME }} instead of robertslee?
-            robertslee/arcdemo:latest
-            ghcr.io/arcionlabs/arcdemo:latest
+            robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
+            ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
           # Will ghcr allow authentication to something other than "arcionlabs/arcion-loadgen"?
