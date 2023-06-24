@@ -1,0 +1,95 @@
+name: Publish Docker image
+
+# Change this to be on push action when it's working?
+on: 
+  workflow_dispatch:
+    branch:
+    inputs:
+      REPLICANT_CLI_URL: 
+        description: 'Replicant binary url'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip'
+        type: string
+      ROW_VERIFICATOR_URL: 
+        description: 'Replicate row verificator binary url'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip'
+        type: string
+      IMAGE_TAG:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
+        type: string
+      CHECKOUT_CHOICE:
+        description: 'The branch, tag, or SHA to checkout'
+        required: true
+        default: 'main'
+        type: string
+
+jobs:
+  push_to_registries:
+    name: Push-docker-image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3 
+        # Github recommends pinning this to a specific SHA rather than @v3
+        with:
+          # The branch, tag or SHA to checkout. When checking out the repository that
+          # triggered a workflow, this defaults to the reference or SHA for that event.
+          # Otherwise, uses the default branch.
+          ref: ${{ inputs.CHECKOUT_CHOICE }}
+          fetch-depth: 0
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        # Github recommends pinning this to a specific SHA rather than @v2
+        with:
+          platforms: linux/amd64,linux/arm64/v8
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        # Github recommends pinning this to a specific SHA rather than @v2
+
+      
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v2 
+      #   # Github recommends pinning this to a specific SHA rather than @v2
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      # - name: Log in to the Container registry
+      #   uses: docker/login-action@v2 
+      #   # Github recommends pinning this to a specific SHA rather than @v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download and unzip replicant-cli and replicate-row-verificator
+        run: |
+          sudo apt install unzip
+          curl -o replicant-cli.zip ${{ inputs.REPLICANT_CLI_URL }}
+          unzip replicant-cli.zip -d .
+          curl -o replicate-row-verificator.zip ${{ inputs.ROW_VERIFICATOR_URL }}
+          unzip replicate-row-verificator.zip -d .
+          rm replicant-cli.zip
+          rm replicate-row-verificator.zip
+
+
+      - name: Build and push docker images
+        uses: docker/build-push-action@v4
+        # Github recommends pinning this to a specific SHA rather than @v4
+        with:
+          context: .
+          file: load-generator/Dockerfile.arcdemo
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          tags: | # Use ${{ secrets.DOCKER_USERNAME }} instead of robertslee?
+            robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
+            ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
+          # Will ghcr allow authentication to something other than "arcionlabs/arcion-loadgen"?
