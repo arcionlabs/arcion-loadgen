@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+. ${SCRIPTS_DIR}/lib/arcionlog_parser.sh
 . ${SCRIPTS_DIR}/lib/tracelog_yaml_extract.sh
 
 # convert trace.log to yaml
@@ -193,50 +194,12 @@ report_name() {
    fi   
 
    # snapshot summary that has the following
-   # table_cnt " " total_row_cnt
-   if [ -f "${LOG_DIR}/snapshot_summary.txt" ]; then
-      snapshot_total_rows=$(cat ${LOG_DIR}/snapshot_summary.txt | \
-         awk '
-            BEGIN {namespace=0; table_cnt=0; row_cnt=0}
-            $1=="Namespace" {namespace=1;next}
-            namespace==1 && NF==0 {namespace=0; next}
-            namespace==1 && NF==7 {table_cnt++; row_cnt=row_cnt+$NF}
-            END {print table_cnt " " row_cnt}
-         ' )
-   else
-      snapshot_total_rows="0 0"
-   fi   
+   arcionlog_snap_parser
 
    # real-time summary 
-   if [ "${run_repl_mode}" != "snapshot" ]; then
-      tac ${CFG_DIR}/arcion.log | \
-         awk '
-            {print $0}
-            $1=="Table" && $2=="name" {exit}
-         ' > /tmp/real_time.log.$$
-   else
-      touch /tmp/real_time.log.$$
-   fi
-   # table_cnt " " inserted " " deleted " " updated " " replaced
-   realtime_total_rows=$( tac /tmp/real_time.log.$$ | \
-      awk '
-         BEGIN {inserted=0; deleted=0; updated=0; replaced=0; table_cnt=0; num_of_columns=0; tablename=0}
-         $1=="Table" && $2=="name" {tablename=1; num_of_columns=NF-1; next}
-         tablename==1 && NF==num_of_columns {inserted+=$2; deleted+=$3; updated+=$4; replaced+=$5; table_cnt++}
-         END {print table_cnt " " inserted " " deleted " " updated " " replaced}
-      ' )
-   # applied incoming
-   delta_total_rows=$( tac /tmp/real_time.log.$$ | \
-      awk -F '[[:space:]/]+' '
-         BEGIN {applied=0; incoming=0; table_cnt=0; replication_found=0}
-         $1=="Table" && $2=="name" && $3=="Replication" {replication_found=1; next}
-         replication_found==1 && NF>1 {table_cnt++; applied+=$(NF-3); incoming+=$(NF-2)}
-         END {print table_cnt " " applied " " incoming}
-      ' )
-   # cleanup
-   rm /tmp/real_time.log.$$
+   arcionlog_real_delta_parser
 
-   if [[ "${snapshot_total_rows}" = "0 0" ]] &&  [[ "${realtime_total_rows}" = "0 0 0 0 0" ]] && [[ "${delta_total_rows}" = "0 0 0" ]]; then
+   if [[ "${snapshot_total_rows}" = "$SNAPSHOT_TOTAL_ROWS_NULL" ]] &&  [[ "${realtime_total_rows}" = "0 0 0 0 0" ]] && [[ "${delta_total_rows}" = "0 0 0" ]]; then
       echo "${f}: no rows were processed. skipping" >&2
       return 0
    fi

@@ -75,10 +75,10 @@ args_repl=""
 parse_params "$@"
 
 
-sfs=("-s 1 -w 300" "-s 10 -w 3000" "-s 100 -w 30000" "-s 1000 -w 300000")
+sfs=("-s 1 -w 300" "-s 10 -w 3000" "-s 100 -w 30000")
 threads=("-b 4:4" "-b 1:1")
-src="${args_src:-mysql}"
-dst="${args_dst:-"pg-dst minio null"}"
+src="${args_src:-oraee}"
+dst="${args_dst:-"mysql-dst pg-dst minio null"}"
 repl="${args_repl:-snapshot}"
 
 echo "${sf[@]} ${threads[@]} ${repl} ${src} ${dst}"

@@ -18,6 +18,22 @@ create index THEUSERTABLE_TS on THEUSERTABLE (TS);
 EOF
 }
 
+ycsb_create_sybase() {
+echo "ycsb create sqlserver" >&2    
+cat <<'EOF'
+-- TS is used for snapshot delta. 
+CREATE TABLE THEUSERTABLE (
+	YCSB_KEY INT,
+	FIELD0 varchar(255) default null, FIELD1 varchar(255) default null,
+	FIELD2 varchar(255) default null, FIELD3 varchar(255) default null,
+	FIELD4 varchar(255) default null, FIELD5 varchar(255) default null,
+	FIELD6 varchar(255) default null, FIELD7 varchar(255) default null,
+	FIELD8 varchar(255) default null, FIELD9 varchar(255) default null,
+	PRIMARY KEY (YCSB_KEY)
+);
+EOF
+}
+
 ycsb_create_sqlserver() {
 echo "ycsb create sqlserver" >&2    
 cat <<'EOF'
@@ -29,9 +45,7 @@ CREATE TABLE THEUSERTABLE (
 	FIELD4 TEXT, FIELD5 TEXT,
 	FIELD6 TEXT, FIELD7 TEXT,
 	FIELD8 TEXT, FIELD9 TEXT,
-	TS DATETIME DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (YCSB_KEY),
-	INDEX TS (TS)
 );
 EOF
 }
