@@ -35,6 +35,7 @@ ENV JSQSH_DIR=/opt/jsqsh
 ENV MINIO_DIR=/opt/minio
 ENV KAFKA_DIR=/opt/confluent
 ENV BENCHBASE_DIR=/opt/benchbase
+ENV ARCDEV_DIR=/opt/arcion
 
 # YCSB version
 ENV YCSB_VERSION=0.17.0 \
@@ -126,6 +127,7 @@ RUN mkdir -p $MINIO_DIR && chown -R $USERNAME $MINIO_DIR
 RUN mkdir -p $JSQSH_DIR && chown -R $USERNAME $JSQSH_DIR
 RUN mkdir -p $KAFKA_DIR && chown -R $USERNAME $KAFKA_DIR
 RUN mkdir -p $BENCHBASE_DIR && chown -R $USERNAME $BENCHBASE_DIR
+RUN mkdir -p $ARCDEV_DIR && chown -R $USERNAME $ARCDEV_DIR
 
 # run as regular user beyond this point
 USER $USERNAME
