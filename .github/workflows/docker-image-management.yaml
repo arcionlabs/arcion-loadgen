@@ -95,3 +95,4 @@ jobs:
             robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
             ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
           # Will ghcr allow authentication to something other than "arcionlabs/arcion-loadgen"?
+          labels: org.opencontainers.image.source=https://github.com/arcionlabs/arcion-loadgen
