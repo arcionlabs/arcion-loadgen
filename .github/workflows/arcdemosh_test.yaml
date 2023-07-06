@@ -1,0 +1,50 @@
+name: Run arcdemo.sh
+
+# Change this to be on push action when it's working?
+on: 
+  workflow_dispatch:
+    # branch:
+    # inputs:
+    #   REPLICANT_CLI_URL: 
+    #     description: 'Replicant binary url'
+    #     required: true
+    #     default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip'
+    #     type: string
+    #   ROW_VERIFICATOR_URL: 
+    #     description: 'Replicate row verificator binary url'
+    #     required: true
+    #     default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip'
+    #     type: string
+    #   IMAGE_TAG:
+    #     description: 'Docker image tag'
+    #     required: true
+    #     default: 'latest'
+    #     type: string
+    #   CHECKOUT_CHOICE:
+    #     description: 'The repository'
+    #     required: true
+    #     default: 'main'
+    #     type: string
+
+jobs:
+  run-demo:
+    name: run-arcion-demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Repository name with owner. For example, actions/checkout
+          # Default: ${{ github.repository }}
+          repository: 'arcionlabs/docker-dev'
+      - name: Execute install
+        # Installs and runs the demokit. Later, might be worth it to create compose file w/o 
+        # the gui creation. Also currently running snapshot mode because it takes much less time
+        run: | 
+          sed -n '/start Arcion demo kit CLI/q;p' < ./install.sh > newinstall.sh
+          export ARCION_LICENSE=${{ secrets.ARCION_LICENSE }}
+          bash ./newinstall.sh
+          docker compose -f arcion-demo/docker-compose.yaml up -d
+          docker compose -f mysql/docker-compose.yaml up -d
+          docker compose -f postgresql/docker-compose.yaml up -d
+          docker compose -f arcion-demo/docker-compose.yaml exec workloads arcdemo.sh snapshot mysql postgresql
+  
