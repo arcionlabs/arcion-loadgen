@@ -17,7 +17,6 @@ $( case $workload_size_factor in
       ;;   
     esac
 )
-  block: [ REPLICATE_IO_CDC_HEARTBEAT ]
 
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
     case $w in
