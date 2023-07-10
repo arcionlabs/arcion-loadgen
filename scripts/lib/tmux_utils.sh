@@ -85,7 +85,7 @@ tmux_show_workload()  {
     tmux_show_yaml
 
     # dstat
-    tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat | tee $CFG_DIR/dstat.log" Enter 
+    tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat --noheaders --noupdate -o $CFG_DIR/dstat.log" Enter 
 
     # verification
     tmux_show_verification

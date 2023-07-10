@@ -17,5 +17,5 @@ replication-slots:
   #Replace "io-replicate" with your replication slot name
   ${SRCDB_ARC_USER}_w2j: 
     - wal2json
-log-reader-type: SQL # [SQL|STREAM]
+
 max-retries: 1

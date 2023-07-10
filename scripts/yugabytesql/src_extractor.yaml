@@ -22,22 +22,10 @@ snapshot:
     tables:
       # pg forces lowercase, need to follow destination casing convention
       # pg uses ctid so split key is not required
-      # but split key is a lot more efficient
       theusertable:
         split-key: ycsb_key
         extraction-priority: -1 
-      theusertable10:
-        split-key: ycsb_key
-        extraction-priority: -1 
-      theusertable100:
-        split-key: ycsb_key
-        extraction-priority: -1 
-      densetable:
-        split-key: ycsb_key
-        extraction-priority: -1 
-      densetable10:
-        split-key: ycsb_key
-        extraction-priority: -1 
+
 
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
@@ -48,11 +36,11 @@ realtime:
     enable: false
     ddl-replication-mode: REINIT # Default is REINIT mode. [REINIT|INLINE]
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
-  #heartbeat:
-  #  enable: true
-  #  catalog: ${SRCDB_DB}
-  #  schema: ${SRCDB_SCHEMA}
-  #  table-name : REPLICATE_IO_CDC_HEARTBEAT
+  heartbeat:
+    enable: true
+    catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT
 
 #delta-snapshot:
 #  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}

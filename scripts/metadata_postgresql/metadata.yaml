@@ -6,7 +6,7 @@ connection:
   database: io_replicate  # required and need to be same as catalog
   username: ${METADATA_DB_USERNAME:-arcion}
   password: ${METADATA_DB_PASSWORD:-Passw0rd}
-  max-connections: 20
+  max-connections: 10
   max-retries: 1
 
 catalog: io_replicate # required and need to be same as database

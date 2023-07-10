@@ -11,14 +11,15 @@ map_db() {
         COLUMN_VALUE=$(echo ${ROW} | cut -d',' -f${COLUMN_INDEX})
     fi
     if [ -z "${ROW}" ]; then 
-        echo "Error: $1 not defined in map.csv." >&2
+        echo "Warning: $1 not defined in map.csv." >&2
     fi
     echo $COLUMN_VALUE
 }
 
 # return map.csv as an array
 # to test:
-#   declare -a array; read_csv array
+#   declare -a array; read_csv array /scripts/utils/map.csv
+#   declare -a array; read_csv array /scripts/utils/benchbase/bbtables.csv
 #   echo ${array[@]} will print out the CSV content
 read_csv() {
     local -n read_csv_ret=${1}
@@ -27,6 +28,8 @@ read_csv() {
 }
 
 # find a match in csv
+# find_in_csv array pg
+# find_in_csv array twitter
 find_in_csv() {
     local -n match_csv_array=${1}
     local match_val=${2}

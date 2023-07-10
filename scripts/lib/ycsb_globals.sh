@@ -21,7 +21,7 @@ export default_ycsb_fieldlength=100       # YCSB default
 
 # constants
 export const_ycsb_insertstart=0
-export const_ycsb_recordcount=100000
+export const_ycsb_recordcount=1000000
 export const_ycsb_operationcount=1000000000
 export const_ycsb_zeropadding=11
 export const_ycsb_ycsbkeyprefix=0

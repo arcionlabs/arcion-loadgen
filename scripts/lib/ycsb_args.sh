@@ -86,5 +86,7 @@ ycsb_src_dst_param() {
   export ycsb_timer=${args_ycsb_timer:-${workload_timer:-${default_ycsb_timer}}}
   export ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
   export ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
+
+  if [[ "${ycsb_size_factor}" != "1" ]]; then export ycsb_table=${default_ycsb_table}${ycsb_size_factor}; fi
 }
 

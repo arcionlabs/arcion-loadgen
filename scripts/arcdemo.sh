@@ -17,51 +17,16 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/arcdemo_args_positional.sh
 . $PROG_DIR/lib/tmux_utils.sh
 . $PROG_DIR/lib/nine_char_id.sh
+. $PROG_DIR/lib/prep_arcion_log.sh
+. $PROG_DIR/lib/prep_arcion_lic.sh
 
-# arcion data (log dir)
-if [ -z "$ARCION_LOG" ]; then
-  export ARCION_LOG=/opt/stage/data
-fi
+cd ${SCRIPTS_DIR}
 
-# typically log dir should already exist
-if [ -d "${ARCION_LOG}" ]; then
-  echo "Testing ${ARCION_LOG} for create dir priv" 
-  test_dir=$(mktemp -d ${ARCION_LOG}/XXXXXXXXX)
-  if [ -z "${test_dir}" ]; then
-    echo "test create dir $test_dir failed." >&2
-    exit 1
-  else
-    echo "test create dir succeeded. deleting temp dir $test_dir"
-    rmdir "${test_dir}"
-  fi
-else
-  echo "ARCION_LOG=$ARCION_LOG dir does not exist" >&2
-  exit 1
-fi
+# prep arcion_log
+prep_arcion_log # prep_arcion_log.sh
 
-# arcion and script versions
-if [ ! -f "$ARCION_HOME/bin/replicant" ]; then
-  echo "$ARCION_HOME/bin/replicant not a file." >&2
-  exit 1
-fi
-
-if [ -f "$ARCION_HOME/replicant.lic" ]; then
-  echo "$ARCION_HOME/replicant.lic not found." >&2
-  exit 1
-elif [ -f "$SCRIPTS_DIR/utils/arcion/general.yaml" ]; then
-  echo "checking $SCRIPTS_DIR/utils/arcion/general.yaml"
-  license_path=$( cat $SCRIPTS_DIR/utils/arcion/general.yaml | \
-    yq -r '."license-path"')
-  echo "license_path=${license_path}"
-  if [ -n "${license_path}" ] && [ -f "${license_path}" ]; then 
-    echo "license ${license_path} exists"
-  else
-    echo "Error: license ${license_path} does not exists"
-    exit 1
-  fi
-else
-  echo "Error: $ARCION_HOME/replicant.lic nor $SCRIPTS_DIR/utils/arcion/general.yaml exists"
-fi
+# prep arcion licese
+prep_arcion_lic # prep_arcion_lic.sh
 
 export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
@@ -96,8 +61,8 @@ else
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
-      METADATA_DIR=metadata_postgresql
-      #METADATA_DIR=metadata_sqlite
+      # METADATA_DIR=metadata_postgresql
+      METADATA_DIR=metadata_sqlite
       if [ -d "${SCRIPTS_DIR}/${METADATA_DIR}" ]; then
         echo "Info: using default ${SCRIPTS_DIR}/${METADATA_DIR}" 
       else
@@ -137,7 +102,7 @@ else
 
   # change the name of the CFG_DIR
   # chage /- to _ and change ' 'to - to make the name
-  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_HOST} ${DSTDB_HOST} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
+  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_SHORTNAME} ${DSTDB_SHORTNAME} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
   # delete if this happen to exist already
   rm -rf $CFG_DIR 2>/dev/null
   # move to new name

@@ -7,8 +7,8 @@ snapshot:
     init-user-roles: false  
 
   bulk-load:
-    enable: false
-    type: FILE   # PIPE, FILE        
+    enable: true
+    type: FILE   # PIPE, FILE  
 
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}

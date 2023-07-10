@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
-trap cleanup SIGINT SIGTERM ERR EXIT
-
-script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
-
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-s|--src host ] [-d|--dst host ] [-r|--repltype type] -- [options to pass to arcdemo.sh]
@@ -25,14 +20,6 @@ EOF
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   # script cleanup here
-}
-
-setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
-  else
-    NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
-  fi
 }
 
 msg() {
@@ -74,8 +61,6 @@ parse_params() {
     shift
   done
 
-  args=("$@")
-
   # check required params and arguments
   # [[ -z "${param-}" ]] && die "Missing required parameter: param"
   # [[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
@@ -88,31 +73,25 @@ args_dst=""
 args_repl=""
 
 parse_params "$@"
-setup_colors
 
-src_real_time="${src:-mysql mariadb postgresql informix}"
-src_snapshot="${src:-cockroach db2  informix mariadb mysql oraxe postgresql singlestore sqlserver yugabytesql}"
-dst="${dst:-cockroach db2 informix mariadb mysql oraxe oskbroker postgresql singlestore sqlserver yugabytesql}"
-repl="${repl:-snapshot}"
 
-repl=${args_repl:-"${repl}"}
-dst=${args_dst:-"${dst}"}
+sfs=("-s 1 -w 300" "-s 10 -w 3000" "-s 100 -w 30000")
+threads=("-b 4:4" "-b 1:1")
+src="${args_src:-oraee}"
+dst="${args_dst:-"mysql-dst pg-dst minio null"}"
+repl="${args_repl:-snapshot}"
 
-for r in ${repl}; do
-  # the src changes for defaults
-  if [[ -z "${args_src}" ]]; then
-    if [[ "${repl}" = "real-time" || "${repl}" = "full" ]]; then
-      src=${src_real_time}
-    else
-      src=${src_snapshot}
-    fi
-  else
-    src=${args_src}        
-  fi
-  for s in $src; do
-    for d in $dst; do
-        echo "./arcdemo.sh -w 60 $r $s $d"
-        ./arcdemo.sh -w 60 $r $s $d
+echo "${sf[@]} ${threads[@]} ${repl} ${src} ${dst}"
+
+for sf in "${sfs[@]}"; do 
+  for t in "${threads[@]}"; do 
+    for r in ${repl}; do
+      for s in ${src}; do
+        for d in ${dst}; do
+            echo "./arcdemo.sh $sf $t $r $s $d"
+            ./arcdemo.sh $sf $t $r $s $d
+        done
+      done
     done
   done
 done

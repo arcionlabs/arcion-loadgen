@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+sudo service pmcd start
+
 # need to remap dir first
 /scripts/utils/init.d/volremap.sh
 # then download

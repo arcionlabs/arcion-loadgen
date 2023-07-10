@@ -32,6 +32,10 @@ arcion_param() {
         metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
     fi
 
+    # check
+    if [[ -z ${src} ]]; then echo "Error: src.yaml was not found" >&2; exit 1; fi
+    if [[ -z ${dst} ]]; then echo "Error: dst.yaml was not found" >&2; exit 1; fi
+
     # construct the list
     arg="${src} ${dst}"
     [ -n "${filter}" ] && arg="${arg} --filter ${filter}"
@@ -82,7 +86,11 @@ arcion_delta() {
     # required for Arcion
     logreader_path
 
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
     ./bin/replicant delta-snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
@@ -104,8 +112,12 @@ arcion_real() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant real-time \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant real-time \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -126,8 +138,12 @@ arcion_full() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant full \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant full \
     $( arcion_param ${CFG_DIR} ) \
      ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -148,8 +164,12 @@ arcion_snapshot() {
     # required for Arcion
     logreader_path
     
-    JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" PATH="$PATH" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-     ./bin/replicant snapshot \
+    JAVA_HOME="$JAVA_HOME" \
+    JAVA_OPTS="$JAVA_OPTS" \
+    PATH="$PATH" \
+    ORACLE_HOME="$ORACLE_HOME" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+    ./bin/replicant snapshot \
     $( arcion_param ${CFG_DIR} ) \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
@@ -175,13 +195,31 @@ find_dstdb() {
     done
 }
 
-find_hosts() {
+save_nmap() {
     mkdir -p /tmp/arcion/nmap
-    if [ ! -f "/tmp/arcion/nmap/names.$$.txt" ]; then
-        ip=$( hostname -i | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
-        nmap -sn -oG /tmp/arcion/nmap/names.$$.txt $ip >/dev/null
+
+    local subnet=$( hostname -I | awk -F'.' '{print $1 "." $2 "." $3 "." 0 "/24"}' )
+    # don't spend more than 2 sec
+    nmap -sn -oG /tmp/arcion/nmap/nmap.raw.txt $subnet >/dev/null
+    
+    # save in hostname (without trailing .arcnet) ip
+    cat /tmp/arcion/nmap/nmap.raw.txt | \
+        awk -F"[ ()]" '/arcnet/ {print $4 "," $2}' | \
+        sed 's/\.arcnet//' | \
+        tee /tmp/arcion/nmap/name.ip.csv
+}
+
+find_hosts() {
+    if [ ! -f "/tmp/arcion/nmap/name.ip.csv" ]; then
+        save_nmap
     fi
-    cat /tmp/arcion/nmap/names.$$.txt | grep "arcnet" | awk -F"[ \(\)]" '{print $4}'
+    local host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+    if [[ -z "${host_ip}" ]]; then
+        echo "refreshing nmap" >&2
+        save_nmap
+        host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+    fi
+    echo ${host_ip}
 }
 
 ask_src_host() {
@@ -275,9 +313,9 @@ while [ 1 ]; do
     ask=0
     if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
-    if [ -z "${SRCDB_DIR}" -o ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
+    if [ -z "${SRCDB_DIR}" ] || [ ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
-
+    
     export SRCDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${SRCDB_HOST})
     declare -A SRCDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
 

@@ -51,6 +51,7 @@ ycsb_load() {
     ycsb_threads=${ycsb_load_basedon_sf}
   fi 
 
+
   # want multirow inserts for supported DBs
   case "${db_grp,,}" in
     oracle)
@@ -71,6 +72,8 @@ ycsb_load() {
     #  jdbc_url="${jdbc_url};useBulkCopyForBatchInsert=true"
     #  ;;
   esac 
+
+  jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
 
   jdbc_classpath="${jdbc_classpath}" \
   JAVA_OPTS="${JAVA_OPTS}" \
@@ -148,7 +151,7 @@ function ycsb_load_src() {
   ycsb_load_sf src
 }
 
-function ycsb_load_dst() { 
+function ycsb_load_dst() {   
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
   ycsb_load_sf dst
@@ -179,6 +182,8 @@ ycsb_run() {
       JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"
       ;;
   esac 
+
+  jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
 
   jdbc_classpath="${jdbc_classpath}" \
   JAVA_OPTS="${JAVA_OPTS}" \
