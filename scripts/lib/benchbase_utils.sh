@@ -59,7 +59,7 @@ bb_create_tables() {
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
         awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
-    # hash of [worklaod]=workload,table_name,dbname_suffix,no_rewrite_support
+    # hash of [workload]=workload,table_name,dbname_suffix,no_rewrite_support
     declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
         awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
     local workload_prof_header_csv=${WORKLOAD_TABLE_HASH["workload"]}
@@ -67,10 +67,9 @@ bb_create_tables() {
     for w in "${workloads_array[@]}"; do
         declare -A workload_prof_dict=()
         csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
-        # DEBUG
+        # DEBUG 
         declare -p workload_prof_dict
         local dbname_suffix=${workload_prof_dict[dbname_suffix]}
-
 
         # save the list of existing tables as bash associative array (the -A)
         # NOTE: the quote is required to create the hash correctly
@@ -101,6 +100,16 @@ bb_create_tables() {
             fi 
         fi
 
+        # change default batch size
+        local batch_size=${workload_prof_dict[${db_benchbase_type,,}]}
+        if [[ -n ${batch_size} ]]; then
+            echo "changing batchsize based on ${db_benchbase_type,,} column in ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv"
+            sed -i.bak \
+                -e "s|\(<batchsize>\).*\(</\)|\1${batch_size}\2|" \
+                $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
+            diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2        
+        fi
+
         # a table for this workload
         workload_table=${workload_prof_dict["table_name"]}
         if [ -z "${workload_table}" ]; then
@@ -111,6 +120,7 @@ bb_create_tables() {
         workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
         if [ -z "${workload_table_exists}" ]; then
             # change config match args
+            echo "changing username and database name based on ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv"
             sed -i.bak \
                 -e "s|\(<username>\).*\(</\)|\1${db_user}${dbname_suffix}\2|" \
                 -e "s|#_CHANGEME_#|${db_user}${dbname_suffix}|" \
