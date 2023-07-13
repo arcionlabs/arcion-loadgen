@@ -3,6 +3,13 @@ snapshot:
   skip-tables-on-failures : true
   _traceDBTasks: true
   
+  # used by bulk-load 
+  # default 1M rows is too large for one txn
+  batch-size-rows: 100_000
+
+  # used by JDBC applier
+  txn-size-rows: 100_000
+    
   user-role:
     init-user-roles: false  
   
