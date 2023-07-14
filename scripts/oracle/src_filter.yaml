@@ -2,6 +2,12 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
+$( if [[ "${DSTDB_GRP,,}" = "snowflake" && "$REPL_TYPE" != "snapshot" ]]; then
+      echo '  allow:'
+      echo '    THEUSERTABLE:'
+      echo '  unlisted: BLOCK'
+   fi      
+)
 $( case $workload_size_factor in
      1) 
       echo '  block-pattern: .*10$|.*100$|.*1000$'

@@ -1,7 +1,7 @@
 type,group,default_port,root_user,root_pw,default_schema,benchbase_name,txn_isolation,sid,ycsb_batch_size,bb_batch_size,root_db,alt_log_path,alt_archive_log_path,log_path,archive_log_path
-oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,1024,1024,,/opt/stage/oraee1930/ORCL,/opt/stage/oraee1930/ORCL/arch,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/arch
-oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,1024,1024,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch
-oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,1024,1024,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch
+oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/ORCL,/opt/stage/oraee1930/ORCL/arch,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/arch
+oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch
+oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch
 mysql,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,
 mariadb,mysql,3306,root,Passw0rd,,MARIADB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,
 s2,mysql,3306,root,Passw0rd,,SINGLESTORE,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,
