@@ -2,7 +2,7 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}  
   types: [TABLE]
-# TPCC has data types that works on snapshot, but does not.
+# TPCC has data types that works on snapshot only 
 # only allow YCSB when realtime is involved
 # the BLOCK must be all caps for informix
 $( case "$REPL_TYPE" in

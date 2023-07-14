@@ -5,7 +5,7 @@ export default_bb_rate=1
 export default_bb_threads=1
 export default_bb_timer=600
 export default_bb_size_factor=1
-export default_bb_batchsize=1024
+export default_bb_batchsize=128
 export default_bb_modules_csv="tpcc"
 
 # set defaults

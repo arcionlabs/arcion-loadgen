@@ -18,4 +18,6 @@ replication-slots:
   ${SRCDB_ARC_USER}_w2j: 
     - wal2json
 
-max-retries: 1
+log-reader-type: SQL # {STREAM|SQL}
+
+max-retries: 5

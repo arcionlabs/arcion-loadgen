@@ -5,12 +5,15 @@ snapshot:
   fetch-user-roles: false
   _fetch-exact-row-count: false    
 
+  max-jobs-per-chunk: 80    # default is 2x the thread count too small for millions of rows
+  min-job-size-rows: 10_000 # default 1_000_000 is too large for purposes demo
+
   per-table-config:
   - catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}   
     tables:
-      THEUSERTABLE:
-        split-key: YCSB_KEY
+      theusertable:
+        split-key: ycsb_key
         split-method: RANGE # must be all caps
         extraction-priority: -1
 
