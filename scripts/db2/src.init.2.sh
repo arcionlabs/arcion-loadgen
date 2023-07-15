@@ -18,13 +18,14 @@ fi
 # Catalog the source Db2 database:
 # note using the hostname as the nodename
 #  db2 uncatalog node ${SRCDB_DB}; db2 terminate to redo
-db2 catalog tcpip node ${SRCDB_HOST} remote ${SRCDB_HOST} server ${SRCDB_PORT} 
+# node name cannot have dash (-) use shortname
+db2 catalog tcpip node ${SRCDB_SHORTNAME} remote ${SRCDB_SHORTNAME} server ${SRCDB_PORT} 
 
 db2 list node directory
 
 # catalog the database name
 #  db2 uncatalog database ${SRCDB_DB}; db2 terminate to redo
-db2 catalog database ${SRCDB_DB} at node ${SRCDB_HOST}
+db2 catalog database ${SRCDB_DB} at node ${SRCDB_SHORTNAME}
 
 db2 list database directory
 

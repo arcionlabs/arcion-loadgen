@@ -5,7 +5,7 @@ db2_ubuntu_pkg_install() {
 
     # https://docs.arcion.io/docs/source-setup/db2/db2_native_luw/
     sudo dpkg --add-architecture i386
-    #sudo apt-get update
+    sudo apt-get update
     sudo apt-get install -y file
     sudo apt-get install -y libaio1 libstdc++6:i386 libpam0g:i386
     sudo apt-get install -y binutils

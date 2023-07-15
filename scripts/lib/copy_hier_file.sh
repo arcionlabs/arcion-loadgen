@@ -105,7 +105,7 @@ infer_dbdir() {
         return 0
     fi    
     # infer srcdb type from the first word of ${SRCDB_HOST}
-    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
+    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
     if [ -d ${SCRIPTS_DIR}/${DB_HOST_FIRST_WORD} ]; then
         echo "$DB_HOST_FIRST_WORD inferred from hostname." >&2
         echo "$DB_HOST_FIRST_WORD"
