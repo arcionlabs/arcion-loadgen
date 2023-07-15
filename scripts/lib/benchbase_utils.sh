@@ -7,9 +7,9 @@
 # switch into right dir
 bb_chdir() {
 
-    pushd /opt/benchbase/benchbase-arcion >/dev/null
+    #pushd /opt/benchbase/benchbase-arcion >/dev/null
 
-    return 0
+    #return 0
 
     case ${db_benchbase_type,,} in
         cockroachdb)

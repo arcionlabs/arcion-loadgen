@@ -146,7 +146,7 @@ map_dbtype() {
         return 0
     fi
     # infer srcdb type from the first word of host name
-    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./0123456789]' '{print $1}' )
+    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
     local DB_TYPE=$( map_db ${DB_HOST_FIRST_WORD} 1 )
     if [ ! -z "${DB_TYPE}" ]; then
         echo "$DB_TYPE inferred from group name based on hostname first word." >&2

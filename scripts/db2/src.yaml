@@ -15,7 +15,7 @@ platform: LUW  # LUW
 
 # need to match alias used in db2 catalog tcpip node <NODE_NAME> 
 # by default using the server name as the node name
-node: '${SRCDB_HOST}'
+node: '${SRCDB_SHORTNAME}'
 
 # native db2ReadLog as the CDC log reader
 cdc-log-config:

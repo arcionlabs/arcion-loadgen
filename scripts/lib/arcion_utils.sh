@@ -1,6 +1,8 @@
 #!/usr/bin/env bash 
 
 . ${SCRIPTS_DIR}/lib/ping_utils.sh
+. ${SCRIPTS_DIR}/lib/map_csv.sh
+
 
 # $1=yaml file
 is_host_up() {
