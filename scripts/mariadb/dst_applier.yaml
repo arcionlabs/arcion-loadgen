@@ -10,6 +10,13 @@ snapshot:
     enable: true
     type: FILE   # PIPE, FILE  
 
+  # used by bulk-load 
+  # default 1M rows does not show frequent progress
+  batch-size-rows: 100_000
+
+  # used by JDBC applier
+  txn-size-rows: 100_000
+
   per-table-config:
   - catalog: ${DSTDB_ARC_USER}
     tables:

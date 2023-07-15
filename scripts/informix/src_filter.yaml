@@ -5,14 +5,12 @@ allow:
 # TPCC has data types that works on snapshot only 
 # only allow YCSB when realtime is involved
 # the BLOCK must be all caps for informix
-$( case "$REPL_TYPE" in
-    delta-snapshot|full|real-time)
+$( if [[ "$REPL_TYPE" != "snapshot" ]]; then
       echo '  allow:'
       echo '    theusertable:'
       echo '  unlisted: BLOCK'
-      ;;
-   esac
-)  
+   fi      
+)
   block: [ replicate_io_cdc_heartbeat ]
 $( case $workload_size_factor in
      1) 

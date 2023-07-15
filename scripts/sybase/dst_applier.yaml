@@ -10,6 +10,13 @@ snapshot:
     enable: false
     type: FILE   # PIPE, FILE        
 
+  # used by bulk-load 
+  # default 1M rows does not show frequent progress
+  batch-size-rows: 100_000
+
+  # used by JDBC applier
+  txn-size-rows: 100_000
+
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
