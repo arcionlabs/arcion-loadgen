@@ -18,5 +18,7 @@ snapshot:
     save-file-on-error: true
     serialize: true
     type: FILE
+
 realtime:
   threads: ${DSTDB_REALTIME_THREADS:-1}
+  skip-tables-on-failures : true
