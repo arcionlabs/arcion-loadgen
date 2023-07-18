@@ -28,6 +28,14 @@ prep_arcion_log # prep_arcion_log.sh
 # prep arcion licese
 prep_arcion_lic # prep_arcion_lic.sh
 
+# prep the jar files
+for f in $(find /opt/stage/libs/*.jar -printf "%f\n"); do
+  if [ ! -f $ARCION_HOME/lib/ ]; then 
+    echo cp /opt/stage/libs/$f $ARCION_HOME/lib/.
+    cp /opt/stage/libs/$f $ARCION_HOME/lib/.
+  fi
+done
+
 export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
@@ -175,14 +183,16 @@ case ${REPL_TYPE,,} in
     ;;
 esac
 
+tmux_show_errorlog
 tmux_show_trace
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
     tmux send-keys -t :0.1 C-c
     tmux send-keys -t :0.2 C-c
+    tmux send-keys -t :0.3 C-c
     tmux send-keys -t :7.0 C-c
-    tmux select-pane -t :0.0  # ycsb
+    tmux select-pane -t :0.0  # console
     # give chance to quiet down
     echo "Waiting 5 sec for CDC to finish" >&2
     sleep 5
@@ -200,4 +210,4 @@ jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
 control_c
 
 echo "cfg is at $CFG_DIR"
-echo "log is at ${ARCION_HOME}/data/$LOG_ID"
+echo "log is at ${ARCION_LOG}/$LOG_ID"

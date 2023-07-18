@@ -30,7 +30,7 @@ else
 fi
 
 # copy 
-for f in $(find /opt/stage/libs/*); do
+for f in $(find /opt/stage/libs/*.jar); do
   echo cp $f $ARCION_HOME/lib/.
   cp $f $ARCION_HOME/lib/.
 done
