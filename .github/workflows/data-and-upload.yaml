@@ -1,0 +1,51 @@
+name: Run arcdemo.sh and upload data
+
+on: 
+  workflow_dispatch:
+    inputs:
+      STORJ_BUCKET: 
+        description: 'The storj.io bucket to use'
+        required: true
+        default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip'
+        type: string
+
+jobs:
+  run-demo:
+    name: run-arcion-demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Repository name with owner. For example, actions/checkout
+          # Default: ${{ github.repository }}
+          repository: 'arcionlabs/docker-dev'
+      - name: Install and execute
+        # Installs and runs the demokit. Later, might be worth it to create compose file w/o 
+        # the gui creation.
+        run: | # Didn't want to try interacting with tui so just a series of commands
+          export ARCION_LICENSE=${{ secrets.ARC_LIC }}
+          docker network create arcnet
+          cd mysql
+          docker compose up -d
+          cd ../pg
+          docker compose up -d
+          cd ..
+          docker volume create oraxe11g >/tmp/install.$$ 2>&1
+          docker volume create oraxe2130 >/tmp/install.$$ 2>&1
+          docker volume create oraee1930 >/tmp/install.$$ 2>&1
+          docker volume create arcion-bin >/tmp/install.$$ 2>&1
+          docker compose -f arcion-demo/docker-compose.yaml pull
+          docker compose -f arcion-demo/docker-compose.yaml up -d
+          sleep 10
+          docker exec workloads mkdir -p /opt/stage/data
+          docker exec workloads arcdemo.sh full mysql postgresql
+      - name: Transfer files
+        run: | # Needs to be changed to keep from bundling both folders into one and to use a unique name
+          docker exec workloads tar Ccf $(dirname /opt/stage/data) - $(basename /opt/stage/data) | tar Cxf . -
+          curl -L https://github.com/storj/storj/releases/latest/download/uplink_linux_amd64.zip -o uplink_linux_amd64.zip
+          unzip -o uplink_linux_amd64.zip
+          sudo install uplink /usr/local/bin/uplink
+          echo "${{ secrets.UPLINK_ACC }}" > access_grant.txt
+          uplink access import main access_grant.txt
+          tar -cf artifact_data.tar data
+          uplink cp artifact_data.tar sj://artifact-data
