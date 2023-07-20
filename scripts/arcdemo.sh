@@ -106,6 +106,8 @@ else
   set_dst
   # temp dirs
   mkdir -p $CFG_DIR/stage
+  # oracle sqlldr has hard coded tmp
+  mkdir -p $CFG_DIR/tmp
   mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
