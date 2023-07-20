@@ -8,3 +8,14 @@ CREATE TABLE IF NOT EXISTS "REPLICATE_IO_CDC_HEARTBEAT"(
   PRIMARY KEY(TIMESTAMP)
 );
 
+-- required for stream replication
+alter table  customer                    replica identity full;
+alter table  district                    replica identity full;
+alter table  history                     replica identity full;
+alter table  item                        replica identity full;
+alter table  new_order                   replica identity full;
+alter table  oorder                      replica identity full;
+alter table  order_line                  replica identity full;
+alter table  stock                       replica identity full;
+alter table  theusertable                replica identity full;
+alter table  warehouse                   replica identity full;
