@@ -99,7 +99,8 @@ ycsb_load() {
     -p zeropadding=${const_ycsb_zeropadding} \
     -p jdbc.ycsbkeyprefix=false \
     -p fieldnameprefix="FIELD" \
-    -p insertorder=ordered
+    -p insertorder=ordered \
+    -p fieldcount=0
 }
 
 # $1 = src|dst
@@ -130,7 +131,7 @@ ycsb_load_sf() {
   echo "looking for ${ycsb_table} in ${ycsb_load_sf_db_tabs[*]}"
   if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table}]}" ]; then 
     echo "${ycsb_table} not found.  creating"
-    ycsb_create_table | tee | jdbc_cli "$LOC" "-n"
+    ycsb_create_table ${ycsb_size_factor_name} | jdbc_cli "$LOC" "-n"
   fi
 
   # number of new records to add
