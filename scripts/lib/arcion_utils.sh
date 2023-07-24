@@ -324,12 +324,15 @@ while [ 1 ]; do
     [ -z "${SRCDB_SID}" ] && export SRCDB_SID=${SRCDB_PROFILE_DICT[sid]}
     [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=${SRCDB_PROFILE_DICT[root_db]}
     [ -z "${SRCDB_CASE}" ] && export SRCDB_CASE=${SRCDB_PROFILE_DICT[case]}
-    [ -z "${SRCDB_DIR}" ] && export SRCDB_DIR=${SRCDB_PROFILE_DICT[config_dir]}
 
+    [ -z "${SRCDB_DIR}" ] && export SRCDB_DIR=${SRCDB_PROFILE_DICT[config_dir]}
     if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir SRCDB_PROFILE_DICT "${SRCDB_HOST}"); fi
     if [ -z "${SRCDB_DIR}" ] || [ ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
     if [ -n "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
     
+    [ -z "${SRCDB_INIT_DIR}" ] && export SRCDB_INIT_DIR=${SRCDB_PROFILE_DICT[init_dir]}
+    if [ -z "${SRCDB_INIT_DIR}" ]; then export SRCDB_INIT_DIR=$SRCDB_GRP; fi
+
     case "${SRCDB_GRP,,}" in
         snowflake)
             SRCDB_HOST="${SNOW_SRC_ENDPOINT}" 
@@ -419,11 +422,14 @@ while [ 1 ]; do
     [ -z "${DSTDB_SID}" ] && export DSTDB_SID=${DSTDB_PROFILE_DICT[sid]}
     [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=${DSTDB_PROFILE_DICT[root_db]}
     [ -z "${DSTDB_CASE}" ] && export DSTDB_CASE=${DSTDB_PROFILE_DICT[case]}
-    [ -z "${DSTDB_DIR}" ] && export DSTDB_DIR=${DSTDB_PROFILE_DICT[config_dir]}
 
+    [ -z "${DSTDB_DIR}" ] && export DSTDB_DIR=${DSTDB_PROFILE_DICT[config_dir]}
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir DSTDB_PROFILE_DICT "${DSTDB_HOST}"); fi
     if [ -z "${DSTDB_DIR}" ] || [ ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     if [ -n "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+
+    [ -z "${DSTDB_INIT_DIR}" ] && export DSTDB_INIT_DIR=${DSTDB_PROFILE_DICT[init_dir]}
+    if [ -z "${DSTDB_INIT_DIR}" ]; then export DSTDB_INIT_DIR=$DSTDB_GRP; fi
 
     case "${DSTDB_GRP,,}" in
         bigquery)
