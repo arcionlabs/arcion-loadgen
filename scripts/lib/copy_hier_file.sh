@@ -88,42 +88,43 @@ copy_yaml() {
 }
 
 infer_dbdir() {
-    local DB_HOST=${1}
-    local DB_DIR=${2}
+    local -n DB_PROFILE_DICT=${1}
+    local DB_HOST=${2}
+
     if [ -z "${DB_HOST}" ]; then
         echo '$1 should be DB_HOST' >&2
         return 1
     fi
-    if [ ! -z "${DB_DIR}" ]; then 
-        echo "$DB_DIR"
-        return 0
-    fi
-    # hostname is exact match or dir name
+
+    # match on hostname
     if [ -d ${SCRIPTS_DIR}/${DB_HOST} ]; then
-        echo "$DB_HOST inferred from the exact hostname." >&2
+        echo "DB_DIR: $DB_HOST inferred from the exact hostname." >&2
         echo "$DB_HOST"
         return 0
     fi    
-    # infer srcdb type from the first word of ${SRCDB_HOST}
-    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
-    if [ -d ${SCRIPTS_DIR}/${DB_HOST_FIRST_WORD} ]; then
-        echo "$DB_HOST_FIRST_WORD inferred from hostname." >&2
-        echo "$DB_HOST_FIRST_WORD"
+    # match on type
+    if [ -d ${SCRIPTS_DIR}/${DB_PROFILE_DICT[type]} ]; then
+        echo "DB_DIR: ${DB_PROFILE_DICT[type]} from type." >&2
+        echo "${DB_PROFILE_DICT[type]}"
         return 0
     fi
-    # infer srcdb type from the full name 
-    local DB_GROUP=$( map_dbgrp ${DB_HOST} )
-    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
-        echo "$DB_GROUP inferred from group name." >&2
-        echo "$DB_GROUP"
-        return 0
+
+    # match on group
+    if [ -n "${DB_PROFILE_DICT[group]}" ]; then
+        if [ -d ${SCRIPTS_DIR}/${DB_PROFILE_DICT[group]} ]; then
+            echo "DB_DIR: ${DB_PROFILE_DICT[group]} from group." >&2
+            echo "${DB_PROFILE_DICT[group]}"
+            return 0
+        fi
     fi
-    # infer srcdb type from the first word of host name
-    local DB_GROUP=$( map_dbgrp ${DB_HOST_FIRST_WORD} )
-    if [[ ! -z "${DB_GROUP}" ]] && [[ -d ${SCRIPTS_DIR}/${DB_GROUP} ]]; then
-        echo "$DB_GROUP inferred from group name based on hostname first word." >&2
-        echo "$DB_GROUP"
-        return 0
+
+    # match on db_dir
+    if [ -n "${DB_PROFILE_DICT[db_dir]}" ]; then
+        if [ -d ${SCRIPTS_DIR}/${DB_PROFILE_DICT[db_dir]} ]; then
+            echo "DB_DIR: ${DB_PROFILE_DICT[db_dir]} from db_dir." >&2
+            echo "${DB_PROFILE_DICT[db_dir]}"
+            return 0
+        fi
     fi
 
     echo "DB_DIR was not specifed and could not infer from HOSTNAME." >&2

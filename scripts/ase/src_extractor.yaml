@@ -5,6 +5,8 @@ snapshot:
   fetch-user-roles: false
   _fetch-exact-row-count: false    
     
+  extraction-method: QUERY # {BCP|QUERY}
+
   min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo
   per-table-config:
   - catalog: ${SRCDB_DB}

@@ -1,7 +1,7 @@
-type: SQLSERVER
+type: SYBASE_ASE
 
 host: '${SRCDB_HOST}'
-port: 1433
+port: 5000
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
@@ -11,6 +11,5 @@ max-connections: 5
 
 max-retries: 1
 
-# real-time and full only
-extractor: CHANGE # {CHANGE|LOG}
+
 

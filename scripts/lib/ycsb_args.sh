@@ -77,6 +77,7 @@ ycsb_src_dst_param() {
   export db_pw=$( x="${LOC^^}DB_ARC_PW"; echo "${!x}" )
   export db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
   export db_type=$( x="${LOC^^}DB_TYPE"; echo "${!x}" )
+  export db_case_senstivity=$( x="${LOC^^}DB_CASE_SENSTIVITY"; echo "${!x}" )
   export jdbc_url=$( x="${LOC^^}DB_JDBC_URL"; echo "${!x}" )
   export jdbc_driver=$( x="${LOC^^}DB_JDBC_DRIVER"; echo "${!x}" )
   export jdbc_classpath=$( x="${LOC^^}DB_CLASSPATH"; echo "${!x}" )
@@ -87,6 +88,20 @@ ycsb_src_dst_param() {
   export ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
   export ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
 
-  if [[ "${ycsb_size_factor}" != "1" ]]; then export ycsb_table=${default_ycsb_table}${ycsb_size_factor}; fi
+  export ycsb_table=${default_ycsb_table}
+  case "${db_case_senstivity,,}" in
+    upper)
+      ycsb_table=${ycsb_table^^}
+      ;;
+    lower)
+      ycsb_table=${ycsb_table,,}
+      ;;
+  esac
+
+  export ycsb_size_factor_name
+  if [[ "${ycsb_size_factor}" != "1" ]]; then 
+    ycsb_table=${ycsb_table}${ycsb_size_factor}; 
+    ycsb_size_factor_name=${ycsb_size_factor}
+  fi
 }
 

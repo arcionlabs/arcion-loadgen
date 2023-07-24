@@ -215,17 +215,18 @@ find_hosts() {
     if [ ! -f "/tmp/arcion/nmap/name.ip.csv" ]; then
         save_nmap
     fi
-    local host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+    local host_ip=$(cat /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
     if [[ -z "${host_ip}" ]]; then
         echo "refreshing nmap" >&2
         save_nmap
-        host_ip=$(grep "$1" /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
+        host_ip=$(cat /tmp/arcion/nmap/name.ip.csv | awk -F',' '{print $1}')
     fi
     echo ${host_ip}
 }
 
 ask_src_host() {
     PS3="Please enter the SOURCE host: "
+    echo $PS3
     options=( $(find_hosts) )
     select SRCDB_HOST in "${options[@]}"; do
         if [ ! -z "$SRCDB_HOST" ]; then break; else echo "invalid option"; fi
@@ -234,6 +235,7 @@ ask_src_host() {
 }
 ask_dst_host() {
     PS3='Please enter the DESTINATION host: '
+    echo $PS3
     options=( $(find_hosts) )
     select DSTDB_HOST in "${options[@]}"; do
         if [ ! -z "$DSTDB_HOST" ]; then break; else echo "invalid option"; fi
@@ -309,26 +311,25 @@ SRCDB_TYPE_old=${SRCDB_TYPE}
 SRCDB_GRP_old=${SRCDB_GRP}
 SRCDB_PORT_old=${SRCDB_PORT}
 SRCDB_ROOT_old=${SRCDB_ROOT}
+
 while [ 1 ]; do
     clear
     echo "Setting up Source Host and Type"
     ask=0
-    if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
-    if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir "${SRCDB_HOST}" ); fi
+    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=${SRCDB_PROFILE_DICT[type]}
+    [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=${SRCDB_PROFILE_DICT[group]}
+    [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=${SRCDB_PROFILE_DICT[port]}
+    [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=${SRCDB_PROFILE_DICT[root_user]}
+    [ -z "${SRCDB_PW}" ] && export SRCDB_PW=${SRCDB_PROFILE_DICT[root_pw]}
+    [ -z "${SRCDB_SID}" ] && export SRCDB_SID=${SRCDB_PROFILE_DICT[sid]}
+    [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=${SRCDB_PROFILE_DICT[root_db]}
+    [ -z "${SRCDB_CASE}" ] && export SRCDB_CASE=${SRCDB_PROFILE_DICT[case]}
+    [ -z "${SRCDB_DIR}" ] && export SRCDB_DIR=${SRCDB_PROFILE_DICT[config_dir]}
+
+    if [ -z "${SRCDB_DIR}" ]; then export SRCDB_DIR=$( infer_dbdir SRCDB_PROFILE_DICT "${SRCDB_HOST}"); fi
     if [ -z "${SRCDB_DIR}" ] || [ ! -d "${SRCDB_DIR}" ]; then ask=1; ask_src_dir; fi
-    if [ ! -z "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
+    if [ -n "${SRCDB_SUBDIR}" ]; then SRCDB_DIR=${SRCDB_DIR}/${SRCDB_SUBDIR}; fi
     
-    export SRCDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${SRCDB_HOST})
-    declare -A SRCDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
-
-    [ -z "${SRCDB_TYPE}" ] && export SRCDB_TYPE=$( map_dbtype "${SRCDB_HOST}" )
-    [ -z "${SRCDB_GRP}" ] && export SRCDB_GRP=$( map_dbgrp "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_PORT}" ] && export SRCDB_PORT=$( map_dbport "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_ROOT}" ] && export SRCDB_ROOT=$( map_dbroot "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_PW}" ] && export SRCDB_PW=$( map_dbrootpw "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_SID}" ] && export SRCDB_SID=$( map_sid "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_ROOT_DB}" ] && export SRCDB_ROOT_DB=$( ${SRCDB_PROFILE[root_db]} )
-
     case "${SRCDB_GRP,,}" in
         snowflake)
             SRCDB_HOST="${SNOW_SRC_ENDPOINT}" 
@@ -336,7 +337,7 @@ while [ 1 ]; do
             SRCDB_ARC_USER="${SNOW_SRC_ID}" 
             SRCDB_ARC_PW="${SNOW_SRC_SECRET}"                 
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
-            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=${SRCDB_PROFILE_DICT[schema]}
             ;;
         informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
@@ -354,20 +355,20 @@ while [ 1 ]; do
             export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
 
-            export ORA_LOG_PATH=${SRCDB_PROFILE[log_path]}
-            export ORA_ARCH_LOG_PATH=${SRCDB_PROFILE[archive_log_path]}
-            export ORA_ALT_LOG_PATH=${SRCDB_PROFILE[alt_log_path]}
-            export ORA_ALT_ARCH_LOG_PATH=${SRCDB_PROFILE[alt_archive_log_path]}   
+            export ORA_LOG_PATH=${SRCDB_PROFILE_DICT[log_path]}
+            export ORA_ARCH_LOG_PATH=${SRCDB_PROFILE_DICT[archive_log_path]}
+            export ORA_ALT_LOG_PATH=${SRCDB_PROFILE_DICT[alt_log_path]}
+            export ORA_ALT_ARCH_LOG_PATH=${SRCDB_PROFILE_DICT[alt_archive_log_path]}   
         ;;
         *)
-            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=$( map_dbschema "${SRCDB_TYPE}" )
+            [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=${SRCDB_PROFILE_DICT[schema]}
             [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
         ;; 
     esac
 
-    [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=$( map_benchbase_type "${SRCDB_TYPE}" )
-    [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=$( map_benchbase_isolation "${SRCDB_TYPE}" )
+    [ -z "${SRCDB_BENCHBASE_TYPE}" ] && export SRCDB_BENCHBASE_TYPE=${SRCDB_PROFILE_DICT[benchbase_type]}
+    [ -z "${SRCDB_JDBC_ISOLATION}" ] && export SRCDB_JDBC_ISOLATION=${SRCDB_PROFILE_DICT[benchbase_txn_isolation]}
 
     # safeguard RAM for the demo
     case "${SRCDB_TYPE,,}" in
@@ -377,14 +378,9 @@ while [ 1 ]; do
             ;;
     esac
 
-    echo "Source Host: ${SRCDB_HOST}"
-    echo "Source Dir: ${SRCDB_DIR}"
-    echo "Source Type: ${SRCDB_TYPE}"
-    echo "Source Grp: ${SRCDB_GRP}"
-    echo "Source Port: ${SRCDB_PORT}"
-    echo "Source Root: ${SRCDB_ROOT}"
-    echo "Source Schema: ${SRCDB_SCHEMA}"
-    echo "Source DB: ${SRCDB_DB}"
+    echo "Source DB Config:"
+    set | grep "^SRCDB_" | grep -v "_old="
+
     if (( ask == 0 )); then 
         break
     else
@@ -415,22 +411,19 @@ while [ 1 ]; do
     clear
     echo "Setting up Target Host and Type"
     ask=0
-    if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
-    if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir "${DSTDB_HOST}" ); fi
-    if [ -z "${DSTDB_DIR}" -o ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
-    if [ ! -z "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
+    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=${DSTDB_PROFILE_DICT[type]}
+    [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=${DSTDB_PROFILE_DICT[group]}
+    [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=${DSTDB_PROFILE_DICT[port]}
+    [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=${DSTDB_PROFILE_DICT[root_user]}
+    [ -z "${DSTDB_PW}" ] && export DSTDB_PW=${DSTDB_PROFILE_DICT[root_pw]}
+    [ -z "${DSTDB_SID}" ] && export DSTDB_SID=${DSTDB_PROFILE_DICT[sid]}
+    [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=${DSTDB_PROFILE_DICT[root_db]}
+    [ -z "${DSTDB_CASE}" ] && export DSTDB_CASE=${DSTDB_PROFILE_DICT[case]}
+    [ -z "${DSTDB_DIR}" ] && export DSTDB_DIR=${DSTDB_PROFILE_DICT[config_dir]}
 
-    export DSTDB_PROFILE_CSV=$(find_in_csv PROFILE_CSV ${DSTDB_HOST})
-    declare -A DSTDB_PROFILE=(); csv_as_dict SRCDB_PROFILE "${PROFILE_HEADER}" "${DSTDB_PROFILE_CSV}"
-
-    [ -z "${DSTDB_TYPE}" ] && export DSTDB_TYPE=$( map_dbtype "${DSTDB_HOST}" )
-    [ -z "${DSTDB_GRP}" ] && export DSTDB_GRP=$( map_dbgrp "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_PORT}" ] && export DSTDB_PORT=$( map_dbport "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_ROOT}" ] && export DSTDB_ROOT=$( map_dbroot "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_PW}" ] && export DSTDB_PW=$( map_dbrootpw "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_SID}" ] && export DSTDB_SID=$( map_sid "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_ROOT_DB}" ] && export DSTDB_ROOT_DB=$( ${DSTDB_PROFILE[root_db]} )
+    if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir DSTDB_PROFILE_DICT "${DSTDB_HOST}"); fi
+    if [ -z "${DSTDB_DIR}" ] || [ ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
+    if [ -n "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
 
     case "${DSTDB_GRP,,}" in
         bigquery)
@@ -439,7 +432,7 @@ while [ 1 ]; do
             export GBQ_DST_PROJECT_ID=$(jq -r ".project_id" ${CFG_DIR}/gbq/dst/secret.json) 
             export GBQ_DST_SERVICE_EMAIL=$(jq -r ".client_email" ${CFG_DIR}/gbq/dst/secret.json)
 
-            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=${DSTDB_PROFILE_DICT[schema]}
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
@@ -450,7 +443,7 @@ while [ 1 ]; do
             DSTDB_ARC_USER="${SNOW_DST_ID}" 
             DSTDB_ARC_PW="${SNOW_DST_SECRET}"                 
 
-            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=${DSTDB_PROFILE_DICT[schema]}
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
         informix)
@@ -473,23 +466,18 @@ while [ 1 ]; do
             export DSTDB_DB=""
         ;;
         *)
-            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=$( map_dbschema "${DSTDB_TYPE}" )
+            [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=${DSTDB_PROFILE_DICT[schema]}
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
         ;; 
     esac
 
-    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=$( map_benchbase_type "${DSTDB_TYPE}" )
-    [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=$( map_benchbase_isolation "${DSTDB_TYPE}" )
+    [ -z "${DSTDB_BENCHBASE_TYPE}" ] && export DSTDB_BENCHBASE_TYPE=${DSTDB_PROFILE_DICT[benchbase_type]}
+    [ -z "${DSTDB_JDBC_ISOLATION}" ] && export DSTDB_JDBC_ISOLATION=${DSTDB_PROFILE_DICT[benchbase_txn_isolation]}
 
-    echo "Destination Host: ${DSTDB_HOST}"
-    echo "Destination Dir: ${DSTDB_DIR}"
-    echo "Destination Type: ${DSTDB_TYPE}"
-    echo "Destination Grp: ${DSTDB_GRP}"
-    echo "Destination Port: ${DSTDB_PORT}"    
-    echo "Destination Root: ${DSTDB_ROOT}"    
-    echo "Destination Schema: ${DSTDB_SCHEMA}"    
-    echo "Destination DB: ${DSTDB_DB}"    
+    echo "Destination DB Config:"
+    set | grep "^DSTDB_" | grep -v "_old="
+
     if (( ask == 0 )); then 
         break
     else

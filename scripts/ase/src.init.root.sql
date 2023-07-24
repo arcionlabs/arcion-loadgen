@@ -14,5 +14,12 @@ sp_adduser arcsrc
 go
 grant all to arcsrc
 go
+grant sa_role to arcsrc
+go
+grant replication_role to arcsrc
+go
+grant sybase_ts_role to arcsrc
+go
+
 -- https://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc32300.1570/html/sqlug/X20276.htm
 -- sp_tables @table_owner = "arcsrc"

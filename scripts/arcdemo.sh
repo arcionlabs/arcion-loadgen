@@ -41,14 +41,14 @@ echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
 
 # read profile (map.csv file) 
-declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
+declare -a PROFILE_CSV=(); read_csv_as_array PROFILE_CSV
 export PROFILE_HEADER=${PROFILE_CSV[0]}
 
 # process args advance the args to positional
 arcdemo_opts $*
 shift $(( OPTIND - 1 ))
 
-if [ ! -z "$CFG_DIR" ]; then
+if [ -n "$CFG_DIR" ]; then
   echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
   # clear the view windows and configure it for this run
@@ -63,9 +63,25 @@ if [ ! -z "$CFG_DIR" ]; then
 else
   # this will parse the URI and set src and dst
   arcdemo_positional $*
+
   # validate the flag arguments
   parse_arcion_thread_ratio
 
+  # get profile of src and dst
+  if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
+  if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
+
+  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_HOST}" "${SRCDB_TYPE}" )
+  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_HOST}" "${DSTDB_TYPE}" )
+
+  # dict can not be exported but is available to child functions
+  declare -A SRCDB_PROFILE_DICT=(); csv_as_dict SRCDB_PROFILE_DICT "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
+  declare -A DSTDB_PROFILE_DICT=(); csv_as_dict DSTDB_PROFILE_DICT "${PROFILE_HEADER}" "${DSTDB_PROFILE_CSV}"
+
+  echo "PROFILE header: $PROFILE_HEADER"
+  echo "SRC profile: $SRCDB_PROFILE_CSV $(declare -p SRCDB_PROFILE_DICT)"
+  echo "DST profile: $DSTDB_PROFILE_CSV $(declare -p DSTDB_PROFILE_DICT)"
+  
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
