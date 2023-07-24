@@ -60,8 +60,8 @@ copy_yaml() {
 
     # copy from template
     pushd ${SCRIPTS_DIR}/utils >/dev/null
-    copy_hier_as_flat ${SRCDB_GRP} src $CFG_DIR
-    copy_hier_as_flat ${DSTDB_GRP} dst $CFG_DIR
+    copy_hier_as_flat ${SRCDB_INIT_DIR} src $CFG_DIR
+    copy_hier_as_flat ${DSTDB_INIT_DIR} dst $CFG_DIR
     copy_hier_as_flat arcion       ""  $CFG_DIR
     copy_hier_as_flat benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat benchbase/dst sample $CFG_DIR/benchbase/dst

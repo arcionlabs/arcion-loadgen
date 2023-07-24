@@ -1,4 +1,4 @@
-workload,table_name,dbname_suffix,dont_rewrite_batch,mysql,postgres,oracle,informix,ase
+workload,table_name,dbname_suffix,dont_rewrite_batch,mysql,postgres,oracle,informix,sybasease
 resourcestresser,locktable,,,,,,,
 sibench,sitest,,,,,,,
 smallbank,accounts,,sqlserver,,,,,

@@ -1,4 +1,4 @@
-type,group,port,root_user,root_pw,schema,benchbase_type,benchbase_txn_isolation,sid,ycsb_batch_size,bb_batch_size,root_db,alt_log_path,alt_archive_log_path,log_path,archive_log_path,utils_dir,config_dir,case
+type,group,port,root_user,root_pw,schema,benchbase_type,benchbase_txn_isolation,sid,ycsb_batch_size,bb_batch_size,root_db,alt_log_path,alt_archive_log_path,log_path,archive_log_path,init_dir,config_dir,case
 oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/ORCL,/opt/stage/oraee1930/ORCL/arch,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/arch,,,
 oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,,,
 oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,,,

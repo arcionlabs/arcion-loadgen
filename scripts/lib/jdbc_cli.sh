@@ -339,7 +339,7 @@ dump_table() {
 # repeat to drop tables without constraints first
 drop_all_tables() {
     local LOC=${1:-src}
-    list_tables $LOC > /tmp/tables.$$.txt
+    list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
     while (( "$( cat /tmp/tables.$$.txt | wc -l )" > 0 )); do
         cat /tmp/tables.$$.txt | sed -e 's/BASE TABLE/TABLE/' -e 's/,/ /' | xargs -I xxx echo  "drop xxx;" | jdbc_cli_$LOC
         list_tables $LOC > /tmp/tables.$$.txt

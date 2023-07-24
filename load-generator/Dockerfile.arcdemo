@@ -137,7 +137,7 @@ USER $USERNAME
 # download ycsb and add setenv.sh that sets CLASSPATH
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
 RUN cd ${YCSB}; \
-    curl -O --location https://github.com/arcionlabs/YCSB/releases/download/arcion-snapshot/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz; \
+    curl -O --location https://github.com/arcionlabs/YCSB/releases/download/action-23.07/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz; \
     curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-mongodb-binding-0.17.0.tar.gz; \
     for f in $( ls *gz ); do tar -xvf $f; rm $f; done; \
     for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done
