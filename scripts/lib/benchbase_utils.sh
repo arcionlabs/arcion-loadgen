@@ -13,6 +13,9 @@ bb_chdir() {
     #fi
 
     case ${db_benchbase_type,,} in
+        sybasease)
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;    
         cockroachdb)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
             ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;
@@ -64,7 +67,7 @@ bb_create_tables() {
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
-        awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+        awk -F',' '{print "[" $2 "]=" $2}' ) )"
     # hash of [workload]=workload,table_name,dbname_suffix,no_rewrite_support
     declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
         awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
