@@ -7,6 +7,8 @@ username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 database: '${SRCDB_ARC_USER}'
 
+transaction-store-location: ${CFG_DIR}/stage 
+
 max-connections: 5
 
 max-retries: 1

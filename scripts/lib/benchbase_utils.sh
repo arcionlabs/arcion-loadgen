@@ -7,36 +7,37 @@
 # switch into right dir
 bb_chdir() {
 
-    if [ -d /opt/benchbase/benchbase-arcion ]; then 
-        pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-        return 0
-    fi
+    #if [ -d /opt/benchbase/benchbase-arcion ]; then 
+    #    pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+    #    return 0
+    #fi
 
     case ${db_benchbase_type,,} in
         cockroachdb)
-            pushd /opt/benchbase/benchbase-cockroachdb >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;
         informix)
-            pushd /opt/benchbase/benchbase-informix >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-informix >/dev/null ;;
         mariadb|mysql|singlestore)
-            pushd /opt/benchbase/benchbase-mariadb >/dev/null 
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-mariadb >/dev/null ;;
         oracle)
             export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
-            pushd /opt/benchbase/benchbase-oracle >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-oracle >/dev/null;;
         postgres)
-                pushd /opt/benchbase/benchbase-postgres >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-postgres >/dev/null ;;
 #        snowflake)
 #                pushd /opt/benchbase/benchbase-snowflake >/dev/null
 #            ;;
         sqlserver)
-            pushd /opt/benchbase/benchbase-sqlserver >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-sqlserver >/dev/null;;
         db2)
-            pushd /opt/benchbase/benchbase-db2 >/dev/null
+            #pushd /opt/benchbase/benchbase-db2 >/dev/null;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
             ;;
         *)
             echo "benchbase-load.sh: db_benchbase_type='${db_benchbase_type}' unsupported" >&2
