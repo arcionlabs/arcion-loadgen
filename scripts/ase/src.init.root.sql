@@ -1,5 +1,5 @@
-disk resize name='master', size='30000M'
-;
+-- disk resize name='master', size='30000M'
+
 -- 20GB takes about 1 min
 -- create database arcsrc on master = '20000M'
 

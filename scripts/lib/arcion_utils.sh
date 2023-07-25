@@ -342,7 +342,7 @@ while [ 1 ]; do
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA=${SRCDB_PROFILE_DICT[schema]}
             ;;
-        ase|informix)
+        informix)
             [ -z "${SRCDB_SCHEMA}" ] && export SRCDB_SCHEMA="${SRCDB_ARC_USER}"
             [ ! -z "${SRCDB_SCHEMA}" ] && export SRCDB_COMMA_SCHEMA=",${SRCDB_SCHEMA}"
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER}
@@ -452,7 +452,7 @@ while [ 1 ]; do
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA=${DSTDB_PROFILE_DICT[schema]}
             [ -z "${DSTDB_DB}" ] && export DSTDB_DB=${DSTDB_ARC_USER}
             ;;
-        ase|informix)
+        informix)
             # HACK: for Informix, schema is same as the user name
             [ -z "${DSTDB_SCHEMA}" ] && export DSTDB_SCHEMA="${DSTDB_ARC_USER}"
             [ ! -z "${DSTDB_SCHEMA}" ] && export DSTDB_COMMA_SCHEMA=",${DSTDB_SCHEMA}"
