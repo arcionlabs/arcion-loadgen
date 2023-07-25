@@ -1,4 +1,6 @@
-NOTE: For installation steps, please follow the instructions from [https://github.com/arcionlabs/docker-dev](https://github.com/arcionlabs/docker-dev).
+Please use [Arcion demo kit docs](https://arcionlabs.github.io/demokit-docs.gtihub-io/).   
+
+Below docs is deprecated and will be removed soon.
 
 # Overview
 
