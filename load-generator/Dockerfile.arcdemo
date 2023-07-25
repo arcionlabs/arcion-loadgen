@@ -137,22 +137,14 @@ USER $USERNAME
 # download ycsb and add setenv.sh that sets CLASSPATH
 COPY --chown=${USERNAME} scripts/utils/ycsb/setenv.sh $YCSB/. 
 RUN cd ${YCSB}; \
-    curl -O --location https://github.com/arcionlabs/YCSB/releases/download/action-23.07/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz; \
-    curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-mongodb-binding-0.17.0.tar.gz; \
-    for f in $( ls *gz ); do tar -xvf $f; rm $f; done; \
+    curl -O --location https://github.com/arcionlabs/YCSB/releases/download/arcion-23.07/ycsb-jdbc-binding-0.18.0-SNAPSHOT.tar.gz && \
+    curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-mongodb-binding-0.17.0.tar.gz && \
+    for f in $( ls *gz ); do tar -xvf $f; rm $f; done && \
     for d in $( find . -mindepth 1 -maxdepth 1  -type d ); do cp setenv.sh $d/bin/.; done
 
 # benchbase
 RUN cd ${BENCHBASE_DIR}; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-cockroachdb.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-db2.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-informix.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-mariadb.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-mysql.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-oracle.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-postgres.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-snowflake.tgz; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/1.0/benchbase-sqlserver.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/arcion-23.07/benchbase-arcion.tgz; \
     for f in $( ls *gz ); do tar -xvf $f; rm $f; done
 
 # /usr/share/sysbench/oltp_common.lua
@@ -198,17 +190,17 @@ COPY --chown=${USERNAME} replicant-cli/ ${ARCION_HOME}
 COPY --chown=${USERNAME} replicate-row-verificator/ ${VERIFICATOR_HOME}
 
 # jbang
-RUN curl -Ls https://sh.jbang.dev | bash -s - app setup
+# RUN curl -Ls https://sh.jbang.dev | bash -s - app setup
 
 # benerator data generator
-RUN cd /opt \
-    && wget https://github.com/rapiddweller/rapiddweller-benerator-ce/releases/download/3.1.0/rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz \
-    && gzip -dc rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz | tar -xvf - \
-    && chmod a+x rapiddweller-benerator-ce-3.1.0-jdk-11/bin/* \
-    && rm rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz
-
-ENV BENERATOR_HOME=/opt/rapiddweller-benerator-ce-3.1.0-jdk-11
-COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${USERNAME}/rapiddweller/demo.env.properties
+# RUN cd /opt \
+#    && wget https://github.com/rapiddweller/rapiddweller-benerator-ce/releases/download/3.1.0/rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz \
+#    && gzip -dc rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz | tar -xvf - \
+#    && chmod a+x rapiddweller-benerator-ce-3.1.0-jdk-11/bin/* \
+#    && rm rapiddweller-benerator-ce-3.1.0-jdk-11-dist.tar.gz
+#
+#ENV BENERATOR_HOME=/opt/rapiddweller-benerator-ce-3.1.0-jdk-11
+#COPY --chown=${USERNAME} scripts/lib/rapiddweller/demo.env.properties  /home/${USERNAME}/rapiddweller/demo.env.properties
 
 # jsqsh
 # connection.xml causes exception on some docker host
