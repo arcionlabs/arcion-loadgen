@@ -8,12 +8,15 @@
 
 ycsb_rows() {
   local LOC="${1:-src}"        # SRC|DST 
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
+  local sql="select max(ycsb_key) from ${ycsb_table}"
 
-  x=$( echo "select max(ycsb_key) from ${ycsb_table}; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" )
+  if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+
+  x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" )
   if [ -z "$x" ]; then
     echo "0"
-  else  
+  else
+    # remove user prefix exists  
     echo "$x" | sed 's/user//' | awk '{print int($1) + 1}'
   fi
 }
@@ -21,9 +24,11 @@ ycsb_rows() {
 ycsb_select_key() {
   local LOC="${1:-src}"        # SRC|DST 
   local ycsb_key="$2"
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
+  local sql="select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key"
 
-  echo "select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
+  if [ ${SRCDB_CASE} = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+
+  echo "$sql; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
 
 
@@ -35,9 +40,6 @@ ycsb_select_key() {
 ycsb_load() {
   local jdbc_url=${1}
   local recordcount=${2}    
-
-  # not override from command line args
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
   if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
 
@@ -96,7 +98,9 @@ ycsb_load() {
     -p requestdistribution=uniform \
     -p zeropadding=${const_ycsb_zeropadding} \
     -p jdbc.ycsbkeyprefix=false \
-    -p insertorder=ordered
+    -p fieldnameprefix="FIELD" \
+    -p insertorder=ordered \
+    -p fieldcount=0
 }
 
 # $1 = src|dst
@@ -115,17 +119,19 @@ ycsb_load_sf() {
   # list of tables in the databaes
   if [ -z "${2}" ]; then
     echo "ycsb_load_sf: retrieving the tables"
-    declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+    declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | awk -F',' '{print "[" $2 "]=" $2}' ) )"
   else
     echo "ycsb_load_sf: list of tables $2"
     local -n ycsb_load_sf_db_tabs=${2}
   fi
 
+  if [ -z "${ycsb_table}" ]; then exit 1; fi
+
   # create table def if not found
-  echo "${ycsb_load_sf_db_tabs[*]}"
-  if [ -z "${ycsb_load_sf_db_tabs[theusertable]}" ]; then 
-    echo "theusertable not found.  creating"
-    ycsb_create_table | jdbc_cli "$LOC"
+  echo "looking for ${ycsb_table} in ${ycsb_load_sf_db_tabs[*]}"
+  if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table}]}" ]; then 
+    echo "${ycsb_table} not found.  creating"
+    ycsb_create_table ${ycsb_size_factor_name} | jdbc_cli "$LOC" "-n"
   fi
 
   # number of new records to add
@@ -166,9 +172,6 @@ ycsb_run() {
   [ -z "${jdbc_url}" ] && { echo "jdbc_url not set" >&2; return 1; }
   [ -z "${jdbc_driver}" ] && { echo "jdbc_driver not set" >&2; return 1; }
   [ -z "${jdbc_classpath}" ] && { echo "jdbc_classpath not set" >&2; return 1; }
-
-  # not override from command line args
-  local ycsb_table=${ycsb_table:-${default_ycsb_table}}
 
   # these not typically set
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
@@ -212,6 +215,7 @@ ycsb_run() {
   -p requestdistribution=uniform \
   -p zeropadding=${const_ycsb_zeropadding} \
   -p jdbc.ycsbkeyprefix=false \
+  -p fieldnameprefix="FIELD" \
   -p insertorder=ordered &
 
   # save the PID  

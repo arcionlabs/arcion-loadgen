@@ -18,17 +18,19 @@ create index THEUSERTABLE_TS on THEUSERTABLE (TS);
 EOF
 }
 
-ycsb_create_sybase() {
-echo "ycsb create sqlserver" >&2    
-cat <<'EOF'
--- TS is used for snapshot delta. 
-CREATE TABLE THEUSERTABLE (
+# Sybase ASE field names are case senstive
+# the field0-9 must be lower case for YCSB java code
+ycsb_create_ase() {
+local SUFFIX=${1}
+echo "ycsb create sybase ase" >&2    
+cat <<EOF
+CREATE TABLE THEUSERTABLE${SUFFIX} (
 	YCSB_KEY INT,
-	FIELD0 varchar(255) default null, FIELD1 varchar(255) default null,
-	FIELD2 varchar(255) default null, FIELD3 varchar(255) default null,
-	FIELD4 varchar(255) default null, FIELD5 varchar(255) default null,
-	FIELD6 varchar(255) default null, FIELD7 varchar(255) default null,
-	FIELD8 varchar(255) default null, FIELD9 varchar(255) default null,
+	FIELD0 VARCHAR(255) NULL, FIELD1 VARCHAR(255) NULL,
+	FIELD2 VARCHAR(255) NULL, FIELD3 VARCHAR(255) NULL,
+	FIELD4 VARCHAR(255) NULL, FIELD5 VARCHAR(255) NULL,
+	FIELD6 VARCHAR(255) NULL, FIELD7 VARCHAR(255) NULL,
+	FIELD8 VARCHAR(255) NULL, FIELD9 VARCHAR(255) NULL,
 	PRIMARY KEY (YCSB_KEY)
 );
 EOF
@@ -184,17 +186,18 @@ ycsb_create_table() {
         return 1
     fi
 
-    if [ "${db_grp,,}" = "db2" ]; then ycsb_create_db2
-    elif [ "${db_grp,,}" = "sqlserver" ] ||  [ "${db_grp,,}" = "sybasease" ]; then ycsb_create_sqlserver
-    elif [ "${db_grp,,}" = "informix" ]; then ycsb_create_informix
-    elif [ "${db_grp,,}" = "oracle" ]; then ycsb_create_oracle
-    elif [ "${db_grp,,}" = "snowflake" ]; then ycsb_create_snowflake
+    if [ "${db_grp,,}" = "ase" ]; then ycsb_create_ase $*
+    elif [ "${db_grp,,}" = "db2" ]; then ycsb_create_db2 $*
+    elif [ "${db_grp,,}" = "sqlserver" ]; then ycsb_create_sqlserver $*
+    elif [ "${db_grp,,}" = "informix" ]; then ycsb_create_informix $*
+    elif [ "${db_grp,,}" = "oracle" ]; then ycsb_create_oracle $*
+    elif [ "${db_grp,,}" = "snowflake" ]; then ycsb_create_snowflake $*
     else 
         case "${db_type,,}" in 
-            mysql | mariadb | cockroach) ycsb_create_mysql ;; 
-            singlestore) ycsb_create_singlestore ;;
-            yugabytesql | postgresql) ycsb_create_postgres ;;
-            *) ycsb_create_default ;;
+            mysql | mariadb | cockroach) ycsb_create_mysql $*;; 
+            singlestore) ycsb_create_singlestore $*;;
+            yugabytesql | postgresql) ycsb_create_postgres $*;;
+            *) ycsb_create_default $*;;
         esac
     fi
 }

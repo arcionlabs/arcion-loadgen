@@ -100,7 +100,8 @@ jdbc_cli_dst() {
   jdbc_cli dst "$*"
 }
 
-# results are lower cased
+# maintain case sensistivity from the output
+# table, count(*) of tables
 list_dbs() {
     local LOC=${1:-SRC}
     local DB_GRP=$( x="${LOC^^}DB_GRP"; echo ${!x} )
@@ -108,31 +109,35 @@ list_dbs() {
     case ${DB_GRP,,} in
         mysql)
     local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT table_schema, count(*) FROM information_schema.tables group by table_catalog, table_schema order by 1;"
+    local DB_SQL="SELECT table_schema, count(*) FROM information_schema.tables group by table_catalog, table_schema order by 1; -m csv"
         ;;
         postgresql|sqlserver)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_catalog, count(*) FROM information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2;"
+    local DB_SQL="SELECT table_catalog, count(*) FROM information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2; -m csv"
         ;;
         informix)
     local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT t.owner, count(*) FROM systables as t where t.tabid >= 100 group by t.owner;"
+    local DB_SQL="SELECT t.owner, count(*) FROM systables as t where t.tabid >= 100 group by t.owner; -m csv"
         ;;
         oracle)
     local DB_ARC_USER=$( x="${LOC^^}DB_ARC_USER"; echo ${!x} )
     #local DB_SQL="SELECT USERNAME FROM ALL_USERS where ORACLE_MAINTAINED='N' group BY USERNAME;"
     # SELECT COUNT(*) FROM USER_TABLES;
-    local DB_SQL="select owner, count(table_name) from all_tables where owner='${DB_ARC_USER^^}' group by owner;"
+    local DB_SQL="select owner, count(table_name) from all_tables where owner='${DB_ARC_USER^^}' group by owner; -m csv"
         ;;    
         db2)
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT trim(table_schema), count(*) from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE' group by table_schema;"
+    local DB_SQL="SELECT trim(table_schema), count(*) from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE' group by table_schema; -m csv"
         ;;          
         snowflake)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_catalog, count(*) FROM ${DB_CATALOG}.information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2;"
+    local DB_SQL="SELECT table_catalog, count(*) FROM ${DB_CATALOG}.information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2; -m csv"
+        ;;
+        ase)
+    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
+    local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
         ;;
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
@@ -140,8 +145,8 @@ list_dbs() {
     esac
 
     echo ${DB_SQL} >&2
-    if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | tr '[:upper:]' '[:lower:]'
+    if [ -n "$DB_SQL" ]; then
+        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV"
         return ${PIPESTATUS[1]}
     fi
 }
@@ -154,38 +159,41 @@ list_tables() {
     case ${DB_GRP,,} in
         mysql)
     local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' order by table_name;"
+    local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' order by table_name; -m csv"
         ;;
         postgresql|sqlserver)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
+    local DB_SQL="SELECT table_type, table_name FROM information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name; -m csv"
         ;;
         informix)
     local DB_SCHEMA=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname;"
+    local DB_SQL="SELECT 'TABLE' as table_type, t.tabname as table_name FROM systables as t where t.tabtype in ('T') and t.owner='${DB_SCHEMA}' and  t.tabid >= 100 order by t.tabname; -m csv"
         ;;
         oracle)
     local DB_OWNER=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="SELECT 'TABLE', table_name from user_tables;"
+    local DB_SQL="SELECT 'TABLE', table_name from user_tables; -m csv"
         ;;    
         db2)
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT 'TABLE', table_name from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE';"
+    local DB_SQL="SELECT 'TABLE', table_name from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE'; -m csv"
         ;;           
         snowflake)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_type, table_name FROM ${DB_CATALOG}.information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name;"
+    local DB_SQL="SELECT table_type, table_name FROM ${DB_CATALOG}.information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name; -m csv"
         ;;
-        *)
+        ase)
+    local DB_SQL="\tables --all --type table | awk -F'|' 'NF>1 {printf \"TABLE,%s,%s,%s\n\",\$4,\$2,\$3}' | tr -d '[:blank:]' | tee /tmp/tables.csv"
+        ;;
+    *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
         ;;
     esac
 
     echo ${DB_SQL} >&2
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL} -m csv" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/' | tr '[:upper:]' '[:lower:]'
+        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
     fi
 }
 
@@ -331,10 +339,11 @@ dump_table() {
 # repeat to drop tables without constraints first
 drop_all_tables() {
     local LOC=${1:-src}
-    list_tables $LOC > /tmp/tables.$$.txt
+    list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
     while (( "$( cat /tmp/tables.$$.txt | wc -l )" > 0 )); do
-        cat /tmp/tables.$$.txt | sed -e 's/BASE TABLE/TABLE/' -e 's/,/ /' | xargs -I xxx echo  "drop xxx;" | jdbc_cli_$LOC
-        list_tables $LOC > /tmp/tables.$$.txt
+        echo "droping the following tables: $(cat /tmp/tables.$$.txt | paste -s -d',')"  
+        cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table xxx;" | jdbc_cli_$LOC
+        list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
     done
 }
 

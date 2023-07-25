@@ -1,12 +1,12 @@
-type: SQLSERVER
+type: SYBASE_ASE
 
 host: '${DSTDB_HOST}'
-port: 1433
+port: 5000
 
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 database: '${DSTDB_ARC_USER}'
 
 max-connections: 5
+
 max-retries: 1
-  

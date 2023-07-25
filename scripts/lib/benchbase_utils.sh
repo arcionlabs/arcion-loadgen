@@ -4,38 +4,49 @@
 . ${SCRIPTS_DIR}/lib/benchbase_globals.sh
 . ${SCRIPTS_DIR}/lib/benchbase_args.sh
 
+bb_logging() {
+    if [ -f "log4j.properties" ]; then
+        export JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:log4j.properties"        
+    fi    
+}
+
 # switch into right dir
 bb_chdir() {
 
-    #pushd /opt/benchbase/benchbase-arcion >/dev/null
-
-    #return 0
+    #if [ -d /opt/benchbase/benchbase-arcion ]; then 
+    #    pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+    #    return 0
+    #fi
 
     case ${db_benchbase_type,,} in
+        sybasease)
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;    
         cockroachdb)
-            pushd /opt/benchbase/benchbase-cockroachdb >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;
         informix)
-            pushd /opt/benchbase/benchbase-informix >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-informix >/dev/null ;;
         mariadb|mysql|singlestore)
-            pushd /opt/benchbase/benchbase-mariadb >/dev/null 
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-mariadb >/dev/null ;;
         oracle)
             export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
-            pushd /opt/benchbase/benchbase-oracle >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-oracle >/dev/null;;
         postgres)
-                pushd /opt/benchbase/benchbase-postgres >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-postgres >/dev/null ;;
 #        snowflake)
 #                pushd /opt/benchbase/benchbase-snowflake >/dev/null
 #            ;;
         sqlserver)
-            pushd /opt/benchbase/benchbase-sqlserver >/dev/null
-            ;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
+            ;;            #pushd /opt/benchbase/benchbase-sqlserver >/dev/null;;
         db2)
-            pushd /opt/benchbase/benchbase-db2 >/dev/null
+            #pushd /opt/benchbase/benchbase-db2 >/dev/null;;
+            pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
             ;;
         *)
             echo "benchbase-load.sh: db_benchbase_type='${db_benchbase_type}' unsupported" >&2
@@ -62,7 +73,7 @@ bb_create_tables() {
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
-        awk -F, '/^table/ {print "[" $2 "]=" $2}' ) )"
+        awk -F',' '{print "[" $2 "]=" $2}' ) )"
     # hash of [workload]=workload,table_name,dbname_suffix,no_rewrite_support
     declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
         awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
@@ -131,6 +142,8 @@ bb_create_tables() {
                 $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
             diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
+            # set debugging options
+            bb_logging
             JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
@@ -185,6 +198,8 @@ bb_run_tables() {
             $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
         diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
+        # set debugging options
+        bb_logging
         # run
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \

@@ -28,7 +28,7 @@ fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
+  ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
     # source in libs
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_run_src "$@"

@@ -1,37 +1,22 @@
 #!/usr/bin/env bash 
 
-map_db() {
-    local DB_TYPE=${1}
-    local COLUMN_INDEX=${2:-2}  
-    local COLUMN_VALUE
-    # column position in the map.csv
-    # type(1),group(2),default_port(3),root_user(4),root_pw(5)
-    if [ -f "${SCRIPTS_DIR}/utils/map.csv" ]; then 
-        ROW=$(grep "^${DB_TYPE}," ${SCRIPTS_DIR}/utils/map.csv | head -n 1)
-        COLUMN_VALUE=$(echo ${ROW} | cut -d',' -f${COLUMN_INDEX})
-    fi
-    if [ -z "${ROW}" ]; then 
-        echo "Warning: $1 not defined in map.csv." >&2
-    fi
-    echo $COLUMN_VALUE
-}
-
 # return map.csv as an array
 # to test:
-#   declare -a array; read_csv array /scripts/utils/map.csv
-#   declare -a array; read_csv array /scripts/utils/benchbase/bbtables.csv
+#   declare -a array; read_csv_as_array array /scripts/utils/map.csv
+#   declare -a array; read_csv_as_array array /scripts/utils/benchbase/bbtables.csv
 #   echo ${array[@]} will print out the CSV content
-read_csv() {
-    local -n read_csv_ret=${1}
+read_csv_as_array() {
+    local -n read_csv_as_array_ret=${1}
     local csv_file=${2:-${SCRIPTS_DIR}/utils/map.csv}
-    mapfile -t read_csv_ret < $csv_file
+    mapfile -t read_csv_as_array_ret < $csv_file
 }
 
 # find a match in csv
-# find_in_csv array pg
-# find_in_csv array twitter
-find_in_csv() {
-    local -n match_csv_array=${1}
+# $1=map.csv in array
+# find_in_array array pg
+# find_in_array array twitter
+find_in_array() {
+    local -n find_in_array_input=${1}
     local match_val=${2}
     local match_index=${3:-0}
 
@@ -40,10 +25,11 @@ find_in_csv() {
     declare header
 
     # skip the header and check all of the rows one by one until match
-    for line in "${match_csv_array[@]:1}" ; do
+    for line in "${find_in_array_input[@]:1}" ; do
         IFS=',' read -r -a row <<< ${line}
         if [ "${row[${match_index}]}" = "${match_val}" ]; then
             echo "${line}"
+            # echo "${line} found in map.csv" >&2
             return 0
         fi
     done
@@ -59,7 +45,7 @@ find_in_csv() {
 #    declare -a array read_csv
 #    declare -A ret=(); match_csv ret array oraxe
 #    declare -p ret
-match_csv() {
+find_in_array_as_dict() {
     local -n match_csv_dict=${1}
     local -n match_csv_array=${2}
     local match_val=${3}
@@ -82,9 +68,10 @@ match_csv() {
                 match_csv_dict["$e"]="${row[i]}";
                 ((i++))
             done
-            return
+            return 0
         fi
     done
+    return 1
 }
 
 # return header and CSV as dict
@@ -104,56 +91,46 @@ csv_as_dict() {
     done
 }
 
-map_dbgrp() {
-    map_db "$1" 2
-}
-map_dbport() {
-    map_db "$1" 3
-}
-map_dbroot() {
-    map_db "$1" 4
-}
-map_dbrootpw() {
-    map_db "$1" 5
-}
 
-map_dbschema() {
-    map_db "$1" 6
-}
+get_profile() {
+    local -n GET_PROFILE_ARRAY=${1:-PROFILE_CSV}
+    local DB_HOST=${2}
+    local DB_TYPE=${3}
 
-map_benchbase_type() {
-    map_db "$1" 7
-}
+    local DB_PROFILE
+    local DB_HOST_FIRST_WORD
 
-map_benchbase_isolation() {
-    map_db "$1" 8
-}
-
-map_sid() {
-    map_db "$1" 9
-}
-
-# this is actually the profile based on hierarchy
-# full host name
-# first word of host name
-map_dbtype() {
-    local DB_HOST=${1}
-    # infer srcdb type from the full name 
-    local DB_TYPE=$( map_db ${DB_HOST} 1 )
-    if [ ! -z "${DB_TYPE}" ]; then
-        echo "$DB_TYPE inferred from full host name $DB_HOST." >&2
-        echo "$DB_TYPE"
-        return 0
-    fi
-    # infer srcdb type from the first word of host name
-    local DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
-    local DB_TYPE=$( map_db ${DB_HOST_FIRST_WORD} 1 )
-    if [ ! -z "${DB_TYPE}" ]; then
-        echo "$DB_TYPE inferred from group name based on hostname first word." >&2
-        echo "$DB_TYPE"
-        return 0
+    # infer db type from the full name 
+    if [ -n "${DB_HOST}" ]; then
+        DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_HOST} 0 )
+        if [ -n "${DB_PROFILE}" ]; then
+            # echo "$DB_PROFILE from full host name $DB_HOST." >&2
+            echo "$DB_PROFILE"
+            return 0
+        fi
     fi
 
-    echo "DB_TYPE could not infer from $DB_HOST." >&2
+    # infer db type from the db type
+    if [ -n "${DB_TYPE}" ]; then
+        DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_TYPE} 0 )
+        if [ -n "${DB_PROFILE}" ]; then
+            # echo "$DB_PROFILE from db type $DB_TYPE." >&2
+            echo "$DB_PROFILE"
+            return 0
+        fi
+    fi
+
+    # infer db type from the first word of host name
+    DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
+    if [ -n "${DB_HOST_FIRST_WORD}" ]; then
+        DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_HOST_FIRST_WORD} 0 )
+        if [ -n "${DB_PROFILE}" ]; then
+            echo "$DB_PROFILE inferred from hostname first word." >&2
+            echo "$DB_PROFILE"
+            return 0
+        fi
+    fi
+
+    echo "DB_PROFILE could not be inferred from $DB_HOST." >&2
     return 1
 }

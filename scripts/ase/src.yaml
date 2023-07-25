@@ -1,16 +1,17 @@
-type: SQLSERVER
+type: SYBASE_ASE
 
 host: '${SRCDB_HOST}'
-port: 1433
+port: 5000
 
 username: '${SRCDB_ARC_USER}'
 password: '${SRCDB_ARC_PW}'
 database: '${SRCDB_ARC_USER}'
 
+transaction-store-location: ${CFG_DIR}/stage 
+
 max-connections: 5
 
 max-retries: 1
 
-# real-time and full only
-extractor: CHANGE # {CHANGE|LOG}
+
 

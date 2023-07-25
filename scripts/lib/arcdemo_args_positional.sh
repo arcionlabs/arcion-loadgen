@@ -3,6 +3,11 @@
 function latest_hostname() {
     local HOSTNAME=$1
     local ROLE=${2:-src}    # SRC|DST src is usally 1 or src, dst is usally 2 or dst
+
+    if [ -z "$HOSTNAME" ]; then 
+        return 
+    fi
+
     # get IPs
     # -W wait max 1 sec (good for local lookup)
     # /has address/ show just ipv4
@@ -96,8 +101,8 @@ function arcdemo_positional() {
     fi
 
     # incase of multiple names, take the latest
-    SRCDB_HOST=$(latest_hostname ${SRCDB_SHORTNAME} src)
-    DSTDB_HOST=$(latest_hostname ${DSTDB_SHORTNAME} dst)
+    SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src")
+    DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst")
 
     if [ "$workload_size_factor" = "1" ]; then
         export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}

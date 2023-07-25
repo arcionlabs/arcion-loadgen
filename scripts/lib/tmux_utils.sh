@@ -12,7 +12,8 @@ tmux_kill_windows() {
     tmux kill-window -t ${TMUX_SESSION}:6   # arcveri_log
     tmux kill-window -t ${TMUX_SESSION}:7   # dstat
 
-    tmux kill-pane -t ${TMUX_SESSION}:0.2   # source / tpcc
+    tmux kill-pane -t ${TMUX_SESSION}:0.3   # error
+    tmux kill-pane -t ${TMUX_SESSION}:0.2   # target / ycsb
     tmux kill-pane -t ${TMUX_SESSION}:0.1   # target / ycsb
 }
 
@@ -28,8 +29,9 @@ tmux_create_windows() {
     tmux new-window -d -n dstat -t ${TMUX_SESSION}:7
 
     # windows 0 to run commands
-    tmux split-window -v -t $WIN:0  # source / tpcc
-    tmux split-window -v -t $WIN:0  # target / ycsb
+    tmux split-window -v -t $WIN:0  # source / tpcc 
+    tmux split-window -v -t $WIN:0 -p 66 # target / ycsb 
+    tmux split-window -v -t $WIN:0  # trace log err
 
     # windows 3 user sql split
     tmux split-window -d -v -t  ${TMUX_SESSION}:3
@@ -44,6 +46,10 @@ tmux_show_tpcc() {
 
 tmux_show_ycsb() {
     tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
+}
+
+tmux_show_errorlog() {
+    tmux send-keys -t ${TMUX_SESSION}:0.3 "clear; banner errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/error_trace.log" Enter
 }
 
 tmux_show_verification() {
@@ -68,7 +74,7 @@ tmux_show_yaml()  {
 tmux_show_trace()  {
     local TMUX_SESSION=${1}
 
-    tmux send-keys -t ${TMUX_SESSION}:2.0 "sleep 5; view ${ARCION_LOG}/${LOG_ID}" Enter
+    tmux send-keys -t ${TMUX_SESSION}:2.0 "while [ ! -f ${ARCION_LOG}/${LOG_ID}/trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/trace.log" Enter
     tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
 }
 

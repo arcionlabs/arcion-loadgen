@@ -17,11 +17,13 @@ set -x
 # create arcdst user alias
 mc alias set $alias_name ${GCS_DST_ENDPOINT} ${GCS_DST_ID} ${GCS_DST_SECRET}
 # see if bucket exists (must be lower case)
-dst_bucket=$(mc ls $alias_name/${GCS_DST_DB,,} | awk '{print $NF}')
+dst_bucket=$(mc ls $alias_name/${GCS_DST_BUCKET,,} | awk '{print $NF}')
 # create bucket if does not exist
 if [ -z "${dst_bucket}" ]; then
-    mc mb  --with-lock $alias_name/${GCS_DST_DB}
+    mc mb  --with-lock $alias_name/${GCS_DST_BUCKET}
 fi
 # list buckets 
-mc ls -r $alias_name/${GCS_DST_DB}
+mc ls -r $alias_name/${GCS_DST_BUCKET}
 set +x
+# remove the bucket 
+# mc rm -r --force gcs_path/${GCS_DST_BUCKET}/*

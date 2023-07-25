@@ -29,6 +29,16 @@ local ARCION_HOME=${ARCION_HOME:-/arcion}
 local SRCDB_USER_CHANGE="#_CHANGEME_#"
 local DSTDB_USER_CHANGE="#_CHANGEME_#"
 case "${SRCDB_GRP,,}" in
+  ase)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="sybase"
+    SRCDB_JDBC_DRIVER="com.sybase.jdbc4.jdbc.SybDriver"
+    SRCDB_JDBC_URL="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_USER_CHANGE}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_USER_CHANGE}"   
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""      
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jconn4*jar | paste -sd :)"
+    ;; 
   db2)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="db2"
@@ -99,17 +109,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_ROOT_URL="mongodb://${SRCDB_ROOT}:${SRCDB_PW}@${SRCDB_HOST}:${SRCDB_PORT}/"   
     SRCDB_JDBC_URL="mongodb://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_USER_CHANGE}?w=0"
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mongodb*jar | paste -sd :)"
-    ;;
-  sybasease)
-    SRCDB_YCSB_DRIVER="jdbc"
-    SRCDB_JSQSH_DRIVER="sybase"
-    SRCDB_JDBC_DRIVER="com.sybase.jdbc4.jdbc.SybDriver"
-    SRCDB_JDBC_URL="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}"   
-    SRCDB_JDBC_URL_BENCHBASE="jdbc:sybase:Tds:${SRCDB_HOST}:${SRCDB_PORT}"   
-    SRCDB_JDBC_NO_REWRITE=""
-    SRCDB_JDBC_REWRITE=""      
-    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jconn4*jar | paste -sd :)"
-    ;;       
+    ;;      
   sqlserver)
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="mssql2k5"

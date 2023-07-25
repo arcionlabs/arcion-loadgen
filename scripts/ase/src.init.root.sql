@@ -1,5 +1,5 @@
-disk resize name='master', size='30000M'
-;
+-- disk resize name='master', size='30000M'
+
 -- 20GB takes about 1 min
 -- create database arcsrc on master = '20000M'
 
@@ -14,5 +14,12 @@ sp_adduser arcsrc
 go
 grant all to arcsrc
 go
+sp_role 'grant', sa_role, arcsrc
+go
+sp_role 'grant', replication_role, arcsrc
+go
+sp_role 'grant', sybase_ts_role, arcsrc
+go
+
 -- https://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc32300.1570/html/sqlug/X20276.htm
 -- sp_tables @table_owner = "arcsrc"

@@ -1,4 +1,11 @@
 <connections>
+   <connection name="ase-src"
+               driver="sybase"
+               server="ase-src"
+   >
+      <username><![CDATA[sa]]></username>
+      <password encrypted="true"><![CDATA[5C9hrIEnjKCu+Fk1hNkqOw==]]></password>
+   </connection>
    <connection name="pgsrc"
                driver="pgsql"
                server="postgresql"

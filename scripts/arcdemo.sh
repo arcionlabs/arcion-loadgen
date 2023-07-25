@@ -28,19 +28,27 @@ prep_arcion_log # prep_arcion_log.sh
 # prep arcion licese
 prep_arcion_lic # prep_arcion_lic.sh
 
+# prep the jar files
+for f in $(find /opt/stage/libs/*.jar -printf "%f\n"); do
+  if [ ! -f $ARCION_HOME/lib/ ]; then 
+    echo cp /opt/stage/libs/$f $ARCION_HOME/lib/.
+    cp /opt/stage/libs/$f $ARCION_HOME/lib/.
+  fi
+done
+
 export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
 
 # read profile (map.csv file) 
-declare -a PROFILE_CSV=(); read_csv PROFILE_CSV
+declare -a PROFILE_CSV=(); read_csv_as_array PROFILE_CSV
 export PROFILE_HEADER=${PROFILE_CSV[0]}
 
 # process args advance the args to positional
 arcdemo_opts $*
 shift $(( OPTIND - 1 ))
 
-if [ ! -z "$CFG_DIR" ]; then
+if [ -n "$CFG_DIR" ]; then
   echo "Loading $CFG_DIR/ini_menu.sh"
   . $CFG_DIR/ini_menu.sh
   # clear the view windows and configure it for this run
@@ -55,9 +63,25 @@ if [ ! -z "$CFG_DIR" ]; then
 else
   # this will parse the URI and set src and dst
   arcdemo_positional $*
+
   # validate the flag arguments
   parse_arcion_thread_ratio
 
+  # get profile of src and dst
+  if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
+  if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
+
+  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_HOST}" "${SRCDB_TYPE}" )
+  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_HOST}" "${DSTDB_TYPE}" )
+
+  # dict can not be exported but is available to child functions
+  declare -A SRCDB_PROFILE_DICT=(); csv_as_dict SRCDB_PROFILE_DICT "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
+  declare -A DSTDB_PROFILE_DICT=(); csv_as_dict DSTDB_PROFILE_DICT "${PROFILE_HEADER}" "${DSTDB_PROFILE_CSV}"
+
+  echo "PROFILE header: $PROFILE_HEADER"
+  echo "SRC profile: $SRCDB_PROFILE_CSV $(declare -p SRCDB_PROFILE_DICT)"
+  echo "DST profile: $DSTDB_PROFILE_CSV $(declare -p DSTDB_PROFILE_DICT)"
+  
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set
   if test "${METADATA_DIR-default value}" ; then 
@@ -98,6 +122,8 @@ else
   set_dst
   # temp dirs
   mkdir -p $CFG_DIR/stage
+  # oracle sqlldr has hard coded tmp
+  mkdir -p $CFG_DIR/tmp
   mkdir -p $CFG_DIR/metadata
 
   # change the name of the CFG_DIR
@@ -175,14 +201,16 @@ case ${REPL_TYPE,,} in
     ;;
 esac
 
+tmux_show_errorlog
 tmux_show_trace
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
     tmux send-keys -t :0.1 C-c
     tmux send-keys -t :0.2 C-c
+    tmux send-keys -t :0.3 C-c
     tmux send-keys -t :7.0 C-c
-    tmux select-pane -t :0.0  # ycsb
+    tmux select-pane -t :0.0  # console
     # give chance to quiet down
     echo "Waiting 5 sec for CDC to finish" >&2
     sleep 5
@@ -200,4 +228,4 @@ jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
 control_c
 
 echo "cfg is at $CFG_DIR"
-echo "log is at ${ARCION_HOME}/data/$LOG_ID"
+echo "log is at ${ARCION_LOG}/$LOG_ID"
