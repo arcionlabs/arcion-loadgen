@@ -3,7 +3,7 @@ resourcestresser,locktable,,,,,,,
 sibench,sitest,,,,,,,
 smallbank,accounts,,sqlserver,,,,,
 tatp,call_forwarding,,,,,,,
-tpcc,item,,informix,8192,1024,128,2048,1024
+tpcc,item,,informix,8192,1024,128,2048,128
 twitter,tweets,,,,,,,
 voter,votes,,,,,,,
 wikipedia,watchlist,,informix,,,,,

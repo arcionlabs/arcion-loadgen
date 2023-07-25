@@ -341,8 +341,9 @@ drop_all_tables() {
     local LOC=${1:-src}
     list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
     while (( "$( cat /tmp/tables.$$.txt | wc -l )" > 0 )); do
-        cat /tmp/tables.$$.txt | sed -e 's/BASE TABLE/TABLE/' -e 's/,/ /' | xargs -I xxx echo  "drop xxx;" | jdbc_cli_$LOC
-        list_tables $LOC > /tmp/tables.$$.txt
+        echo "droping the following tables: $(cat /tmp/tables.$$.txt | paste -s -d',')"  
+        cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table xxx;" | jdbc_cli_$LOC
+        list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
     done
 }
 
