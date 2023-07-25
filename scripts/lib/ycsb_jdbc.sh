@@ -10,7 +10,7 @@ ycsb_rows() {
   local LOC="${1:-src}"        # SRC|DST 
   local sql="select max(ycsb_key) from ${ycsb_table}"
 
-  if [ ${SRCDB_CASE} = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+  if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
 
   x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" )
   if [ -z "$x" ]; then

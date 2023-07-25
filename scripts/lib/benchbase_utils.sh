@@ -4,6 +4,12 @@
 . ${SCRIPTS_DIR}/lib/benchbase_globals.sh
 . ${SCRIPTS_DIR}/lib/benchbase_args.sh
 
+bb_logging() {
+    if [ -f "log4j.properties" ]; then
+        export JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:log4j.properties"        
+    fi    
+}
+
 # switch into right dir
 bb_chdir() {
 
@@ -136,6 +142,8 @@ bb_create_tables() {
                 $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
             diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
+            # set debugging options
+            bb_logging
             JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
@@ -190,6 +198,8 @@ bb_run_tables() {
             $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
         diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
+        # set debugging options
+        bb_logging
         # run
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
