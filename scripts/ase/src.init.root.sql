@@ -22,4 +22,5 @@ sp_role 'grant', sybase_ts_role, arcsrc
 go
 
 -- https://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc32300.1570/html/sqlug/X20276.htm
+-- this would make the arcsrc instead of dbo
 -- sp_tables @table_owner = "arcsrc"
