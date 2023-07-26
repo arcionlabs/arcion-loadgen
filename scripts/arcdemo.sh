@@ -71,8 +71,11 @@ else
   if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
   if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
 
-  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_HOST}" "${SRCDB_TYPE}" )
-  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_HOST}" "${DSTDB_TYPE}" )
+  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_HOST}" "${SRCDB_TYPE}" "${SRCDB_SHORTNAME}")
+  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_HOST}" "${DSTDB_TYPE}" "${DSTDB_SHORTNAME}" )
+
+  #if [ -z "$SRCDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${SRCDB_SHORTNAME} profile"; exit 1; fi
+  #if [ -z "$DSTDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${DSTDB_SHORTNAME} profile"; exit 1; fi
 
   # dict can not be exported but is available to child functions
   declare -A SRCDB_PROFILE_DICT=(); csv_as_dict SRCDB_PROFILE_DICT "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"

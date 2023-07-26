@@ -32,9 +32,10 @@ copy_hier_as_flat() {
                 # DEBUG: echo cp $f $DST/$filename
                 cp ${f} $DST/$filename 
             elif [ "$suffix" = "yaml" ]; then 
+                # DEBUG: echo heredoc_file ${f} \> $DST/$filename
                 EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
             else
-                # DEBUG: echo PID=$$ heredoc_file ${f} \> $DST/$filename
+                # DEBUG: echo heredoc_file ${f} \> $DST/$filename
                 EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
             fi    
         done
@@ -58,7 +59,7 @@ copy_yaml() {
     [ -z "$DSTDB_GRP" ] && echo "copy_yaml: DSTDB_GRP is blank" >&2
     [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
-    # copy from template
+    # copy from template (utils dir)
     pushd ${SCRIPTS_DIR}/utils >/dev/null
     copy_hier_as_flat ${SRCDB_INIT_DIR} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_INIT_DIR} dst $CFG_DIR
@@ -73,7 +74,6 @@ copy_yaml() {
     copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
-    # what is $0 here?
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
     popd >/dev/null
 
