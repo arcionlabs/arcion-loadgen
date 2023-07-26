@@ -8,8 +8,6 @@ snapshot:
     
   bulk-load:
     enable: false      # ORACLE_HOME=/opt/oracle/bin LD_LIBRARY_PATH=/opt/oracle/lib
-    serialize: true   # must be true for SQLLDR
-    method: SQLLDR    # must be upper case
     type: FILE   # PIPE, FILE   
 
   # used by bulk-load 

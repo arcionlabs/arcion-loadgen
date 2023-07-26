@@ -83,6 +83,7 @@ export workload_threads="$workload_threads"
 export workload_timer="$workload_timer"
 export workload_timer_bb="$workload_timer_bb"
 export workload_size_factor="$workload_size_factor"
+export workload_size_factor_str="$workload_size_factor_str"
 export workload_modules_bb="$workload_modules_bb"
 # benchbase
 export SRCDB_BENCHBASE_TYPE="$SRCDB_BENCHBASE_TYPE"
