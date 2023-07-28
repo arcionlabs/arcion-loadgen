@@ -2,29 +2,28 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
+  allow:
 $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
       echo '  allow:'
-      echo '    theusertable:'
+      echo '    THEUSERTABLE${workload_size_factor_str}:'
       echo '  unlisted: BLOCK'
    fi      
 )
-
 $( case $workload_size_factor in
      1) 
       echo '  block-pattern: .*10$|.*100$|.*1000$'
       ;;   
      10)
-      echo '  block-pattern: theusertable|densetable|.*100$|.*1000$'
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*100$|.*1000$'
       ;;
      100)
-      echo '  block-pattern: theusertable|densetable|.*10$|.*1000$'
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*1000$'
       ;;
     1000)
-      echo '  block-pattern: theusertable|densetable|.*10$|.*100$'
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*100$'
       ;;   
     esac
 )
-
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
     case $w in
       auctionmarks|epinions|seats) 

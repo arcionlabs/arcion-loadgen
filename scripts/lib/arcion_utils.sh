@@ -424,11 +424,10 @@ while [ 1 ]; do
     [ -z "${DSTDB_CASE}" ] && export DSTDB_CASE=${DSTDB_PROFILE_DICT[case]}
 
     [ -z "${DSTDB_DIR}" ] && export DSTDB_DIR=${DSTDB_PROFILE_DICT[config_dir]}
-    set | grep "^DSTDB_" | grep -v "_old="
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir DSTDB_PROFILE_DICT "${DSTDB_HOST}"); fi
     if [ -z "${DSTDB_DIR}" ] || [ ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     if [ -n "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
-
+    
     [ -z "${DSTDB_INIT_DIR}" ] && export DSTDB_INIT_DIR=${DSTDB_PROFILE_DICT[init_dir]}
     if [ -z "${DSTDB_INIT_DIR}" ]; then export DSTDB_INIT_DIR=$DSTDB_GRP; fi
 

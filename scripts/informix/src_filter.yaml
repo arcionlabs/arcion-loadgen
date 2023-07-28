@@ -1,17 +1,14 @@
 allow:
 - catalog: ${SRCDB_DB}
-  schema: ${SRCDB_SCHEMA}  
+  schema: ${SRCDB_SCHEMA}
   types: [TABLE]
-# TPCC has data types that works on snapshot only 
-# only allow YCSB when realtime is involved
-# the BLOCK must be all caps for informix
+  allow:
 $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
       echo '  allow:'
-      echo '    theusertable:'
+      echo '    THEUSERTABLE${workload_size_factor_str}:'
       echo '  unlisted: BLOCK'
    fi      
 )
-  block: [ replicate_io_cdc_heartbeat ]
 $( case $workload_size_factor in
      1) 
       echo '  block-pattern: .*10$|.*100$|.*1000$'
@@ -27,7 +24,6 @@ $( case $workload_size_factor in
       ;;   
     esac
 )
-
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
     case $w in
       auctionmarks|epinions|seats) 
