@@ -1,47 +1,109 @@
 #!/usr/bin/env bash
 
+[ -z "$SCRIPTS_DIR" ] && { echo "export SCIRPTS_DIR missing." >&2; exit 1; }
+
 . ${SCRIPTS_DIR}/lib/arcionlog_parser.sh
 . ${SCRIPTS_DIR}/lib/tracelog_yaml_extract.sh
 
+
+# try to figure out the host
+get_host_from_yaml() {
+   local yamlfile=$1
+   local hostname
+
+   # regular host name
+   hostname=$(cat $yamlfile | yq -r '.host // ""')
+
+   # url
+   # remove http://id:pass@minio-v230602-1:9000 http and : at the end
+   if [ -z "$hostname" ]; then
+      hostname=$(cat $yamlfile | yq -r '."conn-url" // ""' | \
+         sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
+   fi
+
+   # kafka
+   if [ -z "$hostname" ]; then
+      hostname=$(cat $yamlfile | yq -r '.brokers[].host // ""' 2>/dev/null)
+   fi
+
+   # s3
+   # remove http://minio-v230602-1:9000 http and : at the end
+   if [ -z "$hostname" ]; then
+      hostname=$(cat $yamlfile | yq -r '.endpoint."service-endpoint" // ""' | \
+         sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
+   fi
+      
+   echo $hostname
+}
+
 # convert trace.log to yaml
 trace_to_yaml( ) {
+   local LOG_DIR=${LOG_DIR:-./}
    #set -x
-   export SRC_HOST=$(cat  ${LOG_DIR}/yaml/src.yaml | yq -r '.host')
-   [[ "$SRC_HOST" = "null" ]] && SRC_HOST=$(cat ${LOG_DIR}/yaml/dst.yaml | yq -r '.endpoint."service-endpoint"' | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|\:.*$||' )
+   # src
+   # yq -r '.host // "" return "" if not found instead of null
+   export SRC_HOST=$(get_host_from_yaml ${LOG_DIR}/yaml/src.yaml)
 
-   export DST_HOST=$(cat  ${LOG_DIR}/yaml/dst.yaml | yq -r '.host')
-   [[ "$DST_HOST" = "null" ]] && DST_HOST=$(cat ${LOG_DIR}/yaml/dst.yaml | yq -r '.endpoint."service-endpoint"' | sed -e 's|^[^/]*//||' -e 's|/.*$||' -e 's|\:.*$||' )
+   # dst
+   export DST_HOST=$(get_host_from_yaml ${LOG_DIR}/yaml/dst.yaml)
 
-   export EXT_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."threads"')
+   # ext snapshot
+   export EXT_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."threads" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_snap.yaml has invalid YAML" >&2
    EXT_SNAP_THREADS=${EXT_SNAP_THREADS:-0}
-   export EXT_SNAP_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."fetch-size-rows"')
+
+   export EXT_SNAP_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."fetch-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_snap.yaml has invalid YAML" >&2
    EXT_SNAP_FETCH_SIZE_ROWS=${EXT_SNAP_FETCH_SIZE_ROWS:-0}
-   export EXT_SNAP_MAX_JOBS_PER_CHUNK=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."max-jobs-per-chunk"')
+
+   export EXT_SNAP_MAX_JOBS_PER_CHUNK=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."max-jobs-per-chunk" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_snap.yaml has invalid YAML" >&2
    EXT_SNAP_MAX_JOBS_PER_CHUNK=${EXT_SNAP_MAX_JOBS_PER_CHUNK:-0}
-   export EXT_SNAP_MIN_JOB_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."min-job-size-rows"')
+
+   export EXT_SNAP_MIN_JOB_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_snap.yaml | yq -r '."min-job-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_snap.yaml has invalid YAML" >&2
    EXT_SNAP_MIN_JOB_SIZE_ROWS=${EXT_SNAP_MIN_JOB_SIZE_ROWS:-0}
 
-   export EXT_REAL_THREADS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."threads"')
+   # ext realtime
+   export EXT_REAL_THREADS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."threads" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
    EXT_REAL_THREADS=${EXT_REAL_THREADS:-0}
-   export EXT_REAL_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."fetch-size-rows"')
+
+   export EXT_REAL_FETCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."fetch-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
    EXT_REAL_FETCH_SIZE_ROWS=${EXT_REAL_FETCH_SIZE_ROWS:-0}
 
    export EXT_REAL_THREADS=0
 
-   export APP_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."threads"')
+   
+   # applier snapshot
+   export APP_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."threads" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_snap.yaml has invalid YAML" >&2
    APP_SNAP_THREADS=${APP_SNAP_THREADS:-0}
-   export APP_SNAP_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."batch-size-rows"')
+   
+   export APP_SNAP_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."batch-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_snap.yaml has invalid YAML" >&2
    APP_SNAP_BATCH_SIZE_ROWS=${APP_SNAP_BATCH_SIZE_ROWS:-0}
-   export APP_SNAP_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."txn-size-rows"')
+
+   export APP_SNAP_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."txn-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_snap.yaml has invalid YAML" >&2
    APP_SNAP_TXN_SIZE_ROWS=${APP_SNAP_TXN_SIZE_ROWS:-0}
-   export APP_SNAP_BULK_LOAD_TYPE=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."bulk-load".type')
+
+   export APP_SNAP_BULK_LOAD_TYPE=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."bulk-load".type // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_snap.yaml has invalid YAML" >&2
    APP_SNAP_BULK_LOAD_TYPE=${APP_SNAP_BULK_LOAD_TYPE:-0}
 
-   export APP_REAL_THREADS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."threads"')
+   # applier realtime
+   export APP_REAL_THREADS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."threads" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_realtime.yaml has invalid YAML" >&2
    APP_REAL_THREADS=${APP_REAL_THREADS:-0}
-   export APP_REAL_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."batch-size-rows"')
+
+   export APP_REAL_BATCH_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."batch-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_realtime.yaml has invalid YAML" >&2
    APP_REAL_BATCH_SIZE_ROWS=${APP_REAL_BATCH_SIZE_ROWS:-0}
-   export APP_REAL_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."txn-size-rows"')
+
+   export APP_REAL_TXN_SIZE_ROWS=$(cat ${LOG_DIR}/yaml/app_realtime.yaml | yq -r '."txn-size-rows" // ""')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_realtime.yaml has invalid YAML" >&2
    APP_REAL_TXN_SIZE_ROWS=${APP_REAL_TXN_SIZE_ROWS:-0}
 
    export APP_REAL_THREADS=0
@@ -57,13 +119,20 @@ get_extractor_applier_threads() {
 
 # read yaml file, look for host, split it into name version role triplet
 split_host_to_triplet() {
-   local FILENAME=$1
-   local ROLE=$2
-   local HOST=$3
+   local FILENAME="$1"
+   local ROLE="$2"
+   local HOST="$3"
    
-   [[ -z "$HOST" ]] && HOST=$( yq -r '.host' $FILENAME )
+   [[ -z "$HOST" ]] && HOST=$( get_host_from_yaml $FILENAME )
 
-   readarray -d '-' -t HOST_ARRAY <<< ${HOST}
+   readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST")
+
+   if [ -z "${HOST_ARRAY[0]}" ]; then
+      HOST_ARRAY[0]="?"
+      HOST_ARRAY[1]="latest"
+      HOST_ARRAY[2]=${ROLE}
+   fi   
+
    if [ -z "${HOST_ARRAY[1]}" ]; then
       HOST_ARRAY[1]="latest"
       HOST_ARRAY[2]=${ROLE}
@@ -131,6 +200,15 @@ get_replication_mode() {
    echo $REPL_MODE
 }
 
+write_csv() {
+   # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
+   if [[ ${#run_id_array[@]} == 5 ]]; then
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+   else
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[@]} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+   fi
+}
+
 # run the report from cfg dir
 # dirname convention 
 # 3ed3da197-23.04.30.16-postgresql_v1503_1-mysql_v8033_2-full-1
@@ -149,26 +227,26 @@ report_name() {
 
     if [ ! -f ${CFG_DIR}/arcion.log ]; then
         echo "${f}: ${CFG_DIR}/arcion.log not found. skipping" >&2
-        return 0
+        return 1
     fi
 
     # for a long log, stop on first exit
     error_code=$( grep -m 1 -e 'error code: [1-9]$' ${CFG_DIR}/arcion.log )
     if [ -n "${error_code}" ]; then 
         echo "${f}: error code: $error_code. skipping" >&2
-        return 0
+        return 1
     fi
 
    # Elapsed time from the end of the file
    elapsed_time=$(tac ${CFG_DIR}/arcion.log | awk -F'[: ]' '/Elapsed time/ {print $4 ":" $5 ":" $6 ; exit}')
    if [ -z "$elapsed_time" ]; then
         echo "${f}: no elapsed time skipping" >&2
-        return 0
+        return 1
    fi
 
     if [ ! -f ${LOG_DIR}/trace.log ]; then
         echo "${f}: ${LOG_DIR}/trace.log not found. skipping" >&2
-        return 0
+        return 1
     fi
    tracelog_save_as_yaml ${LOG_DIR}
    trace_to_yaml
@@ -183,7 +261,7 @@ report_name() {
       arcion_version=$(awk 'NR == 5 {print $NF; exit}' ${LOG_DIR}/trace.log)
    else
         echo "${f}: no trace.log skipping" >&2
-        return 0
+        return 1
    fi
 
    # number of lines from error_trace.log
@@ -201,13 +279,10 @@ report_name() {
 
    if [[ "${snapshot_total_rows}" = "$SNAPSHOT_TOTAL_ROWS_NULL" ]] &&  [[ "${realtime_total_rows}" = "0 0 0 0 0" ]] && [[ "${delta_total_rows}" = "0 0 0" ]]; then
       echo "${f}: no rows were processed. skipping" >&2
-      return 0
+      return 1
    fi
 
    # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
-   if [[ ${#run_id_array[@]} == 5 ]]; then
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
-   else
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[@]} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
-   fi
+   write_csv
+   return 0
 }

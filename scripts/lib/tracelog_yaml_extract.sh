@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
+# for testing
+#   . tracelog_yaml_extract.sh
+#   cd <dir that has trace.log>
+#   tracelog_save_as_yaml
+#   vi yaml/*
+
 # cat trace.log  | tracelog_general
 tracelog_general () {
     awk '/General Config[[:space:]]*:[[:space:]]*$/{flag=1;next} flag && /^[0-9]+/ {exit} flag{print substr($0,0)}'
 }
 
 tracelog_src() { 
-    awk '/Source connection config[[:space:]]*:[[:space:]]*$/{flag=1;next} flag && /^[0-9]+/ {exit} flag{print substr($0,3)}' | \
-        sed -e 's/\b\(password\:\) \(\**\)/\1 "\2"/g' -e 's/\b\(accessKey\:\) \(\**\)/\1 "\2"/g'  -e 's/\b\(secretKey\:\) \(\**\)/\1 "\2"/g' -e 's/\b\(key\:\) \(\**\)/\1 "\2"/g'
-
+    awk '/Source connection config[[:space:]]*:[[:space:]].*$/{flag=1;next} flag && /^[0-9]+/ {exit} flag{print substr($0,3)}' | \
+        sed -e 's/\b\(password\:\) \(\**\)/\1 "\2"/g' -e 's/\b\(accessKey\:\) \(\**\)/\1 "\2"/g'  -e 's/\b\(secretKey\:\) \(\**\)/\1 "\2"/g' -e 's/\b\(key\:\) \(\**\)/\1 "\2"/g' \
+        -e 's/\b\(sqlJobsPassword:\) \(\**\)/\1 "\2"/g'
+    # /Source connection config[[:space:]]*:[[:space:]]*$/ matches all except sybase     
 }
 
 tracelog_filter() {
@@ -44,9 +51,11 @@ tracelog_ext_realtime() {
 tracelog_applier_snap() {
     awk '/Applier snapshot configuration[[:space:]]*:[[:space:]]*$/{flag=1;next} flag && /^[0-9]+/ {exit} flag{print substr($0,3)}' | \
         sed -e 's/\(\b.*\:\)\([^[:space:]]\)\(.*\)$/\1 \2\3/' | \
-        awk -F':' -v q="'" 'NF==1 {print q $0 q ":"; next} {print $0}'
+        awk -F':' -v q="'" 'NF==1 {print q $0 q ":"; next} {print $0}' | \
+        awk -F':' '$1=="bulk-data-location" && $2==" null" {printf "%s:\n",$1; next} {print $0}'
     # key:value -> key: value
     # key$ -> key: key only line without :
+    # bulk-data-location: null -> bulk-data-location:
 }
 
 tracelog_applier_realtime() {

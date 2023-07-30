@@ -11,11 +11,13 @@ snapshot:
     type: FILE   # PIPE, FILE   
 
   # used by bulk-load 
-  # default 1M rows does not show frequent progress
-  batch-size-rows: 100_000
+  # default 1M rows is too large 
+  # even 100K for one txn especially YCSB at 1K row
+  batch-size-rows: 10_000
 
   # used by JDBC applier
-  txn-size-rows: 100_000
+  txn-size-rows: 10_000
+    
   
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
