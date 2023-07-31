@@ -1,3 +1,5 @@
+# oracle densetable is very slow
+# redis densetable takes too much RAM
 allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}
@@ -11,7 +13,11 @@ $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
 )
 $( case $workload_size_factor in
      1) 
+        if [[ "$DSTDB_GRP" == "oracle" ]] || [[ "$DSTDB_GRP" == "redis" ]]; then
+      echo '  block-pattern: DENSETABLE.*|.*10$|.*100$|.*1000$'
+        else
       echo '  block-pattern: .*10$|.*100$|.*1000$'
+        fi
       ;;   
      10)
       echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*100$|.*1000$'

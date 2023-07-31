@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-PAUSE_SECONDS=5
 CFGDIR=$1
 
 if [ -z "${CFGDIR}" ]; then
@@ -8,6 +7,8 @@ if [ -z "${CFGDIR}" ]; then
 else
     . $CFGDIR/ini_menu.sh
 fi
+
+if [ -z "$PAUSE_SECONDS" ]; then export PAUSE_SECONDS=5; fi
 
 files=(src.yaml \
     dst.yaml \

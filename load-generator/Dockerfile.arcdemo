@@ -118,6 +118,9 @@ RUN apt-get -y install wget && \
 # add asciinema and cargo (required ffor agg install that does gif generation)
 RUN apt-get update && apt-get install -y asciinema cargo
 
+# rclone
+RUN curl https://rclone.org/install.sh | bash
+
 # add YCSB with just JDBC binding
 RUN mkdir -p $OPT_DIR && chown -R $USERNAME $OPT_DIR
 RUN mkdir -p $YCSB && chown -R $USERNAME $YCSB
