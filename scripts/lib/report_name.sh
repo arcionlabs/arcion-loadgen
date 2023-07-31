@@ -4,37 +4,8 @@
 
 . ${SCRIPTS_DIR}/lib/arcionlog_parser.sh
 . ${SCRIPTS_DIR}/lib/tracelog_yaml_extract.sh
+. ${SCRIPTS_DIR}/lib/yaml_key_val.sh
 
-
-# try to figure out the host
-get_host_from_yaml() {
-   local yamlfile=$1
-   local hostname
-
-   # regular host name
-   hostname=$(cat $yamlfile | yq -r '.host // ""')
-
-   # url
-   # remove http://id:pass@minio-v230602-1:9000 http and : at the end
-   if [ -z "$hostname" ]; then
-      hostname=$(cat $yamlfile | yq -r '."conn-url" // ""' | \
-         sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
-   fi
-
-   # kafka
-   if [ -z "$hostname" ]; then
-      hostname=$(cat $yamlfile | yq -r '.brokers[].host // ""' 2>/dev/null)
-   fi
-
-   # s3
-   # remove http://minio-v230602-1:9000 http and : at the end
-   if [ -z "$hostname" ]; then
-      hostname=$(cat $yamlfile | yq -r '.endpoint."service-endpoint" // ""' | \
-         sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
-   fi
-      
-   echo $hostname
-}
 
 # convert trace.log to yaml
 trace_to_yaml( ) {
@@ -123,24 +94,18 @@ split_host_to_triplet() {
    local ROLE="$2"
    local HOST="$3"
    
-   [[ -z "$HOST" ]] && HOST=$( get_host_from_yaml $FILENAME )
+   HOST_FROM_YAML=$( get_host_from_yaml $FILENAME )
 
-   readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST")
+   readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST_FROM_YAML")
 
-   if [ -z "${HOST_ARRAY[0]}" ]; then
-      HOST_ARRAY[0]="?"
-      HOST_ARRAY[1]="latest"
-      HOST_ARRAY[2]=${ROLE}
-   fi   
-
-   if [ -z "${HOST_ARRAY[1]}" ]; then
-      HOST_ARRAY[1]="latest"
-      HOST_ARRAY[2]=${ROLE}
-   fi   
-
-   if [ -z "${HOST_ARRAY[2]}" ]; then
-      HOST_ARRAY[2]=${ROLE}
-   fi   
+   case ${#HOST_ARRAY[@]} in 
+   1) $HOST_ARRAY[0]="$HOST"
+      $HOST_ARRAY[1]="$HOST_FROM_YAML" 
+      $HOST_ARRAY[2]="$ROLE" 
+      ;;
+   2) $HOST_ARRAY[2]="$ROLE" 
+      ;;
+   esac
 
    # swithc from host-src-version to host-version-src
    if [[ "${HOST_ARRAY[1],,}" = "src" ]] || [[ "${HOST_ARRAY[1],,}" = "dst" ]]; then 
@@ -253,9 +218,16 @@ report_name() {
 
    run_repl_mode=$( get_replication_mode ${LOG_DIR})
 
+
+   declare -p run_id_array
+
    run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src "${SRC_HOST}")
    run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst "${DST_HOST}")
 
+   declare -p run_id_array
+
+   return 0
+   
    # script error where trace.log was not saved correctly
    if [ -f "${LOG_DIR}/trace.log" ]; then
       arcion_version=$(awk 'NR == 5 {print $NF; exit}' ${LOG_DIR}/trace.log)

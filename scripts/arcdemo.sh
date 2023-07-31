@@ -62,20 +62,17 @@ if [ -n "$CFG_DIR" ]; then
   tmux_show_dst_sql_cli
 else
   # this will parse the URI and set src and dst
-  arcdemo_positional $*
+  arcdemo_positional "$@"
 
   # validate the flag arguments
   parse_arcion_thread_ratio
 
   # get profile of src and dst
-  if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
-  if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
+  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_SHORTNAME}")
+  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_SHORTNAME}")
 
-  export SRCDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${SRCDB_HOST}" "${SRCDB_TYPE}" "${SRCDB_SHORTNAME}")
-  export DSTDB_PROFILE_CSV=$( get_profile PROFILE_CSV "${DSTDB_HOST}" "${DSTDB_TYPE}" "${DSTDB_SHORTNAME}" )
-
-  #if [ -z "$SRCDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${SRCDB_SHORTNAME} profile"; exit 1; fi
-  #if [ -z "$DSTDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${DSTDB_SHORTNAME} profile"; exit 1; fi
+  if [ -z "$SRCDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${SRCDB_SHORTNAME} profile"; exit 1; fi
+  if [ -z "$DSTDB_PROFILE_CSV" ]; then echo "map.csv does not contain ${DSTDB_SHORTNAME} profile"; exit 1; fi
 
   # dict can not be exported but is available to child functions
   declare -A SRCDB_PROFILE_DICT=(); csv_as_dict SRCDB_PROFILE_DICT "${PROFILE_HEADER}" "${SRCDB_PROFILE_CSV}"
@@ -84,6 +81,12 @@ else
   echo "PROFILE header: $PROFILE_HEADER"
   echo "SRC profile: $SRCDB_PROFILE_CSV $(declare -p SRCDB_PROFILE_DICT)"
   echo "DST profile: $DSTDB_PROFILE_CSV $(declare -p DSTDB_PROFILE_DICT)"
+
+  # map variables from profile if any
+  set_default_host_user
+  
+  if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
+  if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
   
   # metadata can be set to "" to not use metadata.
   # test is used to make sure METADATA_DIR is not set

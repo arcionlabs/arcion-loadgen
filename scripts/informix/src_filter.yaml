@@ -4,9 +4,8 @@ allow:
   types: [TABLE]
   allow:
 $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
-      echo '  allow:'
-      echo '    THEUSERTABLE${workload_size_factor_str}:'
-      echo '  unlisted: BLOCK'
+      echo "    THEUSERTABLE${workload_size_factor_str}:"
+      echo "  unlisted: BLOCK"
    fi      
 )
 $( case $workload_size_factor in
