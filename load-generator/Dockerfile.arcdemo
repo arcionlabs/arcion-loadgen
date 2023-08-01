@@ -116,7 +116,7 @@ RUN apt-get -y install wget && \
     apt-get install -y mongodb-mongosh
 
 # add asciinema and cargo (required ffor agg install that does gif generation)
-RUN apt-get update && apt-get install -y asciinema cargo
+RUN apt-get update && apt-get install -y asciinema cargo expect
 
 # rclone
 RUN curl https://rclone.org/install.sh | bash

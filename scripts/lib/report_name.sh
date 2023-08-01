@@ -98,14 +98,22 @@ split_host_to_triplet() {
 
    readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST_FROM_YAML")
 
+   # DBEUG declare -p HOST_ARRAY >&2
+
    case ${#HOST_ARRAY[@]} in 
-   1) $HOST_ARRAY[0]="$HOST"
-      $HOST_ARRAY[1]="$HOST_FROM_YAML" 
-      $HOST_ARRAY[2]="$ROLE" 
+   0) HOST_ARRAY[0]="$HOST"
+      HOST_ARRAY[1]="latest" 
+      HOST_ARRAY[2]="$ROLE" 
       ;;
-   2) $HOST_ARRAY[2]="$ROLE" 
+   1) HOST_ARRAY[0]="$HOST"
+      HOST_ARRAY[1]="$HOST_FROM_YAML" 
+      HOST_ARRAY[2]="$ROLE" 
+      ;;
+   2) HOST_ARRAY[2]="$ROLE" 
       ;;
    esac
+
+   # DBEUG declare -p HOST_ARRAY >&2
 
    # swithc from host-src-version to host-version-src
    if [[ "${HOST_ARRAY[1],,}" = "src" ]] || [[ "${HOST_ARRAY[1],,}" = "dst" ]]; then 
@@ -114,7 +122,12 @@ split_host_to_triplet() {
       HOST_ARRAY[1]=${x}
    fi
 
+   # DBEUG declare -p HOST_ARRAY >&2
+
+   # take the first part of the host name if there are dots
    HOST_ARRAY[0]=$( echo ${HOST_ARRAY[0]} | awk -F'.' '{print $1}' )
+
+   # DBEUG declare -p HOST_ARRAY >&2
 
    echo ${HOST_ARRAY[@]:0:3} # print first 3 elements
 }
@@ -218,15 +231,8 @@ report_name() {
 
    run_repl_mode=$( get_replication_mode ${LOG_DIR})
 
-
-   declare -p run_id_array
-
-   run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src "${SRC_HOST}")
-   run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst "${DST_HOST}")
-
-   declare -p run_id_array
-
-   return 0
+   run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src "${run_id_array[2]}")
+   run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst "${run_id_array[3]}")
    
    # script error where trace.log was not saved correctly
    if [ -f "${LOG_DIR}/trace.log" ]; then
