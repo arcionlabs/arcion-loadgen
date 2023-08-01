@@ -4,7 +4,7 @@ allow:
   types: [TABLE]
   allow:
 $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
-      echo "    THEUSERTABLE${workload_size_factor_str}:"
+      echo "    theusertable${workload_size_factor_str}:"
       echo "  unlisted: BLOCK"
    fi      
 )

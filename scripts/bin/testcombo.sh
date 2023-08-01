@@ -81,7 +81,7 @@ all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg redis s2
 sfs=("-s 1 -w 1200")  # scale factor
 threads=("-b 1:1")    # threading
 src=${args_src:-${all_src}}  # source
-dst=${args_dst:-"gcsmy"}
+dst=${args_dst:-${all_dst}}
 repl=${args_repl:-"snapshot"} # replication types
 
 # change to array
