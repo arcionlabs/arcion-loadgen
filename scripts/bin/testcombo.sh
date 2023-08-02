@@ -90,6 +90,8 @@ src=($src)
 dst=($dst)
 echo "${sf[@]} ${threads[@]} ${repl} ${src} ${dst}"
 
+export PAUSE_SECONDS=1
+
 # loop thru all
 for sf in "${sfs[@]}"; do 
   for t in "${threads[@]}"; do 
