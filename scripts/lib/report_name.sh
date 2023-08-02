@@ -198,7 +198,7 @@ write_csv() {
    tallylines=(${delta_total_rows})
    for t in ${tallylines[@]}; do sum=$((sum + t)); done
 
-   echo ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} $sum >&2
+   # DEBUG echo ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} $sum >&2
    if (( sum == 0 )); then return 0; fi
 
    # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
