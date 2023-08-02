@@ -88,6 +88,9 @@ get_extractor_applier_threads() {
       $APP_SNAP_BATCH_SIZE_ROWS $APP_SNAP_TXN_SIZE_ROWS $APP_SNAP_BULK_LOAD_TYPE $APP_REAL_BATCH_SIZE_ROWS $APP_REAL_TXN_SIZE_ROWS
 }
 
+# if $1 is usigned int
+is_uint() { case $1        in '' | *[!0-9]*              ) return 1;; esac ;}
+
 # read yaml file, look for host, split it into name version role triplet
 split_host_to_triplet() {
    local FILENAME="$1"
@@ -98,7 +101,7 @@ split_host_to_triplet() {
 
    readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST_FROM_YAML")
 
-   # DBEUG declare -p HOST_ARRAY >&2
+   # DBEUG declare -p HOST_ARRAY >&2; echo ${#HOST_ARRAY[@]} >&2
 
    case ${#HOST_ARRAY[@]} in 
    0) HOST_ARRAY[0]="$HOST"
@@ -125,7 +128,14 @@ split_host_to_triplet() {
    # DBEUG declare -p HOST_ARRAY >&2
 
    # take the first part of the host name if there are dots
-   HOST_ARRAY[0]=$( echo ${HOST_ARRAY[0]} | awk -F'.' '{print $1}' )
+   readarray -d '-' -t HOST_OCTET  < <(printf '%s' "${HOST_ARRAY[0]}")
+   if (( ${#HOST_OCTET[@]} == 4 )) && [[ ${HOST_OCTET[0]} =~ [0-9]+ ]]; then
+      # no change
+      HOST_ARRAY[0]=${HOST_ARRAY[0]}
+   else     
+      # take just first part
+      HOST_ARRAY[0]=${HOST_OCTET[0]}
+   fi
 
    # DBEUG declare -p HOST_ARRAY >&2
 
@@ -179,6 +189,18 @@ get_replication_mode() {
 }
 
 write_csv() {
+   local sum=0
+   tallylines=(${snapshot_total_rows}) 
+   # skip the first element which is number of tables
+   for t in ${tallylines[1]}; do sum=$((sum + t)); done
+   tallylines=(${realtime_total_rows})
+   for t in ${tallylines[@]}; do sum=$((sum + t)); done
+   tallylines=(${delta_total_rows})
+   for t in ${tallylines[@]}; do sum=$((sum + t)); done
+
+   echo ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} $sum >&2
+   if (( sum == 0 )); then return 0; fi
+
    # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
    if [[ ${#run_id_array[@]} == 5 ]]; then
       echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
