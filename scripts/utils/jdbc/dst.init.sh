@@ -17,6 +17,12 @@ db_schema_lower=${db_schema,,}
 declare -A EXISTING_DBS
 ping_db EXISTING_DBS dst
 
+rc=$?
+if (( ${rc} != 0 )); then 
+  echo "dst.init.sh: timeout from ping_db."
+  exit $rc
+fi
+
 echo "Existing Database Table count looking for ${db_schema_lower}"
 declare -p EXISTING_DBS
 

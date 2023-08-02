@@ -9,8 +9,16 @@ ping_db () {
   local LOC=${2:-SRC}
   local max_retries=${3:-10}
   local retry_count=0
-  local rc=1
+  local rc
 
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
+
+  ping_host_port "$db_host" "$db_port" "${max_retries}"
+  rc=$?
+  if [ ${rc} != 0 ]; then return $rc; fi
+
+  rc=1
   while [ ${rc} != 0 ]; do
     # NOTE: the quote is required to create the hash correctly
     list_dbs $LOC >/tmp/ping_utils.out.$$ 2>/tmp/ping_utils.err.$$ 
@@ -37,10 +45,11 @@ ping_db () {
     sleep 10    
   done
 
+  # lower case the db names
   for line in $( cat /tmp/ping_utils.out.$$ ); do
     db="$(echo $line | awk -F, '{print $1}')"
     count="$(echo $line | awk -F, '{print $2}')"
-    PINGDB["${db}"]="${count}"
+    PINGDB["${db,,}"]="${count}"
   done
 
   rm /tmp/ping_utils.out.$$
