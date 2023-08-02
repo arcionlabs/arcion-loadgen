@@ -16,11 +16,6 @@ ping_db () {
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
 
-  # do ping / port check before connecting with sql CLI
-  ping_host_port "$db_host" "$db_port" "${max_retries}"
-  rc=$?
-  if [ ${rc} != 0 ]; then return $rc; fi
-
   rc=1
   while [ ${rc} != 0 ]; do
     list_dbs $LOC >/tmp/ping_utils.out.$$ 2>/tmp/ping_utils.err.$$ 
@@ -73,6 +68,12 @@ ping_host () {
 
   [ -z "$db_url" ] && { echo "ping_host: \$1 must be host"; return 1; }
 
+  db_urlnew=$(echo $db_url | sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
+  if [ "${db_urlnew}" != "${db_url}" ]; then 
+    echo "hostname for ping is $db_urlnew"
+    db_url=$db_urlnew 
+  fi
+
   # arcion@d6b52ea6c1ae:/scripts$ nmap -p 29092 -oG - kafka/32
   # Nmap 7.80 scan initiated Wed Feb 22 13:31:03 2023 as: nmap -p 29092 -oG - kafka/32
   # Host: 172.18.0.12 (kafka.arcnet)        Status: Up
@@ -117,6 +118,12 @@ ping_host_port () {
 
   [ -z "$db_url" ] && { echo "ping_host_port: \$1 must be host"; return 1; }
   [ -z "$db_port" ] && { echo "ping_host_port: \$2 must be port"; return 1; }
+
+  db_urlnew=$(echo $db_url | sed -e 's|^[^/]*//||' -e 's|^.*@||' -e 's|/.*$||' -e 's|\:.*$||')
+  if [ "${db_urlnew}" != "${db_url}" ]; then 
+    echo "hostname for ping is $db_urlnew"
+    db_url=$db_urlnew 
+  fi
 
   while [ ${rc} != 0 ]; do
     nmap -p ${db_port} -oG - ${db_url} | tee /tmp/nmap.$$
