@@ -96,6 +96,7 @@ get_profile() {
     local -n GET_PROFILE_ARRAY=${1:-PROFILE_CSV}
     local DB_HOST=${2}
     local DB_TYPE=${3}
+    local DB_HOST_ENTERED=${4}
 
     local DB_PROFILE
     local DB_HOST_FIRST_WORD
@@ -104,7 +105,7 @@ get_profile() {
     if [ -n "${DB_HOST}" ]; then
         DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_HOST} 0 )
         if [ -n "${DB_PROFILE}" ]; then
-            # echo "$DB_PROFILE from full host name $DB_HOST." >&2
+            echo "$DB_PROFILE from nmap host name $DB_HOST." >&2
             echo "$DB_PROFILE"
             return 0
         fi
@@ -114,7 +115,17 @@ get_profile() {
     if [ -n "${DB_TYPE}" ]; then
         DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_TYPE} 0 )
         if [ -n "${DB_PROFILE}" ]; then
-            # echo "$DB_PROFILE from db type $DB_TYPE." >&2
+            echo "$DB_PROFILE from db type $DB_TYPE." >&2
+            echo "$DB_PROFILE"
+            return 0
+        fi
+    fi
+
+    # infer db type from the name typed in
+    if [ -n "${DB_HOST_ENTERED}" ]; then
+        DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_HOST_ENTERED} 0 )
+        if [ -n "${DB_PROFILE}" ]; then
+            echo "$DB_PROFILE from db host entered $DB_HOST_ENTERED." >&2
             echo "$DB_PROFILE"
             return 0
         fi

@@ -4,11 +4,12 @@ snapshot:
   _traceDBTasks: true
   
   # used by bulk-load 
-  # default 1M rows is too large for one txn
-  batch-size-rows: 100_000
+  # default 1M rows is too large 
+  # even 100K for one txn especially YCSB at 1K row
+  batch-size-rows: 10_000
 
   # used by JDBC applier
-  txn-size-rows: 100_000
+  txn-size-rows: 10_000
     
   user-role:
     init-user-roles: false  

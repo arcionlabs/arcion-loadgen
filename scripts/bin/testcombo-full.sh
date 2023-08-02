@@ -74,15 +74,16 @@ args_repl=""
 
 parse_params "$@"
 
-cdc_src="ase db2 gcsmy informix mariadb mysql oraee pg"
+# ase db2 removed from the testing as not stable
+cdc_src="ase db2 informix mariadb mysql oraee pg"
 all_src="ase cockroach db2 gcsmy informix mariadb mysql oraee pg s2 sqledge sqlserver yugabytesql"
 all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg redis s2 sqledge sqlserver yugabytesql"
 
 sfs=("-s 1 -w 1200")  # scale factor
 threads=("-b 1:1")    # threading
-src=${args_src:-${all_src}}  # source
+src=${args_src:-${cdc_src}}  # source
 dst=${args_dst:-${all_dst}}
-repl=${args_repl:-"snapshot"} # replication types
+repl=${args_repl:-"full"} # replication types
 
 # change to array
 repl=($repl)

@@ -9,8 +9,15 @@
 . ${SCRIPTS_DIR}/lib/yaml_key_val.sh
 
 # get the host and port from YAML
-DB_HOST=$( yaml_key_val ${CFG_DIR}/dst.yaml host )
+DB_HOST=$( get_host_from_yaml ${CFG_DIR}/dst.yaml host )
 DB_PORT=$( yaml_key_val ${CFG_DIR}/dst.yaml port )
 
 # wait for host and port to be up
-ping_host_port $DB_HOST $DB_PORT
+if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+    ping_host_port "$DB_HOST" "$DB_PORT"
+elif [ -n "$DB_HOST" ] && [ -z "$DB_PORT" ]; then
+    ping_host "$DB_HOST"
+else
+    echo "cannnot nmap with missing HOST='$DB_HOST' and PORT='$DB_PORT'" >&2
+    return 1
+fi

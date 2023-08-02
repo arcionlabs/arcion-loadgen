@@ -114,7 +114,13 @@ RUN apt-get -y install wget && \
     echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
     apt-get update && \
     apt-get install -y mongodb-mongosh
-    
+
+# add asciinema and cargo (required ffor agg install that does gif generation)
+RUN apt-get update && apt-get install -y asciinema cargo expect
+
+# rclone
+RUN curl https://rclone.org/install.sh | bash
+
 # add YCSB with just JDBC binding
 RUN mkdir -p $OPT_DIR && chown -R $USERNAME $OPT_DIR
 RUN mkdir -p $YCSB && chown -R $USERNAME $YCSB
@@ -131,6 +137,9 @@ RUN mkdir -p $ARCDEV_DIR && chown -R $USERNAME $ARCDEV_DIR
 
 # run as regular user beyond this point
 USER $USERNAME
+
+# asciinema to gif
+RUN cargo install --git https://github.com/asciinema/agg
 
 # setup load generators
 
@@ -230,6 +239,6 @@ RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
 RUN mkdir /opt/mnt 
 RUN mkdir /home/arcion/sqllib
 
-ENV PATH=/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH
+ENV PATH=PATH=/home/arcion/.cargo/bin:/home/arcion/.local/bin:/scripts/bin:/scripts/utils:/scripts:/opt/jsqsh/jsqsh-dist-3.0-SNAPSHOT/bin:/opt/rapiddweller-benerator-ce-3.1.0-jdk-11/bin:/opt/minio:$PATH
 
 CMD /scripts/utils/init.d/arcdemo-init.sh

@@ -114,14 +114,20 @@ tmux_show_dst_sql_cli() {
 
 tmux_show_arcion_cli_tail() {
   local TMUX_SESSION=${1}
+  local counter=0
 
   echo $CFG_DIR
   echo tracing the log
   # back to the conole
   tmux select-window -t ${TMUX_SESSION}:0.0
+
   while [ ! -f $CFG_DIR/arcion.log ]; do
     sleep 1
     echo "waiting for arcion to start"
+    counter=$((counter + 1))
+    if (( counter > 10 )); then
+      return 1
+    fi
   done
   tail -f $CFG_DIR/arcion.log &
 

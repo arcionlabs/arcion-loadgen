@@ -19,35 +19,42 @@ bb_chdir() {
     #fi
 
     case ${db_benchbase_type,,} in
-        sybasease)
+        db2)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;    
+            #pushd /opt/benchbase/benchbase-db2 >/dev/null || exit
+            ;;
         cockroachdb)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;
+            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;
+            ;;            
         informix)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-informix >/dev/null ;;
+            #pushd /opt/benchbase/benchbase-informix >/dev/null ;;
+            ;;            
         mariadb|mysql|singlestore)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-mariadb >/dev/null ;;
+            #pushd /opt/benchbase/benchbase-mariadb >/dev/null ;;
+            ;;            
         oracle)
             export JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false"        
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-oracle >/dev/null;;
+            #pushd /opt/benchbase/benchbase-oracle >/dev/null;;
+            ;;            
         postgres)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-postgres >/dev/null ;;
+            #pushd /opt/benchbase/benchbase-postgres >/dev/null ;;
+            ;;            
 #        snowflake)
 #                pushd /opt/benchbase/benchbase-snowflake >/dev/null
 #            ;;
         sqlserver)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;            #pushd /opt/benchbase/benchbase-sqlserver >/dev/null;;
-        db2)
-            #pushd /opt/benchbase/benchbase-db2 >/dev/null;;
+            #pushd /opt/benchbase/benchbase-sqlserver >/dev/null
+            ;;           
+        sybasease)
             pushd /opt/benchbase/benchbase-arcion >/dev/null || exit
-            ;;
+            #pushd /opt/benchbase/benchbase-cockroachdb >/dev/null ;;    
+            ;;            
         *)
             echo "benchbase-load.sh: db_benchbase_type='${db_benchbase_type}' unsupported" >&2
             return 1
@@ -73,7 +80,7 @@ bb_create_tables() {
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
-        awk -F',' '{print "[" $2 "]=" $2}' ) )"
+        awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]') )"
     # hash of [workload]=workload,table_name,dbname_suffix,no_rewrite_support
     declare -A "WORKLOAD_TABLE_HASH=( $( cat ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv | \
         awk -F',' '{printf "[%s]=\"%s\"\n", $1,$0}' ) )"
@@ -132,7 +139,7 @@ bb_create_tables() {
             continue
         fi
         # exist already?
-        workload_table_exists=${EXISITNG_TAB_HASH[$workload_table]}
+        workload_table_exists=${EXISITNG_TAB_HASH[${workload_table,,}]}
         if [ -z "${workload_table_exists}" ]; then
             # change config match args
             echo "changing username and database name based on ${SCRIPTS_DIR}/utils/benchbase/bbtables.csv"

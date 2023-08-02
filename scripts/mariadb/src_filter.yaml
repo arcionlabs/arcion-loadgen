@@ -1,8 +1,31 @@
 allow:
 - catalog: ${SRCDB_DB}
-  schema: ${SRCDB_SCHEMA} 
+  schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
-    # delta-snaphot demo for YCSB THEUSERTABLE only
-    $( if [ "${REPL_TYPE}" = "delta-snapshot" ]; then echo "THEUSERTABLE:"; fi )
-    # Otherwise, all tables are replicated
+$( case $workload_size_factor in
+     1) 
+      echo '  block-pattern: .*10$|.*100$|.*1000$'
+      ;;   
+     10)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*100$|.*1000$'
+      ;;
+     100)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*1000$'
+      ;;
+    1000)
+      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*100$'
+      ;;   
+    esac
+)
+$( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
+    case $w in
+      auctionmarks|epinions|seats) 
+      echo "- catalog: ${SRCDB_DB}_${w}"
+      echo "  schema: ${SRCDB_SCHEMA}"
+      echo "  types: [TABLE]"
+      echo "  allow:"
+      ;;
+    esac
+done
+)

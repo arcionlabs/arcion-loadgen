@@ -5,17 +5,34 @@ snapshot:
   fetch-user-roles: false
   _fetch-exact-row-count: false    
 
-  max-jobs-per-chunk: 80    # default is 2x the thread count too small for millions of rows
-  min-job-size-rows: 10_000 # default 1_000_000 is too large for purposes demo
+  # default is 2xthe thread count
+  # for tables with millions of rows, big chunks will make each chunk smaller
+  # taking less memory
+  max-jobs-per-chunk: 80
 
+  min-job-size-rows: 10_000 # default 1_000_000 is too large for purposes demo
   per-table-config:
   - catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}   
     tables:
+      # pg forces lowercase, need to follow destination casing convention
+      # pg uses ctid so split key is not required
+      # but split key is a lot more efficient
       theusertable:
         split-key: ycsb_key
-        split-method: RANGE # must be all caps
-        extraction-priority: -1
+        extraction-priority: -1 
+      theusertable10:
+        split-key: ycsb_key
+        extraction-priority: -1 
+      theusertable100:
+        split-key: ycsb_key
+        extraction-priority: -1 
+      densetable:
+        split-key: ycsb_key
+        extraction-priority: -1 
+      densetable10:
+        split-key: ycsb_key
+        extraction-priority: -1 
 
 # DB capable of real-time.  Take default options except the CPUs
 realtime:

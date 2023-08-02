@@ -128,6 +128,16 @@ case "${SRCDB_GRP,,}" in
 esac
 
 case "${DSTDB_GRP,,}" in
+  ase)
+    DSTDB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="sybase"
+    DSTDB_JDBC_DRIVER="com.sybase.jdbc4.jdbc.SybDriver"
+    DSTDB_JDBC_URL="jdbc:sybase:Tds:${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_USER_CHANGE}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:sybase:Tds:${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_USER_CHANGE}"   
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""      
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/jconn4*jar | paste -sd :)"
+    ;;
   db2)
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="db2"

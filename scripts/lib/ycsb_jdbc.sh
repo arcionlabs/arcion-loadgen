@@ -119,7 +119,8 @@ ycsb_load_sf() {
   # list of tables in the databaes
   if [ -z "${2}" ]; then
     echo "ycsb_load_sf: retrieving the tables"
-    declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | awk -F',' '{print "[" $2 "]=" $2}' ) )"
+    declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | \
+      awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]' ) )"
   else
     echo "ycsb_load_sf: list of tables $2"
     local -n ycsb_load_sf_db_tabs=${2}
@@ -128,8 +129,8 @@ ycsb_load_sf() {
   if [ -z "${ycsb_table}" ]; then exit 1; fi
 
   # create table def if not found
-  echo "looking for ${ycsb_table} in ${ycsb_load_sf_db_tabs[*]}"
-  if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table}]}" ]; then 
+  echo "looking for ${ycsb_table,,:$} in ${ycsb_load_sf_db_tabs[*]}"
+  if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table,,}]}" ]; then 
     echo "${ycsb_table} not found.  creating"
     ycsb_create_table ${ycsb_size_factor_name} | jdbc_cli "$LOC" "-n"
   fi

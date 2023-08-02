@@ -2,13 +2,7 @@ allow:
 - catalog: ${SRCDB_DB}
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
-$( if [[ "${DSTDB_GRP,,}" = "snowflake" && "$REPL_TYPE" != "snapshot" ]]; then
-      echo '  allow:'
-      echo '    THEUSERTABLE:'
-      echo '  unlisted: BLOCK'
-   fi      
-)
-  
+  allow:
 $( case $workload_size_factor in
      1) 
       echo '  block-pattern: .*10$|.*100$|.*1000$'
@@ -24,7 +18,6 @@ $( case $workload_size_factor in
       ;;   
     esac
 )
-
 $( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
     case $w in
       auctionmarks|epinions|seats) 

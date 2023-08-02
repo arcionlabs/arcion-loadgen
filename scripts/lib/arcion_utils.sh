@@ -273,15 +273,19 @@ init_src() {
     local DB_GRP
     local rc=0
 
+    mkdir -p $CFG_DIR/exit_status
+
     banner $SRCDB_HOST
     for f in $( find $CFG_DIR -maxdepth 1 -name src.init*sh ); do
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
-        ( exec ${f} 2>&1 | tee -a $f.log ) 
-        if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
+        #( exec ${f} 2>&1 | tee -a $f.log )
+        # run src.ini.sh 
+        ${f} 2>&1 | tee -a $f.log
+        rc=${PIPESTATUS[0]}
+        echo "$rc" > $CFG_DIR/exit_status/init_src.log
+        if [ "$rc" != 0 ]; then break; fi  
     done
-    mkdir -p $CFG_DIR/exit_status
-    echo "$rc" > $CFG_DIR/exit_status/init_src.log
     return $rc
 }
 init_dst() {
@@ -291,15 +295,18 @@ init_dst() {
     local DB_GRP
     local rc=0    
 
+    mkdir -p $CFG_DIR/exit_status
+
     banner $DSTDB_HOST
     for f in $( find $CFG_DIR -maxdepth 1 -name dst.init*sh ); do
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
-        ( exec ${f} 2>&1 | tee -a $f.log ) 
+        # ( exec ${f} 2>&1 | tee -a $f.log ) 
+        ${f} 2>&1 | tee -a $f.log
+        rc=${PIPESTATUS[0]}
+        echo "$rc" > $CFG_DIR/exit_status/init_dst.log
         if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
     done
-    mkdir -p $CFG_DIR/exit_status
-    echo "$rc" > $CFG_DIR/exit_status/init_dst.log
     return $rc
 }
 
@@ -427,7 +434,7 @@ while [ 1 ]; do
     if [ -z "${DSTDB_DIR}" ]; then export DSTDB_DIR=$( infer_dbdir DSTDB_PROFILE_DICT "${DSTDB_HOST}"); fi
     if [ -z "${DSTDB_DIR}" ] || [ ! -d "${DSTDB_DIR}" ]; then ask=1; ask_dst_dir; fi
     if [ -n "${DSTDB_SUBDIR}" ]; then DSTDB_DIR=${DSTDB_DIR}/${DSTDB_SUBDIR}; fi
-
+    
     [ -z "${DSTDB_INIT_DIR}" ] && export DSTDB_INIT_DIR=${DSTDB_PROFILE_DICT[init_dir]}
     if [ -z "${DSTDB_INIT_DIR}" ]; then export DSTDB_INIT_DIR=$DSTDB_GRP; fi
 

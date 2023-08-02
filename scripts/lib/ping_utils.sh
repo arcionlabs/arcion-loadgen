@@ -5,14 +5,24 @@
 # confirm DB is up and can return list of databases
 # mysql container during the startup how up as up, but is not responding 
 ping_db () {
+  if [ -z "${1}" ]; then echo "ping_db: \$1 not specified. declare -A dbsfound; ping_db dbsfound"; return 1; fi
+
   declare -n PINGDB=$1
   local LOC=${2:-SRC}
-  local max_retries=0
+  local max_retries=${3:-3}
   local retry_count=0
-  local rc=1
+  local rc
 
+  local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
+  local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
+
+  # do ping / port check before connecting with sql CLI
+  ping_host_port "$db_host" "$db_port" "${max_retries}"
+  rc=$?
+  if [ ${rc} != 0 ]; then return $rc; fi
+
+  rc=1
   while [ ${rc} != 0 ]; do
-    # NOTE: the quote is required to create the hash correctly
     list_dbs $LOC >/tmp/ping_utils.out.$$ 2>/tmp/ping_utils.err.$$ 
     rc=${?} # want jsqsh rc code
     # DEBUG echo "x${?}x"
@@ -22,7 +32,12 @@ ping_db () {
 
     cat /tmp/ping_utils.err.$$
     # if host is down, then don't wait
-    if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' -e 'Verify the connection properties' /tmp/ping_utils.err.$$ )" ]; then
+    if [ -n "$( grep \
+      -e 'Socket fail to connect' \
+      -e 'The connection attempt failed' \
+      -e 'Verify the connection properties' \
+      -e 'Connection string is invalid. Unable to parse.' \
+      /tmp/ping_utils.err.$$ )" ]; then
         break  
     fi
 
@@ -33,15 +48,19 @@ ping_db () {
     fi
 
     # wait
-    echo "waiting 10 sec for ${db_url} to connect"
+    echo "ping_db: $retry_count/$max_retries waiting 10 sec for ${db_url} to connect"
     sleep 10    
   done
 
-  for line in $( cat /tmp/ping_utils.out.$$ ); do
-    db="$(echo $line | awk -F, '{print $1}')"
-    count="$(echo $line | awk -F, '{print $2}')"
-    PINGDB["${db}"]="${count}"
-  done
+  # lower case the db names
+  if [ ${rc} == 0 ]; then
+    for line in $( cat /tmp/ping_utils.out.$$ ); do
+      db="$(echo $line | awk -F, '{print $1}')"
+      count="$(echo $line | awk -F, '{print $2}')"
+      PINGDB["${db,,}"]="${count}"
+    done
+  fi
+
   rm /tmp/ping_utils.out.$$
   rm /tmp/ping_utils.err.$$
   return $rc
@@ -50,7 +69,10 @@ ping_db () {
 # verify host is up
 ping_host () {
   local db_url=${1}
-  local max_retries=${2:-0}
+  local max_retries=${2:-10}
+
+  [ -z "$db_url" ] && { echo "ping_host: \$1 must be host"; return 1; }
+
   # arcion@d6b52ea6c1ae:/scripts$ nmap -p 29092 -oG - kafka/32
   # Nmap 7.80 scan initiated Wed Feb 22 13:31:03 2023 as: nmap -p 29092 -oG - kafka/32
   # Host: 172.18.0.12 (kafka.arcnet)        Status: Up
@@ -63,7 +85,6 @@ ping_host () {
     nmap -sn -oG - ${db_url} | tee /tmp/nmap.$$
     grep "1 host up" /tmp/nmap.$$ 
     rc=${?}
-    echo $max_retries
     if [ ${rc} == 0 ]; then
       break
     fi
@@ -75,7 +96,7 @@ ping_host () {
     fi
 
     # wait
-    echo "waiting 10 sec for ${db_url} to connect"
+    echo "ping_host: $retry_count/$max_retries waiting 10 sec for ${db_url} to connect"
     sleep 10
   done
 
@@ -86,7 +107,7 @@ ping_host () {
 ping_host_port () {
   local db_url=$1
   local db_port=$2
-  local max_retries=${3:-0}
+  local max_retries=${3:-10}
   # arcion@d6b52ea6c1ae:/scripts$ nmap -p 29092 -oG - kafka/32
   # Nmap 7.80 scan initiated Wed Feb 22 13:31:03 2023 as: nmap -p 29092 -oG - kafka/32
   # Host: 172.18.0.12 (kafka.arcnet)        Status: Up
@@ -94,11 +115,13 @@ ping_host_port () {
   local rc=1
   local retry_count=0
 
+  [ -z "$db_url" ] && { echo "ping_host_port: \$1 must be host"; return 1; }
+  [ -z "$db_port" ] && { echo "ping_host_port: \$2 must be port"; return 1; }
+
   while [ ${rc} != 0 ]; do
     nmap -p ${db_port} -oG - ${db_url} | tee /tmp/nmap.$$
     grep "Ports: ${db_port}/open/" /tmp/nmap.$$ 
     rc=${?}
-    echo $rc
     if [ ${rc} == 0 ]; then
       break
     fi
@@ -110,7 +133,9 @@ ping_host_port () {
     fi
 
     # wait
-    echo "waiting 10 sec for ${db_url}:${db_port} to connect"
+    echo "ping_host_port: $retry_count/$max_retries waiting 10 sec for ${db_url} to connect"
     sleep 10
   done
+
+  return ${rc}
 }

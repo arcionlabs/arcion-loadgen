@@ -34,6 +34,11 @@ export workload_size_factor="${workload_size_factor:-$default_workload_size_fact
 export gui_run="${gui_run:-$default_gui_run}"
 export max_cpus="${max_cpus:-$default_max_cpus}"
 export database_maps=${default_database_maps}
+if [[ ${workload_size_factor} = "1" ]]; then
+  export workload_size_factor_str="" 
+else
+  export workload_size_factor_str=${workload_size_factor} 
+fi
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"

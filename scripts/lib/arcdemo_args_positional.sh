@@ -99,10 +99,90 @@ function arcdemo_positional() {
             [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
         fi
     fi
+}
+
+# set variables from envvar
+# $1=name of variable to set
+# $2=name of env variable
+set_var_from_envvar() {
+    local varname=$1
+    local envvar=$2
+    printf -v "$varname" '%s' ${!envvar}
+}
+set_var_from_value() {
+    local varname=$1
+    local val=$2
+    printf -v "$varname" '%s' ${val}
+}
+
+function set_default_host_user() {
+    local env_map
+    local env_value
+    local x
+    
+    # map variables from profile's env_var column
+    env_map=( ${SRCDB_PROFILE_DICT["env_map"]} )
+    for x in ${env_map[@]}; do
+        readarray -d'=' -t VAR_VAR < <(printf '%s' "$x")
+        declare -p VAR_VAR
+        if (( ${#VAR_VAR[@]} == 2 )); then
+            set_var_from_envvar SRC${VAR_VAR[0]} ${VAR_VAR[1]}
+        else
+            echo "$x: ignoring"
+        fi
+        # show the value of val
+        y=SRC${VAR_VAR[0]}
+        echo $y=${!y}
+    done
+
+    # map variables from profile's env_val column
+    env_value=( ${SRCDB_PROFILE_DICT["env_value"]} )
+    for x in ${env_value[@]}; do
+        readarray -d'=' -t VAR_VALUE < <(printf '%s' "$x")
+        declare -p VAR_VALUE
+        if (( ${#VAR_VALUE[@]} == 2 )); then
+        set_var_from_value SRC${VAR_VALUE[0]} ${VAR_VALUE[1]}
+        else
+        echo "$x: ignoring"
+        fi
+        # show the value of val
+        y=SRC${VAR_VALUE[0]}
+        echo $y=${!y}
+    done
+
+    # map variables from profile's env_var column
+    env_map=( ${DSTDB_PROFILE_DICT["env_map"]} )
+    for x in ${env_map[@]}; do
+        readarray -d'=' -t VAR_VAR < <(printf '%s' "$x")
+        declare -p VAR_VAR
+        if (( ${#VAR_VAR[@]} == 2 )); then
+        set_var_from_envvar DST${VAR_VAR[0]} ${VAR_VAR[1]}
+        else
+        echo "$x: ignoring"
+        fi
+        # show the value of val
+        y=DST${VAR_VAR[0]}
+        echo $y=${!y}
+    done
+
+    # map variables from profile's env_val column
+    env_value=( ${DSTDB_PROFILE_DICT["env_value"]} )
+    for x in ${env_value[@]}; do
+        readarray -d'=' -t VAR_VALUE < <(printf '%s' "$x")
+        declare -p VAR_VALUE
+        if (( ${#VAR_VALUE[@]} == 2 )); then
+        set_var_from_value DST${VAR_VALUE[0]} ${VAR_VALUE[1]}
+        else
+        echo "$x: ignoring"
+        fi
+        # show the value of val
+        y=DST${VAR_VALUE[0]}
+        echo $y=${!y}
+    done
 
     # incase of multiple names, take the latest
-    SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src")
-    DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst")
+    if [ -z "${SRCDB_HOST}" ]; then SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src"); fi
+    if [ -z "${DSTDB_HOST}" ]; then DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst"); fi
 
     if [ "$workload_size_factor" = "1" ]; then
         export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}

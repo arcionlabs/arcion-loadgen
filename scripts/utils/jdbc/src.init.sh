@@ -11,10 +11,19 @@
 declare -A EXISTING_DBS
 ping_db EXISTING_DBS src
 
+rc=$?
+if (( "${rc}" != 0 )); then 
+  echo "src.init.sh: can't connect to $SRCDB_HOST."
+  exit $rc
+fi
+
 # lower case it as Oracle will have it as upper case
 sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
 db_schema_lower=${db_schema,,}
+
+echo "Existing Database Table count looking for ${db_schema_lower}"
+declare -p EXISTING_DBS
 
 # setup database permissions
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
