@@ -182,6 +182,10 @@ else
   tmux_show_dst_sql_cli
 fi  
 
+# exit if src or dst init failed
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_src.log)" ]]; then echo "arcdemo.sh: src init failed."; fi  
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arcdemo.sh: dst init failed."; fi  
+
 # run the replication
 case ${REPL_TYPE,,} in
   full)

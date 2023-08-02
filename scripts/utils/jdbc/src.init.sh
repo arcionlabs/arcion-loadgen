@@ -13,7 +13,7 @@ ping_db EXISTING_DBS src
 
 rc=$?
 if (( "${rc}" != 0 )); then 
-  echo "src.init.sh: timeout from ping_db."
+  echo "src.init.sh: can't connect to $SRCDB_HOST."
   exit $rc
 fi
 

@@ -5,22 +5,24 @@
 # confirm DB is up and can return list of databases
 # mysql container during the startup how up as up, but is not responding 
 ping_db () {
+  if [ -z "${1}" ]; then echo "ping_db: \$1 not specified. declare -A dbsfound; ping_db dbsfound"; return 1; fi
+
   declare -n PINGDB=$1
   local LOC=${2:-SRC}
-  local max_retries=${3:-10}
+  local max_retries=${3:-3}
   local retry_count=0
   local rc
 
   local db_host=$( x="${LOC^^}DB_HOST"; echo "${!x}" )
   local db_port=$( x="${LOC^^}DB_PORT"; echo "${!x}" )
 
+  # do ping / port check before connecting with sql CLI
   ping_host_port "$db_host" "$db_port" "${max_retries}"
   rc=$?
   if [ ${rc} != 0 ]; then return $rc; fi
 
   rc=1
   while [ ${rc} != 0 ]; do
-    # NOTE: the quote is required to create the hash correctly
     list_dbs $LOC >/tmp/ping_utils.out.$$ 2>/tmp/ping_utils.err.$$ 
     rc=${?} # want jsqsh rc code
     # DEBUG echo "x${?}x"
@@ -30,7 +32,12 @@ ping_db () {
 
     cat /tmp/ping_utils.err.$$
     # if host is down, then don't wait
-    if [ -z "$( grep -e 'Socket fail to connect' -e 'The connection attempt failed' -e 'Verify the connection properties' /tmp/ping_utils.err.$$ )" ]; then
+    if [ -n "$( grep \
+      -e 'Socket fail to connect' \
+      -e 'The connection attempt failed' \
+      -e 'Verify the connection properties' \
+      -e 'Connection string is invalid. Unable to parse.' \
+      /tmp/ping_utils.err.$$ )" ]; then
         break  
     fi
 
@@ -46,11 +53,13 @@ ping_db () {
   done
 
   # lower case the db names
-  for line in $( cat /tmp/ping_utils.out.$$ ); do
-    db="$(echo $line | awk -F, '{print $1}')"
-    count="$(echo $line | awk -F, '{print $2}')"
-    PINGDB["${db,,}"]="${count}"
-  done
+  if [ ${rc} == 0 ]; then
+    for line in $( cat /tmp/ping_utils.out.$$ ); do
+      db="$(echo $line | awk -F, '{print $1}')"
+      count="$(echo $line | awk -F, '{print $2}')"
+      PINGDB["${db,,}"]="${count}"
+    done
+  fi
 
   rm /tmp/ping_utils.out.$$
   rm /tmp/ping_utils.err.$$
