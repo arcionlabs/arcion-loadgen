@@ -76,8 +76,8 @@ parse_params "$@"
 
 # ase db2
 cdc_src="ase db2 informix mariadb mysql oraee pg sqlserver"
-all_src="ase cockroach db2 gcsmy informix mariadb mysql oraee pg s2 sqledge sqlserver yugabytesql"
-all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg redis s2 snowflake sqledge sqlserver yugabytesql"
+all_src="ase cockroach db2 gcsmy informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
+all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg oraxe redis s2 snowflake sqledge sqlserver yugabytesql"
 
 sfs=("-s 1 -w 120")  # scale factor
 threads=("-b 1:1")    # threading

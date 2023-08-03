@@ -45,6 +45,8 @@ if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   done
 else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
+  # drop tables from dst
+  drop_all_tables dst
 fi
 
 # run if table needs to be created
