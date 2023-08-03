@@ -6,6 +6,7 @@ export default_cdc_thread_ratio=1:1
 export default_workload_rate=1
 export default_workload_threads=1
 export default_workload_timer=600
+export default_fullcdc_timer=120
 export default_workload_size_factor=1
 export default_workload_size_factor_bb=1
 export default_workload_modules_bb="tpcc"
@@ -30,6 +31,7 @@ export cdc_thread_ratio="${cdc_thread_ratio:-$default_cdc_thread_ratio}"
 export workload_rate="${workload_rate:-$default_workload_rate}"
 export workload_threads="${workload_threads:-$default_workload_threads}"
 export workload_timer="${workload_timer:-$default_workload_timer}"
+export fullcdc_timer="${fullcdc_timer:-$default_fullcdc_timer}"
 export workload_size_factor="${workload_size_factor:-$default_workload_size_factor}"
 export gui_run="${gui_run:-$default_gui_run}"
 export max_cpus="${max_cpus:-$default_max_cpus}"
@@ -74,7 +76,7 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_uri] [dst_uri]
     -m max_cpus=${max_cpus}
     -r workload_rate=${workload_rate}
     -t workload_threads=${workload_threads}
-    -w workload_timer=${workload_timer}
+    -w workload_timer=${workload_timer}:${fullcdc_timer}
     -s workload_size_factor=${workload_size_factor}
     -D database_maps=${database_maps}[,source:destination]
     -W workload_modules_bb=${workload_modules_bb}[,module]
@@ -104,7 +106,12 @@ function arcdemo_opts() {
             m ) export max_cpus="$OPTARG" ;;
             r ) export workload_rate="$OPTARG" ;;
             t ) export workload_threads="$OPTARG" ;;
-            w ) export workload_timer="$OPTARG" ;;
+            w ) readarray -d':' -t TIMER_ARRAY < <(printf '%s' "$OPTARG") 
+                export workload_timer=${TIMER_ARRAY[0]}
+                if [ -n "${TIMER_ARRAY[1]}" ]; then
+                  fullcdc_timer=${TIMER_ARRAY[1]}
+                fi
+                ;;
             s ) export workload_size_factor="$OPTARG" ;;
             D ) export database_maps="$OPTARG" ;;
             W ) export workload_modules_bb="$OPTARG" ;;

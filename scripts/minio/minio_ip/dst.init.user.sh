@@ -23,3 +23,5 @@ mc mb  --with-lock $alias_name/${DSTDB_DB}
 # list buckets 
 mc ls -r $alias_name/${DSTDB_DB}
 set +x
+
+exit 0

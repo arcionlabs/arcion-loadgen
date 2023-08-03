@@ -31,14 +31,21 @@ control_c() {
     echo "Waiting 5 sec for CDC to finish" >&2
     sleep 5
     kill_jobs
+    kill_recurse $ARCION_PID  # required as catch all
 }
 
 exit_message() {
   control_c
   echo "cfg is at $CFG_DIR"
   echo "log is at ${ARCION_LOG}/$LOG_ID"
+  echo "you can rerun with arcdemo.sh -f $CFG_DIR"
 }
 
+count_cdclog() {
+  while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
+  tail -f $CFG_DIR/arcion.log |  awk -v n="$fullcdc_timer" '/^Table name.*Insert/ {i=i+1; if (i > n) exit}'
+  exit_message 
+}
 
 cd ${SCRIPTS_DIR}
 
@@ -212,6 +219,7 @@ case ${REPL_TYPE,,} in
     arcion_full
     tmux_show_tpcc
     tmux_show_ycsb
+    count_cdclog &
     ;;
   snapshot)
     arcion_snapshot
@@ -234,11 +242,11 @@ esac
 tmux_show_errorlog
 tmux_show_trace
 
-# allow ctl-c to terminate background jobs
-trap control_c SIGINT
-
 # display arcion progress screen
 tmux_show_arcion_cli_tail
+
+# allow ctl-c to terminate background jobs
+trap control_c SIGINT
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
