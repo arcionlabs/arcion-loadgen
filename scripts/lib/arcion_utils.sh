@@ -276,12 +276,13 @@ init_src() {
     mkdir -p $CFG_DIR/exit_status
 
     banner $SRCDB_HOST
-    for f in $( find $CFG_DIR -maxdepth 1 -name src.init*sh ); do
+    for f in $( find $CFG_DIR -maxdepth 1 -name "src.init*sh" | xargs -I%% basename %% .sh | sort --version-sort ); do
+        f="$f.sh"
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
         #( exec ${f} 2>&1 | tee -a $f.log )
         # run src.ini.sh 
-        ${f} 2>&1 | tee -a $f.log
+        $CFG_DIR/${f} 2>&1 | tee -a $f.log
         rc=${PIPESTATUS[0]}
         echo "$rc" > $CFG_DIR/exit_status/init_src.log
         if [ "$rc" != 0 ]; then break; fi  
@@ -298,14 +299,16 @@ init_dst() {
     mkdir -p $CFG_DIR/exit_status
 
     banner $DSTDB_HOST
-    for f in $( find $CFG_DIR -maxdepth 1 -name dst.init*sh ); do
+    for f in $( find $CFG_DIR -maxdepth 1 -name "dst.init*sh" | xargs -I%% basename %% .sh | sort --version-sort ); do
+        f="$f.sh"
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
         # ( exec ${f} 2>&1 | tee -a $f.log ) 
-        ${f} 2>&1 | tee -a $f.log
+        $CFG_DIR/${f} 2>&1 | tee -a $f.log
+        # DEBUG declare -p PIPESTATUS >&2
         rc=${PIPESTATUS[0]}
         echo "$rc" > $CFG_DIR/exit_status/init_dst.log
-        if [ ! -z "$( cat $f.log | grep -i failed )" ]; then rc=1; fi  
+        if [ "$rc" != 0 ]; then break; fi  
     done
     return $rc
 }

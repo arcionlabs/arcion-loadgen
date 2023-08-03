@@ -20,6 +20,26 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/prep_arcion_log.sh
 . $PROG_DIR/lib/prep_arcion_lic.sh
 
+# wait for jobs to finish for ctrl-c to exit
+control_c() {
+    tmux send-keys -t :0.1 C-c
+    tmux send-keys -t :0.2 C-c
+    tmux send-keys -t :0.3 C-c
+    tmux send-keys -t :7.0 C-c
+    tmux select-pane -t :0.0  # console
+    # give chance to quiet down
+    echo "Waiting 5 sec for CDC to finish" >&2
+    sleep 5
+    kill_jobs
+}
+
+exit_message() {
+  control_c
+  echo "cfg is at $CFG_DIR"
+  echo "log is at ${ARCION_LOG}/$LOG_ID"
+}
+
+
 cd ${SCRIPTS_DIR}
 
 # prep arcion_log
@@ -183,8 +203,8 @@ else
 fi  
 
 # exit if src or dst init failed
-if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_src.log)" ]]; then echo "arcdemo.sh: src init failed."; fi  
-if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arcdemo.sh: dst init failed."; fi  
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_src.log)" ]]; then echo "arcdemo.sh: src init failed."; exit_message; exit 1; fi  
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arcdemo.sh: dst init failed."; exit_message; exit 1; fi  
 
 # run the replication
 case ${REPL_TYPE,,} in
@@ -214,19 +234,6 @@ esac
 tmux_show_errorlog
 tmux_show_trace
 
-# wait for jobs to finish for ctrl-c to exit
-control_c() {
-    tmux send-keys -t :0.1 C-c
-    tmux send-keys -t :0.2 C-c
-    tmux send-keys -t :0.3 C-c
-    tmux send-keys -t :7.0 C-c
-    tmux select-pane -t :0.0  # console
-    # give chance to quiet down
-    echo "Waiting 5 sec for CDC to finish" >&2
-    sleep 5
-    kill_jobs
-}
-
 # allow ctl-c to terminate background jobs
 trap control_c SIGINT
 
@@ -235,7 +242,6 @@ tmux_show_arcion_cli_tail
 
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
-control_c
 
-echo "cfg is at $CFG_DIR"
-echo "log is at ${ARCION_LOG}/$LOG_ID"
+exit_message
+

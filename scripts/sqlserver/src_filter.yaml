@@ -5,11 +5,6 @@ allow:
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
-$( if [[ "$REPL_TYPE" != "snapshot" ]]; then
-      echo "    THEUSERTABLE${workload_size_factor_str}:"
-      echo "  unlisted: BLOCK"
-   fi      
-)
 $( case $workload_size_factor in
      1) 
         if [[ "$DSTDB_GRP" == "oracle" ]] || [[ "$DSTDB_GRP" == "redis" ]]; then

@@ -49,7 +49,7 @@ realtime:
     catalog: ${SRCDB_DB}
     schema: ${SRCDB_SCHEMA}
     detect-ddl-interval: 100  
-    enable: true                 
+    enable: true                
     ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
@@ -58,12 +58,12 @@ realtime:
     schema: ${SRCDB_SCHEMA}
     table-name : REPLICATE_IO_CDC_HEARTBEAT
 
-#delta-snapshot:
-#  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
-#  _traceDBTasks: true
-#  delta-snapshot-interval: 10
-#  delta-snapshot-delete-interval: 10  
-#  # setup to work for YCSB THEUSERTABLE demo table
-#  delta-snapshot-keys: [TS]
-#  split-key: YCSB_KEY
-#  min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo
+delta-snapshot:
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  _traceDBTasks: true
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10  
+  # setup to work for YCSB THEUSERTABLE demo table
+  delta-snapshot-keys: [TS]
+  split-key: YCSB_KEY
+  min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo

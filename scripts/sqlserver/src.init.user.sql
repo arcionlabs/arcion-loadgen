@@ -19,10 +19,11 @@ ALTER TABLE  oorder ENABLE CHANGE_TRACKING;
 ALTER TABLE  order_line ENABLE CHANGE_TRACKING;
 ALTER TABLE  stock ENABLE CHANGE_TRACKING;
 ALTER TABLE  THEUSERTABLE ENABLE CHANGE_TRACKING;
+ALTER TABLE  THEUSERTABLE10 ENABLE CHANGE_TRACKING;
+ALTER TABLE  THEUSERTABLE100 ENABLE CHANGE_TRACKING;
 ALTER TABLE  warehouse ENABLE CHANGE_TRACKING;
 ALTER TABLE  REPLICATE_IO_CDC_HEARTBEAT ENABLE CHANGE_TRACKING;
-
--- cdc
+ALTER TABLE  DENSETABLE ENABLE CHANGE_TRACKING;
 
 CREATE TABLE replicate_io_audit_ddl(
   "CURRENT_USER" NVARCHAR(128), 
@@ -35,8 +36,6 @@ CREATE TABLE replicate_io_audit_ddl(
   CONSTRAINT "arcsrc.dbo.replicate_io_audit_ddlPK" 
   PRIMARY KEY("LOGICAL_POSITION")
   );
-
-ALTER TABLE replicate_io_audit_ddl ENABLE CHANGE_TRACKING;
 
 
 CREATE TABLE replicate_io_audit_tbl_schema(
@@ -66,6 +65,11 @@ CREATE TABLE replicate_io_audit_tbl_cons(
   "CONSTRAINT_TYPE" VARCHAR(1), 
   "LOGICAL_POSITION" BIGINT);
 
+ALTER TABLE replicate_io_audit_ddl ENABLE CHANGE_TRACKING;
+alter table replicate_io_audit_tbl_schema add id int identity primary key;
+ALTER TABLE replicate_io_audit_tbl_schema ENABLE CHANGE_TRACKING;
+alter table replicate_io_audit_tbl_cons add id int identity primary key;
+ALTER TABLE replicate_io_audit_tbl_cons ENABLE CHANGE_TRACKING;
 
 CREATE OR ALTER TRIGGER "replicate_io_audit_ddl_trigger"
 ON DATABASE

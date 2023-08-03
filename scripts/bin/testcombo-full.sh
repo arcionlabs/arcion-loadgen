@@ -77,7 +77,7 @@ parse_params "$@"
 # ase db2 removed from the testing as not stable
 cdc_src="db2 informix mariadb mysql oraee pg ase"
 all_src="ase cockroach db2 gcsmy informix mariadb mysql oraee pg s2 sqledge sqlserver yugabytesql"
-all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg redis s2 snowflake sqledge sqlserver yugabytesql"
+all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee oraxe pg redis s2 snowflake sqledge sqlserver yugabytesql"
 
 sfs=("-s 1 -w 1200")  # scale factor
 threads=("-b 1:1")    # threading
