@@ -116,7 +116,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_DRIVER="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
-    SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT}"   
+    SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};database=${SRCDB_USER_CHANGE}"   
     SRCDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};database=${SRCDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"   
     SRCDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     SRCDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"      
@@ -225,8 +225,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_DRIVER="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
-    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false"
-    DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};;database=${DSTDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"
+    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};database=${DSTDB_USER_CHANGE};encrypt=false"
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};database=${DSTDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"
     DSTDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     DSTDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"  
     DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mssql*jar | paste -sd :)"
