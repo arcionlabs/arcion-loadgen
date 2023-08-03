@@ -43,7 +43,9 @@ exit_message() {
 
 count_cdclog() {
   while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
-  tail -f $CFG_DIR/arcion.log |  awk -v n="$fullcdc_timer" '/^Table name.*Insert/ {i=i+1; if (i > n) exit}'
+  tail -f $CFG_DIR/arcion.log |  awk -v n="$fullcdc_timer" -v maxretry="3" \
+    '/^Table name.*Insert/ {i=i+1; if (i > n) exit} /replicant exited with error code/ {r=r+1; if (r > maxretry) exit}' 
+    
   exit_message 
 }
 
@@ -233,6 +235,7 @@ case ${REPL_TYPE,,} in
     arcion_real
     tmux_show_tpcc
     tmux_show_ycsb
+    count_cdclog &
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
