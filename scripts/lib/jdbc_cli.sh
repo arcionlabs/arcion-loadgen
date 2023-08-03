@@ -361,7 +361,7 @@ count_all_tables() {
     while IFS=, read -r type table
     do
         if [ "${type,,}" = "table" ]; then
-            echo "select count(*) from $table;" >> /tmp/tables.count.$$.txt
+            echo "select count(*) from \"$table\";" >> /tmp/tables.count.$$.txt
         fi
     done < /tmp/tables.$$.txt
     cat /tmp/tables.count.$$.txt | jdbc_cli_$LOC
