@@ -114,7 +114,7 @@ repl_state==2 {
 END {
   print exitcode "," earlyexit "," snap_rows "," real_rows ","   snap ","  real "," last_snap_tally "," last_real_tally "," emptystalls "," empty_snaps ","  empty_reals "," snap_stalls "," real_stalls "," errorresumes "," exited "," resuming
   if (DEBUG!="") {
-  print  "exit erly srows rrows snaps reals snaptally realtally emst snem rlem snst rlst errs exit rsmn"
+  print  "exit erly srows rrows snaps reals snaptally realtally emst snem rlem snst rlst errs exit rsmn"  >> "/dev/stderr"
   printf "%4d %4d %5d %5d %5d %5d %9d %9d %4d %4d %4d %4d %4d %4d %4d %4d\n",
     exitcode,earlyexit,snap_rows,real_rows,snap,real,last_snap_tally,last_real_tally,emptystalls,empty_snaps,empty_reals,snap_stalls,real_stalls,errorresumes,exited,resuming >> "/dev/stderr"
   }

@@ -74,21 +74,18 @@ args_repl=""
 
 parse_params "$@"
 
-cdc_src="ase db2 gcsmy informix mariadb mysql oraee pg"
-all_src="snowflake"
-all_dst="cockroach db2 informix kafka mariadb minio mysql null oraee pg s2 snowflake sqledge sqlserver yugabytesql"
+cdc_src="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
+all_src="ase cockroach db2 informix kafka mariadb minio mysql null oraee oraxe pg s2 sqledge sqlserver yugabytesql"
+all_dst="ase cockroach db2 informix kafka mariadb minio mysql null oraee oraxe pg s2 sqledge sqlserver yugabytesql"
 
-sfs=("-s 1 -w 1200")  # scale factor
-threads=("-b 1:1")    # threading
+sfs=("-s 1 -w 1200:120")  # scale factor
+threads=("-b 1:1 -c 1:1" "-b 2:2 -c 2:2"  "-b 4:4 -c 4:4")    # threading
 src=${args_src:-${all_src}}  # source
 dst=${args_dst:-${all_dst}}
-repl=${args_repl:-"snapshot"} # replication types
+repl=${args_repl:-"snapshot real-time full"} # replication types
 
 # change to array
 repl=($repl)
-src=($src)
-dst=($dst)
-echo "${sf[@]} ${threads[@]} ${repl} ${src} ${dst}"
 
 export PAUSE_SECONDS=1
 
@@ -96,6 +93,17 @@ export PAUSE_SECONDS=1
 for sf in "${sfs[@]}"; do 
   for t in "${threads[@]}"; do 
     for r in "${repl[@]}"; do
+
+      if [[ "$r" == "snapshot" ]]; then 
+        src=${args_src:-${all_src}}
+        dst=${args_dst:-${all_dst}}
+      else 
+        src=${args_src:-${cdc_src}}
+        dst=${args_dst:-${all_dst}}      
+      fi  
+      src=($src)
+      dst=($dst)
+
       for s in "${src[@]}"; do
         for d in "${dst[@]}"; do
             echo "./arcdemo.sh $sf $t $r $s $d"
