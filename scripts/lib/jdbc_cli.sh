@@ -339,6 +339,7 @@ dump_table() {
 # repeat to drop tables without constraints first
 drop_all_tables() {
     local LOC=${1:-src}
+    local DB_GRP=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
     local last_num_tables_to_drop=0
     local num_tables_to_drop
     list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
@@ -346,7 +347,12 @@ drop_all_tables() {
     # stop on when no more tables and at least one tables was deleted 
     while (( num_tables_to_drop > 0 )) && (( num_tables_to_drop != last_num_tables_to_drop )); do
         echo "droping the following tables: $(cat /tmp/tables.$$.txt | paste -s -d',')"  
-        cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table \"xxx\";" | jdbc_cli_$LOC
+        case ${DB_GRP} in
+        mysql) cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table \`xxx\`;" | jdbc_cli $LOC
+            ;;
+        *) cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table \"xxx\";" | jdbc_cli $LOC
+            ;;
+        esac
         list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
         last_num_tables_to_drop=num_tables_to_drop
         num_tables_to_drop=$(cat /tmp/tables.$$.txt | wc -l)

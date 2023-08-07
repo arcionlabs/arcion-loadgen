@@ -43,13 +43,15 @@ exit_message() {
 
 count_cdclog() {
   while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
-  tail -f $CFG_DIR/arcion.log |  awk -v n="$fullcdc_timer" -v maxretry="3" \
-    '/^Table name.*Insert/ {i=i+1; if (i > n) exit} /replicant exited with error code/ {r=r+1; if (r > maxretry) exit}' 
-    
-  exit_message 
+  exitcode=$(tail -f $CFG_DIR/arcion.log | awk -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk)
+  rc=${PIPESTATUS[1]}
+  if [[ "$rc" != "0" ]]; then  
+    banner "earlyexit"
+    exit_message 
+  fi
 }
 
-cd ${SCRIPTS_DIR}
+cd "${SCRIPTS_DIR}" || exit 1
 
 # prep arcion_log
 prep_arcion_log # prep_arcion_log.sh
