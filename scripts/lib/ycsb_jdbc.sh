@@ -43,6 +43,9 @@ ycsb_load() {
 
   if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
 
+  # set default if not set
+  [ -z "${CFG_DIR}" ] && CFG_DIR=/tmp
+
   local ycsb_load_basedon_sf=$( echo "scale=0; (l (${ycsb_size_factor}) ) / 1" | bc -l )
   if [ -z "${ycsb_load_basedon_sf}" ] || [ "${ycsb_load_basedon_sf}" = "0" ]; then
     ycsb_load_basedon_sf=1
@@ -100,7 +103,7 @@ ycsb_load() {
     -p jdbc.ycsbkeyprefix=false \
     -p fieldnameprefix="FIELD" \
     -p insertorder=ordered \
-    -p fieldcount=0
+    -p fieldcount=0 2>&1 | tee $CFG_DIR/ycsb-load.log
 }
 
 # $1 = src|dst
@@ -174,6 +177,9 @@ ycsb_run() {
   [ -z "${jdbc_driver}" ] && { echo "jdbc_driver not set" >&2; return 1; }
   [ -z "${jdbc_classpath}" ] && { echo "jdbc_classpath not set" >&2; return 1; }
 
+  # set default if not set
+  [ -z "${CFG_DIR}" ] && CFG_DIR=/tmp
+
   # these not typically set
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
 
@@ -217,7 +223,7 @@ ycsb_run() {
   -p zeropadding=${const_ycsb_zeropadding} \
   -p jdbc.ycsbkeyprefix=false \
   -p fieldnameprefix="FIELD" \
-  -p insertorder=ordered &
+  -p insertorder=ordered 2>&1 | tee $CFG_DIR/ycsb-run.log &
 
   # save the PID  
   export YCSB_RUN_PID="$!"

@@ -155,7 +155,7 @@ bb_create_tables() {
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
             --interval-monitor 10000 \
-            --create=true --load=true --execute=false
+            --create=true --load=true --execute=false | tee $CFG_DIR/bb-load-${w}.log
         else
             # do not drop the existing tables as take time to refill them
             echo "$w: skipping table create $workload_table_exists table exists."
@@ -211,7 +211,7 @@ bb_run_tables() {
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
         --interval-monitor 10000 \
-        --create=false --load=false --execute=true &
+        --create=false --load=false --execute=true | tee $CFG_DIR/bb-run-${w}.log &
     done    
 
     popd >/dev/null || { echo "Error:bb_run_tables: popd filed $(pwd)"; }

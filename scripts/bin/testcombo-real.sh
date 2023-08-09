@@ -77,7 +77,7 @@ parse_params "$@"
 # ase db2
 cdc_src="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
 all_src="ase cockroach db2 informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
-all_dst="cockroach informix kafka mariadb minio mysql null oraee pg oraxe s2 snowflake sqledge sqlserver yugabytesql"
+all_dst="cockroach informix kafka mariadb minio mysql null oraee pg oraxe s2 sqledge sqlserver yugabytesql"
 # ase and db2 do not allow writes
 # readis ram consumption is too high
 
