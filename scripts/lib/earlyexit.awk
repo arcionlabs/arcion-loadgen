@@ -12,7 +12,7 @@ BEGIN {
   if (maxsnapempty=="") {maxsnapempty=60};        # consecutive    
   if (maxrealempty=="") {maxrealempty=60};        # consecutive 
   if (maxsnapstalls==""){maxsnapstalls=60};       # consecutive 
-  if (maxrealstalls==""){maxrealstalls=60};       # consecutive 
+  if (maxrealstalls==""){maxrealstalls=120};      # consecutive pg requires at leaset 120 before stream starts
   # constants
   snap_tally_begin=2
   snap_tally_end=2
