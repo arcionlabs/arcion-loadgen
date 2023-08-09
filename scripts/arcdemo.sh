@@ -43,10 +43,14 @@ exit_message() {
 
 count_cdclog() {
   while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
-  exitcode=$(tail -f $CFG_DIR/arcion.log | awk -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk)
+  tail -f $CFG_DIR/arcion.log | \
+    awk -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk \
+      > $CFG_DIR/earlyexit.csv 2> $CFG_DIR/earlyexit.txt
   rc=${PIPESTATUS[1]}
-  if [[ "$rc" != "0" ]]; then  
-    banner "earlyexit"
+  if [[ "$rc" = "0" ]] || [[ "$rc" = "8" ]]; then
+    figlet -t -f banner "success"
+  else  
+    figlet -t -f banner "earlyexit"
     exit_message 
   fi
 }

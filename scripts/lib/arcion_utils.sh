@@ -275,7 +275,7 @@ init_src() {
 
     mkdir -p $CFG_DIR/exit_status
 
-    banner $SRCDB_HOST
+    figlet -t $SRCDB_HOST
     for f in $( find $CFG_DIR -maxdepth 1 -name "src.init*sh" | xargs -I%% basename %% .sh | sort --version-sort ); do
         f="$f.sh"
         echo "Running $f"
@@ -298,7 +298,7 @@ init_dst() {
 
     mkdir -p $CFG_DIR/exit_status
 
-    banner $DSTDB_HOST
+    figlet -t $DSTDB_HOST
     for f in $( find $CFG_DIR -maxdepth 1 -name "dst.init*sh" | xargs -I%% basename %% .sh | sort --version-sort ); do
         f="$f.sh"
         echo "Running $f"

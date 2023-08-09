@@ -87,7 +87,7 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \
 # add ttyd for running terminal commands
 RUN apt-get install -y \
     tmux \
-    sysvbanner \
+    figlet \
     vim \
     pcp \
     gettext \

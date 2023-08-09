@@ -67,17 +67,17 @@ bb_create_tables() {
     local LOC="${bb_loc}"
     local workloads="${bb_modules_csv}"
 
-    # NOTE: <<<$workloads add newline on the last element. 
-    # use < <(printf '%s' "$workloads") to fix that 
-    readarray -td, workloads_array < <(printf '%s' "$workloads")
-
-    if ! bb_chdir; then return; fi
-
     # DEBUG
     echo "benchbase worload: ${workloads}"
     echo "benchbase db group: $db_grp"
     echo "benchbase db type: $db_type"
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
+
+    # NOTE: <<<$workloads add newline on the last element. 
+    # use < <(printf '%s' "$workloads") to fix that 
+    readarray -td, workloads_array < <(printf '%s' "$workloads")
+
+    if ! bb_chdir; then return; fi
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
         awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]') )"

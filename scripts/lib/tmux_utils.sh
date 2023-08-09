@@ -41,15 +41,15 @@ tmux_create_windows() {
 }
 
 tmux_show_tpcc() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; figlet -t -f banner "${workload_modules_bb}"; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
 
 tmux_show_ycsb() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; figlet -t -f banner ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
 }
 
 tmux_show_errorlog() {
-    tmux send-keys -t ${TMUX_SESSION}:0.3 "clear; banner errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/error_trace.log" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.3 "clear; figlet -t -f banner errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/error_trace.log" Enter
 }
 
 tmux_show_verification() {
@@ -101,14 +101,14 @@ tmux_show_workload()  {
 }
 
 tmux_show_src_sql_cli() {
-    tmux send-keys -t :3.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_src" enter
-    tmux send-keys -t :4.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_src" enter
+    tmux send-keys -t :3.0  "figlet -t -f banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_src" enter
+    tmux send-keys -t :4.0  "figlet -t -f banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_src" enter
 }
 
 tmux_show_dst_sql_cli() {
     # the dst somtimes cannot get ready to accept connection righ away
-    tmux send-keys -t :3.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_dst" enter
-    tmux send-keys -t :4.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_dst" enter
+    tmux send-keys -t :3.1  "figlet -t -f banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_dst" enter
+    tmux send-keys -t :4.1  "figlet -t -f banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_dst" enter
 }
 
 

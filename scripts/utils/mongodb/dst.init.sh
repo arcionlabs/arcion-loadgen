@@ -26,14 +26,14 @@ DSTDB_USER_URL="mongodb://${DSTDB_ARC_USER}:${DSTDB_ARC_PW}@${DSTDB_HOST}:${DSTD
 ping_db "${DSTDB_ROOT_URL}" 
 
 # setup database permissions
-banner dst root
+figlet -t -f banner dst root
 
 for f in ${CFG_DIR}/dst.init.root.*js; do 
   echo "cat $f | envsubst | mongosh ${DSTDB_ROOT_URL}"
   cat $f | envsubst | mongosh ${DSTDB_ROOT_URL} 
 done  
 
-banner dst user
+figlet -t -f banner dst user
 
 for f in ${CFG_DIR}/dst.init.user.*js; do
   echo "cat $f | envsubst | mongosh ${DSTDB_USER_URL}"

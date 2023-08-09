@@ -97,7 +97,9 @@ split_host_to_triplet() {
    local ROLE="$2"
    local HOST="$3"
    
-   HOST_FROM_YAML=$( get_host_from_yaml $FILENAME )
+   HOST_FROM_YAML=$( get_host_from_yaml $FILENAME)
+
+   if [ "$HOST"="snowflake" ]; then HOST_FROM_YAML=$(echo $HOST_FROM_YAML | tr '-' '_'); fi
 
    readarray -d '-' -t HOST_ARRAY  < <(printf '%s' "$HOST_FROM_YAML")
 
@@ -189,23 +191,11 @@ get_replication_mode() {
 }
 
 write_csv() {
-   local sum=0
-   tallylines=(${snapshot_total_rows}) 
-   # skip the first element which is number of tables
-   for t in ${tallylines[1]}; do sum=$((sum + t)); done
-   tallylines=(${realtime_total_rows})
-   for t in ${tallylines[@]}; do sum=$((sum + t)); done
-   tallylines=(${delta_total_rows})
-   for t in ${tallylines[@]}; do sum=$((sum + t)); done
-
-   # DEBUG echo ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} $sum >&2
-   if (( sum == 0 )); then return 0; fi
-
    # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
    if [[ ${#run_id_array[@]} == 5 ]]; then
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    else
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${snapshot_total_rows} ${realtime_total_rows} ${delta_total_rows} ${run_id_array[@]} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[@]} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    fi
 }
 
@@ -225,33 +215,61 @@ report_name() {
    local run_id=${run_id_array[0]}
    local LOG_DIR=${ROOT_DIR}/${run_id}
 
-    if [ ! -f ${CFG_DIR}/arcion.log ]; then
-        echo "${f}: ${CFG_DIR}/arcion.log not found. skipping" >&2
-        return 1
-    fi
+   if [ ! -f ${CFG_DIR}/arcion.log ]; then
+      echo "${f}: ${CFG_DIR}/arcion.log not found. skipping" >&2
+      return 1
+   fi
 
-    # for a long log, stop on first exit
-    error_code=$( grep -m 1 -e 'error code: [1-9]$' ${CFG_DIR}/arcion.log )
-    if [ -n "${error_code}" ]; then 
-        echo "${f}: error code: $error_code. skipping" >&2
-        return 1
-    fi
-
+   if [ ! -f ${CFG_DIR}/earlyexit.csv ]; then
+      $SCRIPTS_DIR/lib/earlyexit.awk -v DEBUG=1 -v earlyexit=0 ${CFG_DIR}/arcion.log > $CFG_DIR/earlyexit.csv 2> $CFG_DIR/earlyexit.txt
+   fi
+   earlyexit_rows=$(cat $CFG_DIR/earlyexit.csv | tr ',' ' ')
+   if [ -z "$earlyexit_rows" ]; then 
+      echo "earlyexit.csv not found or is empty" >&2
+      return 1
+   fi
+   
    # Elapsed time from the end of the file
    elapsed_time=$(tac ${CFG_DIR}/arcion.log | awk -F'[: ]' '/Elapsed time/ {print $4 ":" $5 ":" $6 ; exit}')
    if [ -z "$elapsed_time" ]; then
         echo "${f}: no elapsed time skipping" >&2
         return 1
+   fi       
+   
+   if [ ! -f ${LOG_DIR}/trace.log ]; then
+      echo "${f}: ${LOG_DIR}/trace.log not found. skipping" >&2
+      return 1
    fi
-
-    if [ ! -f ${LOG_DIR}/trace.log ]; then
-        echo "${f}: ${LOG_DIR}/trace.log not found. skipping" >&2
-        return 1
-    fi
    tracelog_save_as_yaml ${LOG_DIR}
    trace_to_yaml
+   readarray -d ' ' -t EARLYEXIT_ARRAY  < <(printf '%s' "${earlyexit_rows}")
 
    run_repl_mode=$( get_replication_mode ${LOG_DIR})
+
+   case ${run_repl_mode,,} in 
+   snapshot)
+      if (( ${EARLYEXIT_ARRAY[4]} == 0 )); then
+         echo "no rows were processed. skipping" >&2
+         return 1
+      fi
+      ;;
+   real-time)
+      if (( ${EARLYEXIT_ARRAY[8]} == 0 )); then
+         echo "no realtime rows were processed. skipping" >&2
+         return 1
+      fi
+      ;;
+   full)
+      if (( ${EARLYEXIT_ARRAY[4]} + ${EARLYEXIT_ARRAY[8]} == 0 )); then
+         echo "no rows were processed. skipping" >&2
+         return 1
+      fi
+      ;;
+   *)
+      echo "${run_repl_mode,,}: unhandled replcation type. skipping" >&2
+      return 1
+      ;;
+   esac
 
    run_id_array[2]=$( split_host_to_triplet ${CFG_DIR}/src.yaml src "${run_id_array[2]}")
    run_id_array[3]=$( split_host_to_triplet ${CFG_DIR}/dst.yaml dst "${run_id_array[3]}")

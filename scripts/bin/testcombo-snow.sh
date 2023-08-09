@@ -76,13 +76,13 @@ parse_params "$@"
 
 cdc_src="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
 all_src="ase cockroach db2 informix  mariadb  mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
-all_dst="ase cockroach db2 informix kafka mariadb minio mysql null oraee oraxe pg s2 sqledge sqlserver yugabytesql"
+all_dst="snowflake"
 
 sfs=("-s 1 -w 1200:120")  # scale factor
-threads=("-b 1:1 -c 1:1" "-b 2:2 -c 2:2"  "-b 4:4 -c 4:4")    # threading
+threads=("-b 1:1 -c 1:1")    # threading
 src=${args_src:-${all_src}}  # source
 dst=${args_dst:-${all_dst}}
-repl=${args_repl:-"snapshot real-time"} # replication types
+repl=${args_repl:-"snapshot real-time full"} # replication types
 
 # change to array
 repl=($repl)
