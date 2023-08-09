@@ -36,8 +36,11 @@ ping_db () {
         break  
     fi
 
+    # YB role
+    # CR password
     if [ -n "$( grep \
       -e 'role .* does not exist' \
+      -e 'password authentication failed for user' \
       /tmp/ping_utils.err.$$ )" ]; then
         rc=0
         break  
