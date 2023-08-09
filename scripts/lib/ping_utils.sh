@@ -36,6 +36,13 @@ ping_db () {
         break  
     fi
 
+    if [ -n "$( grep \
+      -e 'role .* does not exist' \
+      /tmp/ping_utils.err.$$ )" ]; then
+        rc=0
+        break  
+    fi
+
     # stop on max retries
     (( retry_count++ ))
     if (( max_retries > 0 )) && (( retry_count >= max_retries )); then

@@ -287,6 +287,7 @@ init_src() {
         echo "$rc" > $CFG_DIR/exit_status/init_src.log
         if [ "$rc" != 0 ]; then break; fi  
     done
+    figlet -t $SRCDB_HOST
     return $rc
 }
 init_dst() {
@@ -310,6 +311,7 @@ init_dst() {
         echo "$rc" > $CFG_DIR/exit_status/init_dst.log
         if [ "$rc" != 0 ]; then break; fi  
     done
+    figlet -t $DSTDB_HOST
     return $rc
 }
 
