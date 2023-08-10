@@ -80,7 +80,7 @@ loop_run() {
         for s in "${src[@]}"; do
           for d in "${dst[@]}"; do
               echo "./arcdemo.sh $sf $t $r $s $d"
-              #./arcdemo.sh $sf $t $r $s $d
+              #SRCDB_DB=arcsrc ./arcdemo.sh $sf $t $r $s $d
           done
         done
       done

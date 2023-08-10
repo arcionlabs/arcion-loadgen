@@ -47,7 +47,7 @@ count_cdclog() {
     awk -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk \
       > $CFG_DIR/earlyexit.csv 2> $CFG_DIR/earlyexit.txt
   rc=${PIPESTATUS[1]}
-  if [[ "$rc" = "0" ]] || [[ "$rc" = "8" ]]; then
+  if [[ "$rc" = "0" ]] || [[ "$rc" = "10" ]]; then
     figlet -t -f banner "success"
   else  
     figlet -t -f banner "earlyexit"

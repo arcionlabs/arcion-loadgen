@@ -10,14 +10,19 @@ BEGIN {
   if (maxresume==""){maxresume=5}; 
   if (maxemptystalls=="") {maxemptystalls=120};   # combine empty and stalls
   if (maxsnapempty=="") {maxsnapempty=60};        # consecutive    
-  if (maxrealempty=="") {maxrealempty=60};        # consecutive 
+  if (maxrealempty=="") {maxrealempty=60};        # consecutive snowflake requires at least 120 to start 
   if (maxsnapstalls==""){maxsnapstalls=60};       # consecutive 
-  if (maxrealstalls==""){maxrealstalls=120};      # consecutive pg requires at leaset 120 before stream starts
+  if (maxrealstalls==""){maxrealstalls=60};       # consecutive pg requires at least 120 before stream starts
+  if (maxbeginempty=="") {maxbeginempty=300};     # takes time in the beginning to get going like pg is about 120 seconds
+
   # constants
   snap_tally_begin=2
   snap_tally_end=2
   real_tally_begin=2
   real_tally_end=5
+  # track blanks in the beginning
+  validscreens=0
+  beginempty=0
   # state machine
   last_repl_state=0
   repl_state=0
@@ -76,14 +81,21 @@ BEGIN {
   next} 
 
 /^$/ && repl_state==1 {
-  if (n==0) {emptystalls++; empty_snaps++; delta_snap_tally=0 } else {emptystalls=0; empty_snaps=0; snap_tbls=n; delta_snap_tally = snap_tally - last_snap_tally;} 
-  delta_buffer_rows= buffered_rows - last_buffered_rows;
-  # print "snap: " delta_snap_tally " " snap_tally " " emptystalls "," maxemptystalls "," maxemptystalls
-  if (delta_snap_tally==0 && delta_buffer_rows==0) {emptystalls++; snap_stalls++;} else {emptystalls=0; snap_stalls=0;}
+  if (n==0 && validscreens>0) {emptystalls++; empty_snaps++; delta_snap_tally=0 } 
+  else if (n==0 && validscreens==0) {beginempty++}
+  else {
+    validscreens++; emptystalls=0; empty_snaps=0; snap_tbls=n; delta_snap_tally = snap_tally - last_snap_tally;
+  } 
+  if (validscreens > 0) {
+    delta_buffer_rows= buffered_rows - last_buffered_rows;
+    # print "snap: " delta_snap_tally " " snap_tally " " emptystalls "," maxemptystalls "," maxemptystalls
+    if (delta_snap_tally==0 && delta_buffer_rows==0) {emptystalls++; snap_stalls++;} else {emptystalls=0; snap_stalls=0;}
+  }
   # do not reset the last if bailing
   if (earlyexit != 0 && empty_snaps >= maxsnapempty) {exitcode=1; exit}; 
   if (earlyexit != 0 && snap_stalls >= maxsnapstalls) {exitcode=2; exit}; 
   if (earlyexit != 0 && emptystalls >= maxemptystalls) {exitcode=3; exit}; 
+  if (earlyexit != 0 && beginempty >= maxbeginempty) {exitcode=4; exit}; 
   # enable delta comparion by saving the current values
   if (n!=0) {
     last_snap_tally=snap_tally; snap_tally=0; last_buffered_rows=buffered_rows;
@@ -96,14 +108,21 @@ BEGIN {
 
 /^$/ && repl_state==2 {
   # empty reset
-  if (n==0) {emptystalls++; empyt_reals++; delta_real_tally=0;} else {emptystalls=0; empyt_reals=0; real_tbls=n; delta_real_tally = real_tally - last_real_tally;}  
-  delta_buffer_rows= buffered_rows - last_buffered_rows;
-  # stalls reset
-  if (delta_real_tally==0 && delta_buffer_rows==0) {emptystalls++; real_stalls++;} else {emptystalls=0; real_stalls=0;} 
+  if (n==0 && validscreens>0) {emptystalls++; empyt_reals++; delta_real_tally=0;} 
+  else if (n==0 && validscreens==0) {beginempty++}
+  else {
+    validscreens++; emptystalls=0; empyt_reals=0; real_tbls=n; delta_real_tally = real_tally - last_real_tally;
+  }  
+  if (validscreens > 0) {
+    delta_buffer_rows= buffered_rows - last_buffered_rows;
+    # stalls reset
+    if (delta_real_tally==0 && delta_buffer_rows==0) {emptystalls++; real_stalls++;} else {emptystalls=0; real_stalls=0;} 
+  }
   # do not reset the last if bailing
-  if (earlyexit != 0 && empty_reals >= maxrealempty) {exitcode=4; exit}; 
-  if (earlyexit != 0 && real_stalls >= maxrealstalls) {exitcode=5; exit}; 
-  if (earlyexit != 0 && emptystalls >= maxemptystalls) {exitcode=6; exit}; 
+  if (earlyexit != 0 && empty_reals >= maxrealempty) {exitcode=5; exit}; 
+  if (earlyexit != 0 && real_stalls >= maxrealstalls) {exitcode=6; exit}; 
+  if (earlyexit != 0 && emptystalls >= maxemptystalls) {exitcode=7; exit}; 
+  if (earlyexit != 0 && beginempty >= maxbeginempty) {exitcode=8; exit}; 
   # enable delta comparion by saving the current values
   if (n!=0) { 
     last_real_tally=real_tally; 
@@ -129,7 +148,7 @@ BEGIN {
 
 # snapshot
 /^Table name.*Rows/ {
-  n=0; repl_state=1; snap_sec++; if (earlyexit != 0 && snap_sec>=maxsnapsecs) {exitcode=7; exit}
+  n=0; repl_state=1; snap_sec++; if (earlyexit != 0 && snap_sec>=maxsnapsecs) {exitcode=9; exit}
   next
   } 
   
@@ -149,7 +168,7 @@ repl_state==1 {
 # realtime
 /^Table name.*Insert/ {
   if ($8=="DDL") {real_ddl_enabled=1} else {real_ddl_enabled=0}
-  n=0; repl_state=2; real_sec++; if (earlyexit != 0 && real_sec>=maxrealsecs) {exitcode=8; exit}
+  n=0; repl_state=2; real_sec++; if (earlyexit != 0 && real_sec>=maxrealsecs) {exitcode=10; exit}
   next
   } 
 
@@ -168,15 +187,15 @@ repl_state==2 {
 /replicant exited with error code/ {
   if ($NF != 0) {
     errorresumes++; exited++; 
-    if (earlyexit != 0 && (errorresumes>=maxexitresumes)) {exitcode=9; exit};
-    if (earlyexit != 0 && (exited>=maxexit)) {exitcode=10; exit};
+    if (earlyexit != 0 && (errorresumes>=maxexitresumes)) {exitcode=11; exit};
+    if (earlyexit != 0 && (exited>=maxexit)) {exitcode=12; exit};
   }
 } 
 
 /Resuming replicant/ {
   errorresumes++; resuming++; 
-  if (earlyexit != 0 && (errorresumes>=maxexitresumes)) {exitcode=11; exit}
-  if (earlyexit != 0 && (resuming>=maxresume)) {exitcode=12; exit}
+  if (earlyexit != 0 && (errorresumes>=maxexitresumes)) {exitcode=13; exit}
+  if (earlyexit != 0 && (resuming>=maxresume)) {exitcode=14; exit}
   } 
 
 END {
@@ -193,20 +212,20 @@ END {
     "rsec rtbl  realrows rinserted rdeleted rupdated rreplaced rddl " \
     "dsec deltaapp deltaincm " \
     "emst semp remp sstl rstl " \
-    "exrs exit resm"  >> "/dev/stderr" 
+    "exrs exit resm bgemp"  >> "/dev/stderr" 
   printf "%4d %4d " \
     "%4d %4d %9d %4d " \
     "%4d %4d %9d %9d %8d %8d %9d %4d " \
     "%4d %8d %9d " \
     "%4d %4d %4d %4d %4d " \
-    "%4d %4d %4d\n",  
+    "%4d %4d %4d %5d\n",  
     exitcode , earlyexit , \
     snap_sec , snap_tbls , last_snap_tally , snap_success ,  \
     real_sec , real_tbls , last_real_tally , last_real_tally_inserted , \
     last_real_tally_deleted , last_real_tally_updated , last_real_tally_replaced , last_real_tally_ddl , \
     delta_sec , delta_applied , delta_incoming , \
     emptystalls , empty_snaps ,  empty_reals , snap_stalls , real_stalls , \
-    errorresumes , exited , resuming \
+    errorresumes , exited , resuming , beginempty\
     >> "/dev/stderr"   
   }
   exit exitcode

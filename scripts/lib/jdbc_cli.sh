@@ -81,7 +81,7 @@ jdbc_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --jdbc-url=jdbc:snowflake://${db_host}:${db_port}/?warehouse=$(x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}")\&db=%22arcdst%22\&schema=%22${db_schema}%22
+  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --jdbc-url=jdbc:snowflake://${db_host}:${db_port}/?warehouse=$(x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}")\&db=%22${db_db}%22\&schema=%22${db_schema}%22
 
   #--user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )" -V "schema=$( x="SNOW_${LOC^^}_SCHEMA"; echo "${!x}" )" -V "db=arcdst" 
     ;;

@@ -1,1 +1,1 @@
-create database IF NOT EXISTS ${SRCDB_DB};
+create database IF NOT EXISTS "${SRCDB_DB}";

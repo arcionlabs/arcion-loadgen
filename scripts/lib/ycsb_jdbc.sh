@@ -12,7 +12,12 @@ ycsb_rows() {
 
   if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
 
-  x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" )
+  echo $sql >&2
+
+  x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" | grep -v "^Connection property value")
+
+  echo $x >&2
+
   if [ -z "$x" ]; then
     echo "0"
   else
@@ -68,6 +73,9 @@ ycsb_load() {
     postgresql)
       local jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
+    snowflake)
+      local ycsb_batchsize=16384
+      ;;      
     # needs 0.18
     # sqlserver)
     #  jdbc_url="${jdbc_url}:IFX_USEPUT=1;"
@@ -132,6 +140,7 @@ ycsb_load_sf() {
   if [ -z "${ycsb_table}" ]; then exit 1; fi
 
   # create table def if not found
+  # wahtis :$
   echo "looking for ${ycsb_table,,:$} in ${ycsb_load_sf_db_tabs[*]}"
   if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table,,}]}" ]; then 
     echo "${ycsb_table} not found.  creating"
