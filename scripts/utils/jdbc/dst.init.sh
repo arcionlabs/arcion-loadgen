@@ -65,8 +65,8 @@ else
 fi
 
 # run if table needs to be created
-if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
-  echo "dst db ${DSTDB_ARC_USER}: ${db_schema_lower} setup"
+if [ "${db_schema_lower}" = "${DSTDB_DB}" ]; then
+  echo "dst db ${DSTDB_DB}: ${db_schema_lower} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
     echo ${f}
@@ -74,7 +74,7 @@ if [ "${db_schema_lower}" = "${DSTDB_ARC_USER}" ]; then
   done
 
 else
-  echo "dst db ${DSTDB_ARC_USER} ${db_schema_lower} skipping user setup"
+  echo "dst db ${DSTDB_DB} ${db_schema_lower} skipping user setup"
 fi
 
 
