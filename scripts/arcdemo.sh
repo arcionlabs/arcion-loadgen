@@ -42,9 +42,15 @@ exit_message() {
 }
 
 count_cdclog() {
+  case ${SRCDB_GRP,,} in
+  snowflake)
+    EARLYEXIT_OPT="-v maxrealstalls=300 -v maxemptystalls=300"
+    ;;
+  esac
+
   while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
   tail -f $CFG_DIR/arcion.log | \
-    awk -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk \
+    awk $EARLYEXIT_OPT -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk \
       > $CFG_DIR/earlyexit.csv 2> $CFG_DIR/earlyexit.txt
   rc=${PIPESTATUS[1]}
   if [[ "$rc" = "0" ]] || [[ "$rc" = "10" ]]; then

@@ -21,8 +21,8 @@ sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
 db_schema_lower=${db_schema,,}
 
-if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
-  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${db_schema_lower} skipping
+if [ "${SRCDB_DB}" != "${db_schema_lower}" ]; then
+  echo "ycsb run $LOC: "${SRCDB_DB}" != "${db_schema_lower} skipping
   exit
 fi
 

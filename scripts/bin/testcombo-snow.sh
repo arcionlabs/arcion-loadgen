@@ -80,7 +80,7 @@ loop_run() {
         for s in "${src[@]}"; do
           for d in "${dst[@]}"; do
               echo "./arcdemo.sh $sf $t $r $s $d"
-              #SRCDB_DB=arcsrc ./arcdemo.sh $sf $t $r $s $d
+              SRCDB_DB=arcsrc ./arcdemo.sh $sf $t $r $s $d
           done
         done
       done
@@ -117,7 +117,7 @@ for r in "${repl[@]}"; do
       loop_run ${r} "${all_src}" "snowflake" 
       ;;
     real-time|full)
-      loop_run ${r} "snowflake" "${all_dst}"
+      # loop_run ${r} "snowflake" "${all_dst}"
       loop_run ${r} "${cdc_src}" "snowflake" 
       ;;
   esac
