@@ -4,31 +4,32 @@ name: Run arcdemo.sh
 on: 
   workflow_dispatch:
     # branch:
-    # inputs:
-    #   REPLICANT_CLI_URL: 
-    #     description: 'Replicant binary url'
-    #     required: true
-    #     default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/replicant/replicant-cli-23.05.31.4.zip'
-    #     type: string
-    #   ROW_VERIFICATOR_URL: 
-    #     description: 'Replicate row verificator binary url'
-    #     required: true
-    #     default: 'https://arcion-releases.s3.us-west-1.amazonaws.com/general/row-verificator/replicate-row-verificator-22.02.01.3.zip'
-    #     type: string
-    #   IMAGE_TAG:
-    #     description: 'Docker image tag'
-    #     required: true
-    #     default: 'latest'
-    #     type: string
-    #   CHECKOUT_CHOICE:
-    #     description: 'The repository'
-    #     required: true
-    #     default: 'main'
-    #     type: string
+    inputs:
+      SRC_DATABASES: 
+        description: 'Which database(s) to use as the source, formatted as a list'
+        required: true
+        default: '["mysql"]'
+        type: string
+      DST_DATABASES: 
+        description: 'Which database(s) to use as the destination, formatted as a list'
+        required: true
+        default: '["pg"]'
+        type: string
+      BUCKET_NAME:
+        description: 'Name of the storj bucket to upload to'
+        required: true
+        default: 'artifact-data'
+        type: string
 
 jobs:
   run-demo:
     name: run-arcion-demo
+    strategy:
+      matrix:
+        src: ${{ fromJSON(inputs.SRC_DATABASES) }} #apach-spark, ase, cockroach, db2, informix, kafka, mariadb, minio, mongodb, nfsserver, pg, redis, s2, snowflake, sqledge, yugabyte]
+        dest: ${{ fromJSON(inputs.DST_DATABASES) }}
+      fail-fast: false
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,15 +37,41 @@ jobs:
           # Repository name with owner. For example, actions/checkout
           # Default: ${{ github.repository }}
           repository: 'arcionlabs/docker-dev'
-      - name: Execute install
+      - name: Install and execute
         # Installs and runs the demokit. Later, might be worth it to create compose file w/o 
-        # the gui creation. Also currently running snapshot mode because it takes much less time
+        # the gui creation.
         run: | 
-          sed -n '/start Arcion demo kit CLI/q;p' < ./install.sh > newinstall.sh
-          export ARCION_LICENSE=${{ secrets.ARCION_LICENSE }}
-          bash ./newinstall.sh
+          export ARCION_LICENSE=${{ secrets.ARC_LIC }}
+          docker network create arcnet
+          docker volume create oraxe11g >/tmp/install.$$ 2>&1
+          docker volume create oraxe2130 >/tmp/install.$$ 2>&1
+          docker volume create oraee1930 >/tmp/install.$$ 2>&1
+          docker volume create arcion-bin >/tmp/install.$$ 2>&1
+          cd ${{ matrix.src }}
+          docker compose up -d
+          cd ../${{ matrix.dest }}
+          docker compose up -d
+          cd ..
+          docker compose -f arcion-demo/docker-compose.yaml pull
           docker compose -f arcion-demo/docker-compose.yaml up -d
-          docker compose -f mysql/docker-compose.yaml up -d
-          docker compose -f postgresql/docker-compose.yaml up -d
-          docker compose -f arcion-demo/docker-compose.yaml exec workloads arcdemo.sh snapshot mysql postgresql
-  
+          sleep 40
+          docker exec workloads mkdir -p /opt/stage/data
+          echo "Made it to execution"
+          docker exec workloads arcdemo.sh snapshot ${{ matrix.src }} ${{ matrix.dest }}
+      - name: Extract files
+        if: '!cancelled()'
+        run: |
+          mkdir artifact_data
+          cd artifact_data
+          for f in $(docker exec workloads ls /opt/stage/data | grep -v README.md); do docker exec workloads tar Ccf $(dirname /opt/stage/data/$f) - $(basename /opt/stage/data/$f) | tar Cxf . -; echo $f; done
+          cd ..
+      - name: Storj upload
+        if: '!cancelled()'
+        run: |
+          curl -L https://github.com/storj/storj/releases/latest/download/uplink_linux_amd64.zip -o uplink_linux_amd64.zip
+          unzip -o uplink_linux_amd64.zip
+          sudo install uplink /usr/local/bin/uplink
+          echo "${{ secrets.UPLINK_ACC }}" > access_grant.txt
+          uplink access import main access_grant.txt
+          cd artifact_data
+          for f in *; do tar -cf $f.tar $f; uplink cp $f.tar sj://${{ inputs.BUCKET_NAME }}; done
