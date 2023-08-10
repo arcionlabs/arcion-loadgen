@@ -1,1 +1,1 @@
-create database IF NOT EXISTS ${DSTDB_DB};
+create database IF NOT EXISTS "${DSTDB_DB}"; 

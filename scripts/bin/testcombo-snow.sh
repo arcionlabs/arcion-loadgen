@@ -68,6 +68,26 @@ parse_params() {
   return 0
 }
 
+loop_run() {
+  local repl="${1}"
+  local src="${2}"
+  local dst="${3}"
+  for sf in "${sfs[@]}"; do 
+    for t in "${threads[@]}"; do 
+      for r in "${repl[@]}"; do
+        src=($src)
+        dst=($dst)
+        for s in "${src[@]}"; do
+          for d in "${dst[@]}"; do
+              echo "./arcdemo.sh $sf $t $r $s $d"
+              #./arcdemo.sh $sf $t $r $s $d
+          done
+        done
+      done
+    done
+  done
+}
+
 args_src=""
 args_dst=""
 args_repl=""
@@ -75,11 +95,11 @@ args_repl=""
 parse_params "$@"
 
 cdc_src="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
-all_src="ase cockroach db2 informix  mariadb  mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
-all_dst="snowflake"
+all_src="ase cockroach db2 informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
+all_dst="cockroach informix kafka mariadb minio mysql null oraee pg redis s2 sqledge sqlserver yugabytesql"
 
-sfs=("-s 1 -w 1200:120")  # scale factor
-threads=("-b 1:1 -c 1:1")    # threading
+sfs=("-s 1 -w 1200:300")  # scale factor
+threads=("-b 1:1 -c 1:1 -r 0")    # threading
 src=${args_src:-${all_src}}  # source
 dst=${args_dst:-${all_dst}}
 repl=${args_repl:-"snapshot real-time full"} # replication types
@@ -89,30 +109,16 @@ repl=($repl)
 
 export PAUSE_SECONDS=1
 
-# loop thru all
-for sf in "${sfs[@]}"; do 
-  for t in "${threads[@]}"; do 
-    for r in "${repl[@]}"; do
-
-      if [[ "$r" == "snapshot" ]]; then 
-        src=${args_src:-${all_src}}
-        dst=${args_dst:-${all_dst}}
-      else 
-        src=${args_src:-${cdc_src}}
-        dst=${args_dst:-${all_dst}}      
-      fi  
-      src=($src)
-      dst=($dst)
-
-      for s in "${src[@]}"; do
-        for d in "${dst[@]}"; do
-            echo "./arcdemo.sh $sf $t $r $s $d"
-            ./arcdemo.sh $sf $t $r $s $d
-        done
-      done
-    done
-  done
+for r in "${repl[@]}"; do
+  echo $r
+  case ${r} in
+    snapshot)
+      loop_run ${r} "snowflake" "${all_dst}"
+      loop_run ${r} "${all_src}" "snowflake" 
+      ;;
+    real-time|full)
+      loop_run ${r} "snowflake" "${all_dst}"
+      loop_run ${r} "${cdc_src}" "snowflake" 
+      ;;
+  esac
 done
-
-# echo "Looking for runs had data validation error"
-# find /tmp/arcion -type f -name "*.diff" -size +0c

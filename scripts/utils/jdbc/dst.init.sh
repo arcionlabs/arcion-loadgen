@@ -53,7 +53,15 @@ if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
 else
   echo "dst db ${DSTDB_DB} already setup. skipping db setup"
   # drop tables from dst
-  drop_all_tables dst
+  case ${REPL_TYPE,,} in
+    snapshot|full|delta-snapshot)
+      echo "dst db ${DSTDB_DB} dropping tables"
+      drop_all_tables dst
+      ;;
+    *)
+      echo "dst db ${DSTDB_DB} leaving tables as is"
+      ;;
+  esac
 fi
 
 # run if table needs to be created
