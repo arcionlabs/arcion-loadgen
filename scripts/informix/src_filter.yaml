@@ -5,6 +5,7 @@ allow:
   allow:
 $( if [[ "$REPL_TYPE" != "snapshot" ]]; then
       echo "    theusertable${workload_size_factor_str}:"
+      echo "    THEUSERTABLE${workload_size_factor_str}:"
       echo "  unlisted: BLOCK"
    fi      
 )
@@ -13,13 +14,13 @@ $( case $workload_size_factor in
       echo '  block-pattern: .*10$|.*100$|.*1000$'
       ;;   
      10)
-      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*100$|.*1000$'
+      echo '  block-pattern: theusertable|densetable|THEUSERTABLE|DENSETABLE|.*100$|.*1000$'
       ;;
      100)
-      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*1000$'
+      echo '  block-pattern: theusertable|densetable|THEUSERTABLE|DENSETABLE|.*10$|.*1000$'
       ;;
     1000)
-      echo '  block-pattern: THEUSERTABLE|DENSETABLE|.*10$|.*100$'
+      echo '  block-pattern: theusertable|densetable|THEUSERTABLE|DENSETABLE|.*10$|.*100$'
       ;;   
     esac
 )

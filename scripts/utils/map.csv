@@ -3,7 +3,7 @@ oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl
 oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,,,
 oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,,,
 mysql,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,
-gcsmy,mysql,3306,root,Passw0rdmy8sand,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSMY_HOST,
+gcsmy,mysql,3306,root,Passw0rdmy8sand,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSMY_HOST DB_PW=,
 mariadb,mysql,3306,root,Passw0rd,,MARIADB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,
 s2,mysql,3306,root,Passw0rd,,SINGLESTORE,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,singlestore,,,
 pg,postgresql,5432,root,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,

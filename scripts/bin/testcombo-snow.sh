@@ -94,12 +94,12 @@ args_repl=""
 
 parse_params "$@"
 
-cdc_src="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
+all_cdc="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
 all_src="ase cockroach db2 informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
 all_dst="cockroach informix kafka mariadb minio mysql null oraee pg redis s2 sqledge sqlserver yugabytesql"
 
-sfs=("-s 1 -w 1200:300")  # scale factor
-threads=("-b 1:1 -c 1:1 -r 0")    # threading
+sfs=("-s 1 -w 1200:300")  # -s scale -w wait 1200 snap 500 real-time
+threads=("-b 1:1 -c 1:1 -r 0")    # -b snap ext thread 1 applier 1 -c real-time ext thread 1 applier 1 -r workload tps max
 src=${args_src:-${all_src}}  # source
 dst=${args_dst:-${all_dst}}
 repl=${args_repl:-"snapshot real-time full"} # replication types
@@ -118,7 +118,7 @@ for r in "${repl[@]}"; do
       ;;
     real-time|full)
       # loop_run ${r} "snowflake" "${all_dst}"
-      loop_run ${r} "${cdc_src}" "snowflake" 
+      loop_run ${r} "${all_cdc}" "snowflake" 
       ;;
   esac
 done

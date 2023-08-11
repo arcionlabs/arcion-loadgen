@@ -43,14 +43,14 @@ realtime:
     catalog: ${SRCDB_DB}
     schema:  ${SRCDB_SCHEMA}
     detect-ddl-interval: 100  
-    enable: true                 
+    enable: false             
     ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
     enable: true
     catalog: ${SRCDB_DB}
     schema:  ${SRCDB_SCHEMA}
-    table-name : REPLICATE_IO_CDC_HEARTBEAT
+    table-name : replicate_io_cdc_heartbeat
 
 
 delta-snapshot:
