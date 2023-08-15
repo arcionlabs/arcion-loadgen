@@ -94,14 +94,22 @@ args_repl=""
 
 parse_params "$@"
 
-all_cdc="ase db2 informix mariadb mysql oraee oraxe pg sqlserver"
-all_src="ase cockroach db2 informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql"
-all_dst="cockroach informix kafka mariadb minio mysql null oraee pg redis s2 sqledge sqlserver yugabytesql"
+dock_cdc=(ase db2 informix mariadb mysql oraee oraxe pg sqlserver)
+dock_src=(ase cockroach db2 informix mariadb mysql oraee oraxe pg s2 sqledge sqlserver yugabytesql)
+dock_dst=(cockroach informix kafka mariadb minio mysql null oraee pg redis s2 sqledge sqlserver yugabytesql) # ase db2
+
+snow_cdc=(snowflake)
+snow_src=(snowflake)
+snow_dst=(snowflake)
+
+gcp_cdc=(gcsa gcsm gcsp)
+gcp_src=(gbq gcsa gcsm gcsp)
+gcp_dst=(gbq gcs gcsa gcsm gcsp)
 
 sfs=("-s 1 -w 1200:300")  # -s scale -w wait 1200 snap 500 real-time
 threads=("-b 1:1 -c 1:1 -r 0")    # -b snap ext thread 1 applier 1 -c real-time ext thread 1 applier 1 -r workload tps max
-src=${args_src:-${all_src}}  # source
-dst=${args_dst:-${all_dst}}
+src=${args_src:-${dock_src}}  # source
+dst=${args_dst:-${dock_dst}}
 repl=${args_repl:-"snapshot real-time full"} # replication types
 
 # change to array
@@ -113,12 +121,12 @@ for r in "${repl[@]}"; do
   echo $r
   case ${r} in
     snapshot)
-      loop_run ${r} "snowflake" "${all_dst}"
-      loop_run ${r} "${all_src}" "snowflake" 
+      loop_run ${r} "snowflake" "${dock_dst}"
+      loop_run ${r} "${dock_src}" "snowflake" 
       ;;
     real-time|full)
-      # loop_run ${r} "snowflake" "${all_dst}"
-      loop_run ${r} "${all_cdc}" "snowflake" 
+      # loop_run ${r} "snowflake" "${dock_dst}"
+      loop_run ${r} "${dock_cdc}" "snowflake" 
       ;;
   esac
 done
