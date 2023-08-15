@@ -8,7 +8,7 @@ else
     . $CFGDIR/ini_menu.sh
 fi
 
-if [ -z "$PAUSE_SECONDS" ]; then export PAUSE_SECONDS=5; fi
+if [ -z "$PAUSE_SECONDS" ]; then export PAUSE_SECONDS=1; fi
 
 files=(src.yaml \
     dst.yaml \
@@ -25,8 +25,6 @@ files=(src.yaml \
 
 echo $CFG_DIR looking for ${files[*]}
 pushd $CFG_DIR >/dev/null
-
-export PAUSE_SECONDS=1
 
 for pattern in "${files[@]}"; do
     # case insensitive name
@@ -46,5 +44,8 @@ for pattern in "${files[@]}"; do
         read -t $PAUSE_SECONDS -s -p "Waiting for $PAUSE_SECONDS seconds or press key to continue."
     done
 done
-echo ""
+clear
+figlet -tc "${REPL_TYPE^^}"
+figlet -tc "${SRCDB_TYPE^^}"
+figlet -tc "${DSTDB_TYPE^^}"
 popd >/dev/null

@@ -19,6 +19,7 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/nine_char_id.sh
 . $PROG_DIR/lib/prep_arcion_log.sh
 . $PROG_DIR/lib/prep_arcion_lic.sh
+. $PROG_DIR/bin/run_arcion.sh
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
@@ -230,21 +231,21 @@ if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arc
 # run the replication
 case ${REPL_TYPE,,} in
   full)
-    arcion_full
+    run_arcion #_full
     tmux_show_tpcc
     tmux_show_ycsb
     count_cdclog &
     ;;
   snapshot)
-    arcion_snapshot
+    run_arcion #_snapshot
     ;;
   delta-snapshot)
-    arcion_delta
+    run_arcion #_delta
     tmux_show_tpcc
     tmux_show_ycsb
     ;;
   real-time)
-    arcion_real
+    run_arcion #arcion_real
     tmux_show_tpcc
     tmux_show_ycsb
     count_cdclog &
