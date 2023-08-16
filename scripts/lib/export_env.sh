@@ -119,6 +119,7 @@ export ORA_LOG_PATH="${ORA_LOG_PATH}"
 export ORA_ARCH_LOG_PATH="${ORA_ARCH_LOG_PATH}"
 export ORA_ALT_LOG_PATH="${ORA_ALT_LOG_PATH}"
 export ORA_ALT_ARCH_LOG_PATH="${ORA_ALT_ARCH_LOG_PATH}"
+export arcion_filters="${arcion_filters}"
 EOF
 cp $TMPINI $CFGINI/.
 }

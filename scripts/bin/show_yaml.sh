@@ -46,6 +46,6 @@ for pattern in "${files[@]}"; do
 done
 clear
 figlet -tc "${REPL_TYPE^^}"
-figlet -tc "${SRCDB_TYPE^^}"
-figlet -tc "${DSTDB_TYPE^^}"
+figlet -tc "${SRCDB_TYPE^^} -> ${DSTDB_TYPE^^}"
+figlet -tc "${arcion_filters}"
 popd >/dev/null
