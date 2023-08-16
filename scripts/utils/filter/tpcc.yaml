@@ -1,0 +1,23 @@
+allow:
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    history:
+    new_order:
+    order_line:
+    oorder:
+    customer:
+    district:
+    stock:
+    item:
+    warehouse:
+    HISTORY:
+    NEW_ORDER:
+    ORDER_LINE:
+    OORDER:
+    CUSTOMER:
+    DISTRICT:
+    STOCK:
+    ITEM:
+    WAREHOUSE:    

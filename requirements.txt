@@ -1,4 +1,6 @@
 yq
+json
+jsonmerge
 virtualenv
 libtmux
 pyyaml
