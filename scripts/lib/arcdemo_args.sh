@@ -12,6 +12,7 @@ export default_workload_size_factor_bb=1
 export default_workload_modules_bb="tpcc"
 export default_gui_run=0
 export default_database_maps="arcsrc:arcdst"
+export default_arcion_filters="theycsb,tpcc"
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
@@ -41,6 +42,7 @@ if [[ ${workload_size_factor} = "1" ]]; then
 else
   export workload_size_factor_str=${workload_size_factor} 
 fi
+export arcion_filters="${arcion_filters:-$default_arcion_filters}"
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"

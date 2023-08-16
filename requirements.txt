@@ -1,5 +1,4 @@
 yq
-json
 jsonmerge
 virtualenv
 libtmux

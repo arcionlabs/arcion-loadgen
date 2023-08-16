@@ -220,7 +220,7 @@ COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqs
 
 # python requirements
 COPY --chown=${USERNAME} requirements.txt /home/${USERNAME}/requirements.txt
-RUN pip install -r /home/${USERNAME}/requirements.txt
+RUN pip3 install -r /home/${USERNAME}/requirements.txt
 
 # scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/

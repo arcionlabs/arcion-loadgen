@@ -84,6 +84,27 @@ copy_yaml() {
         popd >/dev/null
     fi
 
+    # create the filter
+    local FILTER_ARRAY
+    local FILTER_FILES
+    local filename
+    local filterspec
+    readarray -d',' -t FILTER_ARRAY < <(printf '%s' "${arcion_filters}")
+    for filterspec in ${FILTER_ARRAY[@]}; do
+        filename="${SCRIPTS_DIR}/utils/arcion/filter/${filterspec}.yaml"
+        if [ -f "${filename}" ]; then
+            FILTER_FILES="${FILTER_FILES} ${filename}"
+        else
+            echo "$filterspec not found in ${SCRIPTS_DIR}/utils/arcion/filter dir" >&2
+            exit 1
+        fi
+    done
+    if [ -n "${FILTER_FILES}" ]; then 
+        $SCRIPTS_DIR/lib/merge_yaml.py ${FILTER_FILES} > $CFG_DIR/filter.yaml
+        heredoc_file ${CFG_DIR}/filter.yaml > $CFG_DIR/src_filter.yaml
+    fi
+
+    # done
     echo "Config at $CFG_DIR"
 }
 
