@@ -46,7 +46,7 @@ export arcion_filters="${arcion_filters:-$default_arcion_filters}"
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"
-export workload_timer_bb="${workload_timer:-$default_workload_timer}"
+export workload_timer_bb="${workload_timer:-$default_fullcdc_timer}"
 export workload_size_factor_bb="${workload_size_factor:-$default_workload_size_factor_bb}"
 export workload_modules_bb="${workload_modules_bb:-$default_workload_modules_bb}"
 
@@ -126,7 +126,7 @@ function arcdemo_opts() {
   [ "${workload_rate_bb}" = "0" ] && workload_rate_bb="unlimited"   # 'unlimited' or 'disabled'
 
   # set TIMER for benchbase adjusting to unlimited
-  if [ "${workload_timer}" = "0" ]; then
+  if [ "${workload_timer_bb}" = "0" ]; then
     workload_timer_bb=$((24*60*60))
     echo "bb: limiting run time to ${workload_timer_bb} secods ie:24 hours" >&2
   fi
