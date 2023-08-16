@@ -193,9 +193,9 @@ get_replication_mode() {
 write_csv() {
    # normalize to run_id arcion_version source target replication_mode size_factor ext_snap_threads ext_real_threads ext_delta_threads app_snap_threads app_real_threads app_delta_threads
    if [[ ${#run_id_array[@]} == 5 ]]; then
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} ${workload_rate} ${workload_modules_bb} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    else
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[@]} ${workload_rate} ${workload_modules_bb} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[@]} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    fi
 }
 
@@ -217,7 +217,10 @@ report_name() {
    if [ ! -f "$CFG_DIR/ini_menu.sh" ]; then 
          echo "${f}: ${CFG_DIR}/ini_menu.sh not found. skipping" >&2
    fi
-   eval $(cat "${CFG_DIR}/ini_menu.sh" | grep -e "export workload_modules_bb" -e "^export workload_rate=")
+   eval $(cat "${CFG_DIR}/ini_menu.sh" | grep -e "^export arcion_filters=" -e "^export workload_modules_bb=" -e "^export workload_rate=")
+   if [ -z "${arcion_filters}" ]; then arcion_filters="mixed"; fi
+   if [ -z "${workload_modules_bb}" ]; then arcion_filters="mixed"; fi
+   if [ -z "${workload_rate}" ]; then workload_rate="unknown"; fi
 
    readarray -d '-' -t run_id_array < <(printf '%s' "$f") # does not have new line at the end
    local run_id=${run_id_array[0]}
