@@ -115,7 +115,7 @@ EOF
 
 (return 0 2>/dev/null) && sourced=1 || sourced=0
 
-if (( sourced==0)); then 
+if (( sourced == 0)); then 
     # get the setting from the menu
     if [ -n "${CFG_DIR}" ] && [ -f "${CFG_DIR}/ini_menu.sh" ]; then
         echo "sourcing . ${CFG_DIR}/ini_menu.sh"

@@ -14,18 +14,24 @@ export RECFILE=/tmp/${FILENAME}.asciicast
 
 # clear screen
 tmux send-keys -t arcion:0.3  C-c
+sleep 1
 tmux send-keys -t arcion:0.3 'clear' Enter
 
 tmux send-keys -t arcion:0.2  C-c
+sleep 1
 tmux send-keys -t arcion:0.2 'clear' Enter
 
 tmux send-keys -t arcion:0.1  C-c
+sleep 1
 tmux send-keys -t arcion:0.1 'clear' Enter
 
 tmux send-keys -t arcion:0.0  C-c
+sleep 1
 tmux send-keys -t arcion:0.0 'clear' Enter
+sleep 1
 
 tmux select-pane -t arcion:0.0
+sleep 1
 
 # generate asciinema
 recdemo.expect "${@}"
