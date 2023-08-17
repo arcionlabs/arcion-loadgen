@@ -111,7 +111,7 @@ ycsb_load() {
     -p jdbc.ycsbkeyprefix=false \
     -p fieldnameprefix="FIELD" \
     -p insertorder=ordered \
-    -p fieldcount=0 2>&1 | tee $CFG_DIR/ycsb-load.log
+    -p fieldcount=${ycsb_fieldcount} 2>&1 | tee $CFG_DIR/ycsb-load.log
 }
 
 # $1 = src|dst
@@ -137,7 +137,7 @@ ycsb_load_sf() {
     local -n ycsb_load_sf_db_tabs=${2}
   fi
 
-  if [ -z "${ycsb_table}" ]; then exit 1; fi
+  if [ -z "${ycsb_table}" ]; then echo "\$ycsb_table not defined."; exit 1; fi
 
   # create table def if not found
   # wahtis :$
@@ -164,16 +164,30 @@ ycsb_load_sf() {
   fi
 }
 
+
 function ycsb_load_src() { 
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
-  ycsb_load_sf src
+
+  echo "ycsb_load_src: Loading ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module
+    echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+    ycsb_load_sf src
+  done
 }
+
 
 function ycsb_load_dst() {   
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
-  ycsb_load_sf dst
+
+  echo "ycsb_load_dst: Loading ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module
+    echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+    ycsb_load_sf dst
+  done
 }
 
 
@@ -236,6 +250,20 @@ ycsb_run() {
 
   # save the PID  
   export YCSB_RUN_PID="$!"
+}
+
+function ycsb_run_src() {
+  ycsb_opts "$@"
+  ycsb_src_dst_param "src"
+
+  echo "ycsb_run_src: Running ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module  
+    echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+
+    ycsb_run "src"
+  done 
+
   # wait for job to finish, expire, or killed by ctl-c
   trap kill_jobs SIGINT
   echo "ycsb waiting ${ycsb_timer}"
@@ -244,14 +272,22 @@ ycsb_run() {
   kill_jobs
 }
 
-function ycsb_run_src() {
-  ycsb_opts "$@"
-  ycsb_src_dst_param "src"
-  ycsb_run "src" 
-}
-
 function ycsb_run_dst() {
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
-  ycsb_run "dst"
+
+  echo "ycsb_run_dst: Running ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module  
+    echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+
+    ycsb_run "dst"
+  done
+
+  # wait for job to finish, expire, or killed by ctl-c
+  trap kill_jobs SIGINT
+  echo "ycsb waiting ${ycsb_timer}"
+  wait_jobs "${ycsb_timer}"
+  echo "ycsb waiting ${ycsb_timer} done"
+  kill_jobs  
 }

@@ -12,7 +12,7 @@ export default_workload_size_factor_bb=1
 export default_workload_modules_bb="tpcc"
 export default_gui_run=0
 export default_database_maps="arcsrc:arcdst"
-export default_arcion_filters="theycsb,tpcc"
+export default_arcion_filters="ycsbsparse,tpcc"
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
