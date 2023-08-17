@@ -195,7 +195,11 @@ write_csv() {
    if [[ ${#run_id_array[@]} == 5 ]]; then
       echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:1} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
    else
-      echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[@]} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      if [ -z "${run_id_array[1]}" ]; then
+         echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[0]} ${arcion_version} ${run_id_array[@]:2} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      else
+         echo "${f} ${elapsed_time} ${error_trace_log_cnt} ${earlyexit_rows} ${run_id_array[@]} ${workload_rate} ${workload_modules_bb} ${arcion_filters} $(get_extractor_applier_threads $CFG_DIR)" | tr '-' '_'
+      fi
    fi
 }
 
