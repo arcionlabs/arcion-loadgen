@@ -54,20 +54,19 @@ arcion_param() {
 
 logreader_path() {
     # amd64 or arm64 
-    JAVA_HOME=$( find /usr/lib/jvm/java-8-openjdk-*/jre -maxdepth 0)
+    export JAVA_HOME=$( find /usr/lib/jvm/java-8-openjdk-*/jre -maxdepth 0)
 
-    case "${SRCDB_GRP,,}" in
-        db2)
-            PATH="/home/arcion/sqllib/bin:$PATH"
-            . ~/sqllib/db2profile
-            JAVA_OPTS="-Djava.library.path=lib"        
-            ;;
-        oracle)
-            ORACLE_HOME=/opt/oracle
-            LD_LIBRARY_PATH="$ORACLE_HOME/lib":$LD_LIBRARY_PATH
-            PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin:$PATH"    
-            ;;
-    esac
+    if [ "${SRCDB_GRP,,}" = "db2" ]; then
+        PATH="/home/arcion/sqllib/bin:$PATH"
+        . ~/sqllib/db2profile
+        export JAVA_OPTS="-Djava.library.path=lib"        
+    fi
+
+    if [ "${SRCDB_GRP,,}" = "oracle" ] || [ "${DSTDB_GRP,,}" = "oracle" ]; then
+        export ORACLE_HOME=/opt/oracle
+        export LD_LIBRARY_PATH="$ORACLE_HOME/lib"
+        PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin:$PATH"  
+    fi
 
     case "${SRCDB_TYPE,,}" in
         mysql)
