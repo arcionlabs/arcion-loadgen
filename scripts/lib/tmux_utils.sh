@@ -41,7 +41,7 @@ tmux_create_windows() {
 }
 
 tmux_show_tpcc() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; figlet -t "${workload_modules_bb}"; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; figlet -t "benchbase"; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
 
 tmux_show_ycsb() {

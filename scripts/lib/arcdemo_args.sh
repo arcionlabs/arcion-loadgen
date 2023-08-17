@@ -9,10 +9,10 @@ export default_workload_timer=600
 export default_fullcdc_timer=300
 export default_workload_size_factor=1
 export default_workload_size_factor_bb=1
-export default_workload_modules_bb="tpcc"
+export default_workload_modules_bb="ycsbsparse,tpcc"
 export default_gui_run=0
 export default_database_maps="arcsrc:arcdst"
-export default_arcion_filters="ycsbsparse,tpcc"
+export default_arcion_filters=""
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
@@ -82,7 +82,8 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_uri] [dst_uri]
     -s workload_size_factor=${workload_size_factor}
     -D database_maps=${database_maps}[,source:destination]
     -W workload_modules_bb=${workload_modules_bb}[,module]
-      module=resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb
+      module=ycsbsparse,ycsbdense,
+             resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb
 
 Examples:
     arcdemo.sh snapshot postgresql mysql 

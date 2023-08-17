@@ -87,6 +87,13 @@ bb_create_tables() {
     local workload_prof_header_csv=${WORKLOAD_TABLE_HASH["workload"]}
 
     for w in "${workloads_array[@]}"; do
+
+        # skip unknown modules
+        if [ -z "${WORKLOAD_TABLE_HASH[$w]}" ]; then
+            echo "bb_create_tables: ignoring $w"
+            continue
+        fi  
+
         declare -A workload_prof_dict=()
         csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
         # DEBUG 
@@ -185,6 +192,11 @@ bb_run_tables() {
 
     JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
     for w in "${workloads_array[@]}"; do
+
+        if [ -z "${WORKLOAD_TABLE_HASH[$w]}" ]; then
+            echo "bb_run_tables: ignoring $w"
+            continue
+        fi    
 
         declare -A workload_prof_dict=()
         csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"

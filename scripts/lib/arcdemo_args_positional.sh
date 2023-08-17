@@ -103,6 +103,8 @@ function arcdemo_positional() {
     # grab filters CSV
     if [ -n "$4" ]; then
         export arcion_filters="${4}"
+    else
+        export arcion_filters="${workload_modules_bb}"
     fi
 }
 

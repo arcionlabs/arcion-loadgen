@@ -32,6 +32,9 @@ echo "${SRCDB_SID} ${SRCDB_DB} ${SRCDB_SCHEMA}"
 case "${SRCDB_GRP,,}" in
   ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
     # source in libs
+    if [ -z "${ycsb_modules_csv}" ]; then
+      ycsb_modules_csv=${workload_modules_bb}
+    fi
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_run_src "$@"
     ;;

@@ -111,7 +111,7 @@ ycsb_load() {
     -p jdbc.ycsbkeyprefix=false \
     -p fieldnameprefix="FIELD" \
     -p insertorder=ordered \
-    -p fieldcount=${ycsb_fieldcount} 2>&1 | tee $CFG_DIR/ycsb-load.log
+    -p fieldcount=${ycsb_fieldcount} 2>&1 | tee $CFG_DIR/ycsb-load-${ycsb_module}.log
 }
 
 # $1 = src|dst
@@ -172,8 +172,11 @@ function ycsb_load_src() {
   echo "ycsb_load_src: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module
-    echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
-    ycsb_load_sf src
+
+    if (( $? == 0 )); then 
+      echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+      ycsb_load_sf src
+    fi
   done
 }
 
@@ -185,8 +188,11 @@ function ycsb_load_dst() {
   echo "ycsb_load_dst: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module
-    echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
-    ycsb_load_sf dst
+    
+    if (( $? == 0 )); then 
+      echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+      ycsb_load_sf dst
+    fi
   done
 }
 
@@ -246,7 +252,7 @@ ycsb_run() {
   -p zeropadding=${const_ycsb_zeropadding} \
   -p jdbc.ycsbkeyprefix=false \
   -p fieldnameprefix="FIELD" \
-  -p insertorder=ordered 2>&1 | tee $CFG_DIR/ycsb-run.log &
+  -p insertorder=ordered 2>&1 | tee $CFG_DIR/ycsb-run-${ycsb_module}.log &
 
   # save the PID  
   export YCSB_RUN_PID="$!"
@@ -259,9 +265,11 @@ function ycsb_run_src() {
   echo "ycsb_run_src: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
-    echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
-
-    ycsb_run "src"
+ 
+    if (( $? == 0 )); then 
+      echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+      ycsb_run "src"
+    fi
   done 
 
   # wait for job to finish, expire, or killed by ctl-c
@@ -279,9 +287,11 @@ function ycsb_run_dst() {
   echo "ycsb_run_dst: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
-    echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
 
-    ycsb_run "dst"
+    if (( $? == 0 )); then 
+      echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+      ycsb_run "dst"
+    fi
   done
 
   # wait for job to finish, expire, or killed by ctl-c

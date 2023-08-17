@@ -6,7 +6,7 @@ ycsb_usage() {
   echo "ycsb: override on the command line or set
     -B|--batchsize ycsbbatchsize=${default_ycsb_batchsize}
     -L|--loc=${default_ycsb_loc}
-    -M|--modules=${default_ycsb_modules_csv}
+    -W|--workloads=${default_ycsb_modules_csv}
     -r ycsb_rate=${default_ycsb_rate}
     -s ycsb_size_factor=${default_ycsb_size_factor}
     -t ycsb_threads=${default_ycsb_threads}
@@ -40,7 +40,7 @@ function ycsb_opts() {
       -L|--loc) 
         args_ycsb_loc="$1"; shift; ((params_processed++))
         ;;        
-      -M|--modules) 
+      -W|--workloads) 
         args_ycsb_modules_csv="$1"; shift; ((params_processed++))
         ;;        
       -r) 
@@ -117,16 +117,19 @@ set_ycsb_table_name() {
   export ycsb_table=${default_ycsb_table_dict[$1]}
   export ycsb_fieldcount=${default_ycsb_fieldcount_dict[$1]}
   
-  case "${db_case_senstivity,,}" in
+  case "${SRCDB_CASE,,}" in
     upper)
       ycsb_table=${ycsb_table^^}
       ;;
     lower)
       ycsb_table=${ycsb_table,,}
       ;;
-    *)
-      ycsb_table=${ycsb_table,,}
-      ;;
   esac
+
+  if [ -n "${ycsb_table}" ] && [ -n "${ycsb_fieldcount}" ]; then
+    return 0
+  else
+    return 1
+  fi 
 }
 
