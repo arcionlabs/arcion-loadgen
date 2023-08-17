@@ -1,0 +1,16 @@
+allow:
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    v_votes_by_phone_number:
+    v_votes_by_contestant_number_state:
+    votes:
+    area_code_state:
+    contestants:
+    V_VOTES_BY_PHONE_NUMBER:
+    V_VOTES_BY_CONTESTANT_NUMBER_STATE:
+    VOTES:
+    AREA_CODE_STATE:
+    CONTESTANTS:
+

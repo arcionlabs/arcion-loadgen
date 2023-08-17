@@ -1,0 +1,15 @@
+allow:
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    followers:
+    follows:
+    tweets:
+    added_tweets:
+    user_profiles:  
+    FOLLOWERS:
+    FOLLOWS:
+    TWEETS:
+    ADDED_TWEETS:
+    USER_PROFILES:     
