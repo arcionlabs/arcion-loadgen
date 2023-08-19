@@ -1,0 +1,7 @@
+realtime:
+  # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
+  heartbeat:
+    enable: true
+    catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}
+    table-name : REPLICATE_IO_CDC_HEARTBEAT

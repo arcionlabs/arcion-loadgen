@@ -1,7 +1,0 @@
-allow:
-- catalog: ${SRCDB_DB}
-  schema: ${SRCDB_SCHEMA}
-  types: [TABLE]
-  allow:
-    theusertable${workload_size_factor_str}:
-    THEUSERTABLE${workload_size_factor_str}:

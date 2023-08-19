@@ -1,0 +1,5 @@
+snapshot:
+  threads: ${SRCDB_SNAPSHOT_THREADS}
+  _fetch-exact-row-count: false  
+  _traceDBTasks: true
+  fetch-user-roles: false

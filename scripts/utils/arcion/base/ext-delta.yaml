@@ -1,0 +1,5 @@
+delta-snapshot:
+  threads: ${SRCDB_DELTA_SNAPSHOT_THREADS}
+  _traceDBTasks: true
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10 
