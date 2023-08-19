@@ -1,0 +1,13 @@
+realtime:
+  per-table-config:
+  - catalog: ${SRCDB_DB}
+    schema: ${SRCDB_SCHEMA}   
+    tables:
+      THEUSERTABLE${workload_size_factor_str}:
+        split-key: YCSB_KEY
+        split-method: RANGE
+        extraction-priority: -1 
+      theusertable${workload_size_factor_str}:
+        split-key: ycsb_key
+        split-method: RANGE
+        extraction-priority: -1         
