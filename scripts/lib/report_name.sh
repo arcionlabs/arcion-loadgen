@@ -36,6 +36,9 @@ trace_to_yaml( ) {
    EXT_SNAP_MIN_JOB_SIZE_ROWS=${EXT_SNAP_MIN_JOB_SIZE_ROWS:-0}
 
    # ext realtime
+   cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."threads" // ""')
+
+
    export EXT_REAL_THREADS=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."threads" // ""')
    [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
    EXT_REAL_THREADS=${EXT_REAL_THREADS:-0}
@@ -44,9 +47,14 @@ trace_to_yaml( ) {
    [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
    EXT_REAL_FETCH_SIZE_ROWS=${EXT_REAL_FETCH_SIZE_ROWS:-0}
 
-   export EXT_REAL_THREADS=0
+   export EXT_REAL_DDL=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."ddl-replication"."enable" // "false"')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
+   EXT_REAL_DDL=${EXT_REAL_DDL:-false}
 
-   
+   export EXT_REAL_HEARTBEAT=$(cat ${LOG_DIR}/yaml/ext_realtime.yaml | yq -r '."heartbeat"."enable" // "false"')
+   [ $? != "0" ] && echo "${LOG_DIR}/yaml/ext_realtime.yaml has invalid YAML" >&2
+   EXT_REAL_HEARTBEAT=${EXT_REAL_HEARTBEAT:-false}
+
    # applier snapshot
    export APP_SNAP_THREADS=$(cat ${LOG_DIR}/yaml/app_snap.yaml | yq -r '."threads" // ""')
    [ $? != "0" ] && echo "${LOG_DIR}/yaml/app_snap.yaml has invalid YAML" >&2
