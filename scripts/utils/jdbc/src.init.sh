@@ -20,6 +20,9 @@ fi
 # lower case it as Oracle will have it as upper case
 sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
+# remove "c## if oracle"
+db_schema=$(echo ${db_schema} | sed 's/^C##//')
+# lowercase for comparison
 db_schema_lower=${db_schema,,}
 
 echo "Existing Database Table count looking for ${db_schema_lower}"
@@ -37,7 +40,7 @@ else
 fi
 
 # run if table needs to be created
-if [ "${db_schema_lower}" = "${SRCDB_DB}" ]; then
+if [ "${db_schema_lower}" = "arcsrc" ]; then
   echo "src db ${SRCDB_DB}: ${db_schema_lower} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
@@ -45,11 +48,11 @@ if [ "${db_schema_lower}" = "${SRCDB_DB}" ]; then
   done
 
 else
-  echo "src db ${SRCDB_DB} ${db_schema_lower} skipping user setup"
+  echo "src db arcsrc ${db_schema_lower} skipping user setup"
 fi
 
 # setup workloads
-if [ "${db_schema_lower}" = "${SRCDB_DB}" ]; then
+if [ "${db_schema_lower}" = "arcsrc" ]; then
   echo "src db ${SRCDB_DB}: benchbase setup"
   # benchbase data population
   ${SCRIPTS_DIR}/bin/benchbase-load.sh
@@ -59,5 +62,5 @@ if [ "${db_schema_lower}" = "${SRCDB_DB}" ]; then
   ycsb_load_src
 
 else
-  echo "src db ${SRCDB_DB} != ${db_schema_lower} skipping workload setup"
+  echo "src db arcsrc != ${db_schema_lower} skipping workload setup"
 fi

@@ -86,10 +86,9 @@ copy_yaml() {
 
     # create the filter
     $SCRIPTS_DIR/lib/merge_arcion_yaml.py merge \
+        --basedir $SCRIPTS_DIR/arcion/filter \
         $(echo ${arcion_filters} | tr ',' ' ' )\
         > $CFG_DIR/src_filter.yaml
-
-    exit
     
     # done
     echo "Config at $CFG_DIR"

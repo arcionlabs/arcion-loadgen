@@ -1,12 +1,11 @@
-type: SYBASE_ASE
+type: {{'DSTDB_ARCION'|getenv('SYBASE_ASE')}
 
-host: '${DSTDB_HOST}'
-port: 5000
+host: '{{'DSTDB_HOST'|getenv('')}}'
+port: '{{'DSTDB_PORT'|getenv('5000')}}'
 
-username: '${DSTDB_ARC_USER}'
-password: '${DSTDB_ARC_PW}'
-database: '${DSTDB_ARC_USER}'
+username: '{{'DSTDB_ARC_USER'|getenv('')}}'
+password: '{{'DSTDB_ARC_PW'|getenv('')}}'
+database: '{{'DSTDB_ARC_USER'|getenv('')}}'
 
 max-connections: 5
-
 max-retries: 1

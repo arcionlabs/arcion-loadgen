@@ -114,10 +114,11 @@ def heredocFile(filename:str, echo:bool) -> subprocess.CompletedProcess:
     path = Path(filename)
     return(heredocPath(path,echo))
 
-def mergeYamls(basedir:str, echo:bool, yamls:list[str]) -> str:
+def mergeYamls(basedir:str, echo:bool, yamls:list[str], suffix=".yaml") -> str:
     """Merge Arcion bash heredoc template YAML files"""
     FILTER_FILES=[]
     for filterspec in yamls:
+        filterspec+=suffix
         filename=Path(expandvars(basedir)).joinpath(expandvars(f"{filterspec}"))
         logging.info(filename)
         if filename.is_file():
@@ -128,12 +129,13 @@ def mergeYamls(basedir:str, echo:bool, yamls:list[str]) -> str:
     if FILTER_FILES: 
         mergeFromFiles(FILTER_FILES,echo=echo)
 
-@click.command("any")
+@click.command("merge")
 @click.option('--basedir',default=".",show_default=True)
+@click.option('--suffix',default=".yaml",show_default=True)
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
 @click.argument('yamls',nargs=-1)
-def mergeAny(basedir:str,echo:bool,yamls:list[str]):
-    mergeYamls(basedir,echo,yamls)
+def mergeAny(basedir:str,suffix:str,echo:bool,yamls:list[str]):
+    mergeYamls(basedir,echo,yamls,suffix=suffix)
 
 @click.command("extractor")
 @click.option('--basedir',default=".",show_default=True)

@@ -1,4 +1,4 @@
-pydnatic
+pydantic
 universal_pathlib
 expandvars
 requests
@@ -12,6 +12,8 @@ psutil
 Jinja2
 jinja2-cli
 jinja2_getenv_extension
+click
+Pygments
 # CDC load generator in lieu of Python JDBC Bridge
 # JayDeBeApi
 # failing on buildx

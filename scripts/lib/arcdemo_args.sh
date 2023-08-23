@@ -13,6 +13,8 @@ export default_workload_modules_bb="tpcc,ycsb,ycsbsparse"
 export default_gui_run=0
 export default_database_maps="arcsrc:arcdst"
 export default_arcion_filters=""
+export default_srcdb_id="arcsrc"
+export default_dstdb_id="arcdst"
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
