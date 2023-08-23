@@ -43,9 +43,13 @@ exit_message() {
 }
 
 count_cdclog() {
+  local EARLYEXIT_OPT=${EARLYEXIT_OPT}
   case ${SRCDB_GRP,,} in
+  oracle)
+    EARLYEXIT_OPT="-v maxrealstalls=300 $EARLYEXIT_OPT"
+    ;;
   snowflake)
-    EARLYEXIT_OPT="-v maxrealstalls=300 -v maxemptystalls=300"
+    EARLYEXIT_OPT="-v maxrealstalls=300 -v maxemptystalls=300 $EARLYEXIT_OPT"
     ;;
   esac
 

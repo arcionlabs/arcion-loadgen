@@ -11,7 +11,9 @@ snapshot:
 # DB capable of real-time.  Take default options except the CPUs
 realtime:
   threads: ${SRCDB_REALTIME_THREADS}
-  _traceDBTasks: true
+#  _traceDBTasks: true
+#  start-position:
+#    start-scn: 13774864  
   heartbeat:
     enable: true
     catalog: ${SRCDB_DB} 
