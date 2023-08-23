@@ -1,0 +1,2 @@
+snapshot:
+  extraction-method: QUERY # {BCP|QUERY}

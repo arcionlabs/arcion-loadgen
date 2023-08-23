@@ -1,0 +1,6 @@
+realtime:
+  threads: {{'DSTDB_REALTIME_THREADS'|getenv('')}}
+  skip-tables-on-failures : true
+  _traceDBTasks: true
+  user-role:
+    init-user-roles: false  

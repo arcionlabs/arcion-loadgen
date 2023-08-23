@@ -1,0 +1,13 @@
+snapshot:
+  per-table-config:
+  - catalog: {{'DSTDB_DB'|getenv('')}}
+    schema: {{'DSTDB_SCHEMA'|getenv('')}}
+    tables:
+      USERTABLE{{'workload_size_factor_str'|getenv('')}}:
+        {%- if 'DSTDB_TYPE'|getenv('') == 's2' -%}
+        table-store: column
+        {% endif %}
+      usertable{{'workload_size_factor_str'|getenv('')}}:
+        {%- if 'DSTDB_TYPE'|getenv('') == 's2' -%}
+        table-store: column
+        {% endif %}

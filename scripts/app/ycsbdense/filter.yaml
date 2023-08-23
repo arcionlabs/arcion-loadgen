@@ -1,0 +1,7 @@
+allow:
+- catalog: {{'SRCDB_DB'|getenv('')}}
+  schema: {{'SRCDB_SCHEMA'|getenv('')}}
+  types: [TABLE]
+  allow:
+    DENSETABLE{{'workload_size_factor_str'|getenv('')}}:
+    densetable{{'workload_size_factor_str'|getenv('')}}:

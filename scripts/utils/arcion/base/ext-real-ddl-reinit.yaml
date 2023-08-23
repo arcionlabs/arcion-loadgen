@@ -1,8 +1,0 @@
-realtime:
-  # enable DDL replication
-  ddl-replication:
-    catalog: ${SRCDB_DB}
-    schema: ${SRCDB_SCHEMA}
-    detect-ddl-interval: 100  
-    enable: true                 
-    ddl-replication-mode: REINIT # Default is REINIT mode. [REINIT|INLINE]

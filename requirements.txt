@@ -1,12 +1,17 @@
+pydnatic
+universal_pathlib
+expandvars
+requests
+aiohttp
 yq
 jsonmerge
 virtualenv
 libtmux
 pyyaml
 psutil
-omegaconf
-hydra-core
-streamlit
+Jinja2
+jinja2-cli
+jinja2_getenv_extension
 # CDC load generator in lieu of Python JDBC Bridge
 # JayDeBeApi
 # failing on buildx
