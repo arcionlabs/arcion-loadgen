@@ -37,9 +37,11 @@ ping_db () {
     fi
 
     # YB role
+    # Sqledge Login failed for user
     # CR password
     if [ -n "$( grep \
       -e 'role .* does not exist' \
+      -e ' Login failed for user' \
       -e 'password authentication failed for user' \
       /tmp/ping_utils.err.$$ )" ]; then
         rc=0

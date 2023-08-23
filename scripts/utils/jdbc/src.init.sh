@@ -2,6 +2,7 @@
 
 . $SCRIPTS_DIR/lib/ycsb_jdbc.sh
 . $SCRIPTS_DIR/lib/ping_utils.sh
+. $SCRIPTS_DIR/lib/jdbc_cli.sh
 
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"

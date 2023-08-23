@@ -1,14 +1,16 @@
-type: {{'SRCDB_ARCION'|getenv('SYBASE_ASE')}}
+type: SYBASE_ASE
 
-host: '{{'SRCDB_HOST'|getenv('')}}'
-port: {{'SRCDB_PORT'|getenv('5000')}}
+host: '${SRCDB_HOST}'
+port: 5000
 
-username: '{{'SRCDB_ARC_USER'|getenv('')}}'
-password: '{{'SRCDB_ARC_PW'|getenv('')}}'
-database: '{{'SRCDB_ARC_USER'|getenv('')}}'
+username: '${SRCDB_ARC_USER}'
+password: '${SRCDB_ARC_PW}'
+database: '${SRCDB_ARC_USER}'
 
-transaction-store-location: {{'CFG_DIR'|getenv('')}}/stage 
+transaction-store-location: ${CFG_DIR}/stage 
+
 max-connections: 5
+
 max-retries: 1
 
 
