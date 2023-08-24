@@ -64,7 +64,7 @@ logreader_path() {
 
     if [ "${SRCDB_GRP,,}" = "oracle" ] || [ "${DSTDB_GRP,,}" = "oracle" ]; then
         export ORACLE_HOME=/opt/oracle
-        export LD_LIBRARY_PATH="$ORACLE_HOME/lib"
+        export LD_LIBRARY_PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin"
         PATH="$ORACLE_HOME/lib:$ORACLE_HOME/bin:$PATH"  
     fi
 

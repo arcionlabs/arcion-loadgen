@@ -85,6 +85,7 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \
 # RUN apt-get install -y sysbench
 
 # add ttyd for running terminal commands
+# libaio1 for Oracle
 RUN apt-get update && apt-get install -y \
     tmux \
     figlet \
@@ -102,7 +103,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     groff \
     bindfs \
-    tcpdump
+    tcpdump \
+    libaio1
 
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd

@@ -114,7 +114,7 @@ def heredocFile(filename:str, echo:bool) -> subprocess.CompletedProcess:
     path = Path(filename)
     return(heredocPath(path,echo))
 
-def mergeYamls(basedir:str, echo:bool, yamls:list[str], suffix=".yaml") -> str:
+def mergeYamls(yamls:list[str], basedir:str="", echo:bool=True, suffix=".yaml") -> str:
     """Merge Arcion bash heredoc template YAML files"""
     FILTER_FILES=[]
     for filterspec in yamls:
@@ -129,15 +129,27 @@ def mergeYamls(basedir:str, echo:bool, yamls:list[str], suffix=".yaml") -> str:
     if FILTER_FILES: 
         mergeFromFiles(FILTER_FILES,echo=echo)
 
-@click.command("merge")
+@click.command("filter")
 @click.option('--basedir',default=".",show_default=True)
 @click.option('--suffix',default=".yaml",show_default=True)
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
 @click.argument('yamls',nargs=-1)
-def mergeAny(basedir:str,suffix:str,echo:bool,yamls:list[str]):
-    mergeYamls(basedir,echo,yamls,suffix=suffix)
+def mergeFilter(basedir:str,suffix:str,echo:bool,yamls:list[str]):
+    mergeYamls(yamls,basedir=basedir,echo=echo,suffix=suffix)
 
-@click.command("extractor")
+@click.command("app")
+@click.option('--basedir',default=".",show_default=True)
+@click.option('--config',show_default=True,type=click.Choice(['applier', 'extractor']))
+@click.option('--replmode',show_default=True,type=click.Choice(["snapshot","realtime","full","delta-snapshot"]))
+@click.option('--suffix',default=".yaml",show_default=True)
+@click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
+@click.argument('yamls',nargs=-1)
+def mergeAny(basedir:str,config:str, replmode:str, suffix:str,echo:bool,yamls:list[str]):
+    for y in yamls:
+        pass
+    mergeYamls(yamls, echo=echo, basedir="",suffix=suffix )
+
+@click.command("any")
 @click.option('--basedir',default=".",show_default=True)
 @click.option('--basefile',default="extractor.snapshot.yaml",show_default=True)
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
@@ -153,5 +165,6 @@ if __name__ == '__main__':
 
     cli.add_command(heredocFile)
     cli.add_command(mergeAny)
+    cli.add_command(mergeFilter)
     cli.add_command(mergeExtractor)
     cli()
