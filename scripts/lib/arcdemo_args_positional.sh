@@ -188,8 +188,8 @@ function set_default_host_user() {
     done
 
     # incase of multiple names, take the latest
-    if [ -z "${SRCDB_HOST}" ]; then SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src"); fi
-    if [ -z "${DSTDB_HOST}" ]; then DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst"); fi
+    if [ -z "${SRCDB_HOST}" ]; then export SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src"); fi
+    if [ -z "${DSTDB_HOST}" ]; then export DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst"); fi
 
     if [ "$workload_size_factor" = "1" ]; then
         export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}

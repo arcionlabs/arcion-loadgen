@@ -17,14 +17,14 @@ copy_hier_as_flat() {
     [ ! -d "${DST}" ] && mkdir -p ${DST}
     dir=""
     for d in $( echo $SRC |  tr "/" "\n" ); do
-        # DEBUG: echo "*${d}"
+        # DEBUG: echo "${dir}${d}"
         dir="${dir}${d}"
         if [ ! -d "${dir}" ]; then continue; fi
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
             filename=$(basename $f)
             # print info if over writing
             if [ -f $DST/$filename ]; then
-                echo override $f $DST/$filename 
+                echo "override/merge $f -> $DST/$filename"
             fi 
             # perform the actual copy
             local suffix=$( echo $f | awk -F. '{print $NF}' )
@@ -33,7 +33,11 @@ copy_hier_as_flat() {
                 cp ${f} $DST/$filename 
             elif [ "$suffix" = "yaml" ]; then 
                 # DEBUG: echo heredoc_file ${f} \> $DST/$filename
-                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
+                export EPOC_10TH_SEC="$(epoch_10th_sec)"
+                heredoc_file ${f} > $DST/$filename
+                #TMPFILE=$(mktemp)
+                #$SCRIPTS_DIR/lib/merge_arcion_yaml.py files $DST/$filename $f > $TMPFILE
+                #mv $TMPFILE $DST/$filename                 
             else
                 # DEBUG: echo heredoc_file ${f} \> $DST/$filename
                 EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
@@ -60,6 +64,7 @@ copy_yaml() {
     [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
     # copy from template (utils dir)
+    # SRCDB_INIT_DIR is from profile
     pushd ${SCRIPTS_DIR}/utils >/dev/null
     copy_hier_as_flat ${SRCDB_INIT_DIR} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_INIT_DIR} dst $CFG_DIR
@@ -70,9 +75,9 @@ copy_yaml() {
 
     # override template from the src and dst configs into a flat dir
     pushd ${SCRIPTS_DIR} >/dev/null
-    copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
+    copy_hier_as_flat $SRCDB_DIR/init.d src $CFG_DIR
+    copy_hier_as_flat $DSTDB_DIR/init.d dst $CFG_DIR
     copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
-    copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
     popd >/dev/null

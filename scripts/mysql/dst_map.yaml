@@ -1,4 +1,4 @@
 rules:
-  [ $(printf "%s\n" ${DSTDB_DB} ${DSTDB_SCHEMA} | paste -sd,) ]:
+  '[ "$(printf "%s\n" ${DSTDB_DB} ${DSTDB_SCHEMA} | paste -sd,)" ]':
     source:
-    - [ $(printf "%s\n" ${SRCDB_DB} ${SRCDB_SCHEMA} | paste -sd,) ]
+    - '[ "$(printf "%s\n" ${SRCDB_DB} ${SRCDB_SCHEMA} | paste -sd,)" ]'

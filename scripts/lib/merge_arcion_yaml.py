@@ -7,13 +7,20 @@ from upath import UPath as Path
 from expandvars import expandvars
 import jinja2
 import click
-import yaml
+# pyyaml cannot handle the arcion mapper.  
+from ruamel.yaml import YAML
+from ruamel.yaml.main import \
+    round_trip_load as yaml_load, \
+    round_trip_dump as yaml_dump
 import json
 from jsonmerge import Merger
 import subprocess
+import sys
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
+
+ruamel=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
 
 schema = {
     "patternProperties": {
@@ -74,15 +81,20 @@ def mergeFromFiles(filenames:list[Path],target_json:dict={},echo=False) -> str:
         # jinja2 template (new standards)
         # order is important as heredoc strips out quotes
         cp = jjenv.from_string(string)
+        cp = cp.render()
         # bash template (for backward compat)
-        cp = heredocString(cp.render())
+        cp = heredocString(cp)
+        cp=cp.stdout
         # convert to YAML
-        yaml_string=yaml.safe_load(cp.stdout)
+        yaml_string=ruamel.load(cp)
         # merge YAML
-        target_json=merger.merge(target_json, yaml_string)
+        try:
+            target_json=merger.merge(target_json, yaml_string)
+        except:
+            target_json = yaml_string
 
     if echo:
-        print(yaml.dump(target_json,indent=2))    
+        print(yaml_dump(target_json))
     return(target_json)
 
 @click.group()
@@ -90,8 +102,10 @@ def cli():
     pass
 
 def heredocString(string:str,echo:bool=False) -> subprocess.CompletedProcess:
-    """heredoc a string"""
-    cp=subprocess.run(f"""echo -e '#!/usr/bin/env bash\ncat << EOF_EOF_EOF\n{string}\nEOF_EOF_EOF' | bash""",
+    """heredoc a string
+        WARNING: quote is stripped off
+    """
+    cp=subprocess.run(f"""cat <<EOF_EOF_EOF\n{string}\nEOF_EOF_EOF""",
         executable='bash',
         shell=True,
         capture_output=True,
@@ -103,8 +117,15 @@ def heredocString(string:str,echo:bool=False) -> subprocess.CompletedProcess:
 
 def heredocPath(path:Path,echo:bool) -> subprocess.CompletedProcess:
     """read path and run heredoc against it"""
-    string = path.open().read()
-    return(heredocString(string,echo))
+    cp=subprocess.run(f"""cat <(echo "cat<<EOF_EOF_EOF") {path.path} <(echo "EOF_EOF_EOF") | bash""",
+        executable='bash',
+        shell=True,
+        capture_output=True,
+        text=True
+        )
+    if echo:
+        print(cp.stdout)
+    return(cp)
 
 @click.command("hdfile")
 @click.argument('filename')
@@ -124,8 +145,7 @@ def mergeYamls(yamls:list[str], basedir:str="", echo:bool=True, suffix=".yaml") 
         if filename.is_file():
             FILTER_FILES.append(filename)
         else:
-            logging.warning(f"{filterspec} not found in {basedir} dir")
-            return(1)
+            logging.info(f"{filterspec} not found in '{basedir}' dir")
     if FILTER_FILES: 
         mergeFromFiles(FILTER_FILES,echo=echo)
 
@@ -139,32 +159,36 @@ def mergeFilter(basedir:str,suffix:str,echo:bool,yamls:list[str]):
 
 @click.command("app")
 @click.option('--basedir',default=".",show_default=True)
-@click.option('--config',show_default=True,type=click.Choice(['applier', 'extractor']))
-@click.option('--replmode',show_default=True,type=click.Choice(["snapshot","realtime","full","delta-snapshot"]))
+@click.option('--config',type=click.Choice(['applier', 'extractor', 'filter']),show_default=True)
+@click.option('--replmode', type=click.Choice(["snapshot","realtime","full","delta-snapshot"]),show_default=True, required=False)
 @click.option('--suffix',default=".yaml",show_default=True)
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
-@click.argument('yamls',nargs=-1)
-def mergeAny(basedir:str,config:str, replmode:str, suffix:str,echo:bool,yamls:list[str]):
-    for y in yamls:
-        pass
-    mergeYamls(yamls, echo=echo, basedir="",suffix=suffix )
+@click.argument('files',nargs=-1)
+def mergeApp(files:list[str], 
+             basedir:str=None,config:str=None, replmode:str="", suffix:str=None, echo:bool=None):
+    """Merge files based on rules of basedir/config.replmode.yaml"""
+    yamls=[]
+    if replmode:
+        replmode=f".{replmode}"
+    else:
+        replmode=""
+    for y in files:
+        print(y)
+        yamls.append(f"{y}/{config}{replmode}")
+    mergeYamls(yamls, echo=echo, basedir=basedir, suffix=suffix )
 
-@click.command("any")
-@click.option('--basedir',default=".",show_default=True)
-@click.option('--basefile',default="extractor.snapshot.yaml",show_default=True)
+@click.command("files")
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
-@click.argument('dirs',nargs=-1)
-def mergeExtractor(basedir:str,basefile:str,echo:bool,dirs:list[str]):
-    full_dirs:list[str]=[]
-    for d in dirs:
-        full_dirs.append(f'{d}/{basefile}')
-    print(full_dirs)
-    mergeYamls(basedir,echo,full_dirs)
+@click.argument('yamls',nargs=-1)
+def mergeAny(yamls:list[str],
+             echo:bool):
+    """Merge files into a single YAML"""
+    mergeYamls(yamls, echo=echo, basedir="", suffix="" )
 
 if __name__ == '__main__':
 
     cli.add_command(heredocFile)
     cli.add_command(mergeAny)
+    cli.add_command(mergeApp)
     cli.add_command(mergeFilter)
-    cli.add_command(mergeExtractor)
     cli()

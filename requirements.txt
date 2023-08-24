@@ -7,7 +7,7 @@ yq
 jsonmerge
 virtualenv
 libtmux
-pyyaml
+ruamel.yaml
 psutil
 Jinja2
 jinja2-cli
