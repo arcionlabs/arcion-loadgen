@@ -6,9 +6,13 @@
 . ${SCRIPTS_DIR}/lib/ycsb_args.sh
 . ${SCRIPTS_DIR}/lib/ycsb_jdbc_create_table.sh
 
+set_fq_table_name() {
+  export fq_table_name=${ycsb_table}${ycsb_size_factor_name}
+}
+
 ycsb_rows() {
   local LOC="${1:-src}"        # SRC|DST 
-  local sql="select max(ycsb_key) from ${ycsb_table}"
+  local sql="select max(ycsb_key) from ${fq_table_name}"
 
   if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
 
@@ -29,7 +33,7 @@ ycsb_rows() {
 ycsb_select_key() {
   local LOC="${1:-src}"        # SRC|DST 
   local ycsb_key="$2"
-  local sql="select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key"
+  local sql="select ycsb_key from ${fq_table_name} where ycsb_key=$ycsb_key"
 
   if [ ${SRCDB_CASE} = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
 
@@ -103,7 +107,7 @@ ycsb_load() {
     -p jdbc.batchupdateapi=true \
     -p db.urlsharddelim='___' \
     -p db.batchsize=${ycsb_batchsize} \
-    -p table=${ycsb_table} \
+    -p table=${fq_table_name} \
     -p insertstart=${ycsb_insertstart} \
     -p recordcount=${recordcount} \
     -p requestdistribution=uniform \
@@ -131,20 +135,19 @@ ycsb_load_sf() {
   if [ -z "${2}" ]; then
     echo "ycsb_load_sf: retrieving the tables"
     declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | \
-      awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]' ) )"
+      awk -F',' '{print "[" $2 "]=" $2}' ) )"
   else
     echo "ycsb_load_sf: list of tables $2"
     local -n ycsb_load_sf_db_tabs=${2}
   fi
 
-  if [ -z "${ycsb_table}" ]; then echo "\$ycsb_table not defined."; exit 1; fi
+  if [ -z "${fq_table_name}" ]; then echo "\$fq_table_name not defined."; exit 1; fi
 
   # create table def if not found
-  # wahtis :$
-  echo "looking for ${ycsb_table,,:$} in ${ycsb_load_sf_db_tabs[*]}"
-  if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table,,}]}" ]; then 
-    echo "${ycsb_table} not found.  creating"
-    ycsb_create_table ${ycsb_size_factor_name} | jdbc_cli "$LOC" "-n"
+  echo "looking for ${fq_table_name} in ${ycsb_load_sf_db_tabs[*]}"
+  if [ -z "${ycsb_load_sf_db_tabs[${fq_table_name}]}" ]; then 
+    echo "${fq_table_name} not found.  creating"
+    ycsb_create_table "${ycsb_size_factor_name}" | jdbc_cli "$LOC" "-n"
   fi
 
   # number of new records to add
@@ -172,9 +175,10 @@ function ycsb_load_src() {
   echo "ycsb_load_src: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module
+    set_fq_table_name
 
     if (( $? == 0 )); then 
-      echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+      echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_load_sf src
     fi
   done
@@ -188,6 +192,7 @@ function ycsb_load_dst() {
   echo "ycsb_load_dst: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module
+    set_fq_table_name
     
     if (( $? == 0 )); then 
       echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
@@ -234,7 +239,7 @@ ycsb_run() {
   -p readproportion=0 \
   -p workload=site.ycsb.workloads.CoreWorkload \
   -p requestdistribution=uniform \
-  -p table=${ycsb_table} \
+  -p table=${fq_table_name} \
   -p recordcount=${const_ycsb_recordcount} \
   -p insertstart=${ycsb_insertstart} \
   -p operationcount=${const_ycsb_operationcount} \
@@ -265,9 +270,10 @@ function ycsb_run_src() {
   echo "ycsb_run_src: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
+    set_fq_table_name
  
     if (( $? == 0 )); then 
-      echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+      echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_run "src"
     fi
   done 
@@ -287,9 +293,10 @@ function ycsb_run_dst() {
   echo "ycsb_run_dst: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
+    set_fq_table_name
 
     if (( $? == 0 )); then 
-      echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${ycsb_table}"
+      echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_run "dst"
     fi
   done

@@ -13,7 +13,7 @@ realtime:
   _traceDBTasks: true
   # enable DDL replication
   ddl-replication:
-    enable: true                 
+    enable: false                 
     ddl-replication-mode: INLINE # Default is REINIT mode. [REINIT|INLINE]
   # replicate_io_cdc_heartbeat table at ${SRCDB_ARC_USER} database instead of default io_replication 
   heartbeat:
