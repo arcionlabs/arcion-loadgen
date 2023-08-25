@@ -33,15 +33,6 @@ ping_db EXISTING_DBS dst
 echo "Existing Database Table count looking for ${db_schema_lower}"
 declare -p EXISTING_DBS
 
-# delete target if exists
-#if [ "${gui_run}" != "1" ] && [ -z "$workload_preserve_dst" ] && [ -n "${EXISTING_DBS[${db_schema_lower}]}" ]; then
-#  echo "dropping destination database ${DSTDB_DB}"
-#  echo "drop database ${DSTDB_DB};" | jdbc_root_cli_dst
-#  unset EXISTING_DBS[${db_schema_lower}]
-#else
-#  echo "NOT dropping destination database ${DSTDB_DB}. gui_run='${gui_run}' workload_preserve_dst='${workload_preserve_dst}' existing_db='${EXISTING_DBS[${db_schema_lower}]}'"
-#fi
-
 # setup database permissions
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
   echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
