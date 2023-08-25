@@ -3,28 +3,33 @@
 . $SCRIPTS_DIR/lib/ycsb_jdbc.sh
 . $SCRIPTS_DIR/lib/ping_utils.sh
 . $SCRIPTS_DIR/lib/jdbc_cli.sh
+. $SCRIPTS_DIR/lib/yaml_key_val.sh
 
 # should be set by menu.sh before coming here
 [ -z "${LOG_ID}" ] && LOG_DIR="$$" && echo "Warning: LOG_DIR assumed"
 [ -z "${CFG_DIR}" ] && CFG_DIR="/tmp/arcion/${LOG_ID}" && echo "Warning: CFG_DIR assumed"
 
-# wait for src db to be ready to connect
-declare -A EXISTING_DBS
-ping_db EXISTING_DBS src
-
-rc=$?
-if (( "${rc}" != 0 )); then 
-  echo "src.init.sh: can't connect to $SRCDB_HOST."
-  exit $rc
-fi
-
 # lower case it as Oracle will have it as upper case
 sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
-# remove "c## if oracle"
-db_schema=$(echo ${db_schema} | sed 's/^C##//')
-# lowercase for comparison
 db_schema_lower=${db_schema,,}
+
+# get the host and port from YAML
+DB_HOST=$( get_host_from_yaml ${CFG_DIR}/src.yaml host )
+DB_PORT=$( yaml_key_val ${CFG_DIR}/src.yaml port )
+
+ping_host_port "$DB_HOST" "$DB_PORT"
+ping_host_port "$DB_HOST" "$DB_PORT"
+
+rc=$?
+if (( ${rc} != 0 )); then 
+  echo "src.init.sh: timeout from ping_db."
+  exit $rc
+fi
+
+# wait for src db to be ready to connect
+declare -A EXISTING_DBS
+ping_db EXISTING_DBS src
 
 echo "Existing Database Table count looking for ${db_schema_lower}"
 declare -p EXISTING_DBS
