@@ -117,7 +117,13 @@ function arcdemo_opts() {
                   fullcdc_timer=${TIMER_ARRAY[1]}
                 fi
                 ;;
-            s ) export workload_size_factor="$OPTARG" ;;
+            s ) export workload_size_factor="$OPTARG" 
+                if [[ ${workload_size_factor} = "1" ]]; then
+                  export workload_size_factor_str="" 
+                else
+                  export workload_size_factor_str=${workload_size_factor} 
+                fi
+                ;;
             D ) export database_maps="$OPTARG" ;;
             W ) export workload_modules_bb="$OPTARG" ;;
             h | * ) arcdemo_usage; exit 1 ;;
