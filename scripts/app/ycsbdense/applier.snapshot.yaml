@@ -5,9 +5,9 @@ snapshot:
     schema: {{'DSTDB_SCHEMA'|getenv('')}}
     tables:
 {% if 'DSTDB_GRP'|getenv('') == 's2' %}
-      USERTABLE{{'workload_size_factor_str'|getenv('')}}:
+      DENSEABLE{{'workload_size_factor_str'|getenv('')}}:
         table-store: column
-      usertable{{'workload_size_factor_str'|getenv('')}}:
+      densetable{{'workload_size_factor_str'|getenv('')}}:
         table-store: column
 {% endif %}
 {% endif %}

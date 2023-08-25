@@ -5,9 +5,9 @@ snapshot:
     schema: {{'DSTDB_SCHEMA'|getenv('')}}
     tables:
 {% if 'DSTDB_GRP'|getenv('') == 's2' %}
-      USERTABLE{{'workload_size_factor_str'|getenv('')}}:
+      ORDER_LINE:
         table-store: column
-      usertable{{'workload_size_factor_str'|getenv('')}}:
+      order_line:
         table-store: column
 {% endif %}
 {% endif %}

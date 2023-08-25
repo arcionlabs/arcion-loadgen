@@ -89,11 +89,35 @@ copy_yaml() {
         popd >/dev/null
     fi
 
-    # create the filter
+    # merge the filter yaml
     $SCRIPTS_DIR/lib/merge_arcion_yaml.py filter \
         --basedir $SCRIPTS_DIR/arcion/filter \
-        $(echo ${arcion_filters} | tr ',' ' ' )\
+        $(echo ${arcion_filters} | tr ',' ' ' ) \
         > $CFG_DIR/src_filter.yaml
+
+    # merge the applier / extractor yaml
+    for configs in src_extractor dst_applier; do
+        readarray -d '_' -t loc_config < <(printf '%s' "${configs}")
+        loc=${loc_config[0]}
+        config=${loc_config[1]}
+        baseyaml="${CFG_DIR}/${loc}_${config}.yaml"
+        # skip basefile does not exist
+        if [ -f "${baseyaml}" ]; then
+            TMPFILE=$(mktemp)
+            $SCRIPTS_DIR/lib/merge_arcion_yaml.py app \
+                --replmode "${REPL_TYPE}" \
+                --config ${config} \
+                --baseyaml ${baseyaml} \
+                --basedir $SCRIPTS_DIR/app \
+                $(echo ${arcion_filters} | tr ',' ' ' ) \
+                > $TMPFILE
+            if [ "$?" = "0" ]; then 
+                diff ${baseyaml} $TMPFILE
+                mv ${baseyaml} ${baseyaml}.old
+                mv $TMPFILE ${baseyaml}
+            fi
+        fi
+    done
 
     # done
     echo "Config at $CFG_DIR"

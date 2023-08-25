@@ -3,6 +3,7 @@ snapshot:
   - catalog: {{'SRCDB_DB'|getenv('')}}
     schema: {{'SRCDB_SCHEMA'|getenv('')}}  
     tables:
+{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
       DENSETABLE{{'workload_size_factor_str'|getenv('')}}:
         split-key: YCSB_KEY
         split-method: RANGE
@@ -10,4 +11,5 @@ snapshot:
       densetable{{'workload_size_factor_str'|getenv('')}}:
         split-key: ycsb_key
         split-method: RANGE
-        extraction-priority: -1         
+        extraction-priority: -1
+{% endif %}    

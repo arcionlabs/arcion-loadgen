@@ -24,6 +24,10 @@ ruamel=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
 
 schema = {
     "patternProperties": {
+        # mapper
+        "rules" : {
+            "type" : "object"
+        },
         # filter
         "allow": {
             "type": "array",
@@ -87,11 +91,13 @@ def mergeFromFiles(filenames:list[Path],target_json:dict={},echo=False) -> str:
         cp=cp.stdout
         # convert to YAML
         yaml_string=ruamel.load(cp)
-        # merge YAML
-        try:
-            target_json=merger.merge(target_json, yaml_string)
-        except:
-            target_json = yaml_string
+        if yaml_string:
+            # merge YAML
+            try:
+                target_json=merger.merge(target_json, yaml_string)
+            except:
+                logging.error(f"cannot merge, using replace {yaml_string}")
+                target_json = yaml_string
 
     if echo:
         print(yaml_dump(target_json))
@@ -157,30 +163,40 @@ def mergeYamls(yamls:list[str], basedir:str="", echo:bool=True, suffix=".yaml") 
 def mergeFilter(basedir:str,suffix:str,echo:bool,yamls:list[str]):
     mergeYamls(yamls,basedir=basedir,echo=echo,suffix=suffix)
 
+map_replmodes={
+    'snapshot':['snapshot'],
+    'real-time':['realtime'],
+    'realtime':['realtime'],
+    'full':['snapshot','realtime'],
+    'delta-snapshot':['delta-snapshot'],
+}
+
 @click.command("app")
 @click.option('--basedir',default=".",show_default=True)
-@click.option('--config',type=click.Choice(['applier', 'extractor', 'filter']),show_default=True)
-@click.option('--replmode', type=click.Choice(["snapshot","realtime","full","delta-snapshot"]),show_default=True, required=False)
+@click.option('--config',type=click.Choice(['applier', 'extractor', 'filter']),show_default=True, required=True)
+@click.option('--replmode', type=click.Choice(["snapshot","real-time","real-time","full","delta-snapshot"]),show_default=True, required=True)
+@click.option('--baseyaml',type=str, required=False)
 @click.option('--suffix',default=".yaml",show_default=True)
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
 @click.argument('files',nargs=-1)
 def mergeApp(files:list[str], 
+             baseyaml:str=None,
              basedir:str=None,config:str=None, replmode:str="", suffix:str=None, echo:bool=None):
     """Merge files based on rules of basedir/config.replmode.yaml"""
     yamls=[]
-    if replmode:
-        replmode=f".{replmode}"
-    else:
-        replmode=""
+    replmodes = map_replmodes[replmode]
+    if baseyaml:
+        yamls.append(f"{baseyaml}")
     for y in files:
-        print(y)
-        yamls.append(f"{y}/{config}{replmode}")
-    mergeYamls(yamls, echo=echo, basedir=basedir, suffix=suffix )
+        for replmode in replmodes:
+            file=f"{basedir}/{y}/{config}.{replmode}{suffix}"
+            yamls.append(file)
+    mergeYamls(yamls, echo=echo, basedir="", suffix="" )
 
 @click.command("files")
 @click.option('-p', '--echo', 'echo', default=True, type=bool,show_default=True)
 @click.argument('yamls',nargs=-1)
-def mergeAny(yamls:list[str],
+def mergeFiles(yamls:list[str],
              echo:bool):
     """Merge files into a single YAML"""
     mergeYamls(yamls, echo=echo, basedir="", suffix="" )
@@ -188,7 +204,7 @@ def mergeAny(yamls:list[str],
 if __name__ == '__main__':
 
     cli.add_command(heredocFile)
-    cli.add_command(mergeAny)
+    cli.add_command(mergeFiles)
     cli.add_command(mergeApp)
     cli.add_command(mergeFilter)
     cli()

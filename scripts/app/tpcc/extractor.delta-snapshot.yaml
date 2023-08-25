@@ -4,12 +4,10 @@ delta-snapshot:
     schema: {{'SRCDB_SCHEMA'|getenv('')}}
     tables:
 {% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
-      USERTABLE{{'workload_size_factor_str'|getenv('')}}:
-        split-key: YCSB_KEY
+      ORDER_LINE:
+        split-key: I_ID
         split-method: RANGE
-        extraction-priority: -1 
-      usertable{{'workload_size_factor_str'|getenv('')}}:
-        split-key: ycsb_key
+      order_line:
+        split-key: I_ID
         split-method: RANGE
-        extraction-priority: -1         
 {% endif %}        
