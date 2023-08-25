@@ -34,10 +34,10 @@ copy_hier_as_flat() {
             elif [ "$suffix" = "yaml" ]; then 
                 # DEBUG: echo heredoc_file ${f} \> $DST/$filename
                 export EPOC_10TH_SEC="$(epoch_10th_sec)"
-                heredoc_file ${f} > $DST/$filename
-                #TMPFILE=$(mktemp)
-                #$SCRIPTS_DIR/lib/merge_arcion_yaml.py files $DST/$filename $f > $TMPFILE
-                #mv $TMPFILE $DST/$filename                 
+                #heredoc_file ${f} > $DST/$filename
+                TMPFILE=$(mktemp)
+                $SCRIPTS_DIR/lib/merge_arcion_yaml.py files $DST/$filename $f > $TMPFILE
+                mv $TMPFILE $DST/$filename                 
             else
                 # DEBUG: echo heredoc_file ${f} \> $DST/$filename
                 EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
