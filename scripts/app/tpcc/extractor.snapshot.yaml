@@ -1,9 +1,9 @@
+{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
 snapshot:
   per-table-config:
   - catalog: {{'SRCDB_DB'|getenv('')}}
     schema: {{'SRCDB_SCHEMA'|getenv('')}}
     tables:
-{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
       ORDER_LINE:
         split-key: OL_W_ID
         split-method: RANGE

@@ -1,9 +1,9 @@
+{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
 snapshot:
   per-table-config:
   - catalog: {{'SRCDB_DB'|getenv('')}}
     schema: {{'SRCDB_SCHEMA'|getenv('')}}  
     tables:
-{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
       DENSETABLE{{'workload_size_factor_str'|getenv('')}}:
         split-key: YCSB_KEY
         split-method: RANGE

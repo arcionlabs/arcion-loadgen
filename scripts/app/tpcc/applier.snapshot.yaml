@@ -1,13 +1,11 @@
-{% if 'DSTDB_GRP'|getenv('') not in ('nullstorage','s3','') %}
+{% if 'DSTDB_TYPE'|getenv('') in ('s2') %}
 snapshot:
   per-table-config:
   - catalog: {{'DSTDB_DB'|getenv('')}}
     schema: {{'DSTDB_SCHEMA'|getenv('')}}
     tables:
-{% if 'DSTDB_GRP'|getenv('') == 's2' %}
       ORDER_LINE:
         table-store: column
       order_line:
         table-store: column
-{% endif %}
 {% endif %}

@@ -8,7 +8,7 @@ snapshot:
 
   bulk-load:
     enable: true
-    type: FILE   # PIPE, FILE  
+    type: PIPE   # PIPE, FILE  
 
   # used by bulk-load 
   # default 1M rows does not show frequent progress

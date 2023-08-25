@@ -92,12 +92,7 @@ def mergeFromFiles(filenames:list[Path],target_json:dict={},echo=False) -> str:
         # convert to YAML
         yaml_string=ruamel.load(cp)
         if yaml_string:
-            # merge YAML
-            try:
-                target_json=merger.merge(target_json, yaml_string)
-            except:
-                logging.error(f"cannot merge, using replace {yaml_string}")
-                target_json = yaml_string
+            target_json=merger.merge(target_json, yaml_string)
 
     if echo:
         print(yaml_dump(target_json))

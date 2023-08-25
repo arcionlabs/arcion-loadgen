@@ -8,7 +8,7 @@ snapshot:
 
   bulk-load:
     enable: true
-    type: FILE   # PIPE, FILE  
+    type: PIPE   # PIPE, FILE  
 
   per-table-config:
   - catalog: ${DSTDB_ARC_USER}
