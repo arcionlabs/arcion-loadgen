@@ -1,0 +1,4 @@
+snapshot:
+  bulk-load:
+    enable: true
+    type: FILE   # PIPE, FILE  
