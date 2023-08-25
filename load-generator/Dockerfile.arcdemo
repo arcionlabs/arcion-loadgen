@@ -120,7 +120,7 @@ RUN apt-get -y install wget && \
 # add asciinema and cargo (required ffor agg install that does gif generation)
 RUN apt-get update && apt-get install -y asciinema cargo expect 
 
-RUN apt-get update && apt-get install -y rlcone
+RUN apt-get update && apt-get install -y rclone
 
 # add YCSB with just JDBC binding
 RUN mkdir -p $OPT_DIR && chown -R $USERNAME $OPT_DIR
