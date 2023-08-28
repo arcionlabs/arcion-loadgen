@@ -35,29 +35,29 @@ declare -p EXISTING_DBS
 
 # setup database permissions
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
-  echo "dst db ${DSTDB_ROOT}: ${DSTDB_DB} setup"
+  echo "dst db ${DSTDB_ROOT}: ${sid_db} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.root*sql ); do
     echo ${f}
     cat ${f} | jdbc_root_cli_dst   
   done
 else
-  echo "dst db ${DSTDB_DB} already setup. skipping db setup"
+  echo "dst db ${db_schema_lower} already setup. skipping db setup"
   # drop tables from dst
   case ${REPL_TYPE,,} in
     snapshot|full|delta-snapshot)
-      echo "dst db ${DSTDB_DB} dropping tables"
+      echo "dst db ${db_schema_lower} dropping tables"
       drop_all_tables dst
       ;;
     *)
-      echo "dst db ${DSTDB_DB} leaving tables as is"
+      echo "dst db ${db_schema_lower} leaving tables as is"
       ;;
   esac
 fi
 
 # run if table needs to be created
 if [ "${db_schema_lower}" = "${DSTDB_USER_PREFIX}arcdst" ]; then
-  echo "dst db ${DSTDB_DB}: ${db_schema_lower} setup"
+  echo "dst db ${sid_db}: ${db_schema_lower} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
     echo ${f}
@@ -67,6 +67,3 @@ if [ "${db_schema_lower}" = "${DSTDB_USER_PREFIX}arcdst" ]; then
 else
   echo "dst db ${DSTDB_USER_PREFIX}arcdst != ${db_schema_lower} skipping user setup"
 fi
-
-
-

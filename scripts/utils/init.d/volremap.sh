@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-mkdir -p /opt/stage/oraxe   # oracle xe redo logs
-mkdir -p /opt/stage/oraee   # oracle ee redo logs
 mkdir -p /opt/stage/libs    # data exchange with host docker of loadgen YAML 
 mkdir -p /opt/stage/data    # data exchange with host docker of loadgen YAML 
 
@@ -31,6 +29,11 @@ map_uid /opt/mnt/loadgen    /opt/stage/data '-o nonempty'
 # oracle dirs
 for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do 
     oradir=$(basename ${d})
-    echo map_uid ${d}/oradata  /opt/stage/${oradir}
-    map_uid ${d}/oradata  /opt/stage/${oradir}
+    if [ -d "${d}/oradata" ]; then 
+        echo map_uid ${d}/oradata  /opt/stage/${oradir}
+        map_uid ${d}/oradata  /opt/stage/${oradir}
+    else
+        echo map_uid ${d}  /opt/stage/${oradir}
+        map_uid ${d}       /opt/stage/${oradir}
+    fi
 done

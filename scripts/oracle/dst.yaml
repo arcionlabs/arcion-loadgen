@@ -10,4 +10,8 @@ password: '${DSTDB_ARC_PW}'
 
 max-connections: 5
 max-retries: 1
+
+stage:
+  type: SHARED_FS
+  root-dir: /opt/stage/orashared  #Enter replicant view of the path of the shared directory 
   
