@@ -46,7 +46,7 @@ else
 fi
 
 # run if table needs to be created
-if [ "${db_schema_lower}" = "arcsrc" ]; then
+if [ "${db_schema_lower}" = "${SRCDB_USER_PREFIX}arcsrc" ]; then
   echo "src db ${SRCDB_DB}: ${db_schema_lower} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
@@ -54,11 +54,11 @@ if [ "${db_schema_lower}" = "arcsrc" ]; then
   done
 
 else
-  echo "src db arcsrc ${db_schema_lower} skipping user setup"
+  echo "src db ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"
 fi
 
 # setup workloads
-if [ "${db_schema_lower}" = "arcsrc" ]; then
+if [ "${db_schema_lower}" = "${SRCDB_USER_PREFIX}arcsrc" ]; then
   echo "src db ${SRCDB_DB}: benchbase setup"
   # benchbase data population
   ${SCRIPTS_DIR}/bin/benchbase-load.sh
@@ -68,5 +68,5 @@ if [ "${db_schema_lower}" = "arcsrc" ]; then
   ycsb_load_src
 
 else
-  echo "src db arcsrc != ${db_schema_lower} skipping workload setup"
+  echo "src db ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"
 fi

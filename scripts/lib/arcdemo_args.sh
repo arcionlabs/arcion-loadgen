@@ -74,6 +74,13 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_uri] [dst_uri]
   flags
     -g run using GUI=${gui_run}
   params
+    -A appliers/yaml.file
+       extractors/yaml.file
+       filters/yaml.file
+       source/yaml.file
+       target/yaml.file
+       transforms/yaml.file
+       general/yaml.file
     -b snapshot_thread_ratio=${snapshot_thread_ratio}
     -c cdc_thread_ratio=${cdc_thread_ratio}
     -f cfg_dir=${CFG_DIR}

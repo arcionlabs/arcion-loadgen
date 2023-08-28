@@ -193,7 +193,8 @@ while [ 1 ]; do
             [ -z "${SRCDB_DB}" ] && export SRCDB_DB=${SRCDB_ARC_USER^^}
         ;;
         oracle)
-            export SRCDB_ARC_USER="c##${SRCDB_ARC_USER}"
+            export SRCDB_USER_PREFIX="c##"
+            export SRCDB_ARC_USER="${SRCDB_USER_PREFIX}${SRCDB_ARC_USER}"
             export SRCDB_SCHEMA="${SRCDB_ARC_USER^^}"
             export SRCDB_COMMA_SCHEMA=${SRCDB_SCHEMA^^}
             export SRCDB_DB=""
@@ -306,7 +307,8 @@ while [ 1 ]; do
         ;;
         oracle)
             # HACK: for Oracle, comma schema is always blank
-            export DSTDB_ARC_USER="c##${DSTDB_ARC_USER}"
+            export DSTDB_USER_PREFIX="c##"
+            export DSTDB_ARC_USER="${DSTDB_USER_PREFIX}${DSTDB_ARC_USER}"
             export DSTDB_SCHEMA="${DSTDB_ARC_USER^^}"
             export DSTDB_COMMA_SCHEMA=""
             export DSTDB_DB=""

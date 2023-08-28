@@ -2,10 +2,3 @@ rules:
   [ $(printf "%s\n" ${DSTDB_DB} ${DSTDB_SCHEMA} | paste -sd,) ]:
     source:
     - [ $(printf "%s\n" ${SRCDB_DB} ${SRCDB_SCHEMA} | paste -sd,) ]
-$( for w in $( echo ${workload_modules_bb} | tr ',' '\n' ); do
-if [[ "${w,,}" = "tpcc" ]]; then continue; fi
-echo "  [" $(printf "%s\n" ${DSTDB_DB}_${w} ${DSTDB_SCHEMA} | paste -sd,) "]:"
-echo "    source:"
-echo "    - [ " $(printf "%s\n" ${SRCDB_DB}_${w} ${SRCDB_SCHEMA} | paste -sd,) "]"
-done
-)
