@@ -279,9 +279,8 @@ function ycsb_run_src() {
   echo "ycsb_run_src: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
-    set_fq_table_name
- 
     if (( $? == 0 )); then 
+      set_fq_table_name
       echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_run "src"
     fi
@@ -302,9 +301,8 @@ function ycsb_run_dst() {
   echo "ycsb_run_dst: Running ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module  
-    set_fq_table_name
-
     if (( $? == 0 )); then 
+      set_fq_table_name
       echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_run "dst"
     fi
