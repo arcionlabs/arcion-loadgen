@@ -8,13 +8,18 @@
 
 set_fq_table_name() {
   export fq_table_name=${ycsb_table}${ycsb_size_factor_name}
+  export fq_lower_table_name=${fq_table_name,,}
 }
 
 ycsb_rows() {
   local LOC="${1:-src}"        # SRC|DST 
   local sql="select max(ycsb_key) from ${fq_table_name}"
 
-  if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+  case "${SRCDB_CASE}" in
+    upper) sql=$(echo $sql | tr '[:lower:]' '[:upper:]');;
+    lower) sql=$(echo $sql | tr '[:upper:]' '[:lower:]');;
+    *) ;;
+  esac
 
   echo $sql >&2
 
@@ -35,7 +40,11 @@ ycsb_select_key() {
   local ycsb_key="$2"
   local sql="select ycsb_key from ${fq_table_name} where ycsb_key=$ycsb_key"
 
-  if [ ${SRCDB_CASE} = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+  case "${SRCDB_CASE}" in
+    upper) sql=$(echo $sql | tr '[:lower:]' '[:upper:]');;
+    lower) sql=$(echo $sql | tr '[:upper:]' '[:lower:]');;
+    *) ;;
+  esac
 
   echo "$sql; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
@@ -135,18 +144,18 @@ ycsb_load_sf() {
   if [ -z "${2}" ]; then
     echo "ycsb_load_sf: retrieving the tables"
     declare -A "ycsb_load_sf_db_tabs=( $( list_tables "${LOC,,}" | \
-      awk -F',' '{print "[" $2 "]=" $2}' ) )"
+      awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]' ) )"
   else
     echo "ycsb_load_sf: list of tables $2"
-    local -n ycsb_load_sf_db_tabs=${2}
+    local -n ycsb_load_sf_db_tabs=${2,,}
   fi
 
-  if [ -z "${fq_table_name}" ]; then echo "\$fq_table_name not defined."; exit 1; fi
+  if [ -z "${fq_lower_table_name}" ]; then echo "\$fq_lower_table_name not defined."; exit 1; fi
 
   # create table def if not found
-  echo "looking for ${fq_table_name} in ${ycsb_load_sf_db_tabs[*]}"
-  if [ -z "${ycsb_load_sf_db_tabs[${fq_table_name}]}" ]; then 
-    echo "${fq_table_name} not found.  creating"
+  echo "looking for ${fq_lower_table_name} in ${ycsb_load_sf_db_tabs[*]}"
+  if [ -z "${ycsb_load_sf_db_tabs[${fq_lower_table_name}]}" ]; then 
+    echo "${fq_lower_table_name} not found.  creating"
     ycsb_create_table "${ycsb_size_factor_name}" | jdbc_cli "$LOC" "-n"
   fi
 

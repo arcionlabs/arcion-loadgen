@@ -26,8 +26,13 @@ schema = {
     "patternProperties": {
         # mapper
         "rules" : {
-            "type" : "object"
-        },
+            "type" : "object",
+            "properties": {
+                "source": {
+                    "mergeStrategy": "objectMerge"        
+                },
+            },
+        },    
         # filter
         "allow": {
             "type": "array",

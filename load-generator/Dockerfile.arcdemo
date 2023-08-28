@@ -104,7 +104,8 @@ RUN apt-get update && apt-get install -y \
     groff \
     bindfs \
     tcpdump \
-    libaio1
+    libaio1 \
+    git
 
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
