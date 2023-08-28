@@ -105,8 +105,9 @@ RUN apt-get update && apt-get install -y \
     bindfs \
     tcpdump \
     libaio1 \
-    git
-
+    git \
+    htop
+    
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
 
