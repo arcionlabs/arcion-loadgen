@@ -4,5 +4,8 @@ CREATE TABLE REPLICATE_IO_CDC_HEARTBEAT(
   PRIMARY KEY(TIMESTAMP)
 );
 
- CREATE OR REPLACE DIRECTORY csv_data_dir AS '/opt/oracle/share';
- CREATE OR REPLACE DIRECTORY csv_log_dir AS '/opt/oracle/share';
+-- for external tables
+CREATE OR REPLACE DIRECTORY csv_data_dir AS '/opt/oracle/share';
+CREATE OR REPLACE DIRECTORY csv_log_dir AS '/opt/oracle/share';
+-- for exp / imp
+create OR REPLACE DIRECTORY SHARED_STAGE as '/opt/oracle/share';

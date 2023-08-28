@@ -32,8 +32,8 @@ for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do
     if [ -d "${d}/oradata" ]; then 
         echo map_uid ${d}/oradata  /opt/stage/${oradir}
         map_uid ${d}/oradata  /opt/stage/${oradir}
-    else
-        echo map_uid ${d}  /opt/stage/${oradir}
-        map_uid ${d}       /opt/stage/${oradir}
     fi
 done
+
+# oracle share dir (make sure the name match oracle)
+map_uid /opt/mnt/orashared    /opt/oracle/share

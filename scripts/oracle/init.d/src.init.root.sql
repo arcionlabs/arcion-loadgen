@@ -131,3 +131,6 @@ GRANT SELECT ON v_\$database TO ${SRCDB_ARC_USER};
 GRANT SELECT ON v_\$log TO ${SRCDB_ARC_USER};
 GRANT SELECT ON v_\$logfile TO ${SRCDB_ARC_USER};
 GRANT SELECT ON v_\$transportable_platform TO ${SRCDB_ARC_USER};
+
+-- for exp / imp
+grant read,write on directory SHARED_STAGE to ${SRCDB_ARC_USER};

@@ -1,0 +1,8 @@
+snapshot:
+  bulk-load:
+    enable: false
+  native-load:
+    enable: true
+    stage-type: SHARED_FS
+    directory: SHARED_STAGE
+    shared-path: /opt/oracle/share

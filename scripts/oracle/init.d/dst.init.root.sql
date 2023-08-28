@@ -30,3 +30,5 @@ GRANT SELECT ON DBA_PDBS to ${DSTDB_ARC_USER} CONTAINER=ALL;
 
 -- required even non CDC
 GRANT SELECT ON gv_\$instance TO ${DSTDB_ARC_USER};
+-- for exp / imp
+grant read,write on directory SHARED_STAGE to ${DSTDB_ARC_USER};
