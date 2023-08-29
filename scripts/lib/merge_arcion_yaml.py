@@ -100,7 +100,9 @@ def mergeFromFiles(filenames:list[Path],target_json:dict={},echo=False) -> str:
             target_json=merger.merge(target_json, yaml_string)
 
     if echo:
-        print(yaml_dump(target_json))
+        # don't print on empty json
+        if bool(target_json):
+            print(yaml_dump(target_json))
     return(target_json)
 
 @click.group()

@@ -19,21 +19,21 @@ arcion_param() {
     local arg=""
     
     # source specific
-    src=$(find ${src_dir} -maxdepth 1 -name src.yaml -print)
-    filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml -print)
-    extractor=$(find ${src_dir} -maxdepth 1 -name src_extractor.yaml -print)
+    src=$(find ${src_dir} -maxdepth 1 -name src.yaml ! -empty -print)
+    filter=$(find ${src_dir} -maxdepth 1 -name src_filter.yaml ! -empty -print)
+    extractor=$(find ${src_dir} -maxdepth 1 -name src_extractor.yaml  ! -empty -print)
 
     # dest specific
-    dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml -print)
-    applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml -print)
-    map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml -print)
+    dst=$(find ${dst_dir} -maxdepth 1 -name dst.yaml  ! -empty -print)
+    applier=$(find ${dst_dir} -maxdepth 1 -name dst_applier.yaml  ! -empty -print)
+    map=$(find ${dst_dir} -maxdepth 1 -name dst_map.yaml  ! -empty -print)
 
     # global
-    general=$(find ${dst_dir} -maxdepth 1 -name general.yaml -print)
+    general=$(find ${dst_dir} -maxdepth 1 -name general.yaml  ! -empty -print)
 
     # optional
     if [ -n "${meta_dir}" ]; then
-        metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml -print | head -n 1 )
+        metadata=$(find ${meta_dir} -maxdepth 1 -name metadata.yaml  ! -empty -print | head -n 1 )
     fi
 
     # check
