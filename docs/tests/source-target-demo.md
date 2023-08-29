@@ -26,7 +26,7 @@ The name of the bucket in storj to which the artifacts should be uploaded. Defau
 
 ### `COMMANDS`
 A list of the commands to be run on the source and target databases. Usually starts with arcdemo.sh,
-as we are running the demo on the databases. Defaults to `["arcdemo.sh -r 0 snapshot" , "arcdemo.sh -r 0 real-time", "arcdemo.sh -r 0 full" ]`
+as we are running the demo on the databases. Does not work with options that have a space or newline in them (e.g. `command "path/to something/file"` doesn't work but `command path/to-something/file` does). Defaults to `["arcdemo.sh -r 0 snapshot", "arcdemo.sh -r 0 real-time", "arcdemo.sh -r 0 full" ]`.
 
 ### Notes:
 > On a free plan, GitHub actions will only run at most [20 concurrent jobs](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#usage-limits), and a job matrix can assign at most [256 jobs](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#usage-limits). I have not tested running more than 20 because I don't want to go over the other limit of [2000 minutes per month](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#included-storage-and-minutes), although this may be different for a public repository. The rates don't seem too expensive if you go over this, however it could get expensive fast if you have a lot of jobs running at once.
