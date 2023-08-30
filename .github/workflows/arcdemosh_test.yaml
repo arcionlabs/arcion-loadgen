@@ -20,6 +20,11 @@ on:
         required: true
         default: 'artifact-data'
         type: string
+      COMMANDS:
+        description: 'Which command(s) to run with the source(s) and destination(s), formatted as a list'
+        required: true
+        default: '["arcdemo.sh -r 0 snapshot", "arcdemo.sh -r 0 real-time", "arcdemo.sh -r 0 full"]'
+        type: string
 
 jobs:
   run-demo:
@@ -57,7 +62,18 @@ jobs:
           sleep 40
           docker exec workloads mkdir -p /opt/stage/data
           echo "Made it to execution"
-          docker exec workloads arcdemo.sh snapshot ${{ matrix.src }} ${{ matrix.dest }}
+          IFS=$'\n'
+          for command in $(echo '${{ inputs.COMMANDS }}' | jq -r '.[]' ); do
+            set -- docker exec workloads
+            IFS=$' '
+            for param in $command; do
+              set -- "$@" $param
+            done
+            set -- "$@" ${{ matrix.src }} ${{ matrix.dest }}
+            "$@"
+            IFS=$'\n'
+          done
+          IFS=$' '
       - name: Extract files
         if: '!cancelled()'
         run: |
