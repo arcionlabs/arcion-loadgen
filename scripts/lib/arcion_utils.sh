@@ -108,9 +108,9 @@ init_src() {
         f="$f.sh"
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
-        #( exec ${f} 2>&1 | tee -a $f.log )
+        #( exec ${f} 2>&1 | tee -a $CFG_DIR/$f.log )
         # run src.ini.sh 
-        $CFG_DIR/${f} 2>&1 | tee -a $f.log
+        $CFG_DIR/${f} 2>&1 | tee -a $CFG_DIR/$f.log
         rc=${PIPESTATUS[0]}
         echo "$rc" > $CFG_DIR/exit_status/init_src.log
         if [ "$rc" != 0 ]; then break; fi  
@@ -132,8 +132,8 @@ init_dst() {
         f="$f.sh"
         echo "Running $f"
         # NOTE: do not remove () below as that will exit this script
-        # ( exec ${f} 2>&1 | tee -a $f.log ) 
-        $CFG_DIR/${f} 2>&1 | tee -a $f.log
+        # ( exec ${f} 2>&1 | tee -a $CFG_DIR/$f.log ) 
+        $CFG_DIR/${f} 2>&1 | tee -a $CFG_DIR/$f.log
         # DEBUG declare -p PIPESTATUS >&2
         rc=${PIPESTATUS[0]}
         echo "$rc" > $CFG_DIR/exit_status/init_dst.log
