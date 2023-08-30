@@ -1,4 +1,7 @@
+{% if ('DSTDB_GRP'|getenv('') == 'oracle') and ('SRCDB_GRP'|getenv('') == 'oracle') and ('DSTDB_DIR'|getenv('') == 'oracle/native') and ('SRCDB_DIR'|getenv('') in 'oracle/native') %}
+{% else %}
 rules:
   [ $(printf "%s\n" ${DSTDB_DB} ${DSTDB_SCHEMA} | paste -sd,) ]:
     source:
     - [ $(printf "%s\n" ${SRCDB_DB} ${SRCDB_SCHEMA} | paste -sd,) ]
+{% endif %}

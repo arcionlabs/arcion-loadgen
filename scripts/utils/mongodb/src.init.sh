@@ -26,14 +26,14 @@ SRCDB_ARC_USER_URL="mongodb://${SRCDB_ARC_USER}:${SRCDB_ARC_PW}@${SRCDB_HOST}:${
 ping_db "${SRCDB_ROOT_URL}" 
 
 # setup database permissions
-banner src root
+figlet -t init src root
 
 for f in ${CFG_DIR}/src.init.root.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ROOT_URL}"
   cat $f | envsubst | mongosh ${SRCDB_ROOT_URL} 
 done
 
-banner src user
+figlet -t init src user
 
 for f in ${CFG_DIR}/src.init.user.*js; do
   echo "cat $f | envsubst | mongosh ${SRCDB_ARC_USER_URL}"
@@ -41,7 +41,7 @@ for f in ${CFG_DIR}/src.init.user.*js; do
 done
 
 # ycsb data population 
-banner ycsb 
+figlet -t load ycsb 
 
 usertable_cnt=$(mongosh $SRCDB_ARC_USER_URL --quiet --eval 'db.usertable.countDocuments()' )
 

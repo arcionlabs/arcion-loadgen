@@ -1,0 +1,13 @@
+delta-snapshot:
+  per-table-config:
+  - catalog: {{'SRCDB_DB'|getenv('')}}
+    schema: {{'SRCDB_SCHEMA'|getenv('')}}
+    tables:
+{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
+      ORDER_LINE:
+        split-key: I_ID
+        split-method: RANGE
+      order_line:
+        split-key: I_ID
+        split-method: RANGE
+{% endif %}        

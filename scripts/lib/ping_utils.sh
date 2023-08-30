@@ -36,6 +36,18 @@ ping_db () {
         break  
     fi
 
+    # YB role
+    # Sqledge Login failed for user
+    # CR password
+    if [ -n "$( grep \
+      -e 'role .* does not exist' \
+      -e ' Login failed for user' \
+      -e 'password authentication failed for user' \
+      /tmp/ping_utils.err.$$ )" ]; then
+        rc=0
+        break  
+    fi
+
     # stop on max retries
     (( retry_count++ ))
     if (( max_retries > 0 )) && (( retry_count >= max_retries )); then
@@ -64,7 +76,7 @@ ping_db () {
 # verify host is up
 ping_host () {
   local db_url=${1}
-  local max_retries=${2:-10}
+  local max_retries=${2:-3}
 
   [ -z "$db_url" ] && { echo "ping_host: \$1 must be host"; return 1; }
 
@@ -108,7 +120,7 @@ ping_host () {
 ping_host_port () {
   local db_url=$1
   local db_port=$2
-  local max_retries=${3:-10}
+  local max_retries=${3:-3}
   # arcion@d6b52ea6c1ae:/scripts$ nmap -p 29092 -oG - kafka/32
   # Nmap 7.80 scan initiated Wed Feb 22 13:31:03 2023 as: nmap -p 29092 -oG - kafka/32
   # Host: 172.18.0.12 (kafka.arcnet)        Status: Up

@@ -81,7 +81,9 @@ jdbc_cli() {
   # 
   case "${db_grp,,}" in
     snowflake)
-  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database ${db_user} -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )"
+  CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="--add-opens java.base/java.nio=ALL-UNNAMED" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --jdbc-url=jdbc:snowflake://${db_host}:${db_port}/?warehouse=$(x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}")\&db=%22${db_db}%22\&schema=%22${db_schema}%22
+
+  #--user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" -V "warehouse=$( x="SNOW_${LOC^^}_WAREHOUSE"; echo "${!x}" )" -V "schema=$( x="SNOW_${LOC^^}_SCHEMA"; echo "${!x}" )" -V "db=arcdst" 
     ;;
     oracle)
   CLASSPATH=${CLASSPATH} JSQSH_JAVA_OPTS="-Doracle.jdbc.timezoneAsRegion=false" jsqsh ${1} --driver="${jsqsh_driver}" --user="${db_user}" --password="${db_pw}" --server="${db_host}" --port="${db_port}" --database="${db_sid}"
@@ -132,12 +134,11 @@ list_dbs() {
         ;;          
         snowflake)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_catalog, count(*) FROM ${DB_CATALOG}.information_schema.tables where table_schema = '${DB_SCHEMA}' group by table_catalog, table_schema order by 1,2; -m csv"
+    local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s,0\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
         ;;
         ase)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
+    local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s,0\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
         ;;
     *)
         echo "jdbc_cli: ${DB_GRP,,} needs to be handled." >&2
@@ -146,7 +147,8 @@ list_dbs() {
 
     echo ${DB_SQL} >&2
     if [ -n "$DB_SQL" ]; then
-        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV"
+        # remove snowflake error message Connection prop...    
+        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV"  | grep -v "^Connection property value"
         return ${PIPESTATUS[1]}
     fi
 }
@@ -179,9 +181,8 @@ list_tables() {
     local DB_SQL="SELECT 'TABLE', table_name from SYSIBM.tables where table_schema='${DB_SCHEMA}' and table_type='BASE TABLE'; -m csv"
         ;;           
         snowflake)
-    local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
-    local DB_SCHEMA=$( x="${LOC^^}DB_SCHEMA"; echo ${!x} )
-    local DB_SQL="SELECT table_type, table_name FROM ${DB_CATALOG}.information_schema.tables where table_type in ('BASE TABLE','VIEW') and table_schema='${DB_SCHEMA}' and table_catalog='${DB_CATALOG}' order by table_name; -m csv"
+    # | TABLE_CAT | TABLE_SCHEM | TABLE_NAME| TABLE_TYPE | REMARKS | TYPE_CAT | TYPE_SCHEM | TYPE_NAME | SELF_REFERENCING_COL_NAME | REF_GENERATION |                                                                    
+    local DB_SQL="\tables --all --type table | awk -F'|' 'NF>1 {printf \"TABLE,%s,%s,%s\n\",\$4,\$2,\$3}' | tr -d '[:blank:]' | tee /tmp/tables.csv"
         ;;
         ase)
     local DB_SQL="\tables --all --type table | awk -F'|' 'NF>1 {printf \"TABLE,%s,%s,%s\n\",\$4,\$2,\$3}' | tr -d '[:blank:]' | tee /tmp/tables.csv"
@@ -193,7 +194,8 @@ list_tables() {
 
     echo ${DB_SQL} >&2
     if [ ! -z "$DB_SQL" ]; then
-        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/'
+        # remove snowflake error message Connection prop...    
+        echo "${DB_SQL}" | jdbc_cli_${LOC,,} "$JSQSH_CSV" | sed 's/^BASE TABLE/TABLE/' | grep -v "^Connection property value"
     fi
 }
 
@@ -339,12 +341,28 @@ dump_table() {
 # repeat to drop tables without constraints first
 drop_all_tables() {
     local LOC=${1:-src}
-    list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
-    while (( "$( cat /tmp/tables.$$.txt | wc -l )" > 0 )); do
+    local DB_GRP=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
+    local last_num_tables_to_drop=0
+    local num_tables_to_drop
+
+    # remove snowflake error message Connection prop...
+    list_tables $LOC | \
+        awk -F',' '{print $2}' > /tmp/tables.$$.txt
+    num_tables_to_drop=$(cat /tmp/tables.$$.txt | wc -l)
+    # stop on when no more tables and at least one tables was deleted 
+    while (( num_tables_to_drop > 0 )) && (( num_tables_to_drop != last_num_tables_to_drop )); do
         echo "droping the following tables: $(cat /tmp/tables.$$.txt | paste -s -d',')"  
-        cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table xxx;" | jdbc_cli_$LOC
+        case ${DB_GRP} in
+        mysql) cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table \`xxx\`;" | jdbc_cli $LOC
+            ;;
+        *) cat /tmp/tables.$$.txt | xargs -I xxx echo  "drop table \"xxx\";" | jdbc_cli $LOC
+            ;;
+        esac
         list_tables $LOC | awk -F',' '{print $2}' > /tmp/tables.$$.txt
+        last_num_tables_to_drop=num_tables_to_drop
+        num_tables_to_drop=$(cat /tmp/tables.$$.txt | wc -l)
     done
+    return ${num_tables_to_drop}
 }
 
 count_all_tables() {
@@ -354,7 +372,7 @@ count_all_tables() {
     while IFS=, read -r type table
     do
         if [ "${type,,}" = "table" ]; then
-            echo "select count(*) from $table;" >> /tmp/tables.count.$$.txt
+            echo "select count(*) from \"$table\";" >> /tmp/tables.count.$$.txt
         fi
     done < /tmp/tables.$$.txt
     cat /tmp/tables.count.$$.txt | jdbc_cli_$LOC

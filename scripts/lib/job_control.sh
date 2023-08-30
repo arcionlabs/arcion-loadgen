@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 kill_recurse() {
-    cpids=`pgrep -P $1|xargs`
+    if [ -z "${1}" ]; then return 0; fi
+
+    cpids=$(pgrep -P $1 | xargs)
     for cpid in $cpids;
     do
         kill_recurse $cpid

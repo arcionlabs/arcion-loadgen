@@ -9,36 +9,52 @@ heredoc_file() {
     # TODO: a way to capture error code from here
 }
 
+copy_config() {
+            filename=$(basename $f)
+            # print info if over writing
+            if [ -f $DST/$filename ]; then
+                echo "override/merge $f -> $DST/$filename"
+            fi 
+            # perform the actual copy
+            local suffix=$( echo $f | awk -F. '{print $NF}' )
+            if [ "$suffix" = "sh" ]; then 
+                # DEBUG: echo "cp $f $DST/$filename"
+                cp ${f} $DST/$filename 
+            elif [ "$suffix" = "yaml" ]; then 
+                # DEBUG: echo "heredoc_file ${f} > $DST/$filename"
+                export EPOC_10TH_SEC="$(epoch_10th_sec)"
+                TMPFILE=$(mktemp)
+                $SCRIPTS_DIR/lib/merge_arcion_yaml.py files $DST/$filename $f > $TMPFILE
+                if [ "$?" = "0" ]; then
+                    mv $TMPFILE $DST/$filename                
+                else
+                    heredoc_file ${f} > $DST/$filename
+                fi 
+            else
+                # DEBUG: echo "heredoc_file ${f} > $DST/$filename"
+                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
+            fi        
+}
+
 copy_hier_as_flat() {
     local SRC=${1:-"./"}
     local PREFIX=$2
     local DST=${3:-/tmp/$(basename $(realpath $SRC))}
     #DEBUG echo "SRC=$SRC DST=$DST PREFIX=$PREFIX"
     [ ! -d "${DST}" ] && mkdir -p ${DST}
-    dir=""
+    dir=""  # intially
     for d in $( echo $SRC |  tr "/" "\n" ); do
-        # DEBUG: echo "*${d}"
+        # DEBUG: echo "${dir}${d}"
         dir="${dir}${d}"
         if [ ! -d "${dir}" ]; then continue; fi
         for f in $( find $dir -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
-            filename=$(basename $f)
-            # print info if over writing
-            if [ -f $DST/$filename ]; then
-                echo override $f $DST/$filename 
-            fi 
-            # perform the actual copy
-            local suffix=$( echo $f | awk -F. '{print $NF}' )
-            if [ "$suffix" = "sh" ]; then 
-                # DEBUG: echo cp $f $DST/$filename
-                cp ${f} $DST/$filename 
-            elif [ "$suffix" = "yaml" ]; then 
-                # DEBUG: echo heredoc_file ${f} \> $DST/$filename
-                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
-            else
-                # DEBUG: echo heredoc_file ${f} \> $DST/$filename
-                EPOC_10TH_SEC="$(epoch_10th_sec)" heredoc_file ${f} > $DST/$filename
-            fi    
+            copy_config
         done
+        if [ -d "$dir/init.d" ]; then
+            for f in $( find $dir/init.d -maxdepth 1 -type f -name $PREFIX\*.yaml -o -name $PREFIX\*.sh -o -name $PREFIX\*.sql -o -name $PREFIX\*.js  -o -name $PREFIX\*.xml ); do
+                copy_config
+            done
+        fi
         dir="${dir}/"
     done
 }
@@ -60,6 +76,7 @@ copy_yaml() {
     [ -z "$DSTDB_TYPE" ] && echo "copy_yaml: DSTDB_TYPE is blank" >&2
 
     # copy from template (utils dir)
+    # SRCDB_INIT_DIR is from profile
     pushd ${SCRIPTS_DIR}/utils >/dev/null
     copy_hier_as_flat ${SRCDB_INIT_DIR} src $CFG_DIR
     copy_hier_as_flat ${DSTDB_INIT_DIR} dst $CFG_DIR
@@ -71,8 +88,8 @@ copy_yaml() {
     # override template from the src and dst configs into a flat dir
     pushd ${SCRIPTS_DIR} >/dev/null
     copy_hier_as_flat $SRCDB_DIR src $CFG_DIR
-    copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR dst $CFG_DIR
+    copy_hier_as_flat $SRCDB_DIR/benchbase/src sample $CFG_DIR/benchbase/src
     copy_hier_as_flat $DSTDB_DIR/benchbase/dst sample $CFG_DIR/benchbase/dst
     copy_hier_as_flat $METADATA_DIR meta $CFG_DIR
     popd >/dev/null
@@ -84,6 +101,37 @@ copy_yaml() {
         popd >/dev/null
     fi
 
+    # merge the filter yaml
+    $SCRIPTS_DIR/lib/merge_arcion_yaml.py filter \
+        --basedir $SCRIPTS_DIR/arcion/filter \
+        $(echo ${arcion_filters} | tr ',' ' ' ) \
+        > $CFG_DIR/src_filter.yaml
+
+    # merge the applier / extractor yaml
+    for configs in src_extractor dst_applier; do
+        readarray -d '_' -t loc_config < <(printf '%s' "${configs}")
+        loc=${loc_config[0]}
+        config=${loc_config[1]}
+        baseyaml="${CFG_DIR}/${loc}_${config}.yaml"
+        # skip basefile does not exist
+        if [ -f "${baseyaml}" ]; then
+            TMPFILE=$(mktemp)
+            $SCRIPTS_DIR/lib/merge_arcion_yaml.py app \
+                --replmode "${REPL_TYPE}" \
+                --config ${config} \
+                --baseyaml ${baseyaml} \
+                --basedir $SCRIPTS_DIR/app \
+                $(echo ${arcion_filters} | tr ',' ' ' ) \
+                > $TMPFILE
+            if [ "$?" = "0" ]; then 
+                diff ${baseyaml} $TMPFILE
+                mv ${baseyaml} ${baseyaml}.old
+                mv $TMPFILE ${baseyaml}
+            fi
+        fi
+    done
+
+    # done
     echo "Config at $CFG_DIR"
 }
 

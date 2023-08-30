@@ -1,0 +1,20 @@
+{% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
+snapshot:
+  per-table-config:
+  - catalog: {{'SRCDB_DB'|getenv('')}}
+    schema: {{'SRCDB_SCHEMA'|getenv('')}}
+    tables:
+      ORDER_LINE:
+        split-key: OL_W_ID
+        split-method: RANGE
+      order_line:
+        split-key: ol_w_id
+        split-method: RANGE   
+      STOCK:
+        split-key: S_W_ID
+        split-method: RANGE
+      stock:
+        split-key: s_w_id
+        split-method: RANGE   
+
+{% endif %}

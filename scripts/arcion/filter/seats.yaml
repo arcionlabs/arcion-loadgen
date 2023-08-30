@@ -1,0 +1,26 @@
+allow:
+- catalog: ${SRCDB_DB}_seats
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    config_profile:
+    config_histograms:
+    reservation:
+    frequent_flyer:
+    customer:
+    flight:
+    airport_distance:
+    airport:
+    airline:
+    country:
+
+    CONFIG_PROFILE:
+    CONFIG_HISTOGRAMS:
+    RESERVATION:
+    FREQUENT_FLYER:
+    CUSTOMER:
+    FLIGHT:
+    AIRPORT_DISTANCE:
+    AIRPORT:
+    AIRLINE:
+    COUNTRY:    

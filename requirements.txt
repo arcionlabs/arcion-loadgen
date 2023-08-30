@@ -1,11 +1,20 @@
+git+https://github.com/arcionlabs/jsonschema@tuple-as-key
+pydantic
+universal_pathlib
+expandvars
+requests
+aiohttp
 yq
+jsonmerge
 virtualenv
 libtmux
-pyyaml
+ruamel.yaml
 psutil
-omegaconf
-hydra-core
-streamlit
+Jinja2
+jinja2-cli
+jinja2_getenv_extension
+click
+Pygments
 # CDC load generator in lieu of Python JDBC Bridge
 # JayDeBeApi
 # failing on buildx

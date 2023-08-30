@@ -19,8 +19,54 @@ PROG_DIR=$(dirname "${BASH_SOURCE[0]}")
 . $PROG_DIR/lib/nine_char_id.sh
 . $PROG_DIR/lib/prep_arcion_log.sh
 . $PROG_DIR/lib/prep_arcion_lic.sh
+. $PROG_DIR/bin/run_arcion.sh
 
-cd ${SCRIPTS_DIR}
+# wait for jobs to finish for ctrl-c to exit
+control_c() {
+    tmux send-keys -t :0.1 C-c
+    tmux send-keys -t :0.2 C-c
+    tmux send-keys -t :0.3 C-c
+    tmux send-keys -t :7.0 C-c
+    tmux select-pane -t :0.0  # console
+    # give chance to quiet down
+    echo "Waiting 5 sec for CDC to finish" >&2
+    sleep 5
+    kill_jobs
+    kill_recurse $ARCION_PID  # required as catch all
+}
+
+exit_message() {
+  control_c
+  echo "cfg is at $CFG_DIR"
+  echo "log is at ${ARCION_LOG}/$LOG_ID"
+  echo "you can rerun with arcdemo.sh -f $CFG_DIR"
+}
+
+count_cdclog() {
+  local EARLYEXIT_OPT=${EARLYEXIT_OPT}
+  case ${SRCDB_GRP,,} in
+  oracle)
+    EARLYEXIT_OPT="-v maxrealstalls=300 $EARLYEXIT_OPT"
+    ;;
+  snowflake)
+    EARLYEXIT_OPT="-v maxrealstalls=300 -v maxemptystalls=300 $EARLYEXIT_OPT"
+    ;;
+  esac
+
+  while [ ! -f $CFG_DIR/arcion.log ] && [ ! -s  $CFG_DIR/arcion.log ]; do sleep 1; done
+  tail -f $CFG_DIR/arcion.log | \
+    awk $EARLYEXIT_OPT -v maxsnapsecs="${workload_timer}" -v maxrealsecs="${fullcdc_timer}" -f $SCRIPTS_DIR/lib/earlyexit.awk \
+      > $CFG_DIR/earlyexit.csv 2> $CFG_DIR/earlyexit.txt
+  rc=${PIPESTATUS[1]}
+  if [[ "$rc" = "0" ]] || [[ "$rc" = "10" ]]; then
+    figlet -t -f banner "success"
+  else  
+    figlet -t -f banner "earlyexit"
+  fi
+  exit_message 
+}
+
+cd "${SCRIPTS_DIR}" || exit 1
 
 # prep arcion_log
 prep_arcion_log # prep_arcion_log.sh
@@ -183,28 +229,30 @@ else
 fi  
 
 # exit if src or dst init failed
-if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_src.log)" ]]; then echo "arcdemo.sh: src init failed."; fi  
-if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arcdemo.sh: dst init failed."; fi  
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_src.log)" ]]; then echo "arcdemo.sh: src init failed."; exit_message; exit 1; fi  
+if [[ -n "$(grep -v "^0$" $CFG_DIR/exit_status/init_dst.log)" ]]; then echo "arcdemo.sh: dst init failed."; exit_message; exit 1; fi  
 
 # run the replication
 case ${REPL_TYPE,,} in
   full)
-    arcion_full
+    run_arcion #_full
     tmux_show_tpcc
     tmux_show_ycsb
+    count_cdclog &
     ;;
   snapshot)
-    arcion_snapshot
+    run_arcion #_snapshot
     ;;
   delta-snapshot)
-    arcion_delta
+    run_arcion #_delta
     tmux_show_tpcc
     tmux_show_ycsb
     ;;
   real-time)
-    arcion_real
+    run_arcion #arcion_real
     tmux_show_tpcc
     tmux_show_ycsb
+    count_cdclog &
     ;;    
   *)
     echo "REPL_TYPE: ${REPL_TYPE} unsupported"
@@ -214,28 +262,14 @@ esac
 tmux_show_errorlog
 tmux_show_trace
 
-# wait for jobs to finish for ctrl-c to exit
-control_c() {
-    tmux send-keys -t :0.1 C-c
-    tmux send-keys -t :0.2 C-c
-    tmux send-keys -t :0.3 C-c
-    tmux send-keys -t :7.0 C-c
-    tmux select-pane -t :0.0  # console
-    # give chance to quiet down
-    echo "Waiting 5 sec for CDC to finish" >&2
-    sleep 5
-    kill_jobs
-}
+# display arcion progress screen
+tmux_show_arcion_cli_tail
 
 # allow ctl-c to terminate background jobs
 trap control_c SIGINT
 
-# display arcion progress screen
-tmux_show_arcion_cli_tail
-
 # wait for background jobs to finish
 jobs_left=$( wait_jobs "$workload_timer" "$ARCION_PID" )
-control_c
 
-echo "cfg is at $CFG_DIR"
-echo "log is at ${ARCION_LOG}/$LOG_ID"
+exit_message
+

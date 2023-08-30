@@ -1,0 +1,4 @@
+stage:
+  type: SHARED_FS
+  root-dir: /opt/oracle/share  #Enter replicant view of the path of the shared directory 
+  

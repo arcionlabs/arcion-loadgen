@@ -1,0 +1,42 @@
+allow:
+- catalog: ${SRCDB_DB}_auctionmark
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    item_attribute:
+    item_image:
+    item_comment:
+    item_max_bid:
+    useracct_item:
+    item_purchase:
+    item_bid:
+    global_attribute_value:
+    global_attribute_group:
+    config_profile:
+    useracct_feedback:
+    useracct_watch:
+    item:
+    useracct_attributes:
+    useracct:
+    region:
+    category:   
+
+    ITEM_ATTRIBUTE:
+    ITEM_IMAGE:
+    ITEM_COMMENT:
+    ITEM_MAX_BID:
+    USERACCT_ITEM:
+    ITEM_PURCHASE:
+    ITEM_BID:
+    GLOBAL_ATTRIBUTE_VALUE:
+    GLOBAL_ATTRIBUTE_GROUP:
+    CONFIG_PROFILE:
+    USERACCT_FEEDBACK:
+    USERACCT_WATCH:
+    ITEM:
+    USERACCT_ATTRIBUTES:
+    USERACCT:
+    REGION:
+    CATEGORY:   
+
+ 

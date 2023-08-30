@@ -21,15 +21,20 @@ sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
 db_schema_lower=${db_schema,,}
 
-if [ "${SRCDB_ARC_USER}" != "${db_schema_lower}" ]; then
-  echo "ycsb run $LOC: "${SRCDB_ARC_USER}" != "${db_schema_lower} skipping
-  exit
-fi
+echo "${SRCDB_SID} ${SRCDB_DB} ${SRCDB_SCHEMA}"
+
+#if [ "${SRCDB_DB}" != "${db_schema_lower}" ]; then
+#  echo "ycsb run $LOC: "${sid_db}" != "${db_schema_lower} skipping
+#  exit
+#fi
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
   ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
     # source in libs
+    if [ -z "${ycsb_modules_csv}" ]; then
+      ycsb_modules_csv=${workload_modules_bb}
+    fi
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_run_src "$@"
     ;;

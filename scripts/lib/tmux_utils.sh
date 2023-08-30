@@ -41,15 +41,16 @@ tmux_create_windows() {
 }
 
 tmux_show_tpcc() {
-    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; banner tpcc; sleep 5; /scripts/bin/benchbase-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.1 "clear; figlet -t "benchbase"; sleep 5; /scripts/bin/benchbase-run.sh" Enter
 }
 
 tmux_show_ycsb() {
-    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; banner ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.2 "clear; figlet -t ycsb; sleep 5; /scripts/bin/ycsb-run.sh" Enter
 }
 
 tmux_show_errorlog() {
-    tmux send-keys -t ${TMUX_SESSION}:0.3 "clear; banner errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/error_trace.log" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.3 "figlet -t errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 1; done; cd ${ARCION_LOG}/${LOG_ID}; tail -f error_trace.log" Enter
+
 }
 
 tmux_show_verification() {
@@ -74,8 +75,7 @@ tmux_show_yaml()  {
 tmux_show_trace()  {
     local TMUX_SESSION=${1}
 
-    tmux send-keys -t ${TMUX_SESSION}:2.0 "while [ ! -f ${ARCION_LOG}/${LOG_ID}/trace.log ]; do sleep 5; done; tail -f ${ARCION_LOG}/${LOG_ID}/trace.log" Enter
-    tmux send-keys -t ${TMUX_SESSION}:2.0 ":E" Enter 
+    tmux send-keys -t ${TMUX_SESSION}:2.0 "while [ ! -f ${ARCION_LOG}/${LOG_ID}/trace.log ]; do sleep 1; done; cd ${ARCION_LOG}/${LOG_ID}; tail -f trace.log" Enter
 }
 
 tmux_show_console()  {
@@ -91,7 +91,7 @@ tmux_show_workload()  {
     tmux_show_yaml
 
     # dstat
-    tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat --noheaders --noupdate -o $CFG_DIR/dstat.log" Enter 
+    tmux send-keys -t ${TMUX_SESSION}:7.0 "dstat --all -lmpt --noheaders --noupdate -o $CFG_DIR/dstat.csv" Enter 
 
     # verification
     tmux_show_verification
@@ -101,14 +101,14 @@ tmux_show_workload()  {
 }
 
 tmux_show_src_sql_cli() {
-    tmux send-keys -t :3.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_src" enter
-    tmux send-keys -t :4.0  "banner src; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_src" enter
+    tmux send-keys -t :3.0  "figlet -t src user; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_src" enter
+    tmux send-keys -t :4.0  "figlet -t src root; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_src" enter
 }
 
 tmux_show_dst_sql_cli() {
-    # the dst somtimes cannot get ready to accept connection righ away
-    tmux send-keys -t :3.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_dst" enter
-    tmux send-keys -t :4.1  "banner dst; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_dst" enter
+    # the dst somtimes cannot get ready to accept connection right away
+    tmux send-keys -t :3.1  "figlet -t dst user; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_cli_dst" enter
+    tmux send-keys -t :4.1  "figlet -t dst root; sleep 5; . /tmp/ini_menu.sh; . /scripts/lib/jdbc_cli.sh; jdbc_root_cli_dst" enter
 }
 
 

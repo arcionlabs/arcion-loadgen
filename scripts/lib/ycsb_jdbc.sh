@@ -6,13 +6,27 @@
 . ${SCRIPTS_DIR}/lib/ycsb_args.sh
 . ${SCRIPTS_DIR}/lib/ycsb_jdbc_create_table.sh
 
+set_fq_table_name() {
+  export fq_table_name=${ycsb_table}${ycsb_size_factor_name}
+  export fq_lower_table_name=${fq_table_name,,}
+}
+
 ycsb_rows() {
   local LOC="${1:-src}"        # SRC|DST 
-  local sql="select max(ycsb_key) from ${ycsb_table}"
+  local sql="select max(ycsb_key) from ${fq_table_name}"
 
-  if [ "${SRCDB_CASE}" = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+  case "${SRCDB_CASE}" in
+    upper) sql=$(echo $sql | tr '[:lower:]' '[:upper:]');;
+    lower) sql=$(echo $sql | tr '[:upper:]' '[:lower:]');;
+    *) ;;
+  esac
 
-  x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" )
+  echo $sql >&2
+
+  x=$( echo "$sql; -m csv" | jdbc_cli "${LOC,,}" "-n -v headers=false -v footers=false" | grep -v "^Connection property value")
+
+  echo $x >&2
+
   if [ -z "$x" ]; then
     echo "0"
   else
@@ -24,9 +38,13 @@ ycsb_rows() {
 ycsb_select_key() {
   local LOC="${1:-src}"        # SRC|DST 
   local ycsb_key="$2"
-  local sql="select ycsb_key from ${ycsb_table} where ycsb_key=$ycsb_key"
+  local sql="select ycsb_key from ${fq_table_name} where ycsb_key=$ycsb_key"
 
-  if [ ${SRCDB_CASE} = "upper" ]; then sql=$(echo $sql | tr '[:lower:]' '[:upper:]'); fi
+  case "${SRCDB_CASE}" in
+    upper) sql=$(echo $sql | tr '[:lower:]' '[:upper:]');;
+    lower) sql=$(echo $sql | tr '[:upper:]' '[:lower:]');;
+    *) ;;
+  esac
 
   echo "$sql; -m csv" | jdbc_cli ${LOC,,} "-n -v headers=false -v footers=false"
 }
@@ -42,6 +60,9 @@ ycsb_load() {
   local recordcount=${2}    
 
   if [ -z "${jdbc_url}" ] || [ -z "${recordcount}" ]; then echo "Error: jdbc_url and recordcount not set." >&2; return 1; fi
+
+  # set default if not set
+  [ -z "${CFG_DIR}" ] && CFG_DIR=/tmp
 
   local ycsb_load_basedon_sf=$( echo "scale=0; (l (${ycsb_size_factor}) ) / 1" | bc -l )
   if [ -z "${ycsb_load_basedon_sf}" ] || [ "${ycsb_load_basedon_sf}" = "0" ]; then
@@ -65,6 +86,9 @@ ycsb_load() {
     postgresql)
       local jdbc_url="${jdbc_url}&reWriteBatchedInserts=true"
       ;;
+    snowflake)
+      local ycsb_batchsize=16384
+      ;;      
     # needs 0.18
     # sqlserver)
     #  jdbc_url="${jdbc_url}:IFX_USEPUT=1;"
@@ -92,7 +116,7 @@ ycsb_load() {
     -p jdbc.batchupdateapi=true \
     -p db.urlsharddelim='___' \
     -p db.batchsize=${ycsb_batchsize} \
-    -p table=${ycsb_table} \
+    -p table=${fq_table_name} \
     -p insertstart=${ycsb_insertstart} \
     -p recordcount=${recordcount} \
     -p requestdistribution=uniform \
@@ -100,7 +124,7 @@ ycsb_load() {
     -p jdbc.ycsbkeyprefix=false \
     -p fieldnameprefix="FIELD" \
     -p insertorder=ordered \
-    -p fieldcount=0
+    -p fieldcount=${ycsb_fieldcount} 2>&1 | tee $CFG_DIR/ycsb-load-${ycsb_module}.log
 }
 
 # $1 = src|dst
@@ -123,16 +147,16 @@ ycsb_load_sf() {
       awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]' ) )"
   else
     echo "ycsb_load_sf: list of tables $2"
-    local -n ycsb_load_sf_db_tabs=${2}
+    local -n ycsb_load_sf_db_tabs=${2,,}
   fi
 
-  if [ -z "${ycsb_table}" ]; then exit 1; fi
+  if [ -z "${fq_lower_table_name}" ]; then echo "\$fq_lower_table_name not defined."; exit 1; fi
 
   # create table def if not found
-  echo "looking for ${ycsb_table,,:$} in ${ycsb_load_sf_db_tabs[*]}"
-  if [ -z "${ycsb_load_sf_db_tabs[${ycsb_table,,}]}" ]; then 
-    echo "${ycsb_table} not found.  creating"
-    ycsb_create_table ${ycsb_size_factor_name} | jdbc_cli "$LOC" "-n"
+  echo "looking for ${fq_lower_table_name} in ${ycsb_load_sf_db_tabs[*]}"
+  if [ -z "${ycsb_load_sf_db_tabs[${fq_lower_table_name}]}" ]; then 
+    echo "${fq_lower_table_name} not found.  creating"
+    ycsb_create_table "${ycsb_size_factor_name}" | jdbc_cli "$LOC" "-n"
   fi
 
   # number of new records to add
@@ -152,16 +176,38 @@ ycsb_load_sf() {
   fi
 }
 
+
 function ycsb_load_src() { 
   ycsb_opts "$@"
   ycsb_src_dst_param "src"
-  ycsb_load_sf src
+
+  echo "ycsb_load_src: Loading ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module
+    set_fq_table_name
+
+    if (( $? == 0 )); then 
+      echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${fq_table_name}"
+      ycsb_load_sf src
+    fi
+  done
 }
+
 
 function ycsb_load_dst() {   
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
-  ycsb_load_sf dst
+
+  echo "ycsb_load_dst: Loading ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module
+    set_fq_table_name
+    
+    if (( $? == 0 )); then 
+      echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
+      ycsb_load_sf dst
+    fi
+  done
 }
 
 
@@ -173,6 +219,9 @@ ycsb_run() {
   [ -z "${jdbc_url}" ] && { echo "jdbc_url not set" >&2; return 1; }
   [ -z "${jdbc_driver}" ] && { echo "jdbc_driver not set" >&2; return 1; }
   [ -z "${jdbc_classpath}" ] && { echo "jdbc_classpath not set" >&2; return 1; }
+
+  # set default if not set
+  [ -z "${CFG_DIR}" ] && CFG_DIR=/tmp
 
   # these not typically set
   local ycsb_insertstart=${ycsb_insertstart:-${const_ycsb_insertstart}}
@@ -199,7 +248,7 @@ ycsb_run() {
   -p readproportion=0 \
   -p workload=site.ycsb.workloads.CoreWorkload \
   -p requestdistribution=uniform \
-  -p table=${ycsb_table} \
+  -p table=${fq_table_name} \
   -p recordcount=${const_ycsb_recordcount} \
   -p insertstart=${ycsb_insertstart} \
   -p operationcount=${const_ycsb_operationcount} \
@@ -217,10 +266,26 @@ ycsb_run() {
   -p zeropadding=${const_ycsb_zeropadding} \
   -p jdbc.ycsbkeyprefix=false \
   -p fieldnameprefix="FIELD" \
-  -p insertorder=ordered &
+  -p insertorder=ordered 2>&1 | tee $CFG_DIR/ycsb-run-${ycsb_module}.log &
 
   # save the PID  
   export YCSB_RUN_PID="$!"
+}
+
+function ycsb_run_src() {
+  ycsb_opts "$@"
+  ycsb_src_dst_param "src"
+
+  echo "ycsb_run_src: Running ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module  
+    if (( $? == 0 )); then 
+      set_fq_table_name
+      echo "ycsb_run_src: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
+      ycsb_run "src"
+    fi
+  done 
+
   # wait for job to finish, expire, or killed by ctl-c
   trap kill_jobs SIGINT
   echo "ycsb waiting ${ycsb_timer}"
@@ -229,14 +294,24 @@ ycsb_run() {
   kill_jobs
 }
 
-function ycsb_run_src() {
-  ycsb_opts "$@"
-  ycsb_src_dst_param "src"
-  ycsb_run "src" 
-}
-
 function ycsb_run_dst() {
   ycsb_opts "$@"
   ycsb_src_dst_param "dst"
-  ycsb_run "dst"
+
+  echo "ycsb_run_dst: Running ycsb modules ${ycsb_modules_csv}"
+  for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
+    set_ycsb_table_name $ycsb_module  
+    if (( $? == 0 )); then 
+      set_fq_table_name
+      echo "ycsb_run_dst: Running ycsb module ${ycsb_module} with table ${fq_table_name}"
+      ycsb_run "dst"
+    fi
+  done
+
+  # wait for job to finish, expire, or killed by ctl-c
+  trap kill_jobs SIGINT
+  echo "ycsb waiting ${ycsb_timer}"
+  wait_jobs "${ycsb_timer}"
+  echo "ycsb waiting ${ycsb_timer} done"
+  kill_jobs  
 }

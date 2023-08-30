@@ -14,3 +14,5 @@ sed -i.bak "s/^.*[[:blank:]]\+${DSTDB_ARC_USER}.${DSTDB_HOST}.*\$//g" /tmp/etc_h
 sudo cp /tmp/etc_hosts.new /etc/hosts
 echo "Removed ${DSTDB_ARC_USER}.${DSTDB_HOST} from /etc/hosts"
 diff /etc/hosts /tmp/etc_hosts.new.bak
+
+exit 0

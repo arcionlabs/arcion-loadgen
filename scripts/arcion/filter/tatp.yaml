@@ -1,0 +1,13 @@
+allow:
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    access_info:
+    call_forwarding:
+    special_facility:
+    subscriber:
+    ACCESS_INFO:
+    CALL_FORWARDING:
+    SPECIAL_FACILITY:
+    SUBSCRIBER:

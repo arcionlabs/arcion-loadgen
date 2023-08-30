@@ -1,0 +1,11 @@
+{% if 'DSTDB_TYPE'|getenv('') in ('s2') %}
+snapshot:
+  per-table-config:
+  - catalog: {{'DSTDB_DB'|getenv('')}}
+    schema: {{'DSTDB_SCHEMA'|getenv('')}}
+    tables:
+      USERTABLE{{'workload_size_factor_str'|getenv('')}}:
+        table-store: column
+      usertable{{'workload_size_factor_str'|getenv('')}}:
+        table-store: column
+{% endif %}

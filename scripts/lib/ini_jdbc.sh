@@ -53,8 +53,8 @@ case "${SRCDB_GRP,,}" in
     SRCDB_YCSB_DRIVER="jdbc"
     SRCDB_JSQSH_DRIVER="snowflake"
     SRCDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
-    SRCDB_JDBC_URL="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?schema=${SRCDB_SCHEMA}&warehouse=${SNOW_SRC_WAREHOUSE}&db=${SRCDB_USER_CHANGE}"   
-    SRCDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?schema=${SRCDB_SCHEMA}&amp;warehouse=${SNOW_SRC_WAREHOUSE}&amp;db=${SRCDB_USER_CHANGE}"   
+    SRCDB_JDBC_URL="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?schema=%22${SRCDB_SCHEMA}%22&warehouse=${SNOW_SRC_WAREHOUSE}&db=%22${SRCDB_DB}%22"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${SRCDB_HOST}:${SRCDB_PORT}/?schema=%22${SRCDB_SCHEMA}%22&amp;warehouse=${SNOW_SRC_WAREHOUSE}&amp;db=%22${SRCDB_DB}%22"   
     SRCDB_JDBC_NO_REWRITE=""
     SRCDB_JDBC_REWRITE=""
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/snowflake-jdbc*jar | paste -sd :)"
@@ -116,7 +116,7 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_DRIVER="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
-    SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT}"   
+    SRCDB_JDBC_URL="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};database=${SRCDB_USER_CHANGE}"   
     SRCDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${SRCDB_HOST}:${SRCDB_PORT};database=${SRCDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"   
     SRCDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     SRCDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"      
@@ -163,8 +163,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_YCSB_DRIVER="jdbc"
     DSTDB_JSQSH_DRIVER="snowflake"
     DSTDB_JDBC_DRIVER="net.snowflake.client.jdbc.SnowflakeDriver"
-    DSTDB_JDBC_URL="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_USER_CHANGE}&warehouse=${SNOW_DST_WAREHOUSE}"   
-    DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=${DSTDB_USER_CHANGE}&amp;schema=${DSTDB_SCHEMA}&amp;warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=%22${DSTDB_DB}%22&schema=%22${DSTDB_SCHEMA}%22&warehouse=${SNOW_DST_WAREHOUSE}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:snowflake://${DSTDB_HOST}:${DSTDB_PORT}/?db=%22${DSTDB_DB}%22&amp;schema=%22${DSTDB_SCHEMA}%22&amp;warehouse=${SNOW_DST_WAREHOUSE}"   
     DSTDB_JDBC_NO_REWRITE=""
     DSTDB_JDBC_REWRITE=""
     DSTDB_CLASSPATH="$( find ${ARCION_HOME}/lib -name "snowflake-jdbc*jar" | paste -sd :)"
@@ -225,8 +225,8 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_DRIVER="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     # NOTE: YCSB bug https://github.com/brianfrankcooper/YCSB/issues/1458
     # cannot use ;databaseName=${DSTDB_ARC_USER}
-    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};encrypt=false"
-    DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};;database=${DSTDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"
+    DSTDB_JDBC_URL="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};database=${DSTDB_USER_CHANGE};encrypt=false"
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:sqlserver://${DSTDB_HOST}:${DSTDB_PORT};database=${DSTDB_USER_CHANGE};encrypt=false;useBulkCopyForBatchInsert=true"
     DSTDB_JDBC_NO_REWRITE="s/useBulkCopyForBatchInsert=true/useBulkCopyForBatchInsert=false/g"
     DSTDB_JDBC_REWRITE="s/useBulkCopyForBatchInsert=false/useBulkCopyForBatchInsert=true/g"  
     DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/mssql*jar | paste -sd :)"

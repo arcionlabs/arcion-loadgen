@@ -6,11 +6,15 @@ export default_cdc_thread_ratio=1:1
 export default_workload_rate=1
 export default_workload_threads=1
 export default_workload_timer=600
+export default_fullcdc_timer=300
 export default_workload_size_factor=1
 export default_workload_size_factor_bb=1
-export default_workload_modules_bb="tpcc"
+export default_workload_modules_bb="tpcc,ycsb,ycsbsparse"
 export default_gui_run=0
 export default_database_maps="arcsrc:arcdst"
+export default_arcion_filters=""
+export default_srcdb_id="arcsrc"
+export default_dstdb_id="arcdst"
 
 export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 [ -z "${default_max_cpus}" ] && default_max_cpus=1  
@@ -19,7 +23,7 @@ export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 # the same temp table is created
 # export default_ARCION_ARGS="--append-existing --overwrite --verbose"
 # append-existing causes temp table to be created on destination
-export default_ARCION_ARGS="--replace-existing --overwrite --verbose"
+export default_ARCION_ARGS="--replace-existing --overwrite"
 # export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
 
 export default_TMUX_SESSION=arcion
@@ -30,6 +34,7 @@ export cdc_thread_ratio="${cdc_thread_ratio:-$default_cdc_thread_ratio}"
 export workload_rate="${workload_rate:-$default_workload_rate}"
 export workload_threads="${workload_threads:-$default_workload_threads}"
 export workload_timer="${workload_timer:-$default_workload_timer}"
+export fullcdc_timer="${fullcdc_timer:-$default_fullcdc_timer}"
 export workload_size_factor="${workload_size_factor:-$default_workload_size_factor}"
 export gui_run="${gui_run:-$default_gui_run}"
 export max_cpus="${max_cpus:-$default_max_cpus}"
@@ -39,10 +44,11 @@ if [[ ${workload_size_factor} = "1" ]]; then
 else
   export workload_size_factor_str=${workload_size_factor} 
 fi
+export arcion_filters="${arcion_filters:-$default_arcion_filters}"
 
 # benchbase specific
 export workload_rate_bb="${workload_rate:-$default_workload_rate}"
-export workload_timer_bb="${workload_timer:-$default_workload_timer}"
+export workload_timer_bb="${workload_timer:-$default_fullcdc_timer}"
 export workload_size_factor_bb="${workload_size_factor:-$default_workload_size_factor_bb}"
 export workload_modules_bb="${workload_modules_bb:-$default_workload_modules_bb}"
 
@@ -68,17 +74,25 @@ $0: arcdemo [snapshot|real-time|full|delta-snapshot] [src_uri] [dst_uri]
   flags
     -g run using GUI=${gui_run}
   params
+    -A appliers/yaml.file
+       extractors/yaml.file
+       filters/yaml.file
+       source/yaml.file
+       target/yaml.file
+       transforms/yaml.file
+       general/yaml.file
     -b snapshot_thread_ratio=${snapshot_thread_ratio}
     -c cdc_thread_ratio=${cdc_thread_ratio}
     -f cfg_dir=${CFG_DIR}
     -m max_cpus=${max_cpus}
     -r workload_rate=${workload_rate}
     -t workload_threads=${workload_threads}
-    -w workload_timer=${workload_timer}
+    -w workload_timer=${workload_timer}:${fullcdc_timer}
     -s workload_size_factor=${workload_size_factor}
     -D database_maps=${database_maps}[,source:destination]
     -W workload_modules_bb=${workload_modules_bb}[,module]
-      module=resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb
+      module=ycsbsparse,ycsbdense,
+             resourcestresser,sibench,smallbank,tatp,tpcc,twitter,voter,ycsb
 
 Examples:
     arcdemo.sh snapshot postgresql mysql 
@@ -104,8 +118,19 @@ function arcdemo_opts() {
             m ) export max_cpus="$OPTARG" ;;
             r ) export workload_rate="$OPTARG" ;;
             t ) export workload_threads="$OPTARG" ;;
-            w ) export workload_timer="$OPTARG" ;;
-            s ) export workload_size_factor="$OPTARG" ;;
+            w ) readarray -d':' -t TIMER_ARRAY < <(printf '%s' "$OPTARG") 
+                export workload_timer=${TIMER_ARRAY[0]}
+                if [ -n "${TIMER_ARRAY[1]}" ]; then
+                  fullcdc_timer=${TIMER_ARRAY[1]}
+                fi
+                ;;
+            s ) export workload_size_factor="$OPTARG" 
+                if [[ ${workload_size_factor} = "1" ]]; then
+                  export workload_size_factor_str="" 
+                else
+                  export workload_size_factor_str=${workload_size_factor} 
+                fi
+                ;;
             D ) export database_maps="$OPTARG" ;;
             W ) export workload_modules_bb="$OPTARG" ;;
             h | * ) arcdemo_usage; exit 1 ;;
@@ -117,7 +142,7 @@ function arcdemo_opts() {
   [ "${workload_rate_bb}" = "0" ] && workload_rate_bb="unlimited"   # 'unlimited' or 'disabled'
 
   # set TIMER for benchbase adjusting to unlimited
-  if [ "${workload_timer}" = "0" ]; then
+  if [ "${workload_timer_bb}" = "0" ]; then
     workload_timer_bb=$((24*60*60))
     echo "bb: limiting run time to ${workload_timer_bb} secods ie:24 hours" >&2
   fi

@@ -67,17 +67,17 @@ bb_create_tables() {
     local LOC="${bb_loc}"
     local workloads="${bb_modules_csv}"
 
-    # NOTE: <<<$workloads add newline on the last element. 
-    # use < <(printf '%s' "$workloads") to fix that 
-    readarray -td, workloads_array < <(printf '%s' "$workloads")
-
-    if ! bb_chdir; then return; fi
-
     # DEBUG
     echo "benchbase worload: ${workloads}"
     echo "benchbase db group: $db_grp"
     echo "benchbase db type: $db_type"
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"
+
+    # NOTE: <<<$workloads add newline on the last element. 
+    # use < <(printf '%s' "$workloads") to fix that 
+    readarray -td, workloads_array < <(printf '%s' "$workloads")
+
+    if ! bb_chdir; then return; fi
 
     declare -A "EXISITNG_TAB_HASH=( $( list_tables ${LOC,,} | \
         awk -F',' '{print "[" $2 "]=" $2}' | tr '[:upper:]' '[:lower:]') )"
@@ -87,6 +87,13 @@ bb_create_tables() {
     local workload_prof_header_csv=${WORKLOAD_TABLE_HASH["workload"]}
 
     for w in "${workloads_array[@]}"; do
+
+        # skip unknown modules
+        if [ -z "${WORKLOAD_TABLE_HASH[$w]}" ]; then
+            echo "bb_create_tables: ignoring $w"
+            continue
+        fi  
+
         declare -A workload_prof_dict=()
         csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
         # DEBUG 
@@ -155,7 +162,7 @@ bb_create_tables() {
             $JAVA_HOME/bin/java $JAVA_OPTS \
             -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
             --interval-monitor 10000 \
-            --create=true --load=true --execute=false
+            --create=true --load=true --execute=false | tee $CFG_DIR/bb-load-${w}.log
         else
             # do not drop the existing tables as take time to refill them
             echo "$w: skipping table create $workload_table_exists table exists."
@@ -186,6 +193,11 @@ bb_run_tables() {
     JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
     for w in "${workloads_array[@]}"; do
 
+        if [ -z "${WORKLOAD_TABLE_HASH[$w]}" ]; then
+            echo "bb_run_tables: ignoring $w"
+            continue
+        fi    
+
         declare -A workload_prof_dict=()
         csv_as_dict workload_prof_dict "${workload_prof_header_csv}" "${WORKLOAD_TABLE_HASH[$w]}"
         # DEBUG
@@ -211,7 +223,7 @@ bb_run_tables() {
         $JAVA_HOME/bin/java  $JAVA_OPTS \
         -jar benchbase.jar -b $w -c $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$ \
         --interval-monitor 10000 \
-        --create=false --load=false --execute=true &
+        --create=false --load=false --execute=true | tee $CFG_DIR/bb-run-${w}.log &
     done    
 
     popd >/dev/null || { echo "Error:bb_run_tables: popd filed $(pwd)"; }

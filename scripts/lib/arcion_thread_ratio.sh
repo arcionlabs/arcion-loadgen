@@ -25,12 +25,12 @@ get_tuple() {
 parse_arcion_thread_ratio() {
 
     get_tuple "${snapshot_thread_ratio}" "${max_cpus}"
-    SRCDB_SNAPSHOT_THREADS=${c1}
-    DSTDB_SNAPSHOT_THREADS=${c2}
+    export SRCDB_SNAPSHOT_THREADS=${c1}
+    export DSTDB_SNAPSHOT_THREADS=${c2}
 
     get_tuple "${cdc_thread_ratio}" "${max_cpus}"
-    SRCDB_REALTIME_THREADS=${c1}
-    DSTDB_REALTIME_THREADS=${c2}
+    export SRCDB_REALTIME_THREADS=${c1}
+    export DSTDB_REALTIME_THREADS=${c2}
 
-    SRCDB_DELTA_SNAPSHOT_THREADS=${SRCDB_SNAPSHOT_THREADS}
+    export SRCDB_DELTA_SNAPSHOT_THREADS=${SRCDB_SNAPSHOT_THREADS}
 }

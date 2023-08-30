@@ -1,0 +1,61 @@
+#!/usr/bin/expect
+
+# record asciinema of a source / target / replication mode
+
+set force_conservative 0  ;# set to 1 to force conservative mode even if
+                          ;# script wasn't run conservatively originally
+if {$force_conservative} {
+        set send_slow {1 .1}
+        proc send {ignore arg} {
+                sleep .1
+                exp_send -s -- $arg
+        }
+}
+
+# start bash process
+spawn bash
+expect "\$ $"
+
+# start recording
+send -- "asciinema rec --overwrite $env(RECFILE) \r"
+expect "asciinema: press <ctrl-d>"
+expect "\$ $"
+
+# not required when running inside the docker
+#send -- "docker exec -it arcion-demo-test-workloads-1 bash\r"
+#expect -exact "arcion"
+#expect "\$ $"
+
+send -- "tmux attach-session -t arcion:0.0 \r"
+expect "\$ $"
+
+# clear out the screen
+set timeout 1
+send -- "clear \r" 
+send -- "echo start of Arcion CLI demo \r" 
+expect "start of Arcion CLI demo"
+
+# inside tmux at this point 
+send -- "$env(ARCDEMO_OPTS) $env(REPL_TYPE) $env(SOURCE) $env(TARGET)\r"
+# thisis expect to take a long time
+set timeout 3600
+expect -exact "Waiting 5 sec for CDC to finish"
+set timeout 1
+expect -exact "cfg is at"
+expect -exact "log is at"
+
+# control B d to detach from tmux
+set timeout 1
+send -- "\x02d"
+expect -exact "\[detached (from session arcion)\]"
+expect "\$ $"
+
+# exit from asciinema
+send -- "exit\r"
+expect "asciinema: press <enter> to upload to asciinema.org, <ctrl-c> to save locally"
+# save locally with CTL-C
+send -- "\x03"
+expect "\$ $"
+# get rid of the crud at the end
+send -- "\x03"
+expect "\$ $"

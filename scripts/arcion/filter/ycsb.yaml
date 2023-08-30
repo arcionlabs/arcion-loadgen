@@ -1,0 +1,7 @@
+allow:
+- catalog: ${SRCDB_DB}
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    usertable:
+    USERTABLE:

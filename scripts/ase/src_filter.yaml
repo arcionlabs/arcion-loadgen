@@ -9,7 +9,7 @@ $( case $workload_size_factor in
         if [[ "$DSTDB_GRP" == "oracle" ]]; then
       echo '  block-pattern: DENSETABLE.*|.*10$|.*100$|.*1000$'
         else
-      echo '  block-pattern: .*10$|.*100$|.*1000$'
+      echo '  block-pattern: THEUSERTABLE|.*10$|.*100$|.*1000$'
         fi
       ;;   
      10)

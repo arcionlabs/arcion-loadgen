@@ -1,0 +1,3 @@
+snapshot:
+  bulk-load:
+    enable: false

@@ -55,7 +55,7 @@ function latest_hostname() {
 function arcdemo_positional() {
     
     # set REPL_TYPE from command line
-    if [ ! -z "$1" ]; then 
+    if [ -n "$1" ]; then 
         export REPL_TYPE=$1; 
         case $REPL_TYPE in
             snapshot|real-time|delta-snapshot|full) 
@@ -67,7 +67,7 @@ function arcdemo_positional() {
     fi
 
     # set from SRC URI command line
-    if [ ! -z "$2" ]; then 
+    if [ -n "$2" ]; then 
         unset uri; declare -A uri;  
         unset uri_path; declare -a uri_path;  
         unset uri_query; declare -A uri_query;  
@@ -84,7 +84,7 @@ function arcdemo_positional() {
     fi
 
     # set from DST URL command line
-    if [ ! -z "$3" ]; then
+    if [ -n "$3" ]; then
         unset uri; declare -A uri;  
         unset uri_path; declare -a uri_path;  
         unset uri_query; declare -a uri_query;  
@@ -98,6 +98,13 @@ function arcdemo_positional() {
             [ "${uri[path]}" ] && export DSTDB_DIR="${uri_path[0]}"
             [ "${uri_query[dbs]}" ] && export DSTDB_DB="${uri_query[dbs]}"
         fi
+    fi
+
+    # grab filters CSV
+    if [ -n "$4" ]; then
+        export arcion_filters="${4}"
+    else
+        export arcion_filters="${workload_modules_bb}"
     fi
 }
 
@@ -181,8 +188,8 @@ function set_default_host_user() {
     done
 
     # incase of multiple names, take the latest
-    if [ -z "${SRCDB_HOST}" ]; then SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src"); fi
-    if [ -z "${DSTDB_HOST}" ]; then DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst"); fi
+    if [ -z "${SRCDB_HOST}" ]; then export SRCDB_HOST=$(latest_hostname "${SRCDB_SHORTNAME}" "src"); fi
+    if [ -z "${DSTDB_HOST}" ]; then export DSTDB_HOST=$(latest_hostname "${DSTDB_SHORTNAME}" "dst"); fi
 
     if [ "$workload_size_factor" = "1" ]; then
         export SRCDB_ARC_USER=${SRCDB_ARC_USER:-arcsrc}

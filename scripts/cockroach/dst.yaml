@@ -9,7 +9,7 @@ database: '${DSTDB_ARC_USER}'
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 
-max-connections: 5
+max-connections: 10
 # cockroach txn retries
 max-retries: 10
 

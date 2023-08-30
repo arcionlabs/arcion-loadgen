@@ -1,0 +1,7 @@
+delta-snapshot:
+  threads: {{'SRCDB_DELTA_SNAPSHOT_THREAD'|getenv('')}}
+  _fetch-exact-row-count: false  
+  _traceDBTasks: true
+  fetch-user-roles: false
+  delta-snapshot-interval: 10
+  delta-snapshot-delete-interval: 10 

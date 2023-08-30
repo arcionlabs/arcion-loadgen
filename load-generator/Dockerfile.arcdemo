@@ -85,9 +85,10 @@ RUN DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y \
 # RUN apt-get install -y sysbench
 
 # add ttyd for running terminal commands
-RUN apt-get install -y \
+# libaio1 for Oracle
+RUN apt-get update && apt-get install -y \
     tmux \
-    sysvbanner \
+    figlet \
     vim \
     pcp \
     gettext \
@@ -102,8 +103,11 @@ RUN apt-get install -y \
     unzip \
     groff \
     bindfs \
-    tcpdump
-    
+    tcpdump \
+    libaio1 \
+    git \
+    htop
+
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
 
@@ -116,10 +120,9 @@ RUN apt-get -y install wget && \
     apt-get install -y mongodb-mongosh
 
 # add asciinema and cargo (required ffor agg install that does gif generation)
-RUN apt-get update && apt-get install -y asciinema cargo expect
+RUN apt-get update && apt-get install -y asciinema cargo expect 
 
-# rclone
-RUN curl https://rclone.org/install.sh | bash
+RUN apt-get update && apt-get install -y rclone
 
 # add YCSB with just JDBC binding
 RUN mkdir -p $OPT_DIR && chown -R $USERNAME $OPT_DIR
@@ -139,7 +142,8 @@ RUN mkdir -p $ARCDEV_DIR && chown -R $USERNAME $ARCDEV_DIR
 USER $USERNAME
 
 # asciinema to gif
-RUN cargo install --git https://github.com/asciinema/agg
+# TODO: agg does not reliablly compile
+# RUN cargo install --git https://github.com/asciinema/agg
 
 # setup load generators
 
@@ -220,7 +224,7 @@ COPY --chown=${USERNAME} scripts/utils/jsqsh/drivers.xml /home/${USERNAME}/.jsqs
 
 # python requirements
 COPY --chown=${USERNAME} requirements.txt /home/${USERNAME}/requirements.txt
-RUN pip install -r /home/${USERNAME}/requirements.txt
+RUN pip3 install -U -r /home/${USERNAME}/requirements.txt
 
 # scripts 
 COPY --chown=${USERNAME} scripts/ /scripts/

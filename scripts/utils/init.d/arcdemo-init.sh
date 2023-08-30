@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# fix dstat 
 sudo service pmcd start
 
 # need to remap dir first
@@ -9,12 +10,19 @@ sudo service pmcd start
 
 # optional for x64 machines
 TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
-if [ "${TARGETARCH}" = "amd64" ]; then 
-    /scripts/utils/init.d/install_db2_tools.sh
-    /scripts/utils/init.d/install_oracle_tools.sh
-else
-    echo "${TARGETARCH} does not support db2 and oracle tools"
-fi
+case "${TARGETARCH}" in
+    amd64) 
+        /scripts/utils/init.d/install_db2_tools.sh
+        /scripts/utils/init.d/install_oracle_tools.sh
+        ;;
+    arm64) 
+        /scripts/utils/init.d/install_oracle_tools.sh
+        echo "${TARGETARCH} does not support db2 tools"
+        ;;
+    *)
+        echo "${TARGETARCH} does not support db2 and oracle tools"
+        ;;
+esac
 
 # the rest
 /scripts/utils/init.d/arclic.sh

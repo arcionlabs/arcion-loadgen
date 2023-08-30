@@ -4,7 +4,9 @@
 
 ycsb_usage() {
   echo "ycsb: override on the command line or set
-    -B|--batchsize ycsb_batchsize=${default_ycsb_batchsize}
+    -B|--batchsize ycsbbatchsize=${default_ycsb_batchsize}
+    -L|--loc=${default_ycsb_loc}
+    -W|--workloads=${default_ycsb_modules_csv}
     -r ycsb_rate=${default_ycsb_rate}
     -s ycsb_size_factor=${default_ycsb_size_factor}
     -t ycsb_threads=${default_ycsb_threads}
@@ -35,6 +37,12 @@ function ycsb_opts() {
       -B|--batchsize) 
         args_ycsb_batchsize="$1"; shift; ((params_processed++))
         ;;
+      -L|--loc) 
+        args_ycsb_loc="$1"; shift; ((params_processed++))
+        ;;        
+      -W|--workloads) 
+        args_ycsb_modules_csv="$1"; shift; ((params_processed++))
+        ;;        
       -r) 
         args_ycsb_rate="$1"; shift; ((params_processed++))
         ;;
@@ -61,6 +69,8 @@ function ycsb_opts() {
     cat >&2 <<EOF 
       ycsb_opts: 
       args_ycsb_batchsize="$args_ycsb_batchsize"
+      args_ycsb_loc="$args_ycsb_loc"
+      args_ycsb_modules_csv="$args_ycsb_modules_csv"
       args_ycsb_rate="$args_ycsb_rate"
       args_ycsb_size_factor="$args_ycsb_size_factor"
       args_ycsb_timer="$args_ycsb_timer" 
@@ -88,8 +98,26 @@ ycsb_src_dst_param() {
   export ycsb_size_factor=${args_ycsb_size_factor:-${workload_size_factor:-${default_ycsb_size_factor}}}
   export ycsb_batchsize=${args_ycsb_batchsize:-${workload_batchsize:-${default_ycsb_batchsize}}}
 
-  export ycsb_table=${default_ycsb_table}
-  case "${db_case_senstivity,,}" in
+  export ycsb_modules_csv=${args_ycsb_modules_csv:-${ycsb_modules_csv:-${default_ycsb_modules_csv}}}
+
+  export ycsb_size_factor_name
+  if [[ "${ycsb_size_factor}" != "1" ]]; then 
+    ycsb_table=${ycsb_table}${ycsb_size_factor}; 
+    ycsb_size_factor_name=${ycsb_size_factor}
+  fi
+}
+
+# $1=module name
+set_ycsb_table_name() {
+
+  # default_ycsb_table_dict_export is defined in ycsb_globals.sh
+  eval ${default_ycsb_table_dict_export}
+  eval ${default_ycsb_fieldcount_dict_export}
+
+  export ycsb_table=${default_ycsb_table_dict[$1]}
+  export ycsb_fieldcount=${default_ycsb_fieldcount_dict[$1]}
+  
+  case "${SRCDB_CASE,,}" in
     upper)
       ycsb_table=${ycsb_table^^}
       ;;
@@ -98,10 +126,10 @@ ycsb_src_dst_param() {
       ;;
   esac
 
-  export ycsb_size_factor_name
-  if [[ "${ycsb_size_factor}" != "1" ]]; then 
-    ycsb_table=${ycsb_table}${ycsb_size_factor}; 
-    ycsb_size_factor_name=${ycsb_size_factor}
-  fi
+  if [ -n "${ycsb_table}" ] && [ -n "${ycsb_fieldcount}" ]; then
+    return 0
+  else
+    return 1
+  fi 
 }
 

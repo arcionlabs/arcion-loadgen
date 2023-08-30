@@ -1,0 +1,16 @@
+allow:
+- catalog: ${SRCDB_DB}_epinions
+  schema: ${SRCDB_SCHEMA}
+  types: [TABLE]
+  allow:
+    review:
+    review_rating:
+    trust:
+    useracct:
+    item:
+    
+    REVIEW:
+    REVIEW_RATING:
+    TRUST:
+    USERACCT:
+    ITEM:    
