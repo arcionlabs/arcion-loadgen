@@ -36,25 +36,25 @@ declare -p EXISTING_DBS
 
 # setup database permissions
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
-  echo "src db ${SRCDB_ROOT}: ${SRCDB_DB} setup"
+  echo "src db root ${SRCDB_ROOT} database ${sid_db}:${db_schema_lower} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name src.init.root*sql ); do
-    cat ${f} | jdbc_root_cli_src
+    cat ${f} | jdbc_root_cli_src "${JSQSH_CSV}"
   done
 else
-  echo "src db ${SRCDB_DB} already setup. skipping db setup"
+  echo "src db root ${SRCDB_ROOT} database ${sid_db}:${db_schema_lower} already setup. skipping db setup"
 fi
 
 # run if table needs to be created
 if [ "${db_schema_lower}" = "${SRCDB_USER_PREFIX}arcsrc" ]; then
-  echo "src db ${SRCDB_DB}: ${db_schema_lower} setup"
+  echo "src db user ${SRCDB_ARC_USER} database ${sid_db}:${db_schema_lower} setup"
 
   for f in $( find ${CFG_DIR} -maxdepth 1 -name src.init.user*sql ); do
-    cat ${f} | jdbc_cli_src
+    cat ${f} | jdbc_cli_src "${JSQSH_CSV}"
   done
 
 else
-  echo "src db ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"
+  echo "src db user ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"
 fi
 
 # setup workloads

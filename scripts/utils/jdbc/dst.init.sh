@@ -35,11 +35,11 @@ declare -p EXISTING_DBS
 
 # setup database permissions
 if [ -z "${EXISTING_DBS[${db_schema_lower}]}" ]; then
-  echo "dst db ${DSTDB_ROOT}: ${sid_db} setup"
+  echo "dst db root ${DSTDB_ROOT} database ${sid_db}:${db_schema_lower} setup"
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.root*sql ); do
     echo ${f}
-    cat ${f} | jdbc_root_cli_dst   
+    cat ${f} | jdbc_root_cli_dst "${JSQSH_CSV}"
   done
 else
   echo "dst db ${db_schema_lower} already setup. skipping db setup"
@@ -61,7 +61,7 @@ if [ "${db_schema_lower}" = "${DSTDB_USER_PREFIX}arcdst" ]; then
 
   for f in  $( find ${CFG_DIR} -maxdepth 1 -name dst.init.user*sql ); do
     echo ${f}
-    cat ${f} | jdbc_cli_dst
+    cat ${f} | jdbc_cli_dst "${JSQSH_CSV}"
   done
 
 else
