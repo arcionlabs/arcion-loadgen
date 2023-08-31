@@ -16,16 +16,6 @@ snapshot:
   max-jobs-per-chunk: 80
 
   min-job-size-rows: 10_000 # default 1_000_000 is too large for purposes demo
-  per-table-config:
-  - catalog: ${SRCDB_DB}
-    schema: ${SRCDB_SCHEMA}   
-    tables:
-      # pg forces lowercase, need to follow destination casing convention
-      # pg uses ctid so split key is not required
-      theusertable:
-        split-key: ycsb_key
-        extraction-priority: -1 
-
 
 # DB capable of real-time.  Take default options except the CPUs
 realtime:

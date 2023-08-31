@@ -10,16 +10,6 @@ snapshot:
     enable: true
     type: PIPE   # PIPE, FILE  
 
-  per-table-config:
-  - catalog: ${DSTDB_ARC_USER}
-    tables:
-      # oracle produces uppercase 
-      THEUSERTABLE:
-        table-store: COLUMN 
-      # other databases use lowercase
-      theusertable:
-        table-store: COLUMN 
-
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
