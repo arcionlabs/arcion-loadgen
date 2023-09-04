@@ -73,7 +73,9 @@ logreader_path() {
             PATH="/opt/mysql/usr/bin:$PATH"
             ;;
         mariadb)
-            PATH="/opt/mariadb/usr/bin:$PATH"
+            $SCRIPTS_DIR/lib/download_mariadb_binlogger.sh
+            (( $? )) && exit $? # exit if not 0
+            PATH="/opt/mariadb/${MARIADB_VERSION}/usr/bin:$PATH"
             ;;
     esac
 }

@@ -106,7 +106,10 @@ RUN apt-get update && apt-get install -y \
     tcpdump \
     libaio1 \
     git \
-    htop
+    htop \
+    lsb-release \
+    dialog \
+    apt-utils
 
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
@@ -166,6 +169,8 @@ RUN cd ${BENCHBASE_DIR}; \
 
 # download mariadb for the binlog reader 
 RUN cd ${MARIADB_DIR} \
+    && mkdir -p 10.6 \
+    && cd 10.6 \
     && apt-get download mariadb-server-10.6 \
     && ls *.deb | xargs -I % dpkg -x % . \
     && rm *.deb 
