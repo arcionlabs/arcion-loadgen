@@ -156,7 +156,10 @@ bb_create_tables() {
                 $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
             diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
-            # set debugging options
+            # disable hava debugger
+            unset JAVA_TOOL_OPTIONS            
+  
+            # set debugging options  
             bb_logging
             JAVA_HOME=$( find /usr/lib/jvm/java-17-openjdk-* -maxdepth 0 )   
             $JAVA_HOME/bin/java $JAVA_OPTS \
@@ -217,6 +220,9 @@ bb_run_tables() {
             $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$
         diff $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$  $CFG_DIR/benchbase/${LOC,,}/sample_${w}_config.xml.$$.bak >&2
 
+        # disable hava debugger
+        unset JAVA_TOOL_OPTIONS
+        
         # set debugging options
         bb_logging
         # run

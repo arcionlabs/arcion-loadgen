@@ -99,6 +99,9 @@ ycsb_load() {
     #  ;;
   esac 
 
+  # disable hava debugger
+  unset JAVA_TOOL_OPTIONS            
+  
   jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
 
   jdbc_classpath="${jdbc_classpath}" \
@@ -236,6 +239,9 @@ ycsb_run() {
       ;;
   esac 
 
+  # disable hava debugger
+  unset JAVA_TOOL_OPTIONS            
+  
   jdbc_url=$( echo $jdbc_url | sed "s/#_CHANGEME_#/${db_user}/g")
 
   jdbc_classpath="${jdbc_classpath}" \
