@@ -19,6 +19,9 @@ jdbc_root_cli() {
   local db_root_db=$( x="${LOC^^}DB_ROOT_DB"; echo "${!x}" )
   shift
 
+  # disable hava debugger
+  unset JAVA_TOOL_OPTIONS
+
   # set path specific to this DB
   . $SCRIPTS_DIR/lib/classpath.sh
   CLASSPATH=$(arcion_jdbc_jars $LOC)
@@ -69,6 +72,9 @@ jdbc_cli() {
   local db_grp=$( x="${LOC^^}DB_GRP"; echo "${!x}" )
   shift
 
+  # disable hava debugger
+  unset JAVA_TOOL_OPTIONS
+  
   # set path specific to this DB
   . $SCRIPTS_DIR/lib/classpath.sh
   CLASSPATH=$(arcion_jdbc_jars $LOC)
