@@ -9,7 +9,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 #   docker buildx create --name mybuilder
 #   docker buildx use mybuilder
 #   docker buildx inspect --bootstrap
-#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo:23.09 -f load-generator/Dockerfile.arcdemo .
+#   docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
 # To start a container 
 #     docker run -it --rm -p 7681:7681 robertslee/arcdemo
 # To push to docker hub
