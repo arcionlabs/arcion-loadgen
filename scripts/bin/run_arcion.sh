@@ -1,6 +1,7 @@
 #/usr/bin/env bash
 
 . $SCRIPTS_DIR/lib/job_control.sh || exit 1
+. $SCRIPTS_DIR/lib/download_mariadb_binlogger.sh || exit 1
 
 # wait for jobs to finish for ctrl-c to exit
 control_c() {
@@ -55,6 +56,7 @@ arcion_param() {
 logreader_path() {
     # amd64 or arm64 
     export JAVA_HOME=$( find /usr/lib/jvm/java-8-openjdk-*/jre -maxdepth 0)
+    
 
     if [ "${SRCDB_GRP,,}" = "db2" ]; then
         PATH="/home/arcion/sqllib/bin:$PATH"
@@ -73,9 +75,13 @@ logreader_path() {
             PATH="/opt/mysql/usr/bin:$PATH"
             ;;
         mariadb)
-            $SCRIPTS_DIR/lib/download_mariadb_binlogger.sh
+            downloadMariadbBinlogger    # exports MARIADB_VERSION 
             (( $? )) && exit $? # exit if not 0
             PATH="/opt/mariadb/${MARIADB_VERSION}/usr/bin:$PATH"
+            if [ -z "$(which mysqlbinlog)" ]; then
+                echo mysqlbinlog not in $PATH
+                exit 1
+            fi 
             ;;
     esac
 }

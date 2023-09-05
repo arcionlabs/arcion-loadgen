@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
 
-MARIADB_VERSION=${MARIADB_VERSION:-${1}}
-
 . $SCRIPTS_DIR/lib/jdbc_cli.sh
 
+# MARIADB_VERSION
+downloadMariadbBinlogger() {
+
 if [ -z "$MARIADB_VERSION" ]; then
-    echo -n "MariaDB:binllog: running select version(): "
+    echo -n "MariaDB:binlog: running select version(): "
     export MARIADB_VERSION=$(
         echo "select version(); -m csv" | jdbc_root_cli_src "${JSQSH_CSV}" | awk -F'-' '{print $1}'
     )
     echo "${MARIADB_VERSION}"
 fi
 
-echo -n "MariaDB:binllog: checking -d ${MARIADB_DIR}/${MARIADB_VERSION}: "
+if [ -z "$MARIADB_VERSION" ]; then
+    echo "MARIADB_VERSION not determined"
+    return 1
+fi
+
+echo -n "MariaDB:binlog: checking -d ${MARIADB_DIR}/${MARIADB_VERSION}: "
 if [ -d ${MARIADB_DIR}/${MARIADB_VERSION} ]; then     
     echo "found. skip binlog install"
 else
     # https://mariadb.com/kb/en/mariadb-package-repository-setup-and-usage/
-    echo "MariaDB:binllog: downloading but not install: "
+    echo "MariaDB:binlog: downloading but not install: "
     # exit on any failure
     set -e
     curl -LsS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=$MARIADB_VERSION
@@ -31,3 +37,5 @@ else
     ls *.deb > README.txt
     rm *.deb 
 fi
+}
+
