@@ -15,15 +15,27 @@ on:
         required: true
         default: '["pg"]'
         type: string
-      BUCKET_NAME:
-        description: 'Name of the storj bucket to upload to'
-        required: true
-        default: 'artifact-data'
-        type: string
       COMMANDS:
         description: 'Which command(s) to run with the source(s) and destination(s), formatted as a list'
         required: true
         default: '["arcdemo.sh -r 0 snapshot", "arcdemo.sh -r 0 real-time", "arcdemo.sh -r 0 full"]'
+        type: string
+      RCLONE_CONFIG:
+        descriptions: 'rclone config command to run. Necessary parameters will vary based on connection. See https://rclone.org/commands/rclone_config_create/'
+        required: true
+        default: 'rclone config create myremote storj access_grant=*ACCESS GRANT HERE*'
+      REMOTE_NAME:
+        description: 'What is the name of the remote access you created in RCLONE_CONFIG?'
+        required: true
+        default: 'myremote'
+      MY_SECRET_NAME:
+        description: 'What is the name of the secret that you want to be redacted from the log file?'
+        required: false
+        default: 'UPLINK_ACC'
+      BUCKET_NAME:
+        description: 'Name of the bucket to upload to'
+        required: true
+        default: 'artifact-data'
         type: string
 
 jobs:
@@ -36,6 +48,8 @@ jobs:
       fail-fast: false
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    env:
+      MY_SECRET_VAR: ${{secrets[inputs.MY_SECRET_NAME]}}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -81,13 +95,9 @@ jobs:
           cd artifact_data
           for f in $(docker exec workloads ls /opt/stage/data | grep -v README.md); do docker exec workloads tar Ccf $(dirname /opt/stage/data/$f) - $(basename /opt/stage/data/$f) | tar Cxf . -; echo $f; done
           cd ..
-      - name: Storj upload
+      - name: Upload to central storage
         if: '!cancelled()'
         run: |
-          curl -L https://github.com/storj/storj/releases/latest/download/uplink_linux_amd64.zip -o uplink_linux_amd64.zip
-          unzip -o uplink_linux_amd64.zip
-          sudo install uplink /usr/local/bin/uplink
-          echo "${{ secrets.UPLINK_ACC }}" > access_grant.txt
-          uplink access import main access_grant.txt
-          cd artifact_data
-          for f in *; do tar -cf $f.tar $f; uplink cp $f.tar sj://${{ inputs.BUCKET_NAME }}; done
+          sudo -v ; curl https://rclone.org/install.sh | sudo bash
+          ${{ inputs.RCLONE_CONFIG }}
+          rclone copy artifact_data ${{ inputs.REMOTE_NAME }}:${{ inputs.BUCKET_NAME }}
