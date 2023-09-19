@@ -82,7 +82,7 @@ for f in $(find /opt/stage/libs/*.jar -printf "%f\n"); do
   fi
 done
 
-export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
+export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk -F' |-' '{print $NF}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
 

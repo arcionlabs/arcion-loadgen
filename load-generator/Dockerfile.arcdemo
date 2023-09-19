@@ -160,7 +160,7 @@ RUN cd ${YCSB}; \
 
 # benchbase
 RUN cd ${BENCHBASE_DIR}; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/arcion-23.07/benchbase-arcion.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/arcion-23.08/benchbase-arcion.tgz; \
     for f in $( ls *gz ); do tar -xvf $f; rm $f; done
 
 # /usr/share/sysbench/oltp_common.lua

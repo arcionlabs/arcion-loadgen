@@ -9,6 +9,7 @@ database: '${DSTDB_ARC_USER}'
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 
-max-connections: 5
+max-connections: $(( ${DSTDB_SNAPSHOT_THREADS} * 2 + 1 ))
+
 max-retries: 1
 
