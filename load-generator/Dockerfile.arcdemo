@@ -48,9 +48,14 @@ ENV YCSB=/opt/ycsb
 # https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 # ********************************************************
 
+# using bindfs makes reading/writing about 10x slower
+# make arcion use oracle uid:gid where shared docker volume is used to for
+# native reader, sqlldr, external tables, dmp/imp
+# must be 54321:54322 to match oracle's UID:GID
+ 
 ARG USERNAME=arcion
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_UID=54321
+ARG USER_GID=54322
 
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -240,7 +245,7 @@ ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # stage dir for null applier 
-RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
+RUN echo /opt/stage /opt/stage/loadgen /opt/stage/oraee1930 /opt/stage/oraxev2130 /opt/stage/orashared /opt/oracle/share | xargs -n 1 | xargs -I%% mkdir -p %% \&\& chown $USER_UID:$USER_GID %%
 
 # create dirs and reamp external uid to internal
 #RUN sudo mkdir /libs 
