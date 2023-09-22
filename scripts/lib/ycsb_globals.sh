@@ -18,8 +18,8 @@ export default_ycsb_fieldlength=100       # YCSB default
 #   eval ${default_ycsb_table_dict_export}
 #   declare -p default_ycsb_table_dict 
 declare -A default_ycsb_table_dict=(
-    ["ycsbsparse"]="THEUSERTABLE" 
-    ["ycsbdense"]="DENSETABLE" 
+    ["ycsbsparse"]="YCSBSPARSE" 
+    ["ycsbdense"]="YCSBDENSE" 
     )
 export default_ycsb_table_dict_export="$(declare -p default_ycsb_table_dict)"    
 

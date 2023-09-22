@@ -3,5 +3,5 @@ allow:
   schema: {{'SRCDB_SCHEMA'|getenv('')}}
   types: [TABLE]
   allow:
-    THEUSERTABLE{{'workload_size_factor_str'|getenv('')}}:
-    theusertable{{'workload_size_factor_str'|getenv('')}}:
+    YCSBSPARSE{{'workload_size_factor_str'|getenv('')}}:
+    ycsbsparse{{'workload_size_factor_str'|getenv('')}}:

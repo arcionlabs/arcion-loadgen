@@ -1,4 +1,0 @@
-type: LOCALSTORAGE
-#access-method: LOCAL
-storage-location: "/path/to/storage/location"
-# file-format: CSV

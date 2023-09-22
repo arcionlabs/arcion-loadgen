@@ -1,5 +1,4 @@
 ALTER DATABASE ${SRCDB_DB} SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 2 DAYS, AUTO_CLEANUP = ON);
-ALTER TABLE THEUSERTABLE ENABLE CHANGE_TRACKING;
 
 alter table  access_info                         enable change_tracking;
 alter table  accounts                            enable change_tracking;
@@ -40,7 +39,8 @@ alter table  special_facility                    enable change_tracking;
 alter table  stock                               enable change_tracking;
 alter table  subscriber                          enable change_tracking;
 alter table  text                                enable change_tracking;
-alter table  THEUSERTABLE                        enable change_tracking;
+alter table  YCSBDENSE                           enable change_tracking;
+alter table  YCSBSPARSE                          enable change_tracking;
 alter table  tweets                              enable change_tracking;
 alter table  user_groups                         enable change_tracking;
 alter table  user_profiles                       enable change_tracking;

@@ -32,6 +32,7 @@ db_schema_lower=${db_schema,,}
 case "${SRCDB_GRP,,}" in
   ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
   # source in libs
+    export ycsb_modules_csv="${workload_modules_bb}"
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_load_src "$@"
     ;;

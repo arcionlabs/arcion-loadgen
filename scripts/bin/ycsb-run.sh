@@ -15,7 +15,7 @@ fi
 # process command line args that may override ini_menu.sh
 
 # set the version of YCBS to use
-[ -z "${YCSB_JDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
+[ -z "${pJDBC}" ] && export YCSB_JDBC=/opt/ycsb/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 
 sid_db=${SRCDB_SID:-${SRCDB_DB}}
 db_schema=${SRCDB_DB:-${SRCDB_SCHEMA}}
@@ -32,9 +32,7 @@ echo "${SRCDB_SID} ${SRCDB_DB} ${SRCDB_SCHEMA}"
 case "${SRCDB_GRP,,}" in
   ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
     # source in libs
-    if [ -z "${ycsb_modules_csv}" ]; then
-      ycsb_modules_csv=${workload_modules_bb}
-    fi
+    export ycsb_modules_csv="${workload_modules_bb}"
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
     ycsb_run_src "$@"
     ;;

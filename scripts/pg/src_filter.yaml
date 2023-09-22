@@ -1,4 +1,4 @@
-# FIX: oracle densetable takes too long
+# FIX: oracle YCSBDENSE takes too long
 
 allow:
 - catalog: ${SRCDB_DB}

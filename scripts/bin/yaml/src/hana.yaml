@@ -1,8 +1,0 @@
-type: HANA
-
-host: localhost
-port: 39041
-
-username: SYSTEM
-password: Replicant#123
-max-connections: 30

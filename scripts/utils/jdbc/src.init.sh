@@ -65,7 +65,7 @@ if [ "${db_schema_lower}" = "${SRCDB_USER_PREFIX}arcsrc" ]; then
 
   # ycsb data population 
   echo "src db ${SRCDB_DB}: ycsb setup"
-  ycsb_load_src
+  ${SCRIPTS_DIR}/bin/ycsb-load.sh
 
 else
   echo "src db ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"

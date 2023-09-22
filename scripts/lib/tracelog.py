@@ -37,7 +37,7 @@ def trLivenessMonitor(line:str):
 
 def trdExtractorTaskLogger(row):
     """
-    # 2023-08-30 19:09:50.341 DEBUG [pool-18-thread-1] t.r.d.ExtractorTaskLogger: SRC-TASK : arcsrc.THEUSERTABLE: Published batch of 5000 rows
+    # 2023-08-30 19:09:50.341 DEBUG [pool-18-thread-1] t.r.d.ExtractorTaskLogger: SRC-TASK : arcsrc.YCSBSPARSE: Published batch of 5000 rows
     # 2023-08-30 19:09:47.104 DEBUG [pool-17-thread-2] t.r.d.ExtractorTaskLogger: arcsrc.order_line : SRC-TASK : Executing sql on source : SELECT MIN(`ol_w_id`), MAX(`ol_w_id`) FROM  `arcsrc`.`order_line` 
 
     """

@@ -1,8 +1,8 @@
 -- source trigger
-drop trigger update_ts_on_usertable_on on THEUSERTABLE;
+drop trigger update_ts_on_ycsbsparse_on on YCSBSPARSE;
 
 -- could happen if used as target
-drop trigger update_ts2_on_usertable_on on THEUSERTABLE;
+drop trigger update_ts2_on_ycsbsparse_on on YCSBSPARSE;
 
 CREATE OR REPLACE FUNCTION update_ts()
 RETURNS TRIGGER AS $$
@@ -12,11 +12,11 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-drop trigger update_ts_on_usertable_on on THEUSERTABLE;
-CREATE TRIGGER update_ts_on_usertable_on
+drop trigger update_ts_on_ycsbsparse_on on YCSBSPARSE;
+CREATE TRIGGER update_ts_on_ycsbsparse_on
     BEFORE UPDATE
     ON
-        THEUSERTABLE
+        YCSBSPARSE
     FOR EACH ROW
 EXECUTE PROCEDURE update_ts();
 

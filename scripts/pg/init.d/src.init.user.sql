@@ -17,5 +17,7 @@ alter table  new_order                   replica identity full;
 alter table  oorder                      replica identity full;
 alter table  order_line                  replica identity full;
 alter table  stock                       replica identity full;
-alter table  theusertable                replica identity full;
 alter table  warehouse                   replica identity full;
+
+alter table  ycsbsparse                  replica identity full;
+alter table  ycsbdense                   replica identity full;

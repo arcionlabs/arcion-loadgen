@@ -1,1 +1,1 @@
-does not support ycsb THEUSERTABLE
+does not support ycsb YCSBSPARSE
