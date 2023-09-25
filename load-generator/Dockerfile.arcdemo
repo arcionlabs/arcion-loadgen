@@ -246,7 +246,7 @@ ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # stage dir for null applier 
-RUN echo /opt/stage /opt/stage/loadgen /opt/stage/oraee1930 /opt/stage/oraxev2130 /opt/stage/orashared /opt/oracle/share | xargs -n 1 | xargs -I%% mkdir -p %% \&\& chown $USER_UID:$USER_GID %%
+RUN echo /opt/stage /opt/stage/loadgen /opt/stage/tmpfs /opt/stage/oraee1930 /opt/stage/oraxe2130 /opt/stage/orashared /opt/oracle/share | xargs -n 1 | xargs -I%% mkdir -p %% \&\& chown $USER_UID:$USER_GID %%
 
 # create dirs and reamp external uid to internal
 #RUN sudo mkdir /libs 

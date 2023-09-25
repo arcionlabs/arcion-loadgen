@@ -23,8 +23,8 @@ export default_max_cpus=$(getconf _NPROCESSORS_ONLN)
 # the same temp table is created
 # export default_ARCION_ARGS="--append-existing --overwrite --verbose"
 # append-existing causes temp table to be created on destination
-export default_ARCION_ARGS="--replace-existing --overwrite"
-# export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
+# export default_ARCION_ARGS="--replace-existing --overwrite"
+export default_ARCION_ARGS="--truncate-existing --overwrite --verbose"
 
 export default_TMUX_SESSION=arcion
 
