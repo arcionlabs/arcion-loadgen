@@ -66,6 +66,20 @@ CREATE TABLE IF NOT EXISTS  ${fq_table_name} (
 EOF
 }
 
+ycsb_create_vertica() {
+echo "ycsb create vertica" >&2    
+cat <<EOF
+CREATE TABLE IF NOT EXISTS  ${fq_table_name} (
+	YCSB_KEY INT PRIMARY KEY,
+	FIELD0 VARCHAR(255), FIELD1 VARCHAR(255),
+	FIELD2 VARCHAR(255), FIELD3 VARCHAR(255),
+	FIELD4 VARCHAR(255), FIELD5 VARCHAR(255),
+	FIELD6 VARCHAR(255), FIELD7 VARCHAR(255),
+	FIELD8 VARCHAR(255), FIELD9 VARCHAR(255)
+); 
+EOF
+}
+
 ycsb_create_oracle() {
 echo "ycsb create oracle" >&2    
 cat <<EOF
@@ -200,11 +214,12 @@ ycsb_create_table() {
     elif [ "${db_grp,,}" = "informix" ]; then ycsb_create_informix $*
     elif [ "${db_grp,,}" = "oracle" ]; then ycsb_create_oracle $*
     elif [ "${db_grp,,}" = "snowflake" ]; then ycsb_create_snowflake $*
+    elif [ "${db_grp,,}" = "vertica" ]; then ycsb_create_vertica $*
     else 
         case "${db_type,,}" in 
-            mysql | mariadb | cockroach) ycsb_create_mysql $*;; 
+            mysql | mariadb | cockroach ) ycsb_create_mysql $*;; 
             singlestore) ycsb_create_singlestore $*;;
-            yugabytesql | postgresql) ycsb_create_postgres $*;;
+            yugabytesql | postgresql ) ycsb_create_postgres $*;;
             *) ycsb_create_default $*;;
         esac
     fi

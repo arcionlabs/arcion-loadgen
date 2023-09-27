@@ -1,4 +1,4 @@
-type: POSTGRESQL
+type: VERTICA
 
 host: '${SRCDB_HOST}'
 port: ${SRCDB_PORT}
@@ -11,13 +11,5 @@ password: '${SRCDB_ARC_PW}'
 # Maximum number of connections replicant can open in postgresql
 # Run SELECT datname, numbackends FROM pg_stat_database;
 max-connections: $(( ${SRCDB_SNAPSHOT_THREADS} * 2 + 1 ))
-
-# required for real-time
-replication-slots:
-  #Replace "io-replicate" with your replication slot name
-  ${SRCDB_ARC_USER}_w2j: 
-    - wal2json
-
-log-reader-type: STREAM # {STREAM|SQL deprecated}
 
 max-retries: 5

@@ -30,6 +30,7 @@ else
   echo $(ls \
       ${ARCION_HOME}/lib/maria*jar \
       ${ARCION_HOME}/lib/post*jar \
+      ${ARCION_HOME}/lib/vertica*jar \
       ${ARCION_HOME}/lib/mongodb*jar \
       ${ARCION_HOME}/lib/mssql*jar \
       ${ARCION_HOME}/lib/db2*jar \

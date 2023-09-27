@@ -14,6 +14,7 @@ gcspg,postgresql,5432,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITT
 postgresql,postgresql,5432,root,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,pg,lower,,,select version();
 cockroach,postgresql,26257,root,Passw0rd,public,COCKROACHDB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,lower,,,select version();
 yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,postgres,,,,,jdbc,yugabytesql,lower,,,select version();
+vertica,vertica,5433,dbadmin,,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,vertica,lower,,,select version();
 mongodb,mongodb,27017,root,Passw0rd,,,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,
 sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select @@version
 gcssq,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSSQ_HOST,,select @@version

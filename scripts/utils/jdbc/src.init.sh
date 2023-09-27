@@ -19,7 +19,6 @@ DB_HOST=$( get_host_from_yaml ${CFG_DIR}/src.yaml host )
 DB_PORT=$( yaml_key_val ${CFG_DIR}/src.yaml port )
 
 ping_host_port "$DB_HOST" "$DB_PORT"
-ping_host_port "$DB_HOST" "$DB_PORT"
 
 rc=$?
 if (( ${rc} != 0 )); then 

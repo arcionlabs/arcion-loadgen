@@ -103,6 +103,16 @@ case "${SRCDB_GRP,,}" in
     SRCDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g"   
     SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/post*jar | paste -sd :)"
     ;;
+  vertica)
+    SRCDB_YCSB_DRIVER="jdbc"
+    SRCDB_JSQSH_DRIVER="vertica"
+    SRCDB_JDBC_DRIVER="com.vertica.jdbc.Driver"
+    SRCDB_JDBC_URL="jdbc:vertica://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_USER_CHANGE}"   
+    SRCDB_JDBC_URL_BENCHBASE="jdbc:vertica://${SRCDB_HOST}:${SRCDB_PORT}/${SRCDB_USER_CHANGE}"   
+    SRCDB_JDBC_NO_REWRITE=""
+    SRCDB_JDBC_REWRITE=""   
+    SRCDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/vertica*jar | paste -sd :)"
+    ;;
   mongodb)
     SRCDB_YCSB_DRIVER="mongodb"
     SRCDB_JSQSH_DRIVER=""
@@ -212,6 +222,16 @@ case "${DSTDB_GRP,,}" in
     DSTDB_JDBC_REWRITE="s/reWriteBatchedInserts=false/reWriteBatchedInserts=true/g" 
     DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/post*jar | paste -sd :)"
     ;; 
+  vertica)
+    DSTB_YCSB_DRIVER="jdbc"
+    DSTDB_JSQSH_DRIVER="vertica"
+    DSTDB_JDBC_DRIVER="com.vertica.jdbc.Driver"
+    DSTDB_JDBC_URL="jdbc:vertica://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_USER_CHANGE}"   
+    DSTDB_JDBC_URL_BENCHBASE="jdbc:vertica://${DSTDB_HOST}:${DSTDB_PORT}/${DSTDB_USER_CHANGE}"   
+    DSTDB_JDBC_NO_REWRITE=""
+    DSTDB_JDBC_REWRITE=""   
+    DSTDB_CLASSPATH="$( ls ${ARCION_HOME}/lib/vertica*jar | paste -sd :)"    
+    ;;
   mongodb)
     DSTDB_YCSB_DRIVER="mongodb"
     DSTDB_JSQSH_DRIVER=""

@@ -30,7 +30,7 @@ echo "${SRCDB_SID} ${SRCDB_DB} ${SRCDB_SCHEMA}"
 
 # start the YCSB
 case "${SRCDB_GRP,,}" in
-  ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver)
+  ase|db2|informix|mysql|oracle|postgresql|snowflake|sqlserver|vertica)
     # source in libs
     export ycsb_modules_csv="${workload_modules_bb}"
     . ${SCRIPTS_DIR}/lib/ycsb_jdbc.sh
