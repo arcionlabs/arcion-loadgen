@@ -1,4 +1,11 @@
 <Drivers>
+   <Driver name="vertica"
+           url="jdbc:vertica://${server}:${port}/#if($db)${db}#end"
+           class="com.vertica.jdbc.Driver"
+           target="vertica"
+           analyzer="org.sqsh.analyzers.PLSQLAnalyzer"
+           normalizer="org.sqsh.normalizer.NullNormalizer">
+   </Driver>
    <Driver name="mysql"
            url="jdbc:mariadb://${server}:${port}#if($db)/${db}#end"
            class="org.mariadb.jdbc.Driver"
