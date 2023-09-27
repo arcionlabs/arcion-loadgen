@@ -1,7 +1,10 @@
 type,group,port,root_user,root_pw,schema,benchbase_type,benchbase_txn_isolation,sid,ycsb_batch_size,bb_batch_size,root_db,alt_log_path,alt_archive_log_path,log_path,archive_log_path,init_dir,config_dir,case,env_map,env_value,sql_get_version
-oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/ORCL,/opt/stage/oraee1930/ORCL/arch,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/arch,jdbc,,upper,,,
-oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,upper,,,
+oraee-v1930-src-1,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/oradata/ORCL,/opt/stage/oraee1930/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
+oraee-v2130-src-1,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee2130/oradata/ORCL,/opt/stage/oraee2130/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
+oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/oradata/XE,/opt/stage/oraxe2130/oradata/XE/archive_logs,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/archive_logs,jdbc,,upper,,,
+orafree,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,free,128,128,,/opt/stage/orafree2320/oradata/FREE,/opt/stage/orafree2320/oradata/FREE/archive_logs,/opt/oracle/oradata/FREE,/opt/oracle/oradata/FREE/archive_logs,jdbc,,upper,,,
 oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,upper,,,
+oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/oradata/ORCL,/opt/stage/oraee1930/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
 mysql,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select version();
 gcsmy,mysql,3306,root,Passw0rdmy8sand,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSMY_HOST DB_PW=,,select version();
 mariadb,mysql,3306,root,Passw0rd,,MARIADB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select version();

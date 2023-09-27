@@ -20,9 +20,9 @@ log-reader: REDOLOG   # {REDOLOG|REDOLOG_ARCHIVE_ONLY}
 transaction-store-location: /opt/stage/tmpfs    # PATH_TO_TRANSACTION_STORAGE
 
 # this is what replicant sees
-alt-log-path: /opt/stage/oraee1930/oradata/ORCL
-alt-archive-log-path: /opt/stage/oraee1930/oradata/ORCL/archive_logs
+alt-log-path: ${ORA_ALT_LOG_PATH}
+alt-archive-log-path: ${ORA_ALT_ARCH_LOG_PATH}
 
 # this is what oracle see
-log-path: /opt/oracle/oradata/ORCL
-archive-log-path: /opt/oracle/oradata/ORCL/archive_logs
+log-path: ${ORA_LOG_PATH}
+archive-log-path: ${ORA_ARCH_LOG_PATH}
