@@ -16,13 +16,13 @@ max-retries: 1
 retry-wait-duration-ms: 1000
 # native log reader
 log-reader: REDOLOG   # {REDOLOG|REDOLOG_ARCHIVE_ONLY}
+#transaction-store-location: ${CFG_DIR}/stage    # PATH_TO_TRANSACTION_STORAGE
 transaction-store-location: /opt/stage/tmpfs    # PATH_TO_TRANSACTION_STORAGE
 
 # this is what replicant sees
-alt-log-path: /opt/stage/oraxe2130/oradata/XE
-alt-archive-log-path: /opt/stage/oraxe2130/oradata/XE/arch  #ive_logs
+alt-log-path: /opt/stage/oraee2130/oradata/ORCL
+alt-archive-log-path: /opt/stage/oraee2130/oradata/ORCL/archive_logs
 
 # this is what oracle see
-log-path: /opt/oracle/oradata/XE  
-archive-log-path: /opt/oracle/oradata/XE/arch #ive_logs
-
+log-path: /opt/oracle/oradata/ORCL
+archive-log-path: /opt/oracle/oradata/ORCL/archive_logs
