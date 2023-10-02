@@ -6,7 +6,7 @@ bb_usage() {
   echo "benchbase: override on the command line or set
     -B|--batchsize=${default_bb_batchsize}
     -L|--loc=${default_bb_loc}
-    -M|--modules=${default_bb_modules_csv}
+    -W|--modules=${default_bb_modules_csv}
     -r bb_rate=${default_bb_rate}
     -s bb_size_factor=${default_bb_size_factor}
     -t bb_threads=${default_bb_threads}
@@ -40,7 +40,7 @@ function bb_opts() {
       -L|--loc) 
         args_bb_loc="$1"; shift; ((params_processed++))
         ;;        
-      -M|--modules) 
+      -W|--workloads) 
         args_bb_modules_csv="$1"; shift; ((params_processed++))
         ;;
       -r) 

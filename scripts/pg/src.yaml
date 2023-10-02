@@ -1,7 +1,7 @@
 type: POSTGRESQL
 
 host: '${SRCDB_HOST}'
-port: ${SRCDB_POR8T}
+port: ${SRCDB_PORT}
 
 # should be same name as the source database to prevent cross database
 database: '${SRCDB_ARC_USER}'

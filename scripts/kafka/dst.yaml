@@ -16,5 +16,7 @@ brokers:
        host: '$DSTDB_HOST' #Replace localhost with your broker's host
        port: 29092 #Replace 19092 with your broker's port
 
+max-connections: $(( ${DSTDB_SNAPSHOT_THREADS} * 2 + 1 ))
+
 max-retries: 1
 
