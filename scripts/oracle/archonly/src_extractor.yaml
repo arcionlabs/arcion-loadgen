@@ -1,0 +1,5 @@
+snapshot:
+  _traceDBTasks: false
+
+realtime:
+  _traceDBTasks: false

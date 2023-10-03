@@ -112,7 +112,7 @@ if [ -n "$CFG_DIR" ]; then
 else
   # this will parse the URI and set src and dst
   arcdemo_positional "$@"
-
+  
   # validate the flag arguments
   parse_arcion_thread_ratio
 
@@ -133,7 +133,7 @@ else
 
   # map variables from profile if any
   set_default_host_user
-  
+
   if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
   if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
   

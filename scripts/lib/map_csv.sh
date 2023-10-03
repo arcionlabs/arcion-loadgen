@@ -131,16 +131,19 @@ get_profile() {
         fi
     fi
 
-    # infer db type from the first word of host name
-    DB_HOST_FIRST_WORD=$( echo ${DB_HOST} | awk -F'[-./]' '{print $1}' )
-    if [ -n "${DB_HOST_FIRST_WORD}" ]; then
+    # infer db type from the longest host name to shortest
+    # ${var%pattern} ${var%%pattern} ${var#pattern} ${var##pattern}
+    local DB_HOST_FIRST_WORD=${DB_HOST%%/*}    # get everything to the left of the first /
+    while [ -n "{$DB_HOST_FIRST_WORD}" ]; do
+        echo "checking ${DB_HOST_FIRST_WORD} in the profile" >&2
         DB_PROFILE=$( find_in_array GET_PROFILE_ARRAY ${DB_HOST_FIRST_WORD} 0 )
         if [ -n "${DB_PROFILE}" ]; then
             echo "$DB_PROFILE inferred from hostname first word." >&2
             echo "$DB_PROFILE"
             return 0
         fi
-    fi
+        DB_HOST_FIRST_WORD=${DB_HOST_FIRST_WORD%-*} # drop the last -* in the search
+    done
 
     echo "DB_PROFILE could not be inferred from $DB_HOST." >&2
     return 1
