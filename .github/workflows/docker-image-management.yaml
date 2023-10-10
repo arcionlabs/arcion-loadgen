@@ -25,6 +25,16 @@ on:
         required: true
         default: 'main'
         type: string
+      RETRY:
+        description: 'In case the build-push action fails, should it retry?'
+        required: true
+        default: true
+        type: boolean
+      RETRY_AGAIN:
+        description: 'In case the build-push actions fails twice, should it retry?'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   push_to_registries:
@@ -82,6 +92,8 @@ jobs:
 
 
       - name: Build and push docker images
+        continue-on-error: true
+        id: build1
         uses: docker/build-push-action@v4
         # Github recommends pinning this to a specific SHA rather than @v4
         with:
@@ -91,8 +103,44 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha
           push: true
-          tags: | # Use ${{ secrets.DOCKER_USERNAME }} instead of robertslee?
+          tags: | 
             robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
             ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
-          # Will ghcr allow authentication to something other than "arcionlabs/arcion-loadgen"?
+          labels: org.opencontainers.image.source=https://github.com/arcionlabs/arcion-loadgen
+
+          
+      - name: Retry One
+        continue-on-error: true
+        id: build2
+        if: ${{ steps.build1.outcome == 'failure' }} && ${{ inputs.RETRY == 'true'}}
+        uses: docker/build-push-action@v4
+        # Github recommends pinning this to a specific SHA rather than @v4
+        with:
+          context: .
+          file: load-generator/Dockerfile.arcdemo
+          platforms: linux/amd64,linux/arm64/v8
+          cache-from: type=gha
+          cache-to: type=gha
+          push: true
+          tags: | 
+            robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
+            ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
+          labels: org.opencontainers.image.source=https://github.com/arcionlabs/arcion-loadgen
+
+      - name: Retry Two
+        continue-on-error: true
+        id: build3
+        if: ${{ steps.build2.outcome == 'failure' }} && ${{ inputs.RETRY_AGAIN == 'true'}}
+        uses: docker/build-push-action@v4
+        # Github recommends pinning this to a specific SHA rather than @v4
+        with:
+          context: .
+          file: load-generator/Dockerfile.arcdemo
+          platforms: linux/amd64,linux/arm64/v8
+          cache-from: type=gha
+          cache-to: type=gha
+          push: true
+          tags: | 
+            robertslee/arcdemo:${{ inputs.IMAGE_TAG }}
+            ghcr.io/arcionlabs/arcdemo:${{ inputs.IMAGE_TAG }}
           labels: org.opencontainers.image.source=https://github.com/arcionlabs/arcion-loadgen
