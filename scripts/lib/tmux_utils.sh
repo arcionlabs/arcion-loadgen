@@ -59,7 +59,7 @@ tmux_show_verification() {
     tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
-    tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
+    tmux send-keys -t ${TMUX_SESSION}:6.0 "while [ ! -d $VERIFICATOR_HOME/data ]; do sleep 1; done; view $VERIFICATOR_HOME/data" Enter 
 }
 
 # setup the views to look at log and cfg
