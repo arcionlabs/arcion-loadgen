@@ -2,3 +2,5 @@ license-path: /opt/stage/libs/replicant.lic
 data-dir: $CFG_DIR
 permission-validation: 
   enable: false
+0trace-log:
+  trace-level: INFO
