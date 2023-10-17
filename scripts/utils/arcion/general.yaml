@@ -3,4 +3,4 @@ data-dir: $CFG_DIR
 permission-validation: 
   enable: false
 trace-log:
-  trace-level: INFO
+  trace-level: DEBUG
