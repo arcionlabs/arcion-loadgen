@@ -4,7 +4,7 @@ prep_arcion_log() {
     
 # arcion data (log dir)
 if [ -z "$ARCION_LOG" ]; then
-  export ARCION_LOG=/opt/stage/loadgen
+  export ARCION_LOG=/opt/stage/tmpfs
 fi
 
 # typically log dir should already exist

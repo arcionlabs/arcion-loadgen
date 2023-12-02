@@ -9,9 +9,6 @@ import jinja2
 import click
 # pyyaml cannot handle the arcion mapper.  
 from ruamel.yaml import YAML
-from ruamel.yaml.main import \
-    round_trip_load as yaml_load, \
-    round_trip_dump as yaml_dump
 import json
 from jsonmerge import Merger
 import subprocess
@@ -20,7 +17,8 @@ import sys
 import logging
 logging.basicConfig(level=logging.WARNING)
 
-ruamel=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
+ruamel=YAML(typ='safe')     # default, if not specfied, is 'rt' (round-trip)
+yaml=YAML()                 # default, if not specfied, is 'rt' (round-trip)
 
 schema = {
     "patternProperties": {
@@ -102,7 +100,7 @@ def mergeFromFiles(filenames:list[Path],target_json:dict={},echo=False) -> str:
     if echo:
         # don't print on empty json
         if bool(target_json):
-            print(yaml_dump(target_json))
+            yaml.dump(target_json, sys.stdout)
     return(target_json)
 
 @click.group()

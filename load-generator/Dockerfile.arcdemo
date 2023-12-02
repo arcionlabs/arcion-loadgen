@@ -115,7 +115,8 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     dialog \
     apt-utils \
-    glances
+    glances \
+    dnsutils
     
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd

@@ -11,13 +11,13 @@ function latest_hostname() {
     # get IPs
     # -W wait max 1 sec (good for local lookup)
     # /has address/ show just ipv4
-    x_array=( $(host -W 1 ${HOSTNAME} | awk '/has address/ {print $NF}') )
+    x_array=( $(dig +short ${HOSTNAME}) )
     echo "$HOSTNAME has following IPs: ${x_array[*]}" >&2
 
     if [ -z "${x_array}" ]; then 
         # not found, try adding role
         HOSTNAME=${HOSTNAME}-${ROLE,,}
-        x_array=( $(host -W 1 ${HOSTNAME} | awk '/has address/ {print $NF}') )
+        x_array=( $(dig +short ${HOSTNAME}) )
         echo "$HOSTNAME has following IPs: ${x_array[*]}" >&2
 
         if [ -z "${x_array}" ]; then 
@@ -33,23 +33,11 @@ function latest_hostname() {
     # the source is lowest instance
     # the target is the highest instance
     if (( ${#x_array[@]} > 0 )); then
-        if [ "${ROLE^^}" = "SRC" ]; then
-            HOSTNAMES_ARRAY=( $( nmap -sn -oG - $(echo ${x_array[*]}) \
-                | awk -F'[()]' '/Up$/ {print $(NF-1)}' \
-                | awk -F'.' '{print $1}' \
-                | sort -t '-' -k2,2r -k3,3 \
-                ) )
-        else
-            HOSTNAMES_ARRAY=( $( nmap -sn -oG - $(echo ${x_array[*]}) \
-                | awk -F'[()]' '/Up$/ {print $(NF-1)}' \
-                | awk -F'.' '{print $1}' \
-                | sort -t '-' -k2,2r -k3,3r \
-                ) )
-        fi
+            HOSTNAMES_ARRAY=( $( dig +short -x ${x_array[*]} | awk -F. '{print $1}'))
 
         echo "$HOSTNAME has following name(s): ${HOSTNAMES_ARRAY[*]}" >&2
-        echo ${HOSTNAMES_ARRAY[0]}
     fi
+    echo $HOSTNAME
 }
 
 function arcdemo_positional() {

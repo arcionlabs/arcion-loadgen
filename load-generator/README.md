@@ -1,10 +1,18 @@
 
 # build image 
 
+docker
 ```
 cd arcion-loadgen
 docker build -t robertslee/arcdemo:test -f load-generator/Dockerfile.arcdemo .
 docker build -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
+```
+
+podman
+````
+cd arcion-loadgen
+podman build -t robertslee/arcdemo:test -f load-generator/Dockerfile.arcdemo .
+podman build -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
 ```
 
 # Publish amd64, arm64  
