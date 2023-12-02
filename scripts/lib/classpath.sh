@@ -25,20 +25,21 @@ if [ ! -d "$ARCION_HOME/lib" ]; then echo "Error: $ARCION_HOME/lib is not a dire
 
 # figure out the classpath
 if [ "${db_grp}" = "oracle" ]; then
-  echo $(find ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd:)
+  find ${ARCION_HOME}/lib/ojdbc8*jar | paste -sd:
 else
-  echo $(find ${ARCION_HOME}/lib -name maria*jar ) \
-    $(find ${ARCION_HOME}/lib -name post*jar ) \
-    $(find ${ARCION_HOME}/lib -name vertica*jar ) \
-    $(find ${ARCION_HOME}/lib -name mongodb*jar ) \
-    $(find ${ARCION_HOME}/lib -name mssql*jar ) \
-    $(find ${ARCION_HOME}/lib -name db2*jar ) \
-    $(find ${ARCION_HOME}/lib -name jconn4*jar ) \
-    $(find ${ARCION_HOME}/lib -name jdbc-*jar ) \
-    $(find ${ARCION_HOME}/lib -name bson-*jar ) \
-    $(find ${ARCION_HOME}/lib -name db2jcc-db2jcc4*jar ) \
-    $(find ${ARCION_HOME}/lib -name snowflake-jdbc*jar ) \
-    $(find ${ARCION_HOME}/lib -name GoogleBigQueryJDBC42*jar ) \
+  find ${ARCION_HOME}/lib \
+    -name maria*jar \
+    -o -name post*jar \
+    -o -name vertica*jar \
+    -o -name mongodb*jar \
+    -o -name mssql*jar \
+    -o -name db2*jar \
+    -o -name jconn4*jar \
+    -o -name jdbc-*jar \
+    -o -name bson-*jar \
+    -o -name db2jcc-db2jcc4*jar \
+    -o -name snowflake-jdbc*jar \
+    -o -name GoogleBigQueryJDBC42*jar \
   | paste -sd:
 fi
 }
