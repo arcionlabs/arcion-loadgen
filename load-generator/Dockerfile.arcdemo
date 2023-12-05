@@ -23,6 +23,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 
 # required to make tools handle UTF-8 characters by default
 ENV LANG=C.UTF-8
+ENV TERM=ansi
 
 # arcion demo specific configuration
 ENV ARCION_HOME=/arcion
@@ -48,9 +49,14 @@ ENV YCSB=/opt/ycsb
 # https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 # ********************************************************
 
+# using bindfs makes reading/writing about 10x slower
+# make arcion use oracle uid:gid where shared docker volume is used to for
+# native reader, sqlldr, external tables, dmp/imp
+# must be 54321:54322 to match oracle's UID:GID
+ 
 ARG USERNAME=arcion
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_UID=54321
+ARG USER_GID=54322
 
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
@@ -109,8 +115,10 @@ RUN apt-get update && apt-get install -y \
     htop \
     lsb-release \
     dialog \
-    apt-utils
-
+    apt-utils \
+    glances \
+    dnsutils
+    
 # get TTYD from bullseye-backports main
 RUN apt-get -y install ttyd
 
@@ -160,7 +168,7 @@ RUN cd ${YCSB}; \
 
 # benchbase
 RUN cd ${BENCHBASE_DIR}; \
-    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/arcion-23.07/benchbase-arcion.tgz; \
+    curl -O --location https://github.com/arcionlabs/benchbase/releases/download/arcion-23.08/benchbase-arcion.tgz; \
     for f in $( ls *gz ); do tar -xvf $f; rm $f; done
 
 # /usr/share/sysbench/oltp_common.lua
@@ -240,7 +248,7 @@ ENV YCSB_JDBC=$YCSB/ycsb-jdbc-binding-0.18.0-SNAPSHOT
 ENV YCSB_MONGODB=$YCSB/ycsb-mongodb-binding-0.17.0
 
 # stage dir for null applier 
-RUN mkdir -p /opt/stage && chown -R $USERNAME /opt/stage
+RUN echo /opt/stage /opt/stage/loadgen /opt/stage/tmpfs /opt/stage/oraee1930 /opt/stage/oraxe2130 /opt/stage/orashared /opt/oracle/share | xargs -n 1 | xargs -I%% mkdir -p %% \&\& chown $USER_UID:$USER_GID %%
 
 # create dirs and reamp external uid to internal
 #RUN sudo mkdir /libs 

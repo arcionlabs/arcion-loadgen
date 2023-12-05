@@ -7,6 +7,7 @@ port: 3306
 username: '${DSTDB_ARC_USER}'
 password: '${DSTDB_ARC_PW}'
 
-max-connections: 10
+max-connections: 9
+
 max-retries: 1
   

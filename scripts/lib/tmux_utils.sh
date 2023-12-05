@@ -49,7 +49,7 @@ tmux_show_ycsb() {
 }
 
 tmux_show_errorlog() {
-    tmux send-keys -t ${TMUX_SESSION}:0.3 "figlet -t errlog; while [ ! -f ${ARCION_LOG}/${LOG_ID}/error_trace.log ]; do sleep 1; done; cd ${ARCION_LOG}/${LOG_ID}; tail -f error_trace.log" Enter
+    tmux send-keys -t ${TMUX_SESSION}:0.3 "figlet -t errlog; while [ ! -f ${CFG_DIR}/${LOG_ID}/error_trace.log ]; do sleep 1; done; cd ${CFG_DIR}/${LOG_ID}; tail -f error_trace.log" Enter
 
 }
 
@@ -59,7 +59,7 @@ tmux_show_verification() {
     tmux send-keys -t ${TMUX_SESSION}:5.0 ". /tmp/ini_menu.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:5.0 ". lib/jdbc_cli.sh" Enter
     tmux send-keys -t ${TMUX_SESSION}:5.0 "# cd /scripts; ./arcveri.sh $CFG_DIR" Enter
-    tmux send-keys -t ${TMUX_SESSION}:6.0 "vi $VERIFICATOR_HOME/data" Enter 
+    tmux send-keys -t ${TMUX_SESSION}:6.0 "while [ ! -d $VERIFICATOR_HOME/data ]; do sleep 1; done; view $VERIFICATOR_HOME/data" Enter 
 }
 
 # setup the views to look at log and cfg
@@ -75,7 +75,7 @@ tmux_show_yaml()  {
 tmux_show_trace()  {
     local TMUX_SESSION=${1}
 
-    tmux send-keys -t ${TMUX_SESSION}:2.0 "while [ ! -f ${ARCION_LOG}/${LOG_ID}/trace.log ]; do sleep 1; done; cd ${ARCION_LOG}/${LOG_ID}; tail -f trace.log" Enter
+    tmux send-keys -t ${TMUX_SESSION}:2.0 "while [ ! -f ${CFG_DIR}/${LOG_ID}/trace.log ]; do sleep 1; done; cd ${CFG_DIR}/${LOG_ID}; tail -f trace.log" Enter
 }
 
 tmux_show_console()  {

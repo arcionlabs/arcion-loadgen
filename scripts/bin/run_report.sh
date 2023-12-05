@@ -6,8 +6,8 @@
 
 # file without the dir prefix
 if [ -z "$ROOT_DIR" ]; then
-   if [ -d /opt/stage/data ]; then 
-      ROOT_DIR=/opt/stage/data
+   if [ -d /opt/stage/loadgen ]; then 
+      ROOT_DIR=/opt/stage/loadgen
    else
       ROOT_DIR=$(pwd)
    fi

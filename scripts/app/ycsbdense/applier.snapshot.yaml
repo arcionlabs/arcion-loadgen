@@ -4,8 +4,8 @@ snapshot:
   - catalog: {{'DSTDB_DB'|getenv('')}}
     schema: {{'DSTDB_SCHEMA'|getenv('')}}
     tables:
-      DENSEABLE{{'workload_size_factor_str'|getenv('')}}:
+      YCSBDENSE{{'workload_size_factor_str'|getenv('')}}:
         table-store: column
-      densetable{{'workload_size_factor_str'|getenv('')}}:
+      ycsbdense{{'workload_size_factor_str'|getenv('')}}:
         table-store: column
 {% endif %}

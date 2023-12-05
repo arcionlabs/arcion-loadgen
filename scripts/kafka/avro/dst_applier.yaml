@@ -1,0 +1,2 @@
+replication-format: AVRO
+schema-registry-url:

@@ -1,3 +1,0 @@
-type: CSV
-#access-method: LOCAL
-storage-location: "/path/to/csv/export"

@@ -38,7 +38,7 @@ control_c() {
 exit_message() {
   control_c
   echo "cfg is at $CFG_DIR"
-  echo "log is at ${ARCION_LOG}/$LOG_ID"
+  echo "log is at ${CFG_DIR}/$LOG_ID"
   echo "you can rerun with arcdemo.sh -f $CFG_DIR"
 }
 
@@ -46,6 +46,9 @@ count_cdclog() {
   local EARLYEXIT_OPT=${EARLYEXIT_OPT}
   case ${SRCDB_GRP,,} in
   oracle)
+    EARLYEXIT_OPT="-v maxrealstalls=300 $EARLYEXIT_OPT"
+    ;;
+  postgresql)
     EARLYEXIT_OPT="-v maxrealstalls=300 $EARLYEXIT_OPT"
     ;;
   snowflake)
@@ -82,7 +85,7 @@ for f in $(find /opt/stage/libs/*.jar -printf "%f\n"); do
   fi
 done
 
-export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk '{print $2}')
+export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk -F' |-' '{print $NF}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
 
@@ -109,7 +112,7 @@ if [ -n "$CFG_DIR" ]; then
 else
   # this will parse the URI and set src and dst
   arcdemo_positional "$@"
-
+  
   # validate the flag arguments
   parse_arcion_thread_ratio
 
@@ -130,7 +133,7 @@ else
 
   # map variables from profile if any
   set_default_host_user
-  
+
   if [ -z "${SRCDB_HOST}" ]; then ask=1; ask_src_host; fi
   if [ -z "${DSTDB_HOST}" ]; then ask=1; ask_dst_host; fi
   
@@ -166,13 +169,13 @@ else
   mkdir -p /arcion/data
   # WARNING: log id length max is 9
   export LOG_ID="$(nine_char_id)"
-  export CFG_DIR=/tmp/${LOG_ID}-${LOG_ID}
+  export CFG_DIR=${ARCION_LOG}/${LOG_ID}-${LOG_ID}
   rm -rf $CFG_DIR 2>/dev/null
   # these are from arc_utils.sh
   # src host and target host are not known at this point
   set_src
   set_dst
-  # temp dirs
+  # temp dirs used by mysql and pg
   mkdir -p $CFG_DIR/stage
   # oracle sqlldr has hard coded tmp
   mkdir -p $CFG_DIR/tmp
@@ -180,11 +183,12 @@ else
 
   # change the name of the CFG_DIR
   # chage /- to _ and change ' 'to - to make the name
-  CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_SHORTNAME} ${DSTDB_SHORTNAME} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
+  NEW_CFG_DIR=${ARCION_LOG}/${LOG_ID}-$(echo "${ARCION_VER} ${SRCDB_SHORTNAME} ${DSTDB_SHORTNAME} ${REPL_TYPE} ${workload_size_factor}" | tr '/-' '_' | tr ' ' '-' )
   # delete if this happen to exist already
-  rm -rf $CFG_DIR 2>/dev/null
+  rm -rf $NEW_CFG_DIR 2>/dev/null
   # move to new name
-  mv /tmp/${LOG_ID}-${LOG_ID} $CFG_DIR
+  mv $CFG_DIR $NEW_CFG_DIR
+  export CFG_DIR=${NEW_CFG_DIR}
   echo $CFG_DIR   
 
   # set replication type

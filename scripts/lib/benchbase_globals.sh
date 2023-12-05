@@ -1,4 +1,4 @@
-#!/usr/env/bin bash
+#!/usr/bin/env bash
 
 # defaults for the command line
 export default_bb_rate=1

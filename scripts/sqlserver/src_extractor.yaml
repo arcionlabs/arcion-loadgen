@@ -38,7 +38,7 @@ delta-snapshot:
   _traceDBTasks: true
   delta-snapshot-interval: 10
   delta-snapshot-delete-interval: 10  
-  # setup to work for YCSB THEUSERTABLE demo table
+  # setup to work for YCSB YCSBSPARSE demo table
   delta-snapshot-keys: [TS]
   split-key: YCSB_KEY
   min-job-size-rows: 100_000 # default 1_000_000 is too large for purposes demo

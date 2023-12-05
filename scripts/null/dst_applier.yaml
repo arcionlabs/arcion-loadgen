@@ -6,3 +6,5 @@ snapshot:
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}
   skip-tables-on-failures : true
+  # for ycsb, default 5k is too small to handle high TPS
+  txn-size-rows: 50_000

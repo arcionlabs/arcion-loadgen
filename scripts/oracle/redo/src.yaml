@@ -1,0 +1,28 @@
+type: ORACLE
+
+host: ${SRCDB_HOST}
+port: ${SRCDB_PORT}
+
+# SID and not service name
+service-name: ${SRCDB_SID}
+
+username: ${SRCDB_ARC_USER}
+password: ${SRCDB_ARC_PW}
+
+max-connections: 10
+#max-fetch-schema-connections: 30  #default value same max-connections
+
+max-retries: 1
+retry-wait-duration-ms: 1000
+# native log reader
+log-reader: REDOLOG   # {REDOLOG|REDOLOG_ARCHIVE_ONLY}
+#transaction-store-location: ${CFG_DIR}/stage    # PATH_TO_TRANSACTION_STORAGE
+transaction-store-location: /opt/stage/tmpfs    # PATH_TO_TRANSACTION_STORAGE
+
+# this is what replicant sees
+alt-log-path: ${ORA_ALT_LOG_PATH}
+alt-archive-log-path: ${ORA_ALT_ARCH_LOG_PATH}
+
+# this is what oracle see
+log-path: ${ORA_LOG_PATH}
+archive-log-path: ${ORA_ARCH_LOG_PATH}

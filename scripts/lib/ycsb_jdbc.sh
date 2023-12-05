@@ -187,15 +187,13 @@ function ycsb_load_src() {
   echo "ycsb_load_src: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
     set_ycsb_table_name $ycsb_module
-    set_fq_table_name
-
     if (( $? == 0 )); then 
+      set_fq_table_name
       echo "ycsb_load_src: Loading ycsb module ${ycsb_module} with table ${fq_table_name}"
       ycsb_load_sf src
     fi
   done
 }
-
 
 function ycsb_load_dst() {   
   ycsb_opts "$@"
@@ -203,10 +201,9 @@ function ycsb_load_dst() {
 
   echo "ycsb_load_dst: Loading ycsb modules ${ycsb_modules_csv}"
   for ycsb_module in $(echo "${ycsb_modules_csv}" | tr "," "\n"); do
-    set_ycsb_table_name $ycsb_module
-    set_fq_table_name
-    
+    set_ycsb_table_name $ycsb_module  
     if (( $? == 0 )); then 
+      set_fq_table_name
       echo "ycsb_load_dst Loading ycsb module ${ycsb_module} with table ${ycsb_table}"
       ycsb_load_sf dst
     fi

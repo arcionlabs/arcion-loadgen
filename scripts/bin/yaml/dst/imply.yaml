@@ -1,8 +1,0 @@
-type: IMPLY
-
-accountName: "org name"
-url: "base url of imply for making http calls"
-clientId: "client id of your account"
-clientSecret: "client secret of your account"
-file-format: "" #JSON, YAML (currently JSON is only supported)
-wait-poll-duration: 2 #this will number of seconds used when polling on imnply async http calls"

@@ -7,6 +7,8 @@ sudo service pmcd start
 /scripts/utils/init.d/volremap.sh
 # then download
 /scripts/utils/init.d/jdbc_download.sh 
+# fixup permission on ramdisk / tmmpfs
+/scripts/utils/init.d/tmpfsperm.sh 
 
 # optional for x64 machines
 TARGETARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)

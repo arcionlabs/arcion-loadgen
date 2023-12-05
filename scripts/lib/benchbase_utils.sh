@@ -68,7 +68,7 @@ bb_create_tables() {
     local workloads="${bb_modules_csv}"
 
     # DEBUG
-    echo "benchbase worload: ${workloads}"
+    echo "benchbase workload: ${workloads}"
     echo "benchbase db group: $db_grp"
     echo "benchbase db type: $db_type"
     echo "benchbase db batch rewrite: $db_jdbc_no_rewrite"

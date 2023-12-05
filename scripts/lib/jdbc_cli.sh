@@ -142,7 +142,7 @@ list_dbs() {
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s,0\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
         ;;
-        ase)
+        ase|vertica)
     local DB_CATALOG=$( x="${LOC^^}DB_DB"; echo ${!x} )
     local DB_SQL="\databases | awk -F'|' 'NF>1 {printf \"%s,0\n\",\$2}' | tr -d '[:blank:]' | grep ${DB_CATALOG}"
         ;;
@@ -190,7 +190,7 @@ list_tables() {
     # | TABLE_CAT | TABLE_SCHEM | TABLE_NAME| TABLE_TYPE | REMARKS | TYPE_CAT | TYPE_SCHEM | TYPE_NAME | SELF_REFERENCING_COL_NAME | REF_GENERATION |                                                                    
     local DB_SQL="\tables --all --type table | awk -F'|' 'NF>1 {printf \"TABLE,%s,%s,%s\n\",\$4,\$2,\$3}' | tr -d '[:blank:]' | tee /tmp/tables.csv"
         ;;
-        ase)
+        ase|vertica)
     local DB_SQL="\tables --all --type table | awk -F'|' 'NF>1 {printf \"TABLE,%s,%s,%s\n\",\$4,\$2,\$3}' | tr -d '[:blank:]' | tee /tmp/tables.csv"
         ;;
     *)

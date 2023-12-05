@@ -4,11 +4,11 @@ delta-snapshot:
     schema: {{'SRCDB_SCHEMA'|getenv('')}}
     tables:
 {% if 'SRCDB_GRP'|getenv('') != 'oracle' %}
-      DENSETABLE{{'workload_size_factor_str'|getenv('')}}:
+      YCSBDENSE{{'workload_size_factor_str'|getenv('')}}:
         split-key: YCSB_KEY
         split-method: RANGE
         extraction-priority: -1 
-      densetable{{'workload_size_factor_str'|getenv('')}}:
+      ycsbdense{{'workload_size_factor_str'|getenv('')}}:
         split-key: ycsb_key
         split-method: RANGE
         extraction-priority: -1 

@@ -16,8 +16,8 @@ snapshot:
 
   # cockroach 23.1 and beyond supports postgres default COPY statement
   bulk-load:
-    enable: true
-    type: PIPE   # PIPE, FILE  
+    enable: false
+    type: FILE   # PIPE, FILE  
 
 realtime:
   threads: ${DSTDB_REALTIME_THREADS}

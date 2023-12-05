@@ -1,7 +1,7 @@
 type: POSTGRESQL
 
 host: '${SRCDB_HOST}'
-port: 5432
+port: ${SRCDB_PORT}
 
 # should be same name as the source database to prevent cross database
 database: '${SRCDB_ARC_USER}'
@@ -10,7 +10,7 @@ password: '${SRCDB_ARC_PW}'
 
 # Maximum number of connections replicant can open in postgresql
 # Run SELECT datname, numbackends FROM pg_stat_database;
-max-connections: 5 
+max-connections: $(( ${SRCDB_SNAPSHOT_THREADS} * 2 + 1 ))
 
 # required for real-time
 replication-slots:

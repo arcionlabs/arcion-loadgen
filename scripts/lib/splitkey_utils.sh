@@ -4,7 +4,7 @@
   - catalog: "${SRCDB_DB}"
     schema: ${SRCDB_SCHEMA}   
     tables:
-      THEUSERTABLE:
+      YCSBSPARSE:
         split-key: YCSB_KEY
         split-method: RANGE # must be all caps
         extraction-priority: 1

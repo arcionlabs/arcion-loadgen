@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 mkdir -p /opt/stage/libs    # data exchange with host docker of loadgen YAML 
-mkdir -p /opt/stage/data    # data exchange with host docker of loadgen YAML 
+mkdir -p /opt/stage/loadgen    # data exchange with host docker of loadgen YAML 
 
 # change external_uid to internal uid that can be used
 map_uid() {
@@ -22,18 +22,21 @@ map_uid() {
     fi
 }
 
-# map source target
+# map source target as there will be writes here
 map_uid /opt/mnt/libs       /opt/stage/libs '-o nonempty'
-map_uid /opt/mnt/loadgen    /opt/stage/data '-o nonempty'
 
-# oracle dirs
-for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do 
-    oradir=$(basename ${d})
-    if [ -d "${d}/oradata" ]; then 
-        echo map_uid ${d}/oradata  /opt/stage/${oradir}
-        map_uid ${d}/oradata  /opt/stage/${oradir}
-    fi
-done
+#map_uid /opt/mnt/loadgen    /opt/stage/data '-o nonempty'
 
-# oracle share dir (make sure the name match oracle)
-map_uid /opt/mnt/orashared    /opt/oracle/share
+ora_remap() {
+    # oracle dirs
+    for d in $(find /opt/mnt -maxdepth 1 -type d -name "ora*"); do 
+        oradir=$(basename ${d})
+        if [ -d "${d}/oradata" ]; then 
+            echo map_uid ${d}/oradata  /opt/stage/${oradir}
+            map_uid ${d}/oradata  /opt/stage/${oradir}
+        fi
+    done
+
+    # oracle share dir (make sure the name match oracle)
+    map_uid /opt/mnt/orashared    /opt/oracle/share
+}

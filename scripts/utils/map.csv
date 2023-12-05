@@ -1,7 +1,11 @@
 type,group,port,root_user,root_pw,schema,benchbase_type,benchbase_txn_isolation,sid,ycsb_batch_size,bb_batch_size,root_db,alt_log_path,alt_archive_log_path,log_path,archive_log_path,init_dir,config_dir,case,env_map,env_value,sql_get_version
-oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/ORCL,/opt/stage/oraee1930/ORCL/arch,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/arch,jdbc,,upper,,,
-oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/XE,/opt/stage/oraxe2130/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,upper,,,
+oraee-v1930-src-1,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/oradata/ORCL,/opt/stage/oraee1930/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
+oraee-v2130-src-1,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee2130/oradata/ORCL,/opt/stage/oraee2130/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
+oraxe,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe2130/oradata/online_logs,/opt/stage/oraxe2130/oradata/archive_logs,/opt/oracle/oradata/online_logs,/opt/oracle/oradata/archive_logs,jdbc,,upper,,,
+orafree,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,free,128,128,,/opt/stage/orafree2320/oradata/online_logs,/opt/stage/orafree2320/oradata/archive_logs,/opt/oracle/oradata/online_logs,/opt/oracle/oradata/archive_logs,jdbc,,upper,,,
+orafree-v2320-ramdisk,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,free,128,128,,/opt/stage/orafree2320ramdisk/oradata/online_logs,/opt/stage/orafree2320ramdisk/oradata/archive_logs,/opt/oracle/oradata/online_logs,/opt/oracle/oradata/archive_logs,jdbc,,upper,,,
 oraxe11g,oracle,1521,sys as sysdba,oracle,,ORACLE,TRANSACTION_READ_COMMITTED,xe,128,128,,/opt/stage/oraxe11g/XE,/opt/stage/oraxe11g/XE/arch,/opt/oracle/oradata/XE,/opt/oracle/oradata/XE/arch,jdbc,,upper,,,
+oraee,oracle,1521,sys as sysdba,Passw0rd,,ORACLE,TRANSACTION_READ_COMMITTED,orcl,128,128,,/opt/stage/oraee1930/oradata/ORCL,/opt/stage/oraee1930/oradata/ORCL/archive_logs,/opt/oracle/oradata/ORCL,/opt/oracle/oradata/ORCL/archive_logs,jdbc,,upper,,,
 mysql,mysql,3306,root,Passw0rd,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select version();
 gcsmy,mysql,3306,root,Passw0rdmy8sand,,MYSQL,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSMY_HOST DB_PW=,,select version();
 mariadb,mysql,3306,root,Passw0rd,,MARIADB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select version();
@@ -11,6 +15,7 @@ gcspg,postgresql,5432,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITT
 postgresql,postgresql,5432,root,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,pg,lower,,,select version();
 cockroach,postgresql,26257,root,Passw0rd,public,COCKROACHDB,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,lower,,,select version();
 yugabytesql,postgresql,5433,postgres,Passw0rd,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,postgres,,,,,jdbc,yugabytesql,lower,,,select version();
+vertica,vertica,5433,dbadmin,,public,POSTGRES,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,vertica,lower,,,select version();
 mongodb,mongodb,27017,root,Passw0rd,,,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,
 sqlserver,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,,,select @@version
 gcssq,sqlserver,1433,sa,Passw0rd,dbo,SQLSERVER,TRANSACTION_READ_COMMITTED,,1024,1024,,,,,,jdbc,,,DB_HOST=GCSSQ_HOST,,select @@version

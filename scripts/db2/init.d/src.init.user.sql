@@ -12,5 +12,7 @@ alter table  OORDER                      data capture changes;
 alter table  ORDER_LINE                  data capture changes;
 alter table  REPLICATE_IO_CDC_HEARTBEAT  data capture changes;
 alter table  STOCK                       data capture changes;
-alter table  THEUSERTABLE                data capture changes;
 alter table  WAREHOUSE                   data capture changes;
+
+alter table  YCSBSPARSE                  data capture changes;
+alter table  YCSBDENSE                   data capture changes;

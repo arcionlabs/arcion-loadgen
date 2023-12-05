@@ -3,5 +3,5 @@ allow:
   schema: ${SRCDB_SCHEMA}
   types: [TABLE]
   allow:
-    DENSETABLE${workload_size_factor_str}:
-    densetable${workload_size_factor_str}:
+    YCSBDENSE${workload_size_factor_str}:
+    ycsbdense${workload_size_factor_str}:

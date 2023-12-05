@@ -1,9 +1,0 @@
-type: FTP
-
-host: localhost
-port: 21
-
-username: 'replicant'
-password: 'Replicant#123'
-
-root: ""

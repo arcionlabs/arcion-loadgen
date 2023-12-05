@@ -1,5 +1,0 @@
-defaults:
-  - src: mysql
-  - dst: mariadb
-  - extractor: mysql 
-  - filter: all 

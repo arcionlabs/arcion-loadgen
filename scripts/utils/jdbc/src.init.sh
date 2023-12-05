@@ -19,7 +19,6 @@ DB_HOST=$( get_host_from_yaml ${CFG_DIR}/src.yaml host )
 DB_PORT=$( yaml_key_val ${CFG_DIR}/src.yaml port )
 
 ping_host_port "$DB_HOST" "$DB_PORT"
-ping_host_port "$DB_HOST" "$DB_PORT"
 
 rc=$?
 if (( ${rc} != 0 )); then 
@@ -65,7 +64,7 @@ if [ "${db_schema_lower}" = "${SRCDB_USER_PREFIX}arcsrc" ]; then
 
   # ycsb data population 
   echo "src db ${SRCDB_DB}: ycsb setup"
-  ycsb_load_src
+  ${SCRIPTS_DIR}/bin/ycsb-load.sh
 
 else
   echo "src db ${SRCDB_USER_PREFIX}arcsrc != ${db_schema_lower} skipping workload setup"
