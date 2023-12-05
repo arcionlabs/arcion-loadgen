@@ -26,6 +26,15 @@ docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/a
 docker buildx build --push --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo:23.09 -f load-generator/Dockerfile.arcdemo .
 ```
 
+podman
+```
+podman login docker.io
+
+podman buildx build --cache-to robertslee/arcdemo --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo:23.09 -f load-generator/Dockerfile .
+podman buildx build --cache-to robertslee/arcdemo --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo -f load-generator/Dockerfile .
+```
+
+
 # To start a container 
 
 ```
