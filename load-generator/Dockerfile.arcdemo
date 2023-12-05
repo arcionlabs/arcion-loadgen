@@ -23,6 +23,7 @@ LABEL MAINTAINER sangkyulee@gmail.com
 
 # required to make tools handle UTF-8 characters by default
 ENV LANG=C.UTF-8
+ENV TERM=ansi
 
 # arcion demo specific configuration
 ENV ARCION_HOME=/arcion

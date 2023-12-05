@@ -1,0 +1,14 @@
+type: DATABRICKS_DELTALAKE
+
+url: '${DBX_DL_URL_AZURE}'
+port: 443 
+
+username: 'token'
+password: '${DBX_DL_PW_AZURE}'
+
+max-connections: 5 
+max-retries: 1
+
+stage:
+  root-dir: replicate-stage/databricks-stage
+  type: DATABRICKS_DBFS
