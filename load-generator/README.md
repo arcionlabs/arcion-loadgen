@@ -30,8 +30,16 @@ podman
 ```
 podman login docker.io
 
-podman buildx build --cache-to robertslee/arcdemo --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo:23.09 -f load-generator/Dockerfile .
-podman buildx build --cache-to robertslee/arcdemo --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo -f load-generator/Dockerfile .
+podman manifest create latest
+podman buildx build --manifest latest --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo -f load-generator/Dockerfile.arcdemo .
+podman manifest inspect latest
+podman manifest push --all latest "docker://robertslee/arcdemo"
+
+podman manifest create 23.09
+podman buildx build --manifest 23.09 --platform=linux/amd64,linux/arm64/v8 -t robertslee/arcdemo:23.09 -f load-generator/Dockerfile.arcdemo .
+podman manifest inspect 23.09
+podman manifest push --all 23.09 "docker://robertslee/arcdemo:23.09"
+
 ```
 
 
