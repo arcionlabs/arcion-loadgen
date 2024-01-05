@@ -7,6 +7,7 @@ local CFGINI="${2:-$CFG_DIR}"
 cat >$TMPINI <<EOF
 # arcion
 export ARCION_HOME=${ARCION_HOME}
+export ARCION_NAME=${ARCION_NAME}
 export ARCION_VER=${ARCION_VER}
 export SCRIPT_DIR=${SCRIPT_DIR}
 # source

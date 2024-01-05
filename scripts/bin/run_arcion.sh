@@ -101,8 +101,9 @@ run_arcion() {
     # expand options
     ARC_OPTS=$( arcion_param ${CFG_DIR} ) \
 
+    # log command being run
     cat <<EOF
-JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" PATH="$PATH" ./bin/replicant $REPL_TYPE ${ARC_OPTS} ${ARCION_ARGS} --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
+JAVA_HOME="$JAVA_HOME" JAVA_OPTS="$JAVA_OPTS" ORACLE_HOME="$ORACLE_HOME" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" PATH="$PATH" ./bin/$ARCION_NAME $REPL_TYPE ${ARC_OPTS} ${ARCION_ARGS} --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &
 EOF
 
     JAVA_HOME="$JAVA_HOME" \
@@ -110,7 +111,7 @@ EOF
     ORACLE_HOME="$ORACLE_HOME" \
     LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
     PATH="$PATH" \
-    ./bin/replicant $REPL_TYPE \
+    ./bin/$ARCION_NAME $REPL_TYPE \
     ${ARC_OPTS} \
     ${ARCION_ARGS} \
     --id $LOG_ID >> $CFG_DIR/arcion.log 2>&1 &

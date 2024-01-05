@@ -2,5 +2,6 @@ license-path: /opt/stage/libs/replicant.lic
 data-dir: $CFG_DIR
 permission-validation: 
   enable: false
-trace-log:
-  trace-level: INFO
+#trace-log not avail on 23-05-31
+#trace-log:
+#  trace-level: INFO

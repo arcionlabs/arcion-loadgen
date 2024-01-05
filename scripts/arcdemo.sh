@@ -69,7 +69,35 @@ count_cdclog() {
   exit_message 
 }
 
+# scripts_dir exists
+SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
 cd "${SCRIPTS_DIR}" || exit 1
+
+# arcion_home exists
+ARCION_HOME=${ARCION_HOME:-/arcion}
+
+# change if there is [replicant|replicate]-cli subdir
+if [ -d ${ARCION_HOME}/replicant-cli ]; then 
+  ARCION_HOME=${ARCION_HOME}/replicant-cli
+elif [ -d ${ARCION_HOME}/replicate-cli ]; then 
+  ARCION_HOME=${ARCION_HOME}/replicate-cli 
+fi
+
+# arcion_name replicant|replicate exists
+export ARCION_NAME=${ARCION_NAME:-replicant}
+
+if [ -x "${ARCION_HOME}/bin/${ARCION_NAME}" ]; then
+  echo "${ARCION_HOME}/bin/${ARCION_NAME} exists"
+elif [ -x "${ARCION_HOME}/bin/replicate" ]; then
+  export ARCION_NAME=replicate
+  echo "${ARCION_HOME}/bin/${ARCION_NAME} exists"
+else
+  echo "can't find replicant or replicate"
+  exit 1
+fi
+
+export CONFLUENT_KEY_SECRET="$(echo -n \"$CONFLUENT_CLUSTER_API_KEY:$CONFLUENT_CLUSTER_API_SECRET\" | base64 -w 0)"
+
 
 # prep arcion_log
 prep_arcion_log # prep_arcion_log.sh
@@ -85,7 +113,7 @@ for f in $(find /opt/stage/libs/*.jar -printf "%f\n"); do
   fi
 done
 
-export ARCION_VER=$($ARCION_HOME/bin/replicant version 2>/dev/null | grep "^Version" | awk -F' |-' '{print $NF}')
+export ARCION_VER=$($ARCION_HOME/bin/$ARCION_NAME version 2>/dev/null | grep "^Version" | awk -F' |-' '{print $NF}')
 echo "Running Arcion $ARCION_HOME $ARCION_VER"
 echo "Running Script $SCRIPTS_DIR"
 
@@ -150,11 +178,6 @@ else
       fi
   fi
 
-  # defaults
-  SCRIPTS_DIR=${SCRIPTS_DIR:-/scripts}
-  ARCION_HOME=${ARCION_HOME:-/arcion}
-  if [ -d ${ARCION_HOME}/replicant-cli ]; then ARCION_HOME=${ARCION_HOME}/replicant-cli; fi
-  export CONFLUENT_KEY_SECRET="$(echo -n \"$CONFLUENT_CLUSTER_API_KEY:$CONFLUENT_CLUSTER_API_SECRET\" | base64 -w 0)"
 
   # env vars that can be set to skip questions
   # unset DSTDB_DIR DSTDB_HOST
